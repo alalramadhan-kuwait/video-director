@@ -1,0 +1,149 @@
+project: diabetes-ep7
+source: ep7/PLAN.md + ep7/script.min.json (approved episode; read-only)
+scenes:
+  a1:
+    lines: l1
+    narration: 'كبرت إليزابيث… وصارت زوجة وأما، لكن رفيقا واحدا لم يفارقها يوما: الإبرة.'
+    plan: إليزابيث شابة كبيرة + زوجها وطفل (بطاقة «الثلاثينات»)، والإبرة ظل يمشي جنبها.
+    on_screen_text:
+    - الثلاثينات
+  a2:
+    lines: l2–l3
+    narration: كل صباح تغلي حقنتها الزجاجية، ثم تملؤها بالإنسولين قبل الفطور. وقبل الغداء حقنة ثانية، وقبل العشاء حقنة ثالثة.
+    plan: 'مطبخ صباح: قدر يغلي فيه حقنة زجاج ← ساعة تدور: فطور / غداء / عشاء وثلاث حقن تنضاف على شريط اليوم.'
+    on_screen_text: []
+  a3:
+    lines: l4–l5
+    narration: 'فالإنسولين في تلك الأيام كان سريعا: يعمل بقوة، ثم ينتهي بعد ساعات قليلة. إذا تأخرت الحقنة ارتفع السكر، وإذا زادت الجرعة هبط فجأة.'
+    plan: 'منحنى الإنسولين السريع: يطلع بقوة وينزل بسرعة؛ مقياس السكر يطلع (تأخير) وينزل فجأة (جرعة زايدة).'
+    on_screen_text: []
+  a4:
+    lines: l6–l7
+    narration: وكانت إليزابيث تخفي ذلك كله عن الناس، حتى عن أقرب أصدقائها. فلا أحد يعرف أن الفتاة التي أنقذها الإنسولين ما زالت تحقن نفسها كل يوم.
+    plan: 'حفلة/عشاء: الضيوف يضحكون وإليزابيث تخبي الحقنة بحقيبتها؛ قصاصة جريدة 1922 «الفتاة التي أنقذها الإنسولين» تتلاشى.'
+    on_screen_text:
+    - الفتاة التي أنقذها الإنسولين
+  a5:
+    lines: l8–l9
+    narration: 'وفي مختبرات العالم، كان العلماء يسألون السؤال نفسه: هل يمكن أن نبطئ الإنسولين، فيعمل ساعات أطول بحقن أقل؟'
+    plan: خريطة مختبرات العالم بنقاط تضوي؛ ساعة رملية تبطئ؛ «حقن أقل؟».
+    on_screen_text:
+    - حقن أقل؟
+  a6:
+    lines: l10
+    narration: والجواب جاء من مكان لا يخطر على البال.
+    plan: كرت «يتبع…» + «مكان لا يخطر على البال» (سمكة تقفز).
+    on_screen_text:
+    - يتبع…
+    - مكان لا يخطر على البال
+  b1:
+    lines: l11
+    narration: في الدنمارك، كان طبيب يبحث عن طريقة تبقي الإنسولين تحت الجلد مدة أطول.
+    plan: الدنمارك (بطاقة «الدنمارك · 1936»)، طبيب بمختبر، اسم «هانس كريستيان هاغدورن» على الشاشة، إبرة تحت الجلد.
+    on_screen_text:
+    - الدنمارك · 1936
+    - هانس كريستيان هاغدورن
+  b2:
+    lines: l12–l13
+    narration: جرب مواد كثيرة، حتى وجد بروتينا صغيرا في سائل يستخرج من سمك التراوت. هذا البروتين اسمه البروتامين.
+    plan: زجاجات كثيرة تُشطب ← نهر وسمكة تراوت تقفز ← قارورة «بروتامين».
+    on_screen_text:
+    - بروتامين
+  b3:
+    lines: l14–l15
+    narration: حين يخلط بالإنسولين، يتجمع الإنسولين في حبيبات صغيرة جدا تذوب ببطء. فيدخل الدم قليلا قليلا، بدل أن يندفع كله مرة واحدة.
+    plan: 'تحت المجهر: نقاط إنسولين تتجمّع حول البروتامين حبيبات، تذوب ببطء وتدخل وعاء دم قطرة قطرة (مقابل اندفاع دفعة وحدة).'
+    on_screen_text: []
+  b4:
+    lines: l16–l17
+    narration: وفي تورونتو، أضاف باحثان قليلا من الزنك، فصار مفعول الحقنة يمتد يوما كاملا. ولأول مرة، صار بعض المرضى يكتفون بحقنة واحدة في اليوم.
+    plan: تورونتو (بطاقة «تورونتو · 1936» + «سكوت وفيشر» مكتوب)، ذرة زنك «Zn» تنضاف، ساعة 24 ساعة؛ تقويم يوم بحقنة وحدة.
+    on_screen_text:
+    - تورونتو · 1936
+    - سكوت وفيشر
+    - Zn
+  b5:
+    lines: l18–l19
+    narration: لكن مفعوله يبدأ ببطء، وقد يهبط السكر في الليل دون إنذار. ولم يكن خلطه بالإنسولين السريع في حقنة واحدة أمرا سهلا.
+    plan: ليل وقمر وسهم السكر ينزل بدون إنذار؛ قارورتان ما تختلطان (✗).
+    on_screen_text: []
+  b6:
+    lines: l20
+    narration: فهل يمكن صنع إنسولين طويل المفعول وسريع في حقنة واحدة؟
+    plan: كرت «يتبع…» + «طويل… ويختلط بالسريع؟».
+    on_screen_text:
+    - يتبع…
+    - طويل… ويختلط بالسريع؟
+  d1:
+    lines: l21–l22
+    narration: بعد عشر سنوات، نجح فريق الطبيب الدنماركي في صنع بلورات دقيقة من الإنسولين والبروتامين. وسموه NPH… والحرف الأخير فيه من اسم الطبيب نفسه.
+    plan: بلّورات تلمع تحت المجهر (بطاقة «1946»)، الحروف N P H تطلع وH تلمع ← اسم «هاغدورن».
+    on_screen_text:
+    - '1946'
+    - هاغدورن
+  d2:
+    lines: l23–l24
+    narration: يبقى مفعوله ساعات طويلة، ويمكن خلطه بالإنسولين السريع في الحقنة نفسها. فصار كثير من المرضى يكتفون بحقنتين في اليوم، بدل ثلاث أو أربع.
+    plan: 'حقنة وحدة تسحب من قارورتين (سريع + NPH)؛ شريط اليوم: خمس حقن ← حقنتين.'
+    on_screen_text: []
+  d3:
+    lines: l25
+    narration: وبقي هذا الإنسولين عقودا من أكثر الأنواع استخداما في العالم.
+    plan: كرة أرضية وقوارير تنتشر (بطاقة «من 1950»).
+    on_screen_text:
+    - من 1950
+  d4:
+    lines: l26
+    narration: 'أما إليزابيث، فعاشت حياة كاملة: ربت ثلاثة أطفال، وأسست جمعية لتاريخ المحكمة العليا في بلدها.'
+    plan: إليزابيث مع ثلاثة أطفال، ثم مبنى بأعمدة (جمعية تاريخ المحكمة العليا).
+    on_screen_text: []
+  d5:
+    lines: l27–l28
+    narration: وتلقت في عمرها أكثر من أربعين ألف حقنة، ولم تتحدث عنها تقريبا أمام أحد. وقيل إنها أتلفت أوراق علاجها، حتى لا يعرف أحد قصتها.
+    plan: عدّاد حقن يصعد لـ 40,000+ (بطاقة «58 عاماً»)؛ أوراق تدخل صندوق ينقفل.
+    on_screen_text:
+    - 58 عاماً
+  d6:
+    lines: l29–l30
+    narration: 'لكن مع كل حقنة، بقي سؤال لا يرحم: كم جرعة يحتاج الجسم الآن؟ وكيف يعرف المريض مستوى سكره… بدون مختبر؟'
+    plan: أنبوب بول + علامة استفهام ← تمهيد الحلقة 8 «جهاز في البيت».
+    on_screen_text:
+    - جهاز في البيت
+  k1:
+    narration: (title card, no narration)
+    plan: 'Opening card: «حياة مع الإبرة» with Elizabeth between two syringes.'
+    on_screen_text:
+    - حياة مع الإبرة
+  end3:
+    narration: (end card, no narration)
+    plan: Next-episode card «جهاز في البيت».
+    on_screen_text:
+    - جهاز في البيت
+facts:
+- id: F1
+  fact: Elizabeth Hughes Gossett married William Gossett in 1930; three children; founded the Supreme Court Historical Society (1972–1979); hid her diabetes; destroyed most records of her treatment; about
+    42,000 injections over 58 years; died 1981 aged 73.
+  sources:
+  - https://en.wikipedia.org/wiki/Elizabeth_Hughes_Gossett
+  - https://www.rciscience.ca/100-lives/elizabeth-hughes
+  - https://diatribe.org/diabetes-medications/elizabeths-secret
+- id: F2
+  fact: The first (soluble) insulin acted fast and briefly, with frequent lows; a delayed preparation was a major improvement.
+  sources:
+  - https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5062257/
+- id: F3
+  fact: '1936: Hans Christian Hagedorn and Norman Jensen (Denmark) used protamine taken from river trout to prolong insulin; insulin forms fine particles that dissolve slowly (JAMA 1936;106:177-80).'
+  sources:
+  - https://en.wikipedia.org/wiki/NPH_insulin
+  - https://historyofmedicine.com/id/5285
+- id: F4
+  fact: 'Scott and Fisher (Connaught, Toronto) added zinc: protamine zinc insulin (PZI), autumn 1936, lasting 24–36 h; drawbacks: slow onset, sudden lows, variability; could not be mixed with fast insulin
+    in one syringe.'
+  sources:
+  - https://connaught.research.utoronto.ca/about/history/article5
+  - https://en.wikipedia.org/wiki/Lente_insulin
+- id: F5
+  fact: 'NPH: protamine-insulin crystals 1946 (Nordisk), marketed 1950; mixable with faster insulin; usually given twice a day; for a long time the most widely used basal insulin.'
+  sources:
+  - https://www.novonordisk.com/about/our-heritage.html
+  - https://en.wikipedia.org/wiki/NPH_insulin

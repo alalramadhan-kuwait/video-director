@@ -51,8 +51,8 @@ def build_request(pack: dict, scenes: dict, profile: dict, facts: list[dict], di
                       'stills': s['stills'], 'strip': s['strip'], **{k: meta.get(k) for k in
                       ('narration', 'plan', 'on_screen_text', 'people', 'products') if meta.get(k)}})
     req = {'kind': 'artistic_review_request', 'video': pack.get('video'), 'contact': pack.get('contact'),
-           'profile': {'id': profile['id'], 'status': profile.get('status'), 'palette': profile.get('palette'),
-                       'fonts': profile.get('fonts'), 'motifs': profile.get('motifs'), 'avoid': profile.get('avoid')},
+           'profile': {'id': profile['id'], 'status': profile.get('status'), 'look': profile.get('look'),
+                       'rules': profile.get('rules'), 'preferred_techniques': (profile.get('art') or {}).get('preferred')},
            'facts': facts, 'dimensions': {d: DIMENSIONS[d] for d in dimensions}, 'scenes': items,
            'rules': RULES, 'finding_schema': FINDING_SCHEMA}
     if include_technical is not None:

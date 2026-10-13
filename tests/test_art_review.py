@@ -42,6 +42,22 @@ class TestReviewer(unittest.TestCase):
                 self.assertGreater((out / p).stat().st_size, 1000, p)
         self.assertEqual(self.video.stat().st_mtime_ns, self.before)          # the video is only read
 
+    def test_contact_sheet_has_one_filled_tile_per_scene(self):
+        import numpy as np, subprocess
+        sheet = Path(self.tmp.name) / 'pack' / self.pack['contact']
+        w, h = map(int, subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'stream=width,height', '-of', 'csv=p=0',
+                                        str(sheet)], capture_output=True, text=True).stdout.split(','))
+        g = np.frombuffer(subprocess.run(['ffmpeg', '-v', 'error', '-i', str(sheet), '-f', 'rawvideo', '-pix_fmt', 'gray', '-'],
+                                         capture_output=True).stdout, dtype=np.uint8).reshape(h, w)
+        tw = (w + 4) // 8 - 4
+        n = len(self.pack['scenes'])
+        rows = (n + 7) // 8; th = (h + 4) // rows - 4
+        filled = [abs(float(g[r*(th+4):r*(th+4)+th, c*(tw+4):c*(tw+4)+tw].mean()) - 32) > 3
+                  or g[r*(th+4):r*(th+4)+th, c*(tw+4):c*(tw+4)+tw].std() > 3
+                  for r in range(rows) for c in range(8)]
+        self.assertEqual(sum(filled[:n]), n)                   # every scene has its tile (the M3 sheet sampled only 8)
+        self.assertEqual(sum(filled[n:]), 0)
+
     def test_measures_black_and_frozen(self):
         m = self.pack['measured']
         self.assertTrue(any(5.3 < a < 5.8 for a, b in m['black']), m['black'])

@@ -12,7 +12,7 @@ evidence folder. It does not import the Art Director, the voice modules or the p
   finding(...)                                 -> validated finding record
 """
 from __future__ import annotations
-import json, re, subprocess
+import json, re, shutil, subprocess, tempfile
 from pathlib import Path
 
 SEVERITIES = ('critical', 'major', 'minor', 'info')
@@ -73,10 +73,13 @@ def build_pack(video, out_dir, timeline: dict | None = None, every=4.0) -> dict:
             s['stills'][label] = str(_still(video, t, p).relative_to(out))
         mid = (s['start'] + s['end']) / 2
         s['strip'] = str(_strip(video, max(s['start'], mid - 1.5), min(s['end'], mid + 1.5), out / 'strips' / f"{s['id']}.jpg").relative_to(out))
-    sheet = out / 'contact.jpg'
-    _run(['ffmpeg', '-v', 'error', '-y', '-i', str(video), '-vf',
-          f"fps={min(8, len(scenes)) / max(1, meta['duration']):.5f},scale=180:-2,tile=8x{max(1, (min(48, len(scenes)) + 7) // 8)}",
-          '-frames:v', '1', str(sheet)])
+    sheet = out / 'contact.jpg'                     # one tile per scene (its middle still), in scene order
+    with tempfile.TemporaryDirectory() as td:
+        for i, s in enumerate(scenes[:96]):
+            shutil.copyfile(out / s['stills']['mid'], Path(td) / f'{i:04d}.jpg')
+        n = min(len(scenes), 96)
+        _run(['ffmpeg', '-v', 'error', '-y', '-framerate', '1', '-i', str(Path(td) / '%04d.jpg'), '-vf',
+              f"scale=180:-2,setsar=1,tile=8x{(n + 7) // 8}:padding=4:color=0x202020", '-frames:v', '1', str(sheet)])
     pack = {'video': str(video), 'meta': meta, 'scenes': scenes, 'contact': 'contact.jpg',
             'measured': measure(video, meta)}
     (out / 'pack.json').write_text(json.dumps(pack, ensure_ascii=False, indent=1), encoding='utf-8')
