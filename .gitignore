@@ -1,0 +1,21 @@
+# Media never enters git (Phase 0.5 rule). The take store and ledger live outside the repo.
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.ogg
+*.mp4
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.tar
+*.bundle
+*.sqlite
+*.sqlite3
+.env
+.env.*
+__pycache__/
+store/
+var/

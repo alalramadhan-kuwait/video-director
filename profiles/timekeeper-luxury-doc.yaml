@@ -1,0 +1,43 @@
+# DRAFT v0 — values taken from existing code; every field needs owner approval before it is "approved".
+id: timekeeper-luxury-doc
+version: 0
+status: draft
+owner: Time Keeper
+engine: paper_story
+look:
+  palette: {ink: "#111111", paper: "#F3F0E8"}          # video/success-story/tk-style.json
+  themes: [tk-bone, linen, graphite, ink, black]
+  fonts: null                                          # not defined in code yet — owner to choose
+  logo: public/icon-512.png
+  endcard: tk_endcard                                  # video/brand/tk_endcard.py (required on Time Keeper films)
+rules:
+  products: real photos in taped polaroids; never cut out or generated
+  people: own photo cut-outs; composed expressions; no AI edits of faces or builds
+  labels: 'Use "Ref." numbers; give a photo''s year only when the photo proves it'
+  motion: {people_pulse: 0.005, camera_drift_pct: [3, 5], max_hold_s: 2, max_slides_in_row: 2}
+voice:
+  draft: {provider: gtts, purpose: timing and wording review only — never certifies final pronunciation}
+  final_provider: elevenlabs                           # Time Keeper final narration is ElevenLabs only
+  voices:                                              # chosen per film
+    abdullah:
+      status: approved
+      approved_for: [royal-oak]
+      provider: elevenlabs
+      voice_id: XdoLPWNt7ytn6BtU4FBf
+      model: eleven_multilingual_v2
+      settings: {stability: 0.5, similarity_boost: 0.75, style: 0, use_speaker_boost: true, speed: 1.0}
+      seed: 1234
+      output_format: mp3_44100_128
+    ali_clone:
+      status: restricted                               # consent 2026-10-11: Time Keeper films only, per-film authorization
+      provider: elevenlabs
+      voice_id: DvW6ZBRAvK8C6HRZ68l3
+      requires_authorization: true
+    ali_recorded:
+      status: approved_workflow                        # reader recording -> Chatterbox VC (video/brand/tk_ali_voice.py)
+      provider: ali_recorded
+      credit_line: "الراوي: صوت ذكاء اصطناعي من صوت علي اليوسفي، بموافقته"
+  library_scopes: [global, "brand:timekeeper"]
+signatures:                                            # used by the contamination check in OTHER projects
+  critical: [tk_endcard, icon-512.png, XdoLPWNt7ytn6BtU4FBf, DvW6ZBRAvK8C6HRZ68l3, G1QUjBCuRBbLbAmYlTgl, tk_ali_voice]
+  major: [timekeeperkw, "TIME KEEPER", tk-style.json, '"type": "watch"', "#F3F0E8"]

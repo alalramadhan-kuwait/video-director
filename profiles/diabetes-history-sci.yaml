@@ -1,0 +1,31 @@
+# DRAFT v0 — values taken from the episode 7 project; owner approval required.
+id: diabetes-history-sci
+version: 0
+status: draft
+owner: Type 1 Diabetes History series
+engine: motion
+look:
+  palette: {bg: "#1C3550", ink: "#FFF8EE", acc: "#F2B84B", clay: "#C98A12", hi: "#FFE39A", mut: "#B8CADB"}
+  fonts: {display: Cairo, body: IBM Plex Sans Arabic, num: Inter}
+  theme: papercut.js + stylekit
+  endcard: next-episode-card
+rules:
+  people: drawn (kit_people); scientists by role, names on screen only
+  sources: medical claims need a source and an expert-review status; speculative processes labelled
+  forbidden_sources: [Fisher Library (University of Toronto) images]
+  captions: {y: [1360, 1460], chip_max_words: 3, years_on_screen_not_spoken: true}
+voice:
+  draft: {provider: fasih, note: draft = final for this series}
+  final_provider: fasih
+  voices:
+    fasih_bram:
+      status: approved
+      provider: fasih
+      engine: arabic_tts (Fasih-TTS-V1 + Bram reference, unchanged settings)
+      licence: CPML — non-commercial, covers generated audio
+      publish_block: true                              # do not publish or monetise until the licence is reviewed
+  library_scopes: [global, "series:diabetes-history"]
+platforms: [tiktok]
+signatures:
+  critical: [papercut.js, ref_bram, arabic_tts, Fasih]
+  major: ["#1C3550", "#F2B84B", kit_people, "قصة السكري"]
