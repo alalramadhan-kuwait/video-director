@@ -1,0 +1,467 @@
+<title>Video Director</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: production console. Desktop = left rail nav + content column; phone = content + bottom tab bar.
+   The band under the header is painted in the ACTIVE project's own profile colours, so the project in use is
+   unmistakable. Everything else is neutral slate; state colours are semantic (processing blue, waiting amber,
+   approved green, blocked red, unknown grey) and always paired with a text label. */
+:root{
+  --bg:#f1f3f5; --surface:#ffffff; --sunk:#e9ecef; --ink:#13171c; --muted:#59626e; --line:#d6dbe1; --accent:#2b5b87; --accent-soft:#e2ebf4;
+  --proc:#2463a6; --proc-soft:#e1ecf8; --wait:#8a5a00; --wait-soft:#fbefd6; --ok:#1d7a4e; --ok-soft:#dff1e7;
+  --bad:#b0362b; --bad-soft:#f8e1de; --unk:#5f6873; --unk-soft:#eceef1; --ai:#6b4fa0; --ai-soft:#eee8f8;
+  --f-body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif; --f-ar:"IBM Plex Sans Arabic","IBM Plex Sans",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --rail:212px; --tabh:62px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0e1115; --surface:#161b21; --sunk:#1d232b; --ink:#e6e9ed; --muted:#9aa3ae; --line:#29313b; --accent:#86b5df; --accent-soft:#1b2a3a;
+  --proc:#7fb2ea; --proc-soft:#17283b; --wait:#e8b65a; --wait-soft:#372a10; --ok:#6cc79a; --ok-soft:#14301f;
+  --bad:#f08c80; --bad-soft:#3a1c19; --unk:#9aa3ae; --unk-soft:#222931; --ai:#b9a2e6; --ai-soft:#271f3c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1115; --surface:#161b21; --sunk:#1d232b; --ink:#e6e9ed; --muted:#9aa3ae; --line:#29313b; --accent:#86b5df; --accent-soft:#1b2a3a;
+  --proc:#7fb2ea; --proc-soft:#17283b; --wait:#e8b65a; --wait-soft:#372a10; --ok:#6cc79a; --ok-soft:#14301f;
+  --bad:#f08c80; --bad-soft:#3a1c19; --unk:#9aa3ae; --unk-soft:#222931; --ai:#b9a2e6; --ai-soft:#271f3c; color-scheme:dark}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);margin:0}
+.ar{font-family:var(--f-ar)}
+a{color:var(--accent)}
+button,select{font:inherit;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:5px 11px;min-height:34px;cursor:pointer}
+button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+button:disabled{opacity:.45;cursor:not-allowed}
+h1{font-size:1.05rem;margin:0;letter-spacing:.01em}
+h2{font-size:1.2rem;margin:0;text-wrap:balance}
+h3{font-size:.95rem;margin:0}
+.eyebrow{font-size:.7rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+p{margin:0}
+/* chrome */
+header.top{position:sticky;top:0;z-index:20;background:var(--surface);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.toprow{display:flex;align-items:center;gap:10px 14px;flex-wrap:wrap;padding:10px 16px}
+.brand{display:flex;align-items:center;gap:8px;margin-inline-end:auto}
+.brand .mk{width:22px;height:22px;border-radius:6px;background:linear-gradient(135deg,var(--accent) 0 50%,var(--ink) 50% 100%)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:32px}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.mode{font-size:.72rem;color:var(--muted);border:1px dashed var(--line);border-radius:99px;padding:2px 9px;white-space:nowrap}
+.band{display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap;padding:7px 16px;font-size:.82rem;background:var(--pb);color:var(--pi)}
+.band .sw{display:inline-flex;gap:3px}
+.band .sw i{width:13px;height:13px;border-radius:3px;border:1px solid rgba(127,127,127,.4)}
+.band b{font-weight:600}
+.shell{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);min-height:calc(100vh - 100px)}
+nav.rail{border-inline-end:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:100px;align-self:start}
+nav.rail a, nav.tabs a{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;border-radius:8px;padding:8px 10px}
+nav.rail a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.badge{margin-inline-start:auto;background:var(--wait-soft);color:var(--wait);font-size:.72rem;font-weight:700;border-radius:99px;padding:0 7px;font-variant-numeric:tabular-nums}
+nav.tabs{display:none}
+main{padding:18px 20px 40px;min-width:0;display:flex;flex-direction:column;gap:18px;max-width:1180px}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr}
+  nav.rail{display:none}
+  nav.tabs{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+  nav.tabs a{flex-direction:column;gap:1px;font-size:.68rem;padding:7px 2px;justify-content:center;position:relative}
+  nav.tabs a[aria-current="page"]{color:var(--accent);font-weight:600}
+  nav.tabs .badge{position:absolute;top:2px;inset-inline-end:8px;margin:0}
+  main{padding:14px 16px calc(var(--tabh) + 24px)}
+  .toprow{padding:8px 16px;flex-wrap:nowrap}
+  .brand h1{font-size:.95rem}
+  .mode{display:none}
+  .band{padding:6px 16px;font-size:.76rem;gap:4px 10px}
+  .band .fonts{display:none}
+  .band .m{display:inline}
+}
+.band .m{display:none;opacity:.8}
+.ic{width:18px;height:18px;flex:none}
+/* components */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.row{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+.muted{color:var(--muted)}
+.small{font-size:.83rem}
+.tiny{font-size:.75rem}
+.mono{font-family:var(--f-mono);font-size:.85em}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.73rem;font-weight:600;border-radius:99px;padding:1px 9px;white-space:nowrap;line-height:1.6}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.nodot::before{display:none}
+.s-processing{background:var(--proc-soft);color:var(--proc)} .s-waiting_review{background:var(--wait-soft);color:var(--wait)}
+.s-approved{background:var(--ok-soft);color:var(--ok)} .s-blocked,.s-failed{background:var(--bad-soft);color:var(--bad)}
+.s-unknown,.s-not_started,.s-no_findings{background:var(--unk-soft);color:var(--unk)}
+.v-critical{background:var(--bad-soft);color:var(--bad)} .v-major{background:var(--wait-soft);color:var(--wait)} .v-minor{background:var(--proc-soft);color:var(--proc)} .v-info{background:var(--unk-soft);color:var(--unk)}
+.k-ai{background:var(--ai-soft);color:var(--ai)} .k-auto{background:var(--ok-soft);color:var(--ok)} .k-rec{background:var(--unk-soft);color:var(--unk)} .k-live{background:var(--proc-soft);color:var(--proc)}
+.stages{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+@media (min-width:1180px){.stages{grid-template-columns:repeat(7,minmax(0,1fr))}}
+.stage{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:6px;background:var(--surface);min-width:0;border-top:4px solid var(--unk)}
+.stage.st-approved{border-top-color:var(--ok)} .stage.st-waiting_review{border-top-color:var(--wait)} .stage.st-processing{border-top-color:var(--proc)} .stage.st-blocked,.stage.st-failed{border-top-color:var(--bad)}
+.stage .units{font-size:.8rem;font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.kpi b{display:block;font-size:1.35rem;font-variant-numeric:tabular-nums}
+.kpi span{font-size:.8rem;color:var(--muted)}
+.list{display:flex;flex-direction:column;gap:8px}
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.85rem;min-width:560px}
+th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+tr:last-child td{border-bottom:0}
+th{color:var(--muted);font-weight:500;font-size:.78rem}
+td.n{text-align:end;font-variant-numeric:tabular-nums;white-space:nowrap}
+.feed{display:flex;flex-direction:column}
+.ev{display:grid;grid-template-columns:118px 1fr;gap:2px 12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+.ev:last-child{border-bottom:0}
+.ev time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.78rem}
+/* timeline */
+.tl{display:flex;height:46px;border-radius:8px;overflow:hidden;border:1px solid var(--line);background:var(--sunk)}
+.tl a{display:flex;align-items:flex-end;justify-content:flex-start;padding:2px 3px;font-size:.62rem;font-family:var(--f-mono);color:#fff;text-decoration:none;border-inline-end:1px solid rgba(0,0,0,.25);min-width:3px;overflow:hidden;white-space:nowrap}
+.tl a:hover{filter:brightness(1.12)}
+.tl .t-waiting_review{background:#b7811d} .tl .t-approved{background:#2c8a5a} .tl .t-no_findings{background:#6e7b88} .tl .t-unknown{background:#8b949e}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.78rem;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-inline-end:5px;vertical-align:-1px}
+.scenes{display:flex;flex-direction:column;gap:8px}
+.sc{display:grid;grid-template-columns:62px 1fr auto;gap:10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px;text-decoration:none;color:var(--ink)}
+.sc:hover{border-color:var(--accent)}
+.thumb{width:62px;height:110px;border-radius:6px;object-fit:cover;background:var(--sunk);display:flex;align-items:center;justify-content:center;font-size:.65rem;color:var(--muted);text-align:center;padding:4px}
+.sc .txt{min-width:0;display:flex;flex-direction:column;gap:4px}
+.sc .nar{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.9rem}
+/* scene */
+.scene{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:16px;align-items:start}
+@media (max-width:760px){.scene{grid-template-columns:1fr}}
+.media{display:flex;flex-direction:column;gap:8px;position:sticky;top:116px}
+@media (max-width:760px){.media{position:static}}
+.media video,.media img{width:100%;max-width:300px;border-radius:10px;border:1px solid var(--line);background:#000;display:block}
+.themeblock{aspect-ratio:9/16;max-width:300px;border-radius:10px;border:1px solid var(--line);display:flex;align-items:center;justify-content:center;text-align:center;padding:16px;font-size:.85rem}
+.finding{border:1px solid var(--line);border-inline-start:4px solid var(--unk);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.finding.critical{border-inline-start-color:var(--bad)} .finding.major{border-inline-start-color:var(--wait)} .finding.minor{border-inline-start-color:var(--proc)}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.acts .done{font-size:.8rem;color:var(--ok);font-weight:600}
+.lock{font-size:.78rem;color:var(--ok);font-weight:600}
+/* gallery */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px}
+.chips button{flex:none}
+.compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px}
+@media (max-width:760px){.compare{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.compare .ver{flex:0 0 82%;scroll-snap-align:start}}
+.ver{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:8px}
+.ver.locked{border-color:var(--ok)}
+.ver img{width:100%;border-radius:8px;border:1px solid var(--line);cursor:zoom-in;display:block}
+.concepts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px}
+.lightbox{position:fixed;inset:0;z-index:50;background:rgba(5,7,10,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}
+.lightbox img,.lightbox video{max-width:100%;max-height:82vh;border-radius:8px}
+.lightbox button{background:#fff;color:#111;border-color:#fff}
+/* inbox */
+.item{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.item.decided{opacity:.8}
+.item .title{font-weight:500}
+textarea{font:inherit;width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:6px 8px}
+audio{width:100%;max-width:420px;height:36px}
+.meter{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden}
+.meter i{display:block;height:100%;background:var(--accent)}
+.check{display:flex;gap:8px;align-items:flex-start;font-size:.9rem}
+.check b{width:20px;flex:none;text-align:center}
+.idgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.swatches{display:flex;gap:6px;flex-wrap:wrap}
+.swatches span{display:inline-flex;align-items:center;gap:5px;font-size:.75rem;border:1px solid var(--line);border-radius:99px;padding:1px 8px 1px 2px}
+.swatches i{width:16px;height:16px;border-radius:50%;border:1px solid var(--line)}
+.empty{color:var(--muted);font-size:.9rem;padding:14px;border:1px dashed var(--line);border-radius:10px;text-align:center}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(var(--tabh) + 16px);z-index:60;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;max-width:90vw}
+@media (min-width:761px){.toast{bottom:20px}}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<header class="top">
+  <div class="toprow">
+    <div class="brand"><span class="mk" aria-hidden="true"></span><h1>Video Director</h1></div>
+    <div class="seg" role="group" aria-label="Project" id="projSeg"></div>
+    <span class="mode" id="mode"></span>
+  </div>
+  <div class="band" id="band"></div>
+</header>
+<div class="shell">
+  <nav class="rail" id="rail" aria-label="Sections"></nav>
+  <main id="view" tabindex="-1"></main>
+</div>
+<nav class="tabs" id="tabs" aria-label="Sections"></nav>
+<div class="lightbox" id="lb" hidden role="dialog" aria-label="Full-screen view"><div id="lbBody"></div><button type="button" id="lbClose">Close</button></div>
+<div class="toast" id="toast" hidden role="status"></div>
+
+<script>
+let DATA = __DATA__;
+const MODE = '__MODE__';
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const P_KEYS = {tk:'timekeeper', dh:'diabetes-history'};
+const P_SHORT = {'timekeeper':'tk','diabetes-history':'dh'};
+const ST_LABEL = {processing:'Processing', waiting_review:'Waiting for review', approved:'Approved', blocked:'Blocked', failed:'Failed', unknown:'Unknown', not_started:'Not started', no_findings:'No findings'};
+const DEC_LABEL = {approved:'Approved', rejected:'Rejected', changes_requested:'Changes requested', selected:'Selected', accepted:'Accepted', dismissed:'Dismissed', needs_source:'Needs a source', article_heard:'Article heard', article_missing:'Article missing', unsure:'Not sure'};
+const ICON = {
+  overview:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>',
+  timeline:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h18"/><path d="M8 5v4M15 10v4M11 15v4"/></svg>',
+  gallery:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>',
+  inbox:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 13l3-8h12l3 8v6H3z"/><path d="M3 13h5l1.5 3h5L16 13h5"/></svg>',
+  costs:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>',
+  identity:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="9" r="4"/><circle cx="16" cy="15" r="4"/></svg>'};
+const SECTIONS = [['overview','Overview'],['timeline','Timeline'],['gallery','Gallery'],['inbox','Inbox'],['costs','Costs'],['identity','Identity']];
+
+// ------------------------------------------------------------------ decisions (one map, three stores)
+const DEC = {};
+function seedDecisions(){
+  const put = (id,d) => { if(id && d) DEC[id] = d; };
+  DATA.inbox.forEach(i => put(i.id, i.decision));
+  Object.values(DATA.projects).forEach(p => p.videos.forEach(v => v.scenes.forEach(s => {
+    (s.findings||[]).forEach(f => put(f.id, f.decision)); (s.versions||[]).forEach(x => put(x.id, x.decision)); })));
+}
+let db = null;
+function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>e.hidden=true, 2600); }
+async function decide(item, decision, note=''){
+  const prev = DEC[item];
+  if(prev && prev.decision==='approved' && decision!=='changes_requested'){ toast('Approved items are locked. Request changes to open a new revision.'); return; }
+  const row = {item, decision, note, at:new Date().toISOString(), locked: decision==='approved'};
+  try{
+    if(MODE==='local'){
+      const r = await fetch('/api/decision', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({item, decision, note})});
+      if(!r.ok){ toast((await r.json()).error || 'Not saved'); return; }
+      const fresh = await fetch('/api/snapshot'); if(fresh.ok){ DATA = await fresh.json(); seedDecisions(); }   // counts follow the event log
+    } else if(db){ await db.doc('decisions/'+item).set(row); }
+    else { const s = JSON.parse(localStorage.getItem('vd-decisions')||'{}'); s[item]=row; localStorage.setItem('vd-decisions', JSON.stringify(s)); }
+    DEC[item] = row; toast('Saved: '+(DEC_LABEL[decision]||decision)+(MODE==='artifact'&&!db?' (this browser only)':''));
+    render();
+  }catch(e){ toast('Not saved ('+(e&&e.code||e.message||'error')+'). Try again.'); }
+}
+function decBlock(item, choices){
+  const d = DEC[item];
+  const locked = d && d.decision==='approved';
+  const btns = choices.map(([v,l]) => `<button type="button" data-dec="${v}" data-item="${esc(item)}" ${locked&&v!=='changes_requested'?'disabled':''} aria-pressed="${d&&d.decision===v}">${esc(l)}</button>`).join('');
+  return `<div class="acts">${btns}${d?`<span class="${locked?'lock':'done'}">${locked?'Locked · ':''}${esc(DEC_LABEL[d.decision]||d.decision)}</span>`:''}</div>`;
+}
+const STD = [['approved','Approve'],['rejected','Reject'],['changes_requested','Request changes']];
+const FINDING = [['accepted','Accept'],['dismissed','Dismiss'],['needs_source','Needs a source']];
+const LISTEN = [['article_heard','Article heard'],['article_missing','Article missing'],['unsure','Not sure']];
+
+// ------------------------------------------------------------------ routing  (#dh~timeline, #tk~scene~P2-03)
+let proj = 'diabetes-history', view = 'overview', arg = null;
+function parse(){
+  const h = location.hash.slice(1).split('~');
+  if(P_KEYS[h[0]]){ proj = P_KEYS[h[0]]; view = h[1] || 'overview'; arg = h[2] || null; }
+}
+function go(v, a){ location.hash = [P_SHORT[proj], v, a].filter(Boolean).join('~'); }
+addEventListener('hashchange', () => { parse(); render(); $('view').focus({preventScroll:true}); scrollTo(0,0); });
+const V = () => DATA.projects[proj].videos[0];
+const pending = () => DATA.inbox.filter(i => !DEC[i.id]).length;
+
+// ------------------------------------------------------------------ chrome
+function chrome(){
+  $('projSeg').innerHTML = Object.entries(DATA.projects).map(([k,p]) => `<button type="button" data-proj="${k}" aria-pressed="${k===proj}">${esc(p.name)}</button>`).join('');
+  $('mode').textContent = (MODE==='local'?'Local app':'Prototype') + ' · read-only data · no paid actions';
+  const id = DATA.identity[proj], pal = id.palette || {};
+  const bg = pal.bg || pal.paper || '#eeeeee', ink = pal.ink || '#111111';
+  document.documentElement.style.setProperty('--pb', bg); document.documentElement.style.setProperty('--pi', ink);
+  $('band').innerHTML = `<span>Active profile <b>${esc(id.profile)}</b> · ${esc(id.status)} v${esc(id.version)}</span>
+    <span class="sw" aria-label="Profile colours">${Object.values(pal).map(c=>`<i style="background:${esc(c)}"></i>`).join('')}</span>
+    <span>Final voice <b>${esc(id.final_voice)}</b></span><span class="fonts">Fonts <b>${id.fonts?esc(Object.values(id.fonts).join(', ')):'unassigned'}</b></span><span class="m">no paid actions</span>`;
+  const nav = SECTIONS.map(([k,l]) => `<a href="#${P_SHORT[proj]}~${k}" ${view===k||(k==='timeline'&&view==='scene')?'aria-current="page"':''}>${ICON[k]}<span>${l}</span>${k==='inbox'&&pending()?`<span class="badge" aria-label="${pending()} waiting">${pending()}</span>`:''}</a>`).join('');
+  $('rail').innerHTML = nav; $('tabs').innerHTML = nav;
+}
+
+// ------------------------------------------------------------------ helpers
+const fmtT = s => { s = Math.max(0, +s||0); const m = Math.floor(s/60); return m+':'+(s%60).toFixed(1).padStart(4,'0'); };
+const fmtAt = a => a ? a.replace('T',' ').replace(/:\d\dZ$/,' UTC') : '—';
+const dur = s => s==null ? '—' : s < 60 ? s.toFixed(1)+' s' : (s/60).toFixed(1)+' min';
+const pill = (cls, t) => `<span class="pill ${cls}">${esc(t)}</span>`;
+const stPill = st => pill('s-'+st, ST_LABEL[st]||st);
+const srcPill = s => s==='reconstructed' ? pill('k-rec nodot','reconstructed') : s==='live' ? pill('k-live nodot','tracked') : '';
+
+// ------------------------------------------------------------------ views
+function overview(){
+  const v = V(), st = v.stages, appr = st.filter(s=>s.status==='approved').length;
+  const mine = DATA.inbox.filter(i => i.project===proj && !DEC[i.id]);
+  const byType = mine.reduce((m,i)=>(m[i.type]=(m[i.type]||0)+1,m),{});
+  const blockers = st.filter(s=>s.status==='blocked'||s.status==='failed');
+  const runs = DATA.tasks.recent.filter(r=>r.project===proj);
+  return `<div class="row between"><div><p class="eyebrow">${esc(DATA.projects[proj].name)}</p><h2 class="ar" dir="auto">${esc(v.title)}</h2></div>
+      <p class="small muted">${fmtT(v.duration)} · ${v.scenes.length} scenes · ${esc(v.platform)}</p></div>
+    <p class="small muted">${esc(v.media)}</p>
+    <div class="kpis">
+      <div class="kpi"><b>${appr} of ${st.length}</b><span>stages approved</span></div>
+      <div class="kpi"><b>${st.filter(s=>s.status==='waiting_review').length}</b><span>stages waiting for your review</span></div>
+      <div class="kpi"><b>${mine.length}</b><span>decisions waiting in this project</span></div>
+      <div class="kpi"><b>${DATA.tasks.running.filter(r=>r.project===proj).length}</b><span>tasks processing now</span></div>
+    </div>
+    <section class="card"><div class="row between"><h3>Stages</h3><div class="legend">${['processing','waiting_review','approved','blocked','unknown'].map(s=>stPill(s)).join('')}</div></div>
+      <div class="stages">${st.map(s => `<div class="stage st-${s.status}">
+        <div class="row between"><b>${esc(s.label)}</b></div>${stPill(s.status)}
+        ${s.units?`<div class="units">${s.units.done} of ${s.units.total} <span class="muted">${esc(s.units.unit)}</span></div><div class="bar" role="img" aria-label="${s.units.done} of ${s.units.total}"><i style="width:${s.units.total?100*s.units.done/s.units.total:0}%"></i></div>`:'<div class="units muted">no countable units</div>'}
+        <p class="tiny muted">${esc(s.why||'')}</p>
+        <p class="tiny muted">First activity ${fmtAt(s.first_activity)}${s.approved_at?'<br>Approved '+fmtAt(s.approved_at):''}${s.processing_s!=null?'<br>Measured processing '+dur(s.processing_s):''}</p>
+      </div>`).join('')}</div>
+      <p class="tiny muted">Completion is shown only as counts of real units. Stages without countable units show none. No percentage is estimated.</p></section>
+    <div class="idgrid">
+      <section class="card"><h3>Now</h3>
+        ${DATA.tasks.running.filter(r=>r.project===proj).map(r=>`<p>${esc(r.task)}: ${r.units_done} of ${r.units_total} · ${r.eta_s!=null?'about '+dur(r.eta_s)+' left':esc(r.eta_reason)}</p>`).join('') || '<p class="muted small">No task is processing.</p>'}
+        <h3>Failures</h3>${DATA.tasks.failed.filter(r=>r.project===proj).map(r=>`<p class="small">${esc(r.task)}: ${esc(r.error)}</p>`).join('') || '<p class="muted small">None recorded.</p>'}
+        <h3>Blockers</h3>${blockers.map(s=>`<p class="small">${stPill(s.status)} <b>${esc(s.label)}</b>: ${esc(s.why)}</p>`).join('') || '<p class="muted small">None.</p>'}
+      </section>
+      <section class="card"><h3>Next actions</h3>
+        ${Object.keys(byType).length?Object.entries(byType).map(([t,n])=>`<p><a href="#${P_SHORT[proj]}~inbox~${t}">${n} ${esc(t)} decision${n>1?'s':''}</a></p>`).join(''):'<p class="muted small">Nothing waiting for you here.</p>'}
+        <p class="small muted">The inbox lists every pending review across both projects.</p>
+      </section>
+    </div>
+    <section class="card"><h3>Tracked runs</h3><p class="small muted">Measured by the event log: real units, real time. An ETA is shown only after 3 measured units with steady times. The check compares the first ETA with what actually happened.</p>
+      ${runs.length?`<div class="tbl"><table><tr><th>Task</th><th>Units</th><th>Elapsed</th><th>ETA check</th><th>Started</th></tr>
+      ${runs.map(r=>`<tr><td>${esc(r.task)}</td><td class="n">${r.units_done} / ${r.units_total}</td><td class="n">${dur(r.elapsed_s)}</td>
+        <td class="n">${r.eta_check?`after ${r.eta_check.after_units}: predicted ${dur(r.eta_check.predicted_s)}, actual ${dur(r.eta_check.actual_s)}`:'—'}</td><td class="n">${fmtAt(r.started)}</td></tr>`).join('')}</table></div>`:'<p class="empty">No tracked run for this project yet.</p>'}</section>
+    <section class="card"><h3>History</h3><div class="feed">${v.history.slice(-12).reverse().map(e=>`<div class="ev"><time>${fmtAt(e.at)}</time><div><span class="ar" dir="auto">${esc(e.what||e.kind)}</span> ${e.stage?pill('k-rec nodot',e.stage):''} ${srcPill(e.source)}<br><span class="tiny muted">${esc(e.evidence||e.actor)}</span></div></div>`).join('')}</div>
+      <p class="tiny muted">“Reconstructed” entries come from file times, git commits and provider history. “Tracked” entries were recorded live by the event log.</p></section>`;
+}
+
+function sceneStatus(s){ return proj==='diabetes-history' ? s.art_status : (s.listening.asked>s.listening.answered ? 'waiting_review' : s.voice_line && s.voice_status==='approved' ? 'approved' : 'unknown'); }
+const sceneLabel = s => proj==='diabetes-history' ? stPill(sceneStatus(s)) : '';   // Royal Oak: only the voice is known here, so no overall scene status
+function timeline(){
+  const v = V(), total = v.duration;
+  const proc = v.stages.filter(s=>['voice','render'].includes(s.stage));
+  return `<div class="row between"><h2 class="ar" dir="auto">${esc(v.title)}</h2><p class="small muted">${fmtT(total)} · ${v.scenes.length} scenes</p></div>
+    <div class="kpis">${proc.map(s=>`<div class="kpi"><b>${s.units?s.units.done+' / '+s.units.total:'—'}</b><span>${esc(s.label)} · ${esc(ST_LABEL[s.status])}${s.units?' · '+esc(s.units.unit):''}</span></div>`).join('')}</div>
+    <section class="card"><div class="row between"><h3>Scenes on the timeline</h3><div class="legend">
+      <span><i style="background:#b7811d"></i>${proj==='diabetes-history'?'findings waiting':'listening check waiting'}</span><span><i style="background:#2c8a5a"></i>${proj==='diabetes-history'?'approved':'voice approved'}</span><span><i style="background:#6e7b88"></i>${proj==='diabetes-history'?'no findings':'no narration line'}</span></div></div>
+      <div class="tl" role="list">${v.scenes.map(s=>`<a role="listitem" href="#${P_SHORT[proj]}~scene~${s.id}" class="t-${sceneStatus(s)}" style="flex:${s.dur} 0 0" title="${esc(s.id)} · ${fmtT(s.start)}–${fmtT(s.end)}">${s.dur/total>0.07?esc(s.id):''}</a>`).join('')}</div>
+      <div class="row between tiny muted"><span>0:00</span><span>${fmtT(total/2)}</span><span>${fmtT(total)}</span></div></section>
+    <div class="scenes">${v.scenes.map(s=>{
+      const st = sceneStatus(s);
+      const thumb = s.still ? `<img class="thumb" src="${esc(s.still)}" alt="" loading="lazy">` : `<div class="thumb" style="background:${esc(s.theme_bg||'var(--sunk)')};color:#fff">${esc(s.theme||'')}<br>no frame here</div>`;
+      const tags = proj==='diabetes-history'
+        ? (s.findings.length?pill('v-'+(s.max_severity||'info'), s.findings_open+' open of '+s.findings.length):pill('s-no_findings','no findings'))
+        : (s.listening.asked?pill('s-waiting_review', s.listening.answered+' of '+s.listening.asked+' listening checks'):s.voice_line?pill('s-approved','voice approved'):pill('s-unknown','no narration line'))+' '+pill('s-unknown','art: not in this workspace');
+      return `<a class="sc" href="#${P_SHORT[proj]}~scene~${s.id}">${thumb}<div class="txt"><div class="row"><b class="mono">${esc(s.id)}</b><span class="tiny muted">${fmtT(s.start)}–${fmtT(s.end)} · ${s.dur.toFixed(1)} s</span></div>
+        <p class="nar ar" dir="auto">${esc(s.narration||'')}</p><div class="row">${sceneLabel(s)} ${tags} ${(s.versions||[]).length>1?pill('k-rec nodot',s.versions.length+' versions'):''}</div></div><span aria-hidden="true" class="muted">›</span></a>`;}).join('')}</div>`;
+}
+
+function sceneView(){
+  const v = V(), s = v.scenes.find(x=>x.id===arg) || v.scenes[0];
+  const i = v.scenes.indexOf(s), prev = v.scenes[i-1], next = v.scenes[i+1];
+  const media = s.clip ? `<video src="${esc(s.clip)}" poster="${esc(s.still)}" muted loop playsinline autoplay controls aria-label="Motion preview of ${esc(s.id)}"></video><p class="tiny muted">3-second preview from the published render, at ${fmtT((s.start+s.end)/2)}</p>`
+    : `<div class="themeblock" style="background:${esc(s.theme_bg||'var(--sunk)')};color:#fff">Theme ${esc(s.theme)}<br>The photographs for this scene are not in this workspace, so no frame can be shown.</div>`;
+  const audio = s.audio ? `<p class="small">Approved narration (${esc(s.voice_line)})</p><audio controls preload="none" src="${esc(s.audio)}"></audio>` : '';
+  const ai = (s.findings||[]).filter(f=>f.source==='ai_judgement'), auto = (s.findings||[]).filter(f=>f.source==='automated');
+  return `<div class="row between"><a href="#${P_SHORT[proj]}~timeline">‹ Timeline</a><div class="row">${prev?`<a href="#${P_SHORT[proj]}~scene~${prev.id}">‹ ${esc(prev.id)}</a>`:''}${next?`<a href="#${P_SHORT[proj]}~scene~${next.id}">${esc(next.id)} ›</a>`:''}</div></div>
+    <div class="row"><h2 class="mono">${esc(s.id)}</h2><span class="muted small">${fmtT(s.start)}–${fmtT(s.end)} · ${s.dur.toFixed(1)} s</span>${sceneLabel(s)}</div>
+    <div class="scene"><div class="media">${media}${audio}${(s.versions||[]).length?`<a href="#${P_SHORT[proj]}~gallery~${s.id}">Open in the gallery (${s.versions.length} version${s.versions.length>1?'s':''})</a>`:''}</div>
+      <div style="display:flex;flex-direction:column;gap:14px;min-width:0">
+        <section class="card"><h3>Narration</h3><p class="ar" dir="auto" style="font-size:1.05rem">${esc(s.narration||'—')}</p>
+          ${s.plan?`<h3>Planned artwork</h3><p class="ar small" dir="auto">${esc(s.plan)}</p>`:''}
+          ${(s.on_screen_text||[]).length?`<p class="small">On-screen text: <span class="ar" dir="auto">${s.on_screen_text.map(esc).join(' · ')}</span></p>`:''}
+          ${s.listening&&s.listening.asked?`<p class="small">${stPill('waiting_review')} ${s.listening.answered} of ${s.listening.asked} listening checks answered · <a href="#${P_SHORT[proj]}~inbox~voice">answer in the inbox</a></p>`:''}</section>
+        ${proj==='diabetes-history'?`<section class="card"><div class="row between"><h3>Technical findings</h3>${pill('k-auto nodot','automated · measured')}</div>
+          ${auto.length?auto.map(findingCard).join(''):'<p class="small muted">None in this scene. The technical checks on the whole video (size, length, black, frozen, static, loudness, true peak, palette) all passed.</p>'}</section>
+        <section class="card"><div class="row between"><h3>Artistic recommendations</h3>${pill('k-ai nodot','AI judgement · not proof')}</div>
+          <p class="tiny muted">From an independent reviewer that saw the frames, narration, profile and facts. Nothing changes the artwork unless you decide it should.</p>
+          ${ai.length?ai.map(findingCard).join(''):'<p class="small muted">No recommendation for this scene.</p>'}</section>`:''}
+        <section class="card"><h3>History</h3>${(s.history||[]).length?`<div class="feed">${s.history.map(e=>`<div class="ev"><time>${fmtAt(e.at)}</time><div class="ar" dir="auto">${esc(e.what)} ${srcPill(e.source)}</div></div>`).join('')}</div>`:'<p class="small muted">No revision recorded for this scene.</p>'}</section>
+      </div></div>`;
+}
+function findingCard(f){
+  return `<div class="finding ${f.severity}"><div class="row">${pill('v-'+f.severity,f.severity)}<span class="mono small">${esc(f.timecode)}</span><span class="tiny muted">${esc(f.dimension)} · confidence ${esc(f.confidence)}</span></div>
+    <p class="ar" dir="auto">${esc(f.problem)}</p>${f.suggestion?`<p class="small muted ar" dir="auto">Suggested correction: ${esc(f.suggestion)}</p>`:''}
+    ${(f.notes||[]).map(n=>`<p class="tiny" style="color:var(--wait)">${esc(n)}</p>`).join('')}
+    <p class="tiny muted">Evidence: ${[...f.frames.map(esc), ...f.evidence.map(e=>esc(e.kind+' '+e.ref))].join(' · ')||'—'}</p>
+    ${decBlock(f.id, FINDING)}</div>`;
+}
+
+function gallery(){
+  const v = V();
+  if(proj==='timekeeper') return `<h2>Art selection gallery</h2><div class="empty">The Royal Oak photographs and renders are not in this workspace, so there are no versions to compare. The approved narration and storyboards are on the timeline.</div>`+identityNote();
+  const s = v.scenes.find(x=>x.id===arg) || v.scenes.find(x=>x.versions.length>1) || v.scenes[0];
+  const risks = [...new Set([...(s.findings||[]).filter(f=>['Historical and technical accuracy','Correct watches, products and people','Does the image match the narration?'].includes(f.dimension)).map(f=>f.problem),
+                             ...((s.concepts||{}).options||[]).map(o=>o.risks)].filter(Boolean))];
+  return `<div class="row between"><h2>Art selection gallery</h2><span class="small muted">Scene <b class="mono">${esc(s.id)}</b> · ${fmtT(s.start)}–${fmtT(s.end)}</span></div>
+    <div class="chips" role="group" aria-label="Scene">${v.scenes.map(x=>`<button type="button" data-scene="${x.id}" aria-pressed="${x.id===s.id}">${esc(x.id)}${x.versions.length>1?' · '+x.versions.length:''}</button>`).join('')}</div>
+    <p class="small ar" dir="auto">${esc(s.narration||'')}</p>
+    <div class="compare">${s.versions.map((x,i)=>{ const d = DEC[x.id], locked = d&&d.decision==='approved';
+      return `<div class="ver ${locked?'locked':''}"><div class="row between"><b>${esc(x.label)}</b>${locked?'<span class="lock">Approved · locked</span>':d?pill('k-rec nodot',DEC_LABEL[d.decision]):''}</div>
+        <img src="${esc(x.img)}" alt="${esc(x.label)}" data-full="${esc(x.img)}">
+        ${x.what?`<p class="small">${esc(x.what)}</p>`:''}<p class="tiny muted">Source: ${esc(x.source)} · Cost: ${esc(x.cost)}</p>
+        <div class="row">${x.clip?`<button type="button" data-clip="${esc(x.clip)}">Play motion preview</button>`:''}<button type="button" data-full="${esc(x.img)}">Full screen</button></div>
+        ${decBlock(x.id, [['selected','Select'],...STD])}</div>`;}).join('')}</div>
+    <section class="card"><h3>About this scene</h3>
+      <p class="small">Profile <b>${esc(DATA.identity[proj].profile)}</b> (${esc(DATA.identity[proj].status)}). Generation cost of everything shown: <b>0</b>. Every version is a local render, and no paid generation is offered here.</p>
+      <h3>Accuracy risks</h3>${risks.length?`<ul class="small">${risks.slice(0,6).map(r=>`<li class="ar" dir="auto">${esc(r)}</li>`).join('')}</ul>`:'<p class="small muted">None recorded for this scene.</p>'}</section>
+    <section class="card"><h3>Concepts the Art Director would offer</h3><p class="tiny muted">${esc((s.concepts||{}).note||'')}</p>
+      ${(s.concepts.options||[]).length?`<div class="concepts">${s.concepts.options.map(o=>`<div class="ver"><b>${esc(o.name)}</b><p class="tiny">${pill(o.cost==='paid'?'s-blocked':'s-approved', o.cost)}</p><p class="small">${esc(o.reasons.join('; '))}</p>${o.warnings.length?`<p class="tiny" style="color:var(--wait)">${esc(o.warnings.join('; '))}</p>`:''}<p class="tiny muted">Risks: ${esc(o.risks)}</p></div>`).join('')}</div>
+        ${(s.concepts.excluded||[]).length?`<details class="small"><summary>${s.concepts.excluded.length} techniques excluded, with reasons</summary><ul>${s.concepts.excluded.map(e=>`<li>${esc(e.technique)}: ${esc(e.reason)}</li>`).join('')}</ul></details>`:''}`:''}</section>`;
+}
+function identityNote(){ return ''; }
+
+function inbox(){
+  const types = [['all','All'],['script','Script'],['hook','Hook'],['voice','Voice'],['art','Art'],['final','Final video'],['direction','Direction'],['engineering','Engineering']];
+  const t = arg || 'all';
+  const items = DATA.inbox.filter(i => t==='all' || i.type===t);
+  const count = k => DATA.inbox.filter(i => (k==='all'||i.type===k) && !DEC[i.id]).length;
+  const pname = k => DATA.projects[k].name;
+  return `<div class="row between"><h2>Review inbox</h2><span class="small muted">${pending()} waiting across both projects</span></div>
+    <div class="chips" role="group" aria-label="Type">${types.map(([k,l])=>`<button type="button" data-type="${k}" aria-pressed="${k===t}">${l} · ${count(k)}</button>`).join('')}</div>
+    <div class="list">${items.length?items.map(i=>{ const d = DEC[i.id];
+      const ch = i.type==='voice'&&i.project==='timekeeper' ? LISTEN : STD;
+      return `<article class="item ${d?'decided':''}"><div class="row">${pill('k-rec nodot',i.type)}<span class="pill nodot" style="background:var(--sunk)">${esc(pname(i.project))}</span>${pill(['critical','major','minor','info'].includes(i.severity)?'v-'+i.severity:'s-waiting_review', i.severity)}${i.scene?`<a class="small mono" href="#${P_SHORT[i.project]}~scene~${esc(i.scene)}">${esc(i.scene)}</a>`:''}</div>
+        <p class="title ar" dir="auto">${esc(i.title)}</p><p class="tiny muted">Source: ${esc(i.source)}${i.cost_if_changed?` · if you change it: ${i.cost_if_changed} ElevenLabs characters, and only after you approve that exact plan`:''}</p>
+        ${i.notes.map(n=>`<p class="small muted ar" dir="auto">${esc(n)}</p>`).join('')}
+        ${i.audio?`<audio controls preload="none" src="${esc(i.audio)}"></audio>`:''}
+        ${decBlock(i.id, ch)}</article>`;}).join('') : `<div class="empty">Nothing waiting${t!=='all'?' in '+esc(types.find(x=>x[0]===t)[1].toLowerCase()):''}. ${['script','hook'].includes(t)?'No script or hook is in review in either project right now.':''}</div>`}</div>
+    <p class="tiny muted">Every decision is written to the event log and kept as history. An approval locks the item; to change it, request changes, which opens a new revision.</p>`;
+}
+
+function costs(){
+  const c = DATA.costs, acc = c.elevenlabs_account;
+  return `<h2>Cost and providers</h2>
+    <section class="card" style="border-color:var(--bad)"><div class="row between"><h3>ElevenLabs final generation</h3>${pill('s-blocked','Locked')}</div>
+      <p class="small">${esc(c.guarantee)}</p>
+      <div class="list">${c.lock.requires.map(r=>`<div class="check"><b style="color:${r.met?'var(--ok)':'var(--bad)'}">${r.met?'✓':'✗'}</b><span>${esc(r.step)}</span></div>`).join('')}</div>
+      <p class="tiny muted">Gateway switch: ${c.lock.gateway_enabled?'on':'off'} · plan approvals recorded: ${c.lock.approvals_recorded}</p></section>
+    <div class="kpis">
+      <div class="kpi"><b>${c.spend.actual_units}</b><span>actual paid ${esc(c.spend.unit)} spent (${esc(c.spend.note)})</span></div>
+      ${c.estimates.map(e=>`<div class="kpi"><b>${e.units.toLocaleString()}</b><span>${esc(e.unit)} estimated: ${esc(e.what)}</span></div>`).join('')}
+    </div>
+    <section class="card"><h3>ElevenLabs account</h3><div class="meter" role="img" aria-label="${acc.used} of ${acc.limit} characters"><i style="width:${100*acc.used/acc.limit}%"></i></div>
+      <p class="small">${acc.used.toLocaleString()} of ${acc.limit.toLocaleString()} characters used · read ${fmtAt(acc.read_at.replace(/$/,'Z'))}</p><p class="tiny muted">${esc(acc.note)}</p></section>
+    <section class="card"><h3>Voice providers</h3><div class="tbl"><table><tr><th>Project</th><th>Final narration</th><th>Drafts</th></tr>${c.providers.map(p=>`<tr><td>${esc(DATA.projects[p.project].name)}</td><td>${esc(p.final)}</td><td>${esc(p.draft)}</td></tr>`).join('')}</table></div></section>
+    <section class="card"><h3>Free and paid operations</h3><div class="tbl"><table><tr><th>Operation</th><th>Cost</th><th>Where / status</th></tr>${c.operations.map(o=>`<tr><td>${esc(o.op)}</td><td>${pill(o.kind==='paid'?'s-blocked':'s-approved',o.kind)}</td><td class="small muted">${esc(o.where)}</td></tr>`).join('')}</table></div></section>`;
+}
+
+function identity(){
+  const card = k => { const x = DATA.identity[k];
+    return `<section class="card" ${k===proj?'style="border-color:var(--accent);border-width:2px"':''}><div class="row between"><h3>${esc(DATA.projects[k].name)}</h3>${k===proj?pill('s-processing','active'):''}</div>
+      <p class="small">Profile <b class="mono">${esc(x.profile)}</b> · ${esc(x.status)} v${esc(x.version)} · engine ${esc(x.engine)}</p>
+      <div class="swatches">${Object.entries(x.palette||{}).map(([n,c])=>`<span><i style="background:${esc(c)}"></i><span class="mono">${esc(c)}</span> ${esc(n)}</span>`).join('')||'<span>unassigned</span>'}</div>
+      <p class="small">Fonts: ${x.fonts?esc(Object.entries(x.fonts).map(([a,b])=>a+' '+b).join(' · ')):'<b>unassigned</b>'}</p>
+      <p class="small">Logo: ${esc(x.logo||'—')} · End card: ${esc(x.endcard||'—')}</p>
+      <p class="small">Final voice: <b>${esc(x.final_voice)}</b> · Voices: ${x.voices.map(v=>esc(v.name+' ('+v.provider+', '+v.status+')')).join(', ')}</p>
+      <p class="small">Pronunciation library: ${esc((x.library_scopes||[]).join(', '))}</p>
+      <p class="tiny muted">Art techniques allowed: ${esc((x.art_allowed||[]).join(', '))}</p>
+      <p class="small">${x.contamination.hits.length?pill('s-blocked',x.contamination.hits.length+' foreign signature(s)'):pill('s-approved','no foreign signature')} in ${x.contamination.files_checked} project files</p></section>`; };
+  return `<h2>Creative identity</h2><p class="small muted">The two series stay separate: fonts, palettes, logos, end cards, asset libraries and voice providers. The band under the header always shows the active project's profile.</p>
+    <div class="idgrid">${card('timekeeper')}${card('diabetes-history')}</div>
+    <section class="card"><h3>Separation checks</h3>${DATA.identity.separation.map(c=>`<div class="check"><b style="color:${c.ok?'var(--ok)':'var(--bad)'}">${c.ok?'✓':'✗'}</b><span>${esc(c.check)}${c.detail?` <span class="tiny muted">${esc(c.detail)}</span>`:''}</span></div>`).join('')}</section>`;
+}
+
+function render(){
+  chrome();
+  const fn = {overview, timeline, scene:sceneView, gallery, inbox, costs, identity}[view] || overview;
+  $('view').innerHTML = fn();
+  const on = document.querySelector('.chips button[aria-pressed="true"]'); if(on) on.scrollIntoView({block:'nearest', inline:'center'});
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.proj){ proj=b.dataset.proj; go(view==='scene'?'timeline':view); }
+  else if(b.dataset.dec){ decide(b.dataset.item, b.dataset.dec); }
+  else if(b.dataset.scene){ go('gallery', b.dataset.scene); }
+  else if(b.dataset.type){ go('inbox', b.dataset.type==='all'?null:b.dataset.type); }
+  else if(b.dataset.clip){ lightbox(`<video src="${esc(b.dataset.clip)}" controls autoplay muted loop playsinline></video>`); }
+  else if(b.dataset.full){ lightbox(`<img src="${esc(b.dataset.full)}" alt="Full-screen view">`); }
+});
+document.addEventListener('click', e => { const i = e.target.closest('.ver img[data-full]'); if(i) lightbox(`<img src="${esc(i.dataset.full)}" alt="Full-screen view">`); });
+function lightbox(html){ $('lbBody').innerHTML = html; $('lb').hidden = false; $('lbClose').focus(); }
+$('lbClose').addEventListener('click', ()=>{ $('lb').hidden = true; $('lbBody').innerHTML=''; });
+addEventListener('keydown', e => { if(e.key==='Escape' && !$('lb').hidden){ $('lb').hidden = true; $('lbBody').innerHTML=''; } });
+
+seedDecisions();
+try{ Object.assign(DEC, JSON.parse(localStorage.getItem('vd-decisions')||'{}')); }catch(e){}
+parse(); render();
+if(MODE==='artifact'){ (async()=>{ try{ db = window.claude && window.claude.use ? await window.claude.use('db') : null; if(!db) return;
+  db.collection('decisions').onSnapshot(s => { for(const d of s.docs){ const v=d.data(); if(v) DEC[d.id]=v; } render(); }, ()=>{}); }catch(e){ db=null; } })(); }
+</script>
