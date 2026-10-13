@@ -1,0 +1,531 @@
+<title>Royal Oak Voice Review</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky bar (title, queue/all switch, progress); one column of line cards; one card open at a time,
+   holding text → exact input → takes + waveform → listening questions → verdict → correction. Same tokens as the
+   arabic-narration review page so the two feel like one tool. */
+:root{
+  --bg:#f3f5f7; --surface:#ffffff; --ink:#16202a; --muted:#5b6876; --line:#d6dde4;
+  --accent:#1c6a8f; --accent-soft:#e1eef5; --now:#fff1b8; --now-ink:#4a3b00;
+  --bad:#b23a2f; --bad-soft:#f9e3e0; --ok:#1d7a4f; --ok-soft:#e2f3ea; --warn:#8a5a00; --warn-soft:#fbf0d9;
+  --mock:#6b4fa0; --mock-soft:#efe9f8; --wave:#9fb4c4; --wave-played:#1c6a8f;
+  --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif; --f-ar:"Noto Naskh Arabic","IBM Plex Sans Arabic",serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf0; --muted:#9aa8b5; --line:#2a3542;
+  --accent:#78b8dc; --accent-soft:#1b3344; --now:#5a4a0c; --now-ink:#fff3c4;
+  --bad:#f08c80; --bad-soft:#3b1d1a; --ok:#6cc79a; --ok-soft:#173326; --warn:#e8b65a; --warn-soft:#3a2d12;
+  --mock:#b9a2e6; --mock-soft:#2a2140; --wave:#3d5366; --wave-played:#78b8dc; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf0; --muted:#9aa8b5; --line:#2a3542;
+  --accent:#78b8dc; --accent-soft:#1b3344; --now:#5a4a0c; --now-ink:#fff3c4;
+  --bad:#f08c80; --bad-soft:#3b1d1a; --ok:#6cc79a; --ok-soft:#173326; --warn:#e8b65a; --warn-soft:#3a2d12;
+  --mock:#b9a2e6; --mock-soft:#2a2140; --wave:#3d5366; --wave-played:#78b8dc; color-scheme:dark}
+html{direction:rtl}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:16px/1.7 var(--f-body);padding-inline:16px;padding-block:0 96px}
+main{max-width:820px;margin-inline:auto;display:flex;flex-direction:column;gap:16px}
+h1{font-size:1.35rem;margin:0;text-wrap:balance}
+h2{font-size:1.05rem;margin:0}
+h3{font-size:.8rem;margin:0;color:var(--muted);font-weight:500;letter-spacing:.02em}
+p{margin:0}
+.sub{color:var(--muted);font-size:.92rem;max-width:65ch}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:10px 8px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+@media (max-width:560px){h1{font-size:1.1rem}.stats{font-size:.78rem;gap:2px 10px}.seg button{min-height:32px;padding:2px 10px;font-size:.9rem}}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.between{justify-content:space-between}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px;min-height:38px}
+button:focus-visible,input:focus-visible,textarea:focus-visible,canvas:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:700}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+button.small{min-height:30px;padding:2px 10px;font-size:.85rem}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{border:0;border-radius:0;min-height:36px}
+.seg button+button{border-inline-start:1px solid var(--line)}
+.stats{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:.86rem;color:var(--muted)}
+.stats b{color:var(--ink);font-variant-numeric:tabular-nums}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:700;padding:1px 9px;border-radius:99px;white-space:nowrap}
+.p-reuse{background:var(--ok-soft);color:var(--ok)}
+.p-new{background:var(--bad-soft);color:var(--bad)}
+.p-listen{background:var(--warn-soft);color:var(--warn)}
+.p-done{background:var(--accent-soft);color:var(--accent)}
+.p-mock{background:var(--mock-soft);color:var(--mock)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.card>summary{list-style:none;cursor:pointer;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.card>summary::-webkit-details-marker{display:none}
+.card[open]>summary{border-bottom:1px solid var(--line)}
+.lid{font-family:var(--f-mono);font-size:.85rem;color:var(--muted);direction:ltr}
+.snip{font-family:var(--f-ar);font-size:1.02rem;color:var(--ink);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.body{padding:14px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.block{display:flex;flex-direction:column;gap:6px;min-width:0}
+.txt{font-family:var(--f-ar);font-size:1.2rem;line-height:2.15}
+.w{cursor:pointer;border-radius:5px;padding:0 2px}
+.w:hover{background:var(--accent-soft)}
+.w.target{text-decoration:underline dotted var(--warn);text-decoration-thickness:2px;text-underline-offset:8px}
+.w.now{background:var(--now);color:var(--now-ink)}
+.w.marked{color:var(--bad);text-decoration:underline wavy var(--bad);text-underline-offset:6px}
+.sent{font-family:var(--f-ar);font-size:1.05rem;line-height:2;background:var(--bg);border:1px dashed var(--line);border-radius:8px;padding:8px 10px;overflow-wrap:anywhere}
+.chg{background:var(--warn-soft);color:var(--warn);border-radius:4px;padding:0 3px;font-weight:600}
+.chg small{font-weight:400;opacity:.85}
+.wave{position:relative;width:100%;height:76px;border-radius:8px;background:var(--bg);touch-action:manipulation}
+.wave canvas{width:100%;height:100%;display:block;cursor:pointer;border-radius:8px}
+.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.85rem;direction:ltr}
+.play{width:44px;height:44px;border-radius:50%;padding:0}
+.note{font-size:.85rem;color:var(--muted);max-width:65ch}
+.mocknote{font-size:.85rem;background:var(--mock-soft);color:var(--mock);border-radius:8px;padding:6px 10px}
+.q{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+.q .ask{font-weight:500}
+.q .ask bdi{font-family:var(--f-mono);font-size:.92rem}
+.choice{display:flex;gap:6px;flex-wrap:wrap}
+.opt{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;align-items:start;border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer}
+.opt input{margin-top:6px;accent-color:var(--accent)}
+.opt .cost{font-size:.82rem;font-variant-numeric:tabular-nums}
+.opt .prev{grid-column:2;font-family:var(--f-ar);font-size:.98rem;color:var(--muted);overflow-wrap:anywhere}
+.opt:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
+textarea,input[type=text]{font:inherit;width:100%;box-sizing:border-box;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px}
+textarea{min-height:52px}
+details.more>summary{cursor:pointer;color:var(--muted);font-size:.88rem}
+.hist{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.hist div{font-family:var(--f-ar);font-size:.95rem;border-inline-start:3px solid var(--line);padding-inline-start:8px}
+.saved{font-size:.82rem;color:var(--ok)}
+.err{font-size:.82rem;color:var(--bad)}
+.pop{position:fixed;z-index:20;inset-inline:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:560px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:14px;display:flex;flex-direction:column;gap:10px}
+.pop .word{font-family:var(--f-ar);font-size:1.3rem}
+.marks{display:flex;flex-direction:column;gap:8px}
+.mk{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.mk .wd{font-family:var(--f-ar);font-size:1.05rem}
+.mk .info{font-size:.82rem;color:var(--muted)}
+.empty{color:var(--muted);font-size:.92rem}
+.done{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 14px;font-weight:500}
+.guard>summary{cursor:pointer}
+.guard{font-size:.85rem;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:4px}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+
+<main>
+  <div class="bar">
+    <div class="row between">
+      <h1 id="ttl"></h1>
+      <div class="seg" role="group" aria-label="أي الأسطر">
+        <button type="button" id="tabQueue" aria-pressed="true"></button>
+        <button type="button" id="tabAll" aria-pressed="false"></button>
+      </div>
+    </div>
+    <div class="row between">
+      <div class="stats" id="stats"></div>
+      <span class="stats" id="saveStatus" aria-live="polite"></span>
+    </div>
+  </div>
+
+  <p class="sub" id="intro"></p>
+  <details class="guard">
+    <summary><b>هذه الصفحة لا تولّد أي صوت ولا تصرف أي رصيد.</b></summary>
+    <span class="note">التسجيلات المعتمدة للقراءة فقط. الرفض يسجّل قرارك ولا يحذف شيئاً. أي تصحيح يحتاج توليداً مدفوعاً يظهر هنا كتقدير، وينفَّذ فقط بعد خطة تكلفة توافق عليها بنفسك.</span>
+  </details>
+  <div class="list" id="list"></div>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <h2>الأخطاء اللي حددتها</h2>
+    <div class="marks" id="marks"></div>
+    <div class="row"><button type="button" id="finish">خلصت المراجعة</button></div>
+    <div id="doneMsg" hidden class="done">تم. وصلني إنك خلصت، وراح أقرأ قراراتك من هنا.</div>
+  </section>
+</main>
+
+<div class="pop" id="pop" hidden role="dialog" aria-labelledby="popWord">
+  <div class="row between">
+    <span class="word" id="popWord"></span>
+    <span class="time" id="popWhere"></span>
+  </div>
+  <div class="row">
+    <button type="button" id="popAgain" class="small">اسمع الكلمة مرة ثانية</button>
+    <button type="button" id="popSlow" class="small">أبطأ</button>
+  </div>
+  <div class="choice" role="group" aria-label="نوع الخطأ" id="types">
+    <button type="button" data-t="نطق غلط">نطق غلط</button>
+    <button type="button" data-t="الـ ناقصة">«الـ» ناقصة</button>
+    <button type="button" data-t="حركة غلط">حركة غلط</button>
+    <button type="button" data-t="مقطوعة">مقطوعة أو ناقصة</button>
+    <button type="button" data-t="غير ذلك">غير ذلك</button>
+  </div>
+  <label for="popNote" class="note">ملاحظة (اختياري): وش المفروض ينقال؟</label>
+  <textarea id="popNote"></textarea>
+  <div class="row">
+    <button type="button" class="primary" id="popSave">احفظ كخطأ</button>
+    <button type="button" id="popClose">إغلاق</button>
+  </div>
+</div>
+
+<audio id="au" preload="metadata"></audio>
+
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const au = $('au');
+const S = {view:'queue', open:null, take:{}, marks:{}, verdicts:{}, listening:{}, corrections:{}, rate:1, stopAt:null};
+let db = null, sel = null, selType = null;
+const fmt = s => { s=Math.max(0,s||0); const m=Math.floor(s/60), r=(s%60); return m+':'+r.toFixed(1).padStart(4,'0'); };
+const LINE = id => DATA.lines.find(l=>l.id===id);
+const takeOf = l => l.takes.find(t=>t.id===(S.take[l.id]||l.takes[0].id)) || l.takes[0];
+const el = (tag, cls, txt) => { const e=document.createElement(tag); if(cls) e.className=cls; if(txt!=null) e.textContent=txt; return e; };
+const pill = (cls, txt) => el('span','pill '+cls,txt);
+
+// ---------------------------------------------------------------- storage (db when served, browser otherwise)
+const COLS = ['marks','verdicts','listening','corrections'];
+async function persist(col, key, val){
+  S[col][key] = val; if(val===null) delete S[col][key];
+  status('');
+  if(db){
+    try{ const d=db.doc(col+'/'+key); if(val===null) await d.delete(); else await d.set(val); status('انحفظ'); }
+    catch(e){ status('ما انحفظ: '+((e&&e.code)||'خطأ')+'. جرّب مرة ثانية', true); }
+  } else {
+    try{ localStorage.setItem('vr-'+DATA.project, JSON.stringify(COLS.reduce((o,c)=>(o[c]=S[c],o),{}))); status('محفوظ في هذا المتصفح فقط'); }
+    catch(e){ status('ما انحفظ في هذا المتصفح', true); }
+  }
+  renderStats();
+}
+function status(t, bad){ const s=$('saveStatus'); s.textContent=t; s.className = bad ? 'err' : 'saved'; }
+
+// ---------------------------------------------------------------- progress + money
+function lineDone(l){
+  const qs = l.questions.filter(q=>S.view==='all' || q.common_noun);
+  return qs.every(q=>S.listening[q.key]) && !!S.verdicts[l.id+'~'+l.takes[0].id];
+}
+function proposedChars(){
+  let n=0;
+  for(const [lid,c] of Object.entries(S.corrections)){
+    const l=LINE(lid); if(!l||!c) continue;
+    if(c.option==='keep_arabic' && l.corrections) n+=l.corrections.keep_arabic.chars;
+    if(c.option==='custom') n+=c.chars_estimate||0;
+  }
+  return n;
+}
+function renderStats(){
+  const q = DATA.lines.filter(l=>l.queue);
+  const done = q.filter(l=>q.length && l.questions.filter(x=>x.common_noun).every(x=>S.listening[x.key])).length;
+  $('tabQueue').textContent='قائمة الاستماع ('+q.length+')';
+  $('tabAll').textContent='كل الأسطر ('+DATA.lines.length+')';
+  const st=$('stats'); st.textContent='';
+  const a=el('span'); a.append('سمعت: ', Object.assign(el('b'),{textContent:done+' من '+q.length}));
+  const b=el('span'); b.append('تكلفة الآن: ', Object.assign(el('b'),{textContent:DATA.chars_total+' حرف'}));
+  const c=el('span'); c.append('لو اعتمدت التصحيحات: ', Object.assign(el('b'),{textContent:proposedChars()+' حرف'}));
+  st.append(a,b,c);
+}
+
+// ---------------------------------------------------------------- list
+function renderList(){
+  const box=$('list'); box.textContent='';
+  const lines = S.view==='queue' ? DATA.lines.filter(l=>l.queue) : DATA.lines;
+  for(const l of lines) box.append(card(l));
+  $('tabQueue').setAttribute('aria-pressed', String(S.view==='queue'));
+  $('tabAll').setAttribute('aria-pressed', String(S.view==='all'));
+}
+function card(l){
+  const d=el('details','card'); d.dataset.line=l.id; d.open = S.open===l.id;
+  const s=el('summary');
+  const top=el('div','row between');
+  const left=el('div','row'); left.append(el('span','lid',l.id));
+  if(l.plan.action==='reuse') left.append(pill('p-reuse','معتمد · ما يُعاد توليده'));
+  else left.append(pill('p-new','يحتاج توليد · '+l.plan.chars+' حرف'));
+  const right=el('div','row');
+  const qs=l.questions.filter(q=>q.common_noun);
+  if(qs.length){ const heard=qs.filter(q=>S.listening[q.key]).length;
+    right.append(heard===qs.length ? pill('p-done','سمعته') : pill('p-listen','يحتاج استماع ('+qs.length+')')); }
+  if(S.corrections[l.id] && S.corrections[l.id].option!=='leave') right.append(pill('p-new','تصحيح مقترح'));
+  top.append(left,right);
+  s.append(top, el('div','snip',l.approved_text));
+  d.append(s);
+  d.addEventListener('toggle',()=>{
+    if(d.open){ if(S.open && S.open!==l.id){ const o=document.querySelector('details.card[data-line="'+S.open+'"]'); if(o) o.open=false; }
+      S.open=l.id; if(!d.querySelector('.body')) d.append(body(l)); loadTake(l); }
+    else if(S.open===l.id){ S.open=null; au.pause(); }
+  });
+  if(d.open) d.append(body(l));
+  return d;
+}
+
+// ---------------------------------------------------------------- one line
+function body(l){
+  const b=el('div','body');
+  // approved text, tappable
+  const t=el('div','block'); t.append(el('h3',null,'النص المعتمد · اضغط أي كلمة لتسمعها'));
+  const tx=el('div','txt'); tx.id='tx-'+l.id; t.append(tx); b.append(t);
+  // exact TTS input
+  const s=el('div','block'); s.append(el('h3',null,'النص اللي وصل للصوت حرفياً'));
+  const sent=el('div','sent');
+  l.input_segments.forEach((g,i)=>{
+    if(i) sent.append(' ');
+    if(g.changed){ const c=el('span','chg'); const bd=document.createElement('bdi'); bd.textContent=g.t; c.append(bd);
+      if(g.was){ c.append(' ', el('small',null,'(بدل «'+g.was+'»)')); } sent.append(c); }
+    else sent.append(g.t);
+  });
+  s.append(sent); b.append(s);
+  // takes + waveform
+  const tk=el('div','block');
+  const th=el('div','row between'); th.append(el('h3',null,'التسجيلات'));
+  const seg=el('div','seg'); seg.setAttribute('role','group'); seg.setAttribute('aria-label','اختر التسجيل');
+  l.takes.forEach(tt=>{ const bt=el('button',null,tt.label); bt.type='button'; bt.dataset.take=tt.id;
+    bt.setAttribute('aria-pressed', String(takeOf(l).id===tt.id));
+    bt.addEventListener('click',()=>{ S.take[l.id]=tt.id; au.pause(); refreshTake(l); loadTake(l); }); seg.append(bt); });
+  th.append(seg); tk.append(th);
+  const mn=el('div','mocknote'); mn.id='mock-'+l.id; mn.hidden=true; tk.append(mn);
+  const wv=el('div','wave'); const cv=document.createElement('canvas'); cv.id='cv-'+l.id; cv.tabIndex=0;
+  cv.setAttribute('role','slider'); cv.setAttribute('aria-label','موضع التشغيل'); wv.append(cv); tk.append(wv);
+  cv.addEventListener('click',e=>{ const r=cv.getBoundingClientRect(); const tt=takeOf(l);
+    const x=(r.right-e.clientX)/r.width; seek(l, x*tt.duration, null); });  // RTL: time runs right→left
+  const ctl=el('div','row');
+  const pb=el('button','play primary','▶'); pb.type='button'; pb.id='pb-'+l.id; pb.setAttribute('aria-label','تشغيل');
+  pb.addEventListener('click',()=>{ S.stopAt=null; au.paused?au.play():au.pause(); });
+  const rb=el('button','small',S.rate+'×'); rb.type='button'; rb.setAttribute('aria-label','السرعة');
+  rb.addEventListener('click',()=>{ S.rate = S.rate===1?0.8:S.rate===0.8?0.65:1; au.playbackRate=S.rate; rb.textContent=S.rate+'×'; });
+  const tm=el('span','time','0:00.0'); tm.id='tm-'+l.id;
+  ctl.append(pb,rb,tm); tk.append(ctl); b.append(tk);
+  // listening questions
+  if(l.questions.length){
+    const qb=el('div','block'); qb.append(el('h3',null,'أسئلة استماع (من فحص النص، مو حكم)'));
+    for(const q of l.questions) qb.append(question(l,q));
+    b.append(qb);
+  }
+  // verdict
+  b.append(verdictBlock(l));
+  // correction
+  if(l.corrections) b.append(correctionBlock(l));
+  // more
+  const more=el('details','more'); more.append(el('summary',null,'تفاصيل إضافية'));
+  const m=el('div','block'); m.style.marginTop='6px';
+  m.append(el('h3',null,'ما سمعه التفريغ الآلي ('+l.asr_model+'). يُستخدم لتوقيت الكلمات فقط، وليس دليلاً على صحة النطق أو خطئه'));
+  m.append(el('div','sent',l.asr_heard));
+  if(l.history_alternatives.length){
+    m.append(el('h3',null,'تسجيلات أقدم لنفس السطر في سجل ElevenLabs (لم تُحمَّل، تحميلها يحتاج اتصالاً بـ ElevenLabs)'));
+    const h=el('div','hist'); l.history_alternatives.forEach(a=>{ const r=el('div',null,a.text);
+      r.append(el('span','note',' · '+new Date(a.date_unix*1000).toISOString().slice(0,10))); h.append(r); }); m.append(h);
+  }
+  m.append(el('span','note','مفتاح التسجيل: '+takeOf(l).id.slice(0,18)+'…'));
+  more.append(m); b.append(more);
+  setTimeout(()=>{ refreshTake(l); }, 0);
+  return b;
+}
+function question(l,q){
+  const w=el('div','q');
+  const a=el('div','ask');
+  const bd=document.createElement('bdi'); bd.textContent=q.sent;
+  a.append('في النص «'+q.written+'»، ووصلت للصوت ', bd, '. وش سمعت؟');
+  w.append(a);
+  if(!q.common_noun) w.append(el('span','note','اسم علامة تجارية: «الـ» قبلها اختيارية غالباً. اسمع وقرّر.'));
+  const row=el('div','row');
+  const lb=el('button','small','اسمع الكلمة'); lb.type='button'; lb.addEventListener('click',()=>playWords(l,q.words));
+  row.append(lb); w.append(row);
+  const ch=el('div','choice'); ch.setAttribute('role','group'); ch.setAttribute('aria-label','ما سمعته'); ch.dataset.q=q.key;
+  const cur=(S.listening[q.key]||{}).heard;
+  const bare = q.written.replace(/^(و|ف)?(ب|ل|ك)?ال/,'');
+  [['article_heard','سمعت «'+q.written+'» كاملة'],['article_missing','سمعت «'+bare+'» بدون «الـ»'],['unsure','مو متأكد']].forEach(([v,t])=>{
+    const bt=el('button',null,t); bt.type='button'; bt.dataset.v=v; bt.setAttribute('aria-pressed',String(cur===v));
+    bt.addEventListener('click',async()=>{ ch.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===bt)));
+      await persist('listening', q.key, {line:l.id, entry:q.entry, written:q.written, sent:q.sent, heard:v,
+        take:takeOf(l).id, take_kind:takeOf(l).kind, at:new Date().toISOString()}); renderCardHead(l); });
+    ch.append(bt); });
+  w.append(ch);
+  return w;
+}
+function verdictBlock(l){
+  const v=el('div','block'); v.id='vb-'+l.id;
+  v.append(el('h3',null,'قرارك على التسجيل المختار'));
+  const row=el('div','choice'); row.setAttribute('role','group'); row.setAttribute('aria-label','قرار التسجيل');
+  const note=el('span','note'); note.id='vn-'+l.id;
+  const reason=document.createElement('input'); reason.type='text'; reason.id='vr-'+l.id; reason.placeholder='السبب (اختياري)';
+  [['approve','اعتمد هذا التسجيل'],['reject','ارفض هذا التسجيل']].forEach(([val,t])=>{
+    const bt=el('button',null,t); bt.type='button'; bt.dataset.v=val;
+    bt.addEventListener('click',async()=>{ const tt=takeOf(l);
+      await persist('verdicts', l.id+'~'+tt.id, {line:l.id, take:tt.id, take_kind:tt.kind, verdict:val, reason:reason.value.trim(), at:new Date().toISOString()});
+      refreshTake(l); renderCardHead(l); });
+    row.append(bt); });
+  v.append(row, reason, note);
+  return v;
+}
+function correctionBlock(l){
+  const c=el('div','block');
+  c.append(el('h3',null,'تصحيح مقترح (يُحفظ كاقتراح فقط)'));
+  const cur=S.corrections[l.id]||{};
+  const ka=l.corrections.keep_arabic;
+  const opts=[
+    ['leave','اتركه كما هو','0 حرف · يبقى التسجيل المعتمد', null],
+    ['keep_arabic','أرسل الكلمة بالعربي مع «الـ»', ka.chars+' حرف · يحتاج توليد مدفوع للسطر كاملاً', ka.provider_input],
+    ['custom','كتابة أخرى للكلمة', 'تقدير يظهر لما تكتب', null],
+  ];
+  const name='corr-'+l.id;
+  const custom=document.createElement('input'); custom.type='text'; custom.id='cc-'+l.id; custom.placeholder='مثلاً: الإستيل';
+  custom.value=cur.custom_text||'';
+  for(const [val,label,cost,prev] of opts){
+    const o=el('label','opt'); const r=document.createElement('input'); r.type='radio'; r.name=name; r.value=val; r.id=name+'-'+val;
+    r.checked = (cur.option||'leave')===val;
+    const t=el('div'); t.append(el('div',null,label)); const cs=el('div','cost',cost); cs.id=name+'-cost-'+val; t.append(cs);
+    o.append(r,t);
+    if(prev){ const p=el('div','prev',prev); o.append(p); }
+    if(val==='custom'){ const wrap=el('div','prev'); wrap.append(custom); o.append(wrap); }
+    c.append(o);
+  }
+  const est=()=>{ const v=custom.value.trim(); if(!v) return 0;
+    const q=l.questions[0]; return l.provider_input.replace(q.sent, v).length; };
+  custom.addEventListener('input',()=>{ $(name+'-cost-custom').textContent = custom.value.trim() ? 'حوالي '+est()+' حرف · يحتاج توليد مدفوع للسطر كاملاً' : 'تقدير يظهر لما تكتب'; });
+  const n=document.createElement('textarea'); n.id='cn-'+l.id; n.placeholder='ملاحظة (اختياري)'; n.value=cur.note||'';
+  const sv=el('button','primary','احفظ الاقتراح'); sv.type='button';
+  sv.addEventListener('click',async()=>{
+    const opt=(c.querySelector('input[name="'+name+'"]:checked')||{}).value||'leave';
+    await persist('corrections', l.id, {line:l.id, option:opt, custom_text:opt==='custom'?custom.value.trim():'',
+      chars_estimate: opt==='keep_arabic'?ka.chars : opt==='custom'?est():0,
+      provider_input_if_approved: opt==='keep_arabic'?ka.provider_input:'', note:n.value.trim(), at:new Date().toISOString()});
+    renderCardHead(l);
+  });
+  c.append(n, sv, el('span','note','الحفظ هنا لا يغيّر القاموس ولا يولّد شيئاً. الاقتراح يدخل القاموس بحالة «مقترح» بعد موافقتك.'));
+  return c;
+}
+function renderCardHead(l){
+  const d=document.querySelector('details.card[data-line="'+l.id+'"]'); if(!d) return;
+  const fresh=card(l); d.querySelector('summary').replaceWith(fresh.querySelector('summary'));
+}
+
+// ---------------------------------------------------------------- audio + waveform
+function loadTake(l){
+  const tt=takeOf(l); if(au.dataset.src!==tt.audio){ au.src=tt.audio; au.dataset.src=tt.audio; au.playbackRate=S.rate; }
+  au.dataset.line=l.id;
+}
+function refreshTake(l){
+  const tt=takeOf(l);
+  document.querySelectorAll('details.card[data-line="'+l.id+'"] .seg button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.take===tt.id)));
+  const mn=$('mock-'+l.id); if(mn){ mn.hidden = tt.kind!=='mock'; mn.textContent = tt.note||''; }
+  // words for this take
+  const tx=$('tx-'+l.id); if(tx){ tx.textContent='';
+    const targets=new Set(l.questions.flatMap(q=>q.words));
+    tt.words.forEach((w,i)=>{ const s=el('span','w'+(targets.has(i)?' target':''),w.w); s.dataset.i=i; s.dataset.s=w.s; s.dataset.e=w.e;
+      s.addEventListener('click',()=>openPop(l,i)); tx.append(s,' '); }); }
+  // verdict state
+  const v=S.verdicts[l.id+'~'+tt.id];
+  document.querySelectorAll('#vb-'+l.id+' .choice button').forEach(b=>b.setAttribute('aria-pressed',String(!!v && v.verdict===b.dataset.v)));
+  const vr=$('vr-'+l.id); if(vr) vr.value = v ? v.reason||'' : '';
+  const vn=$('vn-'+l.id); if(vn) vn.textContent = tt.kind==='approved'
+    ? 'هذا تسجيل معتمد ومحمي. الرفض يسجّل قرارك فقط ولا يحذفه ولا يغيّره. استبداله يحتاج خطة مدفوعة توافق عليها لاحقاً.'
+    : 'تسجيل تجريبي: قرارك هنا لاختبار الواجهة فقط.';
+  paintMarks(); paintSaved(l); draw(l);
+}
+function paintSaved(l){   // saved answers arriving from the store, without touching what is being typed
+  document.querySelectorAll('details.card[data-line="'+l.id+'"] .choice[data-q]').forEach(ch=>{
+    const v=(S.listening[ch.dataset.q]||{}).heard; ch.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===v))); });
+  const c=S.corrections[l.id]; if(!c) return;
+  const r=$('corr-'+l.id+'-'+c.option); if(r && !r.checked) r.checked=true;
+  const cc=$('cc-'+l.id); if(cc && !cc.value && document.activeElement!==cc) cc.value=c.custom_text||'';
+  const cn=$('cn-'+l.id); if(cn && !cn.value && document.activeElement!==cn) cn.value=c.note||'';
+}
+function draw(l){
+  const cv=$('cv-'+l.id); if(!cv) return; const tt=takeOf(l);
+  const dpr=window.devicePixelRatio||1, W=cv.clientWidth, H=cv.clientHeight; if(!W) return;
+  cv.width=W*dpr; cv.height=H*dpr; const g=cv.getContext('2d'); g.scale(dpr,dpr);
+  const css=getComputedStyle(document.documentElement);
+  const col=n=>css.getPropertyValue(n).trim();
+  const t = au.dataset.line===l.id && au.dataset.src===tt.audio ? au.currentTime : 0;
+  const X = sec => W - (sec/tt.duration)*W;   // RTL timeline
+  // target word regions
+  const targets=new Set(l.questions.flatMap(q=>q.words));
+  tt.words.forEach((w,i)=>{ if(targets.has(i)){ g.fillStyle=col('--warn-soft'); g.fillRect(X(w.e),0,X(w.s)-X(w.e),H); } });
+  const n=tt.peaks.length, bw=W/n;
+  for(let i=0;i<n;i++){ const sec=(i+0.5)/n*tt.duration; const h=Math.max(1.5,tt.peaks[i]/100*(H-10));
+    g.fillStyle = sec<=t ? col('--wave-played') : col('--wave');
+    g.fillRect(X(sec)-bw*0.35, (H-h)/2, Math.max(1,bw*0.7), h); }
+  g.fillStyle=col('--ink'); g.fillRect(X(t)-1,0,2,H);
+  cv.setAttribute('aria-valuenow', t.toFixed(1)); cv.setAttribute('aria-valuemax', tt.duration.toFixed(1));
+}
+function seek(l, sec, stopAt){
+  loadTake(l); const go=()=>{ au.currentTime=Math.max(0,sec); S.stopAt=stopAt; au.play(); };
+  if(au.readyState>=1) go(); else au.addEventListener('loadedmetadata',go,{once:true});
+}
+function playWords(l, idx){
+  const tt=takeOf(l); if(!idx.length) return;
+  const a=tt.words[idx[0]], b=tt.words[idx[idx.length-1]];
+  seek(l, a.s-0.25, b.e+0.3);
+}
+let lastNow=null;
+function tick(){
+  const lid=au.dataset.line, l=lid&&LINE(lid);
+  if(l){ const t=au.currentTime; $('tm-'+l.id) && ($('tm-'+l.id).textContent=fmt(t)+' / '+fmt(takeOf(l).duration));
+    if(S.stopAt!=null && t>=S.stopAt){ au.pause(); S.stopAt=null; }
+    let cur=null; document.querySelectorAll('#tx-'+l.id+' .w').forEach(s=>{ if(t>=+s.dataset.s && t<+s.dataset.e+0.04) cur=s; });
+    if(cur!==lastNow){ if(lastNow) lastNow.classList.remove('now'); if(cur) cur.classList.add('now'); lastNow=cur; }
+    draw(l); }
+  if(!au.paused) requestAnimationFrame(tick);
+}
+au.addEventListener('play',()=>{ const b=$('pb-'+au.dataset.line); if(b){b.textContent='❚❚'; b.setAttribute('aria-label','إيقاف');} requestAnimationFrame(tick); });
+au.addEventListener('pause',()=>{ const b=$('pb-'+au.dataset.line); if(b){b.textContent='▶'; b.setAttribute('aria-label','تشغيل');} tick(); });
+au.addEventListener('seeked',tick);
+addEventListener('resize',()=>{ if(S.open) draw(LINE(S.open)); });
+
+// ---------------------------------------------------------------- word marks
+function openPop(l,i){
+  const tt=takeOf(l), w=tt.words[i];
+  sel={line:l.id, wi:i, word:w.w, time:w.s, take:tt.id, take_kind:tt.kind}; selType=null;
+  $('popWord').textContent=w.w; $('popWhere').textContent=l.id+' · '+fmt(w.s);
+  const ex=S.marks[tt.id.slice(0,14)+'-'+l.id+'-'+i];
+  $('popNote').value=ex?ex.note:''; selType=ex?ex.type:null;
+  document.querySelectorAll('#types button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.t===selType)));
+  $('pop').hidden=false;
+  seek(l, w.s-0.2, w.e+0.25);
+}
+document.querySelectorAll('#types button').forEach(b=>b.addEventListener('click',()=>{ selType=b.dataset.t;
+  document.querySelectorAll('#types button').forEach(x=>x.setAttribute('aria-pressed',String(x===b))); }));
+$('popClose').addEventListener('click',()=>{$('pop').hidden=true;});
+$('popAgain').addEventListener('click',()=>{ if(!sel) return; const l=LINE(sel.line), w=takeOf(l).words[sel.wi]; au.playbackRate=S.rate; seek(l,w.s-0.2,w.e+0.25); });
+$('popSlow').addEventListener('click',()=>{ if(!sel) return; const l=LINE(sel.line), w=takeOf(l).words[sel.wi]; au.playbackRate=0.65; seek(l,w.s-0.25,w.e+0.3);
+  au.addEventListener('pause',()=>{au.playbackRate=S.rate;},{once:true}); });
+$('popSave').addEventListener('click',async()=>{ if(!sel) return;
+  const key=sel.take.slice(0,14)+'-'+sel.line+'-'+sel.wi; $('pop').hidden=true;
+  await persist('marks', key, {...sel, type:selType||'غير ذلك', note:$('popNote').value.trim(), at:new Date().toISOString()});
+  paintMarks(); });
+function paintMarks(){
+  document.querySelectorAll('.txt .w').forEach(s=>{ const lid=s.closest('details').dataset.line; const tt=takeOf(LINE(lid));
+    s.classList.toggle('marked', !!S.marks[tt.id.slice(0,14)+'-'+lid+'-'+s.dataset.i]); });
+  const box=$('marks'); box.textContent='';
+  const list=Object.entries(S.marks).sort((a,b)=>a[1].line<b[1].line?-1:a[1].line>b[1].line?1:a[1].time-b[1].time);
+  if(!list.length){ box.append(el('p','empty','ما في أخطاء محددة لين الحين. اضغط أي كلمة في نص السطر لتسمعها وتحددها.')); return; }
+  for(const [k,m] of list){
+    const d=el('div','mk'); const a=el('div');
+    const wd=el('div','wd',m.word+' '); wd.append(pill('p-new',m.type)); if(m.take_kind==='mock') wd.append(' ',pill('p-mock','تجريبي'));
+    a.append(wd, el('div','info',m.line+' · '+fmt(m.time)+(m.note?' · '+m.note:'')));
+    const r=el('div','row');
+    const go=el('button','small','اسمع'); go.type='button'; go.addEventListener('click',()=>{ const l=LINE(m.line); S.take[l.id]=m.take;
+      openLine(l.id); const w=takeOf(l).words[m.wi]; seek(l,w.s-0.2,w.e+0.25); });
+    const del=el('button','small','احذف'); del.type='button'; del.addEventListener('click',async()=>{ await persist('marks',k,null); paintMarks(); });
+    r.append(go,del); d.append(a,r); box.append(d);
+  }
+}
+function openLine(id){
+  if(S.view==='queue' && !LINE(id).queue){ S.view='all'; renderList(); }
+  const d=document.querySelector('details.card[data-line="'+id+'"]'); if(d){ d.open=true; d.scrollIntoView({block:'start'}); }
+}
+
+// ---------------------------------------------------------------- boot
+$('ttl').textContent=DATA.title||'مراجعة الصوت';
+$('intro').textContent=DATA.intro||('في '+DATA.queue.length+' أسطر، كلمة فيها «الـ» وصلت للصوت بالإنجليزي (Steel، Quartz، White Gold). من النص وحده ما نعرف إذا «الـ» انسمعت أو لا. اسمع كل كلمة وجاوب. التصحيح المدفوع ما ينفّذ إلا بموافقتك.');
+$('tabQueue').addEventListener('click',()=>{ S.view='queue'; S.open=null; au.pause(); renderList(); renderStats(); });
+$('tabAll').addEventListener('click',()=>{ S.view='all'; S.open=null; au.pause(); renderList(); renderStats(); });
+$('finish').addEventListener('click',async()=>{ $('doneMsg').hidden=false;
+  if(db){ try{ await db.doc('review/summary').set({finished:true, listening:Object.keys(S.listening).length,
+    verdicts:Object.keys(S.verdicts).length, corrections:Object.keys(S.corrections).length, marks:Object.keys(S.marks).length,
+    proposed_chars:proposedChars(), plan_hash:DATA.plan_hash, at:new Date().toISOString()}); }catch(e){ status('ما انحفظ الإنهاء، جرّب مرة ثانية', true); } } });
+try{ const saved=JSON.parse(localStorage.getItem('vr-'+DATA.project)||'{}'); COLS.forEach(c=>Object.assign(S[c], saved[c]||{})); }catch(e){}
+if(location.hash.length>1 && LINE(location.hash.slice(1))) S.open=location.hash.slice(1);
+else S.open = DATA.queue[0] || null;
+renderList(); renderStats(); paintMarks();
+if(S.open){ const l=LINE(S.open); loadTake(l); }
+(async()=>{
+  try{
+    db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+    if(!db) return;
+    for(const c of COLS){
+      db.collection(c).onSnapshot(s=>{ const m={}; for(const d of s.docs){ const v=d.data(); if(v) m[d.id]=v; } S[c]=m;
+        if(S.open){ const l=LINE(S.open); refreshTake(l); }
+        document.querySelectorAll('details.card').forEach(d=>renderCardHead(LINE(d.dataset.line)));
+        paintMarks(); renderStats(); }, ()=>{});
+    }
+  }catch(e){ db=null; }
+})();
+</script>
