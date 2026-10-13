@@ -1,15 +1,14 @@
 <title>Video Director</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Cairo:wght@600;800&family=Inter:wght@500;700&display=swap">
 <style>
-/* Layout: a studio. The video is the stage: Watch opens on the player with the episode's title, current stage and
-   the one next action beside it; detail lives in folded sections below. Dark-first like an edit suite (a light theme
-   follows the system). Chrome stays neutral graphite so the projects' own colours (the band under the header, the
-   style boards) are the only brand colour on screen. State colours are semantic and always carry a text label. */
+/* Layout: one review path per video (Voice → Scenes → Final → Publish). Home shows the film, the steps and one
+   next button; scenes and voice checks are reviewed one at a time with the actions in a bar at the bottom.
+   Dark-first like an edit suite; light follows the system. Few words: state is shown by colour + icon + one label. */
 :root{
   --bg:#0f1114; --panel:#16191e; --raise:#1c2026; --sunk:#0b0d10; --ink:#e8eaed; --muted:#9aa1ab; --line:#2a2f37;
   --accent:#8fb4e3; --accent-ink:#0f1114; --accent-soft:#1d2a3a;
   --ok:#6cc79a; --ok-soft:#14301f; --wait:#e8b65a; --wait-soft:#362a10; --bad:#f08c80; --bad-soft:#3a1c19;
-  --proc:#7fb2ea; --proc-soft:#17283b; --unk:#9aa1ab; --unk-soft:#22272e; --ai:#b9a2e6; --ai-soft:#271f3c; --fix:#7fd3c8; --fix-soft:#11302c;
+  --proc:#7fb2ea; --proc-soft:#17283b; --unk:#9aa1ab; --unk-soft:#22272e; --fix:#7fd3c8; --fix-soft:#11302c;
   --f-body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif; --f-ar:"IBM Plex Sans Arabic","IBM Plex Sans",sans-serif;
   --f-mono:"IBM Plex Mono",ui-monospace,monospace;
   color-scheme:dark;
@@ -18,62 +17,59 @@
   --bg:#f2f3f5; --panel:#ffffff; --raise:#f7f8fa; --sunk:#e6e9ed; --ink:#14171b; --muted:#59616c; --line:#d6dae0;
   --accent:#2b5b87; --accent-ink:#ffffff; --accent-soft:#e2ebf4;
   --ok:#1d7a4e; --ok-soft:#dff1e7; --wait:#8a5a00; --wait-soft:#fbefd6; --bad:#b0362b; --bad-soft:#f8e1de;
-  --proc:#2463a6; --proc-soft:#e1ecf8; --unk:#5f6873; --unk-soft:#eceef1; --ai:#6b4fa0; --ai-soft:#eee8f8; --fix:#11756b; --fix-soft:#dcf2ef; color-scheme:light}}
+  --proc:#2463a6; --proc-soft:#e1ecf8; --unk:#5f6873; --unk-soft:#eceef1; --fix:#11756b; --fix-soft:#dcf2ef; color-scheme:light}}
 :root[data-theme="light"]{
   --bg:#f2f3f5; --panel:#ffffff; --raise:#f7f8fa; --sunk:#e6e9ed; --ink:#14171b; --muted:#59616c; --line:#d6dae0;
   --accent:#2b5b87; --accent-ink:#ffffff; --accent-soft:#e2ebf4;
   --ok:#1d7a4e; --ok-soft:#dff1e7; --wait:#8a5a00; --wait-soft:#fbefd6; --bad:#b0362b; --bad-soft:#f8e1de;
-  --proc:#2463a6; --proc-soft:#e1ecf8; --unk:#5f6873; --unk-soft:#eceef1; --ai:#6b4fa0; --ai-soft:#eee8f8; --fix:#11756b; --fix-soft:#dcf2ef; color-scheme:light}
+  --proc:#2463a6; --proc-soft:#e1ecf8; --unk:#5f6873; --unk-soft:#eceef1; --fix:#11756b; --fix-soft:#dcf2ef; color-scheme:light}
 [hidden]{display:none!important}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0}
 .ar{font-family:var(--f-ar)}
 a{color:var(--accent)}
-button,select{font:inherit;color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:8px;padding:6px 12px;min-height:36px;cursor:pointer}
+button,select{font:inherit;color:var(--ink);background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:6px 12px;min-height:40px;cursor:pointer}
 button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
-button:focus-visible,a:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.big{min-height:52px;font-size:1.02rem;padding:10px 18px;width:100%}
+button:focus-visible,a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
-button:disabled{opacity:.45;cursor:not-allowed}
-h1{font-size:1rem;margin:0}
-h2{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:-.005em}
-h3{font-size:1rem;margin:0}
+button:disabled{opacity:.4;cursor:not-allowed}
+h1{font-size:1rem;margin:0} h2{font-size:1.3rem;margin:0;text-wrap:balance} h3{font-size:.95rem;margin:0}
 p{margin:0}
-.eyebrow{font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600}
 .muted{color:var(--muted)} .small{font-size:.86rem} .tiny{font-size:.76rem} .mono{font-family:var(--f-mono);font-size:.86em}
-.row{display:flex;gap:8px 12px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between}
+.row{display:flex;gap:8px 10px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between}
 .stack{display:flex;flex-direction:column;gap:10px;min-width:0}
 /* chrome */
 header.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
-.toprow{display:flex;align-items:center;gap:10px 14px;padding:10px 16px}
+.toprow{display:flex;align-items:center;gap:10px;padding:8px 16px}
 .brand{display:flex;align-items:center;gap:8px;margin-inline-end:auto;white-space:nowrap}
-.brand .mk{width:20px;height:20px;border-radius:5px;border:2px solid var(--ink);position:relative}
+.brand .mk{width:20px;height:20px;border-radius:5px;border:2px solid var(--ink);position:relative;flex:none}
 .brand .mk::after{content:"";position:absolute;inset:4px 3px 4px 6px;background:var(--ink);clip-path:polygon(0 0,100% 50%,0 100%)}
-.proj{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden}
-.proj button{border:0;border-radius:0;min-height:34px;display:inline-flex;align-items:center;gap:7px;background:transparent}
+.proj{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden;flex:none}
+.proj button{border:0;border-radius:0;min-height:34px;display:inline-flex;align-items:center;gap:6px;background:transparent;padding:4px 10px;white-space:nowrap}
 .proj button+button{border-inline-start:1px solid var(--line)}
-.proj i{width:10px;height:10px;border-radius:50%;display:inline-block}
-.band{display:flex;align-items:center;gap:6px 14px;flex-wrap:wrap;padding:6px 16px;font-size:.78rem;background:var(--pb);color:var(--pi)}
-.band b{font-weight:600}
-.band .sw{display:inline-flex;gap:3px} .band .sw i{width:11px;height:11px;border-radius:3px;border:1px solid rgba(127,127,127,.45)}
-.shell{display:grid;grid-template-columns:200px minmax(0,1fr)}
-nav.rail{border-inline-end:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:96px;align-self:start;min-height:calc(100vh - 96px)}
-nav.rail a,nav.tabs a{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;border-radius:8px;padding:8px 10px}
+.proj i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.syncchip{font-size:.76rem;font-weight:600;border-radius:99px;padding:2px 9px;text-decoration:none}
+.syncchip.pending{background:var(--wait-soft);color:var(--wait)} .syncchip.problem{background:var(--bad-soft);color:var(--bad)}
+.shell{display:grid;grid-template-columns:184px minmax(0,1fr)}
+nav.rail{border-inline-end:1px solid var(--line);padding:14px 10px;display:flex;flex-direction:column;gap:2px;position:sticky;top:52px;align-self:start;min-height:calc(100vh - 52px)}
+nav.rail a,nav.tabs a{display:flex;align-items:center;gap:10px;color:var(--ink);text-decoration:none;border-radius:8px;padding:9px 10px}
 nav.rail a[aria-current="page"]{background:var(--accent-soft);color:var(--accent);font-weight:600}
 .badge{margin-inline-start:auto;background:var(--wait-soft);color:var(--wait);font-size:.7rem;font-weight:700;border-radius:99px;padding:0 7px;font-variant-numeric:tabular-nums}
 nav.tabs{display:none}
-main{padding:18px 22px 48px;min-width:0;display:flex;flex-direction:column;gap:18px;max-width:1240px}
-.ic{width:18px;height:18px;flex:none}
+main{padding:20px 24px 40px;min-width:0;display:flex;flex-direction:column;gap:18px;max-width:1180px}
+.ic{width:20px;height:20px;flex:none}
 @media (max-width:760px){
   .shell{grid-template-columns:1fr} nav.rail{display:none}
-  nav.tabs{display:grid;grid-template-columns:repeat(6,1fr);position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
-  nav.tabs a{flex-direction:column;gap:1px;font-size:.64rem;padding:7px 1px;justify-content:center;position:relative}
+  nav.tabs{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+  nav.tabs a{flex-direction:column;gap:2px;font-size:.68rem;padding:8px 2px;justify-content:center;position:relative}
   nav.tabs a[aria-current="page"]{color:var(--accent);font-weight:600}
-  nav.tabs .badge{position:absolute;top:2px;inset-inline-end:6px;margin:0}
-  main{padding:14px 16px 92px}
-  .toprow{padding:8px 16px} .brand h1{font-size:.92rem} .proj button{padding:4px 9px;font-size:.84rem}
-  .band .hide-s{display:none}
+  nav.tabs .badge{position:absolute;top:3px;inset-inline-end:10px;margin:0}
+  body.flow nav.tabs{display:none}
+  main{padding:14px 16px 96px}
+  body.flow main{padding-bottom:24px}
+  .brand h1{display:none}
 }
-/* panels */
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
 details.fold{background:var(--panel);border:1px solid var(--line);border-radius:12px}
 details.fold>summary{cursor:pointer;padding:12px 16px;font-weight:600;list-style:none;display:flex;justify-content:space-between;gap:10px}
@@ -81,112 +77,125 @@ details.fold>summary::-webkit-details-marker{display:none}
 details.fold>summary::after{content:"＋";color:var(--muted)} details.fold[open]>summary::after{content:"－"}
 details.fold>div{padding:0 16px 14px;display:flex;flex-direction:column;gap:10px}
 .pill{display:inline-flex;align-items:center;gap:5px;font-size:.72rem;font-weight:600;border-radius:99px;padding:1px 9px;white-space:nowrap;line-height:1.6;max-width:100%}
-@media (max-width:420px){.pill{white-space:normal}}
 .pill.dot::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.s-processing{background:var(--proc-soft);color:var(--proc)} .s-waiting_review{background:var(--wait-soft);color:var(--wait)}
-.s-approved,.s-done{background:var(--ok-soft);color:var(--ok)} .s-blocked,.s-failed{background:var(--bad-soft);color:var(--bad)}
-.s-unknown,.s-not_started,.s-no_findings,.s-missing{background:var(--unk-soft);color:var(--unk)}
+.s-ok{background:var(--ok-soft);color:var(--ok)} .s-wait{background:var(--wait-soft);color:var(--wait)} .s-bad{background:var(--bad-soft);color:var(--bad)}
+.s-unk{background:var(--unk-soft);color:var(--unk)} .s-fix{background:var(--fix-soft);color:var(--fix)} .s-proc{background:var(--proc-soft);color:var(--proc)}
 .v-critical{background:var(--bad-soft);color:var(--bad)} .v-major{background:var(--wait-soft);color:var(--wait)} .v-minor{background:var(--proc-soft);color:var(--proc)} .v-info{background:var(--unk-soft);color:var(--unk)}
 .b-decide{background:var(--wait-soft);color:var(--wait)} .b-fixable{background:var(--fix-soft);color:var(--fix)} .b-suggestion{background:var(--unk-soft);color:var(--unk)} .b-blocked{background:var(--bad-soft);color:var(--bad)}
-.k-ai{background:var(--ai-soft);color:var(--ai)} .k-auto{background:var(--ok-soft);color:var(--ok)} .k-plain{background:var(--unk-soft);color:var(--unk)}
-/* watch */
-.stage{display:grid;grid-template-columns:minmax(260px,380px) minmax(0,1fr);gap:22px;align-items:start}
-@media (max-width:900px){.stage{grid-template-columns:1fr}}
-.player{display:flex;flex-direction:column;gap:8px}
-.player video{width:100%;max-height:72vh;aspect-ratio:9/16;object-fit:contain;background:#000;border-radius:14px;border:1px solid var(--line);display:block}
-@media (max-width:760px){.player video{max-height:58vh}}
-.player .kind{font-size:.78rem;color:var(--muted)}
-.hero h2{font-size:1.9rem;line-height:1.25}
-@media (max-width:760px){.hero h2{font-size:1.5rem}}
-.next{border:1px solid var(--accent);background:var(--accent-soft);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:8px}
-.steps{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.steps .st{display:flex;flex-direction:column;gap:4px;font-size:.72rem;color:var(--muted);min-width:0}
-.steps .st i{display:block;height:6px;border-radius:99px;background:var(--unk-soft)}
-.steps .st.approved i{background:var(--ok)} .steps .st.waiting_review i{background:var(--wait)} .steps .st.processing i{background:var(--proc)} .steps .st.blocked i,.steps .st.failed i{background:var(--bad)}
-.steps .st.current span{color:var(--ink);font-weight:600}
-.blocker{border-inline-start:3px solid var(--bad);padding:4px 10px;font-size:.88rem}
-.stagegrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
-.sc{border:1px solid var(--line);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:5px;background:var(--raise);border-top:3px solid var(--unk);min-width:0}
-.sc.approved{border-top-color:var(--ok)} .sc.waiting_review{border-top-color:var(--wait)} .sc.blocked{border-top-color:var(--bad)}
-.bar{height:5px;background:var(--sunk);border-radius:99px;overflow:hidden} .bar i{display:block;height:100%;background:var(--accent)}
+.sync{font-size:.78rem;font-weight:600} .sync.recorded{color:var(--ok)} .sync.pending{color:var(--wait)} .sync.problem{color:var(--bad)}
+/* video */
+.player video{width:100%;aspect-ratio:9/16;object-fit:contain;background:#000;border-radius:14px;border:1px solid var(--line);display:block}
+.kind{font-size:.74rem;color:var(--muted)}
+/* home */
+.home{display:grid;grid-template-columns:minmax(240px,340px) minmax(0,1fr);gap:28px;align-items:start}
+.home .player video{max-height:70vh}
+@media (max-width:760px){.home{grid-template-columns:1fr;gap:16px}.home .player video{max-height:38vh}}
+.title h2{font-size:1.7rem} @media (max-width:760px){.title h2{font-size:1.4rem}}
+ol.path{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+ol.path a{display:grid;grid-template-columns:36px minmax(0,1fr) auto 14px;align-items:center;gap:12px;padding:10px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+ol.path .num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;background:var(--unk-soft);color:var(--unk)}
+ol.path .lbl{font-weight:600} ol.path .sub{display:block;font-size:.8rem;color:var(--muted);font-weight:400}
+ol.path .cnt{font-variant-numeric:tabular-nums;font-size:.86rem;color:var(--muted)}
+ol.path .chev{color:var(--muted)}
+ol.path li.done .num{background:var(--ok-soft);color:var(--ok)}
+ol.path li.now a{border-color:var(--accent);background:var(--accent-soft)} ol.path li.now .num{background:var(--accent);color:var(--accent-ink)}
+ol.path li.wait a{opacity:.7} ol.path li.blocked .num{background:var(--bad-soft);color:var(--bad)}
+.bar10{height:4px;border-radius:99px;background:var(--sunk);overflow:hidden;margin-top:6px} .bar10 i{display:block;height:100%;background:var(--ok)}
+/* flows */
+.flowhead{display:flex;align-items:center;gap:10px}
+.flowhead .back{font-size:1.4rem;text-decoration:none;color:var(--ink);padding:2px 10px 2px 0}
+.flowhead .t{font-weight:700;font-size:1.1rem} .flowhead .n{color:var(--muted);font-variant-numeric:tabular-nums}
+.flowhead .pn{margin-inline-start:auto;display:flex;gap:6px} .flowhead .pn a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border:1px solid var(--line);border-radius:10px;text-decoration:none;color:var(--ink);background:var(--raise)}
+.flowhead .pn a[aria-disabled="true"]{opacity:.3;pointer-events:none}
+.dots{display:flex;gap:4px;flex-wrap:wrap}
+.dots a{flex:1 1 0;min-width:10px;max-width:42px;height:8px;border-radius:99px;background:var(--unk-soft)}
+.dots a.ok{background:var(--ok)} .dots a.fix{background:var(--fix)} .dots a.pend{outline:2px solid var(--wait);outline-offset:-2px}
+.dots a.cur{box-shadow:0 0 0 2px var(--bg),0 0 0 4px var(--accent)}
+.scenebox{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:22px;align-items:start}
+.scenebox video,.scenebox img.still{width:100%;aspect-ratio:9/16;max-height:62vh;object-fit:contain;background:#000;border-radius:14px;border:1px solid var(--line);display:block}
+@media (max-width:760px){.scenebox{grid-template-columns:1fr;gap:14px}.scenebox video,.scenebox img.still{max-height:44vh}}
+.nar{font-size:1.08rem;line-height:1.7}
+.verdict{font-weight:600;font-size:.9rem}
+.issue{border:1px solid var(--line);border-radius:12px;background:var(--panel);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 8px;align-items:start}
+.issue>button.itxt{background:transparent;border:0;text-align:start;padding:10px 12px;display:flex;flex-direction:column;gap:4px;min-height:0;border-radius:12px}
+.issue .txt{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.issue.open .txt{-webkit-line-clamp:unset}
+.issue>button.fixbtn{margin:8px 8px 0 0;min-height:36px;padding:4px 12px;font-size:.84rem}
+.issue .more{grid-column:1/-1;padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;font-size:.88rem}
+.sd{display:inline-block;width:8px;height:8px;border-radius:50%;margin-inline-end:2px}
+.sd.critical{background:var(--bad)} .sd.major{background:var(--wait)} .sd.minor{background:var(--proc)} .sd.info{background:var(--unk)}
+.actionbar{position:sticky;bottom:0;z-index:25;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:10px;display:flex;gap:8px;align-items:center;margin-top:4px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.actionbar button{flex:1 1 0;min-height:52px;font-size:1rem}
+.actionbar button.skip{flex:0 0 auto;background:transparent;border-color:transparent;color:var(--muted)}
+@media (max-width:760px){.actionbar{border-radius:16px 16px 0 0;margin-inline:-16px;border-inline:0;border-bottom:0}}
+.word{font-size:2rem;font-weight:700;line-height:1.3;text-align:center}
+.playbig{width:112px;height:112px;border-radius:50%;font-size:1rem;font-weight:600;margin-inline:auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:var(--accent);color:var(--accent-ink);border:0}
+.playbig b{font-size:1.8rem;line-height:1}
+.gate{font-size:.86rem;text-align:center;min-height:1.4em}
+.yes{color:var(--ok);font-weight:600} .no{color:var(--bad);font-weight:600} .warn{color:var(--wait)}
+.check audio{width:100%;height:40px}
+/* scenes */
+.scenes{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:20px;align-items:start}
+.scenes .player{position:sticky;top:64px} .scenes .player video{max-height:66vh}
+@media (max-width:900px){.scenes{grid-template-columns:1fr}.scenes .player{position:static}.scenes .player video{max-height:38vh}}
+.slist{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:8px}
+.srow{display:grid;grid-template-columns:62px minmax(0,1fr);background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.srow.now{border-color:var(--accent)}
+.srow .thumb{padding:0;border:0;border-radius:0;position:relative;min-height:0;display:block;background:var(--sunk)}
+.srow .thumb img{width:62px;height:100%;min-height:96px;object-fit:cover;display:block}
+.srow .thumb span{position:absolute;inset:auto 0 0 0;background:rgba(0,0,0,.7);color:#fff;font:600 .7rem var(--f-mono);text-align:center;padding:2px 0}
+.srow .body{padding:8px 10px;display:flex;flex-direction:column;gap:4px;color:var(--ink);text-decoration:none;min-width:0}
+.srow .nar1{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.88rem;line-height:1.55}
+/* art */
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px} .chips button{flex:none;min-height:36px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden} .seg button{border:0;border-radius:0} .seg button+button{border-inline-start:1px solid var(--line)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+@media (max-width:760px){.cards{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.cards>.card{flex:0 0 82%;scroll-snap-align:start}}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px;min-width:0}
+.card.rec{border-color:var(--accent)} .card.locked{border-color:var(--ok)}
+.card .pv{aspect-ratio:9/16;max-height:420px;width:100%;border-radius:10px;overflow:hidden;background:var(--sunk);position:relative;display:flex;align-items:center;justify-content:center}
+.card .pv.wide{aspect-ratio:auto;max-height:none}
+.card .pv img{width:100%;height:100%;object-fit:cover;cursor:zoom-in} .card .pv.wide img{object-fit:contain;height:auto}
+.card .pv .lab{position:absolute;inset-inline:0;bottom:0;background:rgba(0,0,0,.72);color:#fff;font-size:.72rem;padding:5px 8px}
+.card .pv .none{padding:18px;text-align:center;color:var(--muted);font-size:.86rem}
+.card .pv.nopv{aspect-ratio:auto;min-height:72px;border:1px dashed var(--line)}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:.84rem;margin:0} .kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
+.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+/* tasks */
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.summary button{display:flex;flex-direction:column;align-items:flex-start;gap:0;padding:10px 12px;border-radius:12px;background:var(--panel);text-align:start}
+.summary b{font-size:1.4rem;font-variant-numeric:tabular-nums}
+@media (max-width:760px){.summary{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.summary button{padding:6px 10px;min-height:0}.summary b{font-size:1.15rem}.summary .small{font-size:.74rem}}
+.task{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;border-inline-start:4px solid var(--unk)}
+.task.needs_decision{border-inline-start-color:var(--wait)} .task.fixable{border-inline-start-color:var(--fix)} .task.blocked{border-inline-start-color:var(--bad)} .task.done{border-inline-start-color:var(--ok);opacity:.85}
+.task .title{font-weight:600}
+.fline{display:flex;gap:8px;align-items:baseline;font-size:.86rem} .fline span:last-child{display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+/* style */
+.board{display:flex;flex-direction:column;gap:16px}
+.board .head{border-radius:14px;padding:16px;display:flex;align-items:center;gap:14px}
+.board .head img{width:56px;height:56px;border-radius:10px}
+.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.swatch{border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.72rem}
+.swatch i{display:block;height:44px} .swatch span{display:block;padding:4px 6px} .swatch code{font-family:var(--f-mono)}
+.type{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px}
+.gallery img,.gallery video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
+.meter{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden} .meter i{display:block;height:100%;background:var(--accent)}
+.okrow{display:flex;gap:8px;align-items:flex-start;font-size:.88rem} .okrow b{width:18px;text-align:center;flex:none}
 .tbl{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
-table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:540px}
+table{border-collapse:collapse;width:100%;font-size:.84rem;min-width:520px}
 th,td{padding:7px 10px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top} tr:last-child td{border-bottom:0}
 th{color:var(--muted);font-weight:500;font-size:.76rem} td.n{text-align:end;font-variant-numeric:tabular-nums;white-space:nowrap}
-.feed .ev{display:grid;grid-template-columns:120px 1fr;gap:2px 12px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.84rem}
+.feed .ev{display:grid;grid-template-columns:130px 1fr;gap:2px 12px;padding:6px 0;border-bottom:1px solid var(--line);font-size:.84rem}
 .feed .ev:last-child{border-bottom:0} .feed time{color:var(--muted);font-variant-numeric:tabular-nums;font-size:.76rem}
 @media (max-width:520px){.feed .ev{grid-template-columns:1fr}}
-/* timeline */
-.tlwrap{display:grid;grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:900px){.tlwrap{grid-template-columns:1fr}}
-.tlwrap .player{position:sticky;top:110px}
-@media (max-width:900px){.tlwrap .player{position:static}.tlwrap .player video{max-height:42vh}}
-.strip{display:flex;gap:3px;overflow-x:auto;padding:4px 2px 8px;scroll-snap-type:x proximity}
-.strip button{padding:0;border:2px solid transparent;border-radius:6px;background:var(--sunk);flex:none;display:flex;flex-direction:column;overflow:hidden;min-height:0;scroll-snap-align:start}
-.strip button img{height:86px;width:100%;object-fit:cover;display:block}
-.strip button b{height:5px;display:block}
-.strip button span{font:500 .62rem var(--f-mono);color:var(--muted);padding:1px 3px;text-align:start}
-.strip button.now{border-color:var(--accent)}
-.sev-critical{background:var(--bad)} .sev-major{background:var(--wait)} .sev-minor{background:var(--proc)} .sev-none{background:var(--unk-soft)} .sev-ok{background:var(--ok)} .sev-listen{background:var(--wait)}
-.slist{display:flex;flex-direction:column;gap:8px}
-.srow{display:grid;grid-template-columns:58px minmax(0,1fr);gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px}
-.srow.now{border-color:var(--accent)}
-.srow img{width:58px;height:103px;object-fit:cover;border-radius:6px;background:var(--sunk)}
-.srow .nar{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:.92rem}
-/* scene + art */
-.split{display:grid;grid-template-columns:minmax(220px,320px) minmax(0,1fr);gap:18px;align-items:start}
-@media (max-width:900px){.split{grid-template-columns:1fr}}
-.media video,.media img{width:100%;max-width:320px;border-radius:12px;border:1px solid var(--line);background:#000;display:block}
-@media (max-width:900px){.media video,.media img{margin-inline:auto}}
-.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:4px} .chips button{flex:none}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:10px;overflow:hidden} .seg button{border:0;border-radius:0} .seg button+button{border-inline-start:1px solid var(--line)}
-.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px}
-@media (max-width:760px){.cards{display:flex;overflow-x:auto;scroll-snap-type:x mandatory}.cards>.card{flex:0 0 86%;scroll-snap-align:start}}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px;min-width:0}
-.card.locked{border-color:var(--ok)} .card.rec{border-color:var(--accent)}
-.card .pv{aspect-ratio:9/16;max-height:440px;width:100%;border-radius:10px;overflow:hidden;background:var(--sunk);position:relative;display:flex;align-items:center;justify-content:center}
-.card .pv.wide{aspect-ratio:auto;max-height:none}
-.card .pv img{width:100%;height:100%;object-fit:cover;cursor:zoom-in}
-.card .pv.wide img{object-fit:contain;height:auto}
-.card .pv .lab{position:absolute;inset-inline:0;bottom:0;background:rgba(0,0,0,.72);color:#fff;font-size:.72rem;padding:5px 8px}
-.card .pv .none{padding:18px;text-align:center;color:var(--muted);font-size:.86rem;border:1px dashed var(--line);border-radius:10px;margin:10px}
-.kv{display:grid;grid-template-columns:auto 1fr;gap:3px 10px;font-size:.84rem} .kv dt{color:var(--muted)} .kv dd{margin:0;min-width:0}
-.yes{color:var(--ok);font-weight:600} .no{color:var(--bad);font-weight:600}
-.acts{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.sync{font-size:.76rem;font-weight:600}
-.sync.recorded{color:var(--ok)} .sync.pending{color:var(--wait)} .sync.problem{color:var(--bad)}
-/* reviews */
-.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px}
-.summary button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border-radius:12px;background:var(--panel);text-align:start}
-.summary b{font-size:1.4rem;font-variant-numeric:tabular-nums}
-.task{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:10px;border-inline-start:4px solid var(--unk)}
-.task.needs_decision{border-inline-start-color:var(--wait)} .task.fixable{border-inline-start-color:var(--fix)} .task.blocked{border-inline-start-color:var(--bad)} .task.done{border-inline-start-color:var(--ok);opacity:.85}
-.task .title{font-weight:600;font-size:1.02rem}
-.finding{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;background:var(--raise)}
-.check{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--raise)}
-.check audio{width:100%;height:40px}
-.gate{font-size:.82rem}
-textarea{font:inherit;width:100%;min-height:36px;border:1px solid var(--line);border-radius:8px;background:var(--sunk);color:var(--ink);padding:6px 8px}
-/* identity */
-.boards{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
-.board{border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:14px;border:1px solid var(--line);background:var(--panel)}
-.board .head{border-radius:12px;padding:16px;display:flex;flex-direction:column;gap:4px}
-.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
-.swatch{border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:.72rem}
-.swatch i{display:block;height:46px} .swatch span{display:block;padding:4px 6px} .swatch code{font-family:var(--f-mono)}
-.type{border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
-.gallery3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.gallery3 figure{margin:0;display:flex;flex-direction:column;gap:4px} .gallery3 img,.gallery3 video{width:100%;border-radius:8px;border:1px solid var(--line);display:block;background:#000}
-.gallery3 figcaption{font-size:.72rem;color:var(--muted)}
-.okrow{display:flex;gap:8px;align-items:flex-start;font-size:.88rem} .okrow b{width:18px;text-align:center;flex:none}
-.meter{height:10px;background:var(--sunk);border-radius:99px;overflow:hidden} .meter i{display:block;height:100%;background:var(--accent)}
 .lightbox{position:fixed;inset:0;z-index:50;background:rgba(5,6,8,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:16px}
 .lightbox img,.lightbox video{max-width:100%;max-height:82vh;border-radius:8px}
 .lightbox .compare{display:flex;gap:10px;max-width:100%;overflow-x:auto}
 .lightbox .compare figure{margin:0;flex:0 0 auto;max-width:min(calc(70vh * 0.5625),80vw);color:#ddd;font-size:.8rem}
 .lightbox .compare img{max-height:70vh}
 .lightbox button{background:#fff;color:#111;border-color:#fff}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:96px;z-index:60;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;max-width:90vw}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;z-index:60;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;max-width:90vw}
 @media (min-width:761px){.toast{bottom:20px}}
 .empty{color:var(--muted);font-size:.9rem;padding:16px;border:1px dashed var(--line);border-radius:12px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -195,9 +204,9 @@ textarea{font:inherit;width:100%;min-height:36px;border:1px solid var(--line);bo
 <header class="top">
   <div class="toprow">
     <div class="brand"><span class="mk" aria-hidden="true"></span><h1>Video Director</h1></div>
+    <a id="syncchip" class="syncchip" hidden></a>
     <div class="proj" role="group" aria-label="Project" id="proj"></div>
   </div>
-  <div class="band" id="band"></div>
 </header>
 <div class="shell">
   <nav class="rail" id="rail" aria-label="Sections"></nav>
@@ -213,24 +222,25 @@ const MODE = '__MODE__';
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const P_KEYS = {tk:'timekeeper', dh:'diabetes-history'}, P_SHORT = {'timekeeper':'tk','diabetes-history':'dh'};
-const ST = {processing:'Processing', waiting_review:'Waiting for review', approved:'Approved', blocked:'Blocked', failed:'Failed', unknown:'Not recorded', not_started:'Not started', no_findings:'No findings', missing:'Missing here', done:'Done', needs_decision:'Needs your decision', fixable:'Claude can fix', suggestion:'Suggestion only'};
-const DEC_LABEL = {approved:'Approved', rejected:'Rejected', changes_requested:'Changes requested', selected:'Selected', concept_selected:'Concept selected', accepted:'Accepted', dismissed:'Dismissed', needs_source:'Needs a source', article_heard:'Article heard', article_missing:'Article missing', unsure:'Not sure', playback_failed:'Audio could not play'};
+const SHORT_NAME = {'diabetes-history':'Diabetes', 'timekeeper':'Time Keeper'};
+const DEC_LABEL = {approved:'Approved', rejected:'Rejected', changes_requested:'Fixes requested', selected:'Chosen', concept_selected:'Concept selected', accepted:'Fix', dismissed:'Dismissed', needs_source:'Needs a source', article_heard:'Heard «الـ»', article_missing:'«الـ» missing', unsure:'Not sure', playback_failed:'Audio would not play'};
 const LISTEN = ['article_heard','article_missing','unsure'];
-const BSHORT = {decide:'Needs your decision', fixable:'Claude can fix', suggestion:'Suggestion', blocked:'Blocked: missing evidence'};
+const TAG = {decide:'Your call', fixable:'Claude fixes', suggestion:'Idea', blocked:'Needs source'};
+const DIM = {'Historical and technical accuracy':'Facts', 'Correct watches, products and people':'Right people & objects', 'Does the image match the narration?':'Matches narration',
+  'Composition and visual hierarchy':'Layout', 'Readability of Arabic text':'Arabic text', 'Lighting, colours and character proportions':'Colour & proportions',
+  'Consistency with the approved project style':'Style', 'Motion and storytelling quality':'Motion'};
 const ICON = {
-  watch:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor"/></svg>',
-  timeline:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="7" width="5" height="10" rx="1"/><rect x="9.5" y="7" width="5" height="10" rx="1"/><rect x="16.5" y="7" width="5" height="10" rx="1"/></svg>',
+  review:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 9.5v5l4-2.5z" fill="currentColor"/></svg>',
+  scenes:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2.5" y="7" width="5" height="10" rx="1"/><rect x="9.5" y="7" width="5" height="10" rx="1"/><rect x="16.5" y="7" width="5" height="10" rx="1"/></svg>',
   art:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="4" width="8" height="16" rx="1.5"/><rect x="13" y="4" width="8" height="16" rx="1.5"/></svg>',
-  reviews:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10.5l2.5 2.5L16 8"/></svg>',
-  identity:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="9" r="4"/><circle cx="16" cy="15" r="4"/></svg>',
-  costs:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="10" width="14" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>'};
-const SECTIONS = [['watch','Watch'],['timeline','Timeline'],['art','Art'],['reviews','Reviews'],['identity','Style'],['costs','Costs']];
+  style:'<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="9" r="4"/><circle cx="16" cy="15" r="4"/></svg>',
+  more:'<svg class="ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>'};
+const SECTIONS = [['review','Review'],['scenes','Scenes'],['art','Art'],['style','Style'],['more','More']];
+const ALIAS = {watch:'review', timeline:'scenes', reviews:'tasks', identity:'style', costs:'more'};
+const FLOWS = ['scene','voice','final'];
 
 // ------------------------------------------------------------------ decisions: recorded (event log) + page (waiting for sync)
-const REC = {};      // item -> recorded decision from the event log (snapshot)
-const PAGE = {};     // decision_id -> decision saved on this Artifact page
-const RECEIPT = {};  // decision_id -> sync receipt written back by the local application
-const PLAY = {};     // check id -> playback evidence from the browser
+const REC = {}, PAGE = {}, RECEIPT = {}, PLAY = {};
 let db = null;
 function seed(){
   for(const k in REC) delete REC[k];
@@ -242,264 +252,207 @@ function seed(){
 }
 function latestPage(item){ return Object.values(PAGE).filter(d => d.item===item).sort((a,b)=>a.at<b.at?-1:1).pop(); }
 function state(item){
-  // what the owner sees for an item: the recorded decision, unless a newer page decision is still waiting for sync
+  // the recorded decision, unless a newer page decision is still waiting for the local app
   const pg = latestPage(item), rc = REC[item];
   if(pg){ const r = RECEIPT[pg.decision_id];
-    if(!r) return {decision:pg.decision, sync:'pending', text:'Saved on this page · waiting for the local app'};
-    if(r.status==='recorded'||r.status==='duplicate') return {decision:pg.decision, sync:'recorded', text:'Recorded in the event log'+(r.event?' · #'+r.event:''), locked:pg.decision==='approved'};
-    if(!rc) return {decision:null, sync:'problem', text:'Not recorded: '+r.reason};
-    return {...rc, sync:'problem', text:'Your page decision was not recorded: '+r.reason, locked:rc.decision==='approved'};
+    if(!r) return {decision:pg.decision, sync:'pending', text:'Waiting to sync'};
+    if(r.status==='recorded'||r.status==='duplicate') return {decision:pg.decision, sync:'recorded', text:'Saved'+(r.event?' · #'+r.event:''), locked:pg.decision==='approved'};
+    if(!rc) return {decision:null, sync:'problem', text:'Not saved: '+r.reason};
+    return {...rc, sync:'problem', text:'Not saved: '+r.reason, locked:rc.decision==='approved'};
   }
-  if(rc) return {...rc, sync:'recorded', text:'Recorded in the event log'+(rc.event?' · #'+rc.event:''), locked:rc.decision==='approved'};
+  if(rc) return {...rc, sync:'recorded', text:'Saved'+(rc.event?' · #'+rc.event:''), locked:rc.decision==='approved'};
   return null;
 }
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,10));
-function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>e.hidden=true, 3200); }
-async function decide(item, decision){
+function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>e.hidden=true, 2800); }
+async function save(item, decision, note=''){
+  // one decision; returns true when it was saved (local: recorded; page: stored and waiting to sync)
   const cur = state(item);
-  if(cur && cur.locked && decision!=='changes_requested'){ toast('Approved and locked. Request changes to open a new revision.'); return; }
-  const row = {decision_id:uid(), item, decision, note:'', at:new Date().toISOString()};
+  if(cur && cur.locked && decision!=='changes_requested'){ toast('Approved and locked. Use “Fix” to reopen.'); return false; }
+  const row = {decision_id:uid(), item, decision, note, at:new Date().toISOString()};
   if(LISTEN.includes(decision)){
     const ev = PLAY[item];
-    if(!ev || !ev.ok){ toast('Play the flagged word first. A listening answer needs the audio to have played.'); return; }
+    if(!ev || !ev.ok){ toast('Play the word first.'); return false; }
     row.playback = ev.record;
   }
   try{
     if(MODE==='local'){
       const r = await fetch('/api/decision', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(row)});
       const j = await r.json();
-      if(j.status==='recorded'||j.status==='duplicate'){ const f = await fetch('/api/snapshot'); if(f.ok){ DATA = await f.json(); seed(); } toast('Recorded in the event log · #'+j.event); }
-      else toast('Not recorded ('+j.status+'): '+j.reason);
-    } else {
-      PAGE[row.decision_id] = row;
-      if(db) await db.doc('decisions/'+row.decision_id).set(row);
-      else { try{ localStorage.setItem('vd-page-decisions', JSON.stringify(PAGE)); }catch(e){} }
-      toast('Saved on this page. It counts once the local app records it.');
+      if(j.status!=='recorded' && j.status!=='duplicate'){ toast('Not saved: '+j.reason); return false; }
+      return true;
     }
-    render();
-  }catch(e){ toast('Not saved ('+(e&&e.code||e.message||'error')+'). Try again.'); }
+    PAGE[row.decision_id] = row;
+    if(db) await db.doc('decisions/'+row.decision_id).set(row);
+    else { try{ localStorage.setItem('vd-page-decisions', JSON.stringify(PAGE)); }catch(e){} }
+    return true;
+  }catch(e){ toast('Not saved. Try again.'); return false; }
 }
+async function refresh(){ if(MODE!=='local') return; const f = await fetch('/api/snapshot'); if(f.ok){ DATA = await f.json(); seed(); } }
+async function decide(item, decision, note=''){ if(await save(item, decision, note)){ await refresh(); toast(MODE==='local'?'Saved':'Saved · waiting to sync'); } render(); }
 function decBlock(item, choices, opts={}){
   const st = state(item);
-  const btns = choices.map(([v,l]) => `<button type="button" data-dec="${v}" data-item="${esc(item)}" ${(st&&st.locked&&v!=='changes_requested')||(opts.gate&&LISTEN.includes(v)&&!(PLAY[item]&&PLAY[item].ok))||opts.disabled?'disabled':''} aria-pressed="${!!st&&st.decision===v}">${esc(l)}</button>`).join('');
-  const s = st ? `<span class="sync ${st.sync}">${st.locked?'Locked · ':''}${esc(DEC_LABEL[st.decision]||'')}${st.decision?' · ':''}${esc(st.text)}</span>` : '';
-  return `<div class="acts">${btns}${s}</div>`;
+  const btns = choices.map(([v,l]) => `<button type="button" data-dec="${v}" data-item="${esc(item)}" ${(st&&st.locked&&v!=='changes_requested')||opts.disabled?'disabled':''} aria-pressed="${!!st&&st.decision===v}">${esc(l)}</button>`).join('');
+  return `<div class="acts">${btns}${st?`<span class="sync ${st.sync}">${st.locked?'🔒 ':''}${esc(DEC_LABEL[st.decision]||'')}${st.decision?' · ':''}${esc(st.text)}</span>`:''}</div>`;
 }
 
-// ------------------------------------------------------------------ routing  (#dh~watch, #dh~watch~65.3, #tk~reviews~voice)
-let proj='diabetes-history', view='watch', arg=null;
-function parse(){ const h = location.hash.slice(1).split('~'); if(P_KEYS[h[0]]){ proj=P_KEYS[h[0]]; view=h[1]||'watch'; arg=h[2]||null; } }
-function go(v,a){ location.hash = [P_SHORT[proj], v, a].filter(x=>x!=null&&x!=='').join('~'); }
+// ------------------------------------------------------------------ routing
+let proj='diabetes-history', view='review', arg=null;
+function parse(){ const h = location.hash.slice(1).split('~'); if(P_KEYS[h[0]]){ proj=P_KEYS[h[0]]; view=ALIAS[h[1]]||h[1]||'review'; arg=h[2]||null; } }
+const link = (v,a) => '#'+[P_SHORT[proj], v, a].filter(x=>x!=null&&x!=='').join('~');
 addEventListener('hashchange', () => { parse(); render(); scrollTo(0,0); });
 const V = () => DATA.projects[proj].videos[0];
-const openTasks = () => DATA.review_tasks.filter(t => t.status!=='done' && t.status!=='suggestion');
+const T = id => DATA.review_tasks.find(t => t.id===id);
 
 // ------------------------------------------------------------------ helpers
 const fmtT = s => { s=Math.max(0,+s||0); const m=Math.floor(s/60); return m+':'+String(Math.floor(s%60)).padStart(2,'0'); };
 const fmtAt = a => a ? a.replace('T',' ').replace(/(:\d\d)?(\.\d+)?Z$/,' UTC') : '—';
 const dur = s => s==null ? '—' : s < 60 ? s.toFixed(1)+' s' : (s/60).toFixed(1)+' min';
 const pill = (cls,t,dot) => `<span class="pill ${cls}${dot?' dot':''}">${esc(t)}</span>`;
-const stP = s => pill('s-'+s, ST[s]||s, true);
 const sources = base => base ? `<source src="${esc(base)}.mp4" type="video/mp4"><source src="${esc(base)}.webm" type="video/webm">` : '';
 const videoTag = (base, attrs='') => `<video ${attrs} playsinline preload="metadata">${sources(base)}</video>`;
-function previewTag(pv, id){ return `<video id="${id}" controls playsinline preload="metadata" poster="${esc(pv.poster)}"><source src="${esc(pv.mp4)}" type="video/mp4"><source src="${esc(pv.webm)}" type="video/webm"></video>`; }
+const previewTag = (pv, id) => `<video id="${id}" controls playsinline preload="metadata" poster="${esc(pv.poster)}"><source src="${esc(pv.mp4)}" type="video/mp4"><source src="${esc(pv.webm)}" type="video/webm"></video>`;
+const kindChip = pv => pv.kind==='animatic' ? pill('s-wait','Animatic · not the film') : pill('s-unk','Published film');
+const first = t => { const m = String(t||'').match(/^.*?[.!?؟](\s|$)/); const s = (m?m[0]:String(t||'')).trim(); return s.length>150 ? s.slice(0,147)+'…' : s; };
+function sceneVerdict(s){ return proj==='diabetes-history' ? state('art-ep7-'+s.id) : null; }
+function sceneMark(s){ const v = sceneVerdict(s); if(!v||!v.decision) return {k:'todo'};
+  return {k: v.decision==='approved'?'ok':v.decision==='changes_requested'?'fix':'todo', pend: v.sync==='pending'}; }
+const checkDone = c => { const st = state(c.id); return !!st && LISTEN.includes(st.decision); };
+const sceneStart = id => { const s = V().scenes.find(x=>x.id===id); return s ? s.start : 0; };
+
+// the review path for the current video: what is done, what is next, what waits
+function path(){
+  const v = V(), st = k => (v.stages.find(s=>s.stage===k)||{});
+  const out = [];
+  if(proj==='diabetes-history'){
+    const marks = v.scenes.map(sceneMark), done = marks.filter(m=>m.k!=='todo').length, fixes = marks.filter(m=>m.k==='fix').length;
+    const nextScene = v.scenes.find((s,i)=>marks[i].k==='todo');
+    const fin = state('final-ep7');
+    out.push({key:'voice', label:'Voice', sub:'Narration', cnt:'30/30', state: st('voice').status==='approved'?'done':'now', href:link('more','voice')});
+    out.push({key:'scenes', label:'Scenes', sub: fixes? fixes+' waiting for fixes':'Look at each scene', cnt:`${done}/${v.scenes.length}`, pct: done/v.scenes.length,
+      state: done===v.scenes.length?'done':'now', href: link('scene', (nextScene||v.scenes[0]).id), go: nextScene && {label:`Review scene ${nextScene.id}`, href:link('scene', nextScene.id)}});
+    const finalReady = done===v.scenes.length && !fixes;
+    out.push({key:'final', label:'Final video', sub: fin&&fin.decision==='approved'?'Approved':finalReady?'Watch and approve':fixes?'After the fixes':'After the scenes', cnt:'',
+      state: fin&&fin.decision==='approved'?'done':finalReady?'now':'wait', href:link('final'), go: finalReady && !(fin&&fin.decision==='approved') && {label:'Approve the final video', href:link('final')}});
+    out.push({key:'publish', label:'Publish', sub:'Licence check (Fasih)', cnt:'', state:'blocked', href:link('more','blockers')});
+  } else {
+    const cs = DATA.inbox_checks, done = cs.filter(checkDone).length, nx = cs.findIndex(c=>!checkDone(c));
+    out.push({key:'voice', label:'Voice', sub:'Listen to 8 lines', cnt:`${done}/${cs.length}`, pct: done/cs.length, state: done===cs.length?'done':'now',
+      href: link('voice', Math.max(0,nx)), go: nx>=0 && {label:`Listen: check ${nx+1} of ${cs.length}`, href:link('voice', nx)}});
+    out.push({key:'scenes', label:'Scenes', sub:'No artwork yet', cnt:'', state:'wait', href:link('scenes')});
+    out.push({key:'final', label:'Final video', sub:'No film yet', cnt:'', state:'wait', href:link('scenes')});
+    out.push({key:'publish', label:'Publish', sub:'Not started', cnt:'', state:'wait', href:link('more')});
+  }
+  return out;
+}
+const otherTasks = () => DATA.review_tasks.filter(t => t.project===proj && (t.type==='direction'||t.type==='engineering') && t.status!=='done' && !state(t.id));
 
 // ------------------------------------------------------------------ chrome
 function chrome(){
   $('proj').innerHTML = Object.entries(DATA.projects).map(([k,p]) => { const pal = DATA.identity[k].board.palette;
-    return `<button type="button" data-proj="${k}" aria-pressed="${k===proj}"><i style="background:${esc(pal[0].hex)}"></i><i style="background:${esc((pal[2]||pal[1]).hex)};margin-inline-start:-10px"></i>${esc(p.name)}</button>`; }).join('');
-  const id = DATA.identity[proj], pal = id.palette || {};
-  document.documentElement.style.setProperty('--pb', pal.bg || pal.paper || '#eee'); document.documentElement.style.setProperty('--pi', pal.ink || '#111');
-  $('band').innerHTML = `<span>Profile <b>${esc(id.profile)}</b> · ${esc(id.status)}</span><span class="sw" aria-hidden="true">${Object.values(pal).map(c=>`<i style="background:${esc(c)}"></i>`).join('')}</span><span>Voice <b>${esc(id.final_voice)}</b></span><span class="hide-s">${MODE==='local'?'Local app':'Review copy'} · no paid actions</span>`;
-  const n = openTasks().length;
-  const nav = SECTIONS.map(([k,l]) => `<a href="#${P_SHORT[proj]}~${k}" ${view===k||(k==='timeline'&&view==='scene')?'aria-current="page"':''}>${ICON[k]}<span>${l}</span>${k==='reviews'&&n?`<span class="badge" aria-label="${n} need action">${n}</span>`:''}</a>`).join('');
+    return `<button type="button" data-proj="${k}" aria-pressed="${k===proj}"><i style="background:${esc(pal[0].hex)}"></i>${esc(SHORT_NAME[k]||p.name)}</button>`; }).join('');
+  const pend = Object.values(PAGE).filter(d=>!RECEIPT[d.decision_id]).length;
+  const prob = Object.values(PAGE).filter(d=>RECEIPT[d.decision_id]&&!['recorded','duplicate'].includes(RECEIPT[d.decision_id].status)).length;
+  const sc = $('syncchip'); sc.hidden = !(pend||prob); sc.className = 'syncchip '+(prob?'problem':'pending');
+  sc.textContent = prob ? `⚠ ${prob} not saved` : `⏳ ${pend} to sync`; sc.href = link('tasks');
+  const p = path(), n = p.filter(s=>s.state==='now').length;
+  const cur = FLOWS.includes(view) ? 'review' : view==='tasks' ? 'more' : view;
+  const nav = SECTIONS.map(([k,l]) => `<a href="${link(k)}" ${cur===k?'aria-current="page"':''}>${ICON[k]}<span>${l}</span></a>`).join('');
   $('rail').innerHTML = nav; $('tabs').innerHTML = nav;
+  document.body.classList.toggle('flow', FLOWS.includes(view));
 }
 
-// ------------------------------------------------------------------ WATCH
-function watch(){
-  const v = V(), cs = v.current_stage, na = v.next_action, appr = v.stages.filter(s=>s.status==='approved').length;
-  return `<section class="stage">
-    <div class="player">${previewTag(v.preview,'pv')}<p class="kind">${pill(v.preview.kind==='animatic'?'s-waiting_review':'k-plain', v.preview.kind==='animatic'?'Animatic · not the film':'Published render')} ${esc(v.preview.label)}</p></div>
-    <div class="stack hero" style="gap:16px">
-      <div class="stack" style="gap:4px"><p class="eyebrow">${esc(DATA.projects[proj].name)} · ${esc(v.episode)}</p>
-        <h2 class="ar" dir="auto">${esc(v.title)}</h2><p class="muted">${esc(v.title_en)} · ${fmtT(v.duration)} · ${v.scenes.length} scenes · ${esc(v.platform)}</p></div>
-      <div class="row">${pill('k-plain','Current stage')} <b>${esc(cs.label)}</b> ${stP(cs.status)}</div>
-      ${na?`<div class="next"><p class="eyebrow">Next action</p><p style="font-weight:600;font-size:1.05rem" class="ar" dir="auto">${esc(na.title)}</p><p class="small ar" dir="auto">${esc(na.why)}</p>
-        <div class="row"><button type="button" class="primary" data-go="reviews~task~${esc(na.id)}">Open this review</button>${na.scene?`<button type="button" data-seek="${sceneStart(na.scene)}">Watch scene ${esc(na.scene)}</button>`:''}</div></div>`:'<div class="next"><p>Nothing needs your decision on this video right now.</p></div>'}
-      <div class="stack" style="gap:6px"><div class="row between"><b>Progress</b><span class="small muted">${appr} of ${v.stages.length} stages approved</span></div>
-        <div class="steps">${v.stages.map(s=>`<div class="st ${s.status} ${s.stage===cs.stage?'current':''}" title="${esc(s.label+': '+(ST[s.status]||s.status))}"><i></i><span>${esc(s.label)}</span></div>`).join('')}</div>
-        <p class="tiny muted">Green approved · amber waiting for review · red blocked · grey not recorded. Only recorded events count.</p></div>
-      ${v.blockers.length?`<div class="stack" style="gap:6px"><b>Blockers</b>${v.blockers.map(b=>`<div class="blocker"><b class="ar" dir="auto">${esc(b.what)}</b><br><span class="muted ar" dir="auto">${esc(b.why)}</span></div>`).join('')}</div>`:''}
-    </div></section>
-    <details class="fold"><summary>Stage details</summary><div><div class="stagegrid">${v.stages.map(s=>`<div class="sc ${s.status}"><b>${esc(s.label)}</b>${stP(s.status)}
-      ${s.units?`<span class="small">${s.units.done} of ${s.units.total} ${esc(s.units.unit)}</span><div class="bar"><i style="width:${s.units.total?100*s.units.done/s.units.total:0}%"></i></div>`:''}
-      <span class="tiny muted ar" dir="auto">${esc(s.why)}</span><span class="tiny muted">First activity ${fmtAt(s.first_activity)}${s.approved_at?' · approved '+fmtAt(s.approved_at):''}</span></div>`).join('')}</div></div></details>
-    <details class="fold"><summary>Processing runs (measured)</summary><div>${runsTable()}</div></details>
-    <details class="fold"><summary>History</summary><div class="feed">${v.history.slice(-14).reverse().map(e=>`<div class="ev"><time>${fmtAt(e.at)}</time><div><span class="ar" dir="auto">${esc(e.what||e.kind)}</span> ${e.source==='reconstructed'?pill('k-plain','reconstructed'):pill('s-processing','recorded live')}<br><span class="tiny muted">${esc(e.evidence||e.actor)}</span></div></div>`).join('')}</div></details>
-    <details class="fold"><summary>Technical details</summary><div class="small">${techDetails()}</div></details>`;
-}
-function sceneStart(id){ const s = V().scenes.find(x=>x.id===id); return s ? s.start : 0; }
-function runsTable(){
-  const runs = DATA.tasks.recent.filter(r => r.project===proj);
-  if(!runs.length) return '<p class="muted small">No measured run for this project yet.</p>';
-  return `<p class="tiny muted">Units and times come from the event log. An ETA is shown only after 3 steady units; the check column compares the first ETA with what happened.</p><div class="tbl"><table><tr><th>Task</th><th>Units</th><th>Took</th><th>ETA check</th><th>Finished</th></tr>${runs.map(r=>`<tr><td>${esc(r.task)}</td><td class="n">${r.units_done}/${r.units_total}</td><td class="n">${dur(r.elapsed_s)}</td><td class="n">${r.eta_check?`predicted ${dur(r.eta_check.predicted_s)}, took ${dur(r.eta_check.actual_s)}`:'—'}</td><td class="n">${fmtAt(r.finished)}</td></tr>`).join('')}</table></div>`;
-}
-function techDetails(){
-  const id = DATA.identity[proj], v = V();
-  return `<dl class="kv"><dt>Profile</dt><dd class="mono">${esc(id.profile)} · v${esc(id.version)} · ${esc(id.status)}</dd><dt>Engine</dt><dd>${esc(id.engine)}</dd>
-    <dt>Voices</dt><dd>${id.voices.map(x=>esc(x.name+' ('+x.provider+', '+x.status+')')).join(', ')}</dd><dt>Pronunciation</dt><dd class="mono">${esc((id.library_scopes||[]).join(', '))}</dd>
-    <dt>Preview files</dt><dd class="mono">${esc(v.preview.mp4)} · ${esc(v.preview.webm)}</dd><dt>Snapshot</dt><dd>${fmtAt(DATA.generated_at)}</dd><dt>Mode</dt><dd>${MODE==='local'?'local app (decisions go straight to the event log)':'review copy (decisions wait for the local app)'}</dd></dl>`;
+// ------------------------------------------------------------------ REVIEW (home)
+function review(){
+  const v = V(), p = path(), nx = p.find(s=>s.go), others = otherTasks();
+  return `<section class="home">
+    <div class="player">${previewTag(v.preview,'pv')}</div>
+    <div class="stack" style="gap:16px">
+      <div class="title stack" style="gap:2px"><h2 class="ar" dir="auto">${esc(v.title)}</h2><p class="muted row" style="gap:8px">${esc(v.episode)} · ${fmtT(v.duration)} ${kindChip(v.preview)}</p></div>
+      ${nx?`<button type="button" class="primary big" data-href="${nx.go.href}" id="nextBtn">${esc(nx.go.label)} ›</button>`:'<p class="empty">Nothing waiting for you.</p>'}
+      <ol class="path">${p.map((s,i)=>`<li class="${s.state}" data-step="${s.key}"><a href="${s.href}">
+        <span class="num">${s.state==='done'?'✓':s.state==='blocked'?'!':s.state==='wait'?'🔒':i+1}</span>
+        <span><span class="lbl">${esc(s.label)}</span><span class="sub">${esc(s.sub)}</span>${s.pct!=null&&s.state!=='done'?`<span class="bar10"><i style="width:${100*s.pct}%"></i></span>`:''}</span>
+        <span class="cnt">${esc(s.cnt)}</span><span class="chev">›</span></a></li>`).join('')}</ol>
+      ${others.length?`<a class="small" href="${link('tasks')}">${others.length} other decision${others.length>1?'s':''} ›</a>`:''}
+    </div></section>`;
 }
 
-// ------------------------------------------------------------------ TIMELINE
-function sevOf(s){ if(proj==='timekeeper') return s.listening.asked>s.listening.answered?'listen':(s.voice_status==='approved'?'ok':'none'); return s.severity || (s.art_status==='approved'?'ok':'none'); }
-function timeline(){
-  const v = V(), pps = innerWidth < 760 ? 3.2 : 4.2;
-  const rend = v.stages.find(s=>s.stage==='render');
-  return `<div class="row between"><div><p class="eyebrow">${esc(v.episode)}</p><h2>Timeline</h2></div><span class="small muted">${fmtT(v.duration)} · ${v.scenes.length} scenes</span></div>
-    <div class="tlwrap"><div class="player">${previewTag(v.preview,'tlv')}<p class="kind">${v.preview.kind==='animatic'?pill('s-waiting_review','Animatic · not the film'):pill('k-plain','Published render')} Tap a scene to jump there.</p>
-      <div class="panel"><b>Rendering</b><p class="small">${rend&&rend.units?`${rend.units.done} of ${rend.units.total} ${esc(rend.units.unit)} · ${esc(ST[rend.status])}`:'No render in this workspace.'}</p>
-        <p class="tiny muted">${DATA.tasks.running.filter(r=>r.project===proj).length?'Processing now: '+DATA.tasks.running.filter(r=>r.project===proj).map(r=>esc(r.task)+' '+r.units_done+'/'+r.units_total).join(', '):'Nothing is processing now.'}</p></div></div>
-      <div class="stack">
-        <div class="strip" role="list" aria-label="Scenes in order">${v.scenes.map(s=>`<button type="button" role="listitem" data-seekscene="${esc(s.id)}" style="width:${Math.max(42, s.dur*pps)}px" aria-label="${esc(s.id)} at ${fmtT(s.start)}">
-          <img src="${esc(s.thumb)}" alt="" loading="lazy"><b class="sev-${sevOf(s)}"></b><span>${esc(s.id)}</span></button>`).join('')}</div>
-        <div class="row tiny muted"><span><b class="sev-major" style="display:inline-block;width:10px;height:5px"></b> ${proj==='timekeeper'?'listening check waiting':'major finding'}</span><span><b class="sev-minor" style="display:inline-block;width:10px;height:5px"></b> minor only</span><span><b class="sev-ok" style="display:inline-block;width:10px;height:5px"></b> ${proj==='timekeeper'?'voice approved':'approved'}</span><span><b class="sev-none" style="display:inline-block;width:10px;height:5px"></b> nothing flagged</span></div>
-        <div class="slist">${v.scenes.map(s=>`<div class="srow" id="row-${esc(s.id)}"><img src="${esc(s.thumb)}" alt="" loading="lazy">
-          <div class="stack" style="gap:5px"><div class="row"><b class="mono">${esc(s.id)}</b><span class="tiny muted">${fmtT(s.start)}–${fmtT(s.end)} · ${s.dur.toFixed(1)} s</span></div>
-            <p class="nar ar" dir="auto">${esc(s.narration||'')}</p>
-            <div class="row">${proj==='diabetes-history'?(s.severity?pill('v-'+s.severity, s.findings_open+' open · '+s.severity, true):pill('s-no_findings','no open findings',true)):(s.listening.asked?pill('s-waiting_review', s.listening.answered+' of '+s.listening.asked+' listening checks', true):s.voice_line?pill('s-approved','voice approved',true):pill('s-unknown','no narration',true))}
-              ${pill(s.selected_version.state==='approved'?'s-approved':s.selected_version.state==='missing'?'s-unknown':'k-plain', 'Visual: '+s.selected_version.label+(s.selected_version.state==='draft'?' (draft)':''))}
-              ${proj==='timekeeper'?pill('s-unknown','art not in this workspace'):''}</div>
-            <div class="acts"><button type="button" data-seekscene="${esc(s.id)}">▶ Play from ${fmtT(s.start)}</button><button type="button" data-go="scene~${esc(s.id)}">Scene</button>${proj==='diabetes-history'?`<button type="button" data-go="art~${esc(s.id)}">Art</button>`:''}</div></div></div>`).join('')}</div>
-      </div></div>`;
+// ------------------------------------------------------------------ SCENE (one at a time)
+const FIX = {};   // scene id -> Set of finding ids marked "Fix"
+const OPEN = new Set();
+function fixSet(s){ if(!FIX[s.id]) FIX[s.id] = new Set(s.findings.filter(f => !f.decision && (f.bucket!=='suggestion' || ['critical','major'].includes(f.severity))).map(f=>f.id)); return FIX[s.id]; }
+function flowHead(back, title, i, n, prev, next){
+  return `<div class="flowhead"><a class="back" href="${back}" aria-label="Back">‹</a><span class="t">${title}</span>${n?`<span class="n">${i+1} / ${n}</span>`:''}
+    ${n?`<span class="pn"><a href="${prev||'#'}" aria-label="Previous" aria-disabled="${!prev}">‹</a><a href="${next||'#'}" aria-label="Next" aria-disabled="${!next}">›</a></span>`:''}</div>`;
 }
-function bindTimeline(){
-  const vid = $('tlv'); if(!vid) return; const v = V();
-  vid.addEventListener('timeupdate', () => { const t = vid.currentTime; const s = v.scenes.find(x=>t>=x.start&&t<x.end); if(!s) return;
-    document.querySelectorAll('.strip button').forEach(b=>b.classList.toggle('now', b.dataset.seekscene===s.id));
-    document.querySelectorAll('.srow').forEach(r=>r.classList.toggle('now', r.id==='row-'+s.id)); });
+function scene(){
+  const v = V(); if(proj!=='diabetes-history') return scenes();
+  const s = v.scenes.find(x=>x.id===arg) || v.scenes[0], i = v.scenes.indexOf(s), fx = fixSet(s), st = sceneVerdict(s);
+  const main = s.findings.filter(f => ['critical','major'].includes(f.severity) || f.bucket!=='suggestion'), rest = s.findings.filter(f => !main.includes(f));
+  const issue = f => `<div class="issue ${OPEN.has(f.id)?'open':''}" data-f="${esc(f.id)}">
+      <button type="button" class="itxt" data-open="${esc(f.id)}" aria-expanded="${OPEN.has(f.id)}"><span class="row" style="gap:6px"><i class="sd ${f.severity}"></i>${pill('b-'+f.bucket, TAG[f.bucket])}<span class="tiny muted">${esc(DIM[f.dimension]||f.dimension)}</span></span>
+        <span class="txt">${esc(OPEN.has(f.id)?f.problem:first(f.problem))}</span></button>
+      <button type="button" class="fixbtn" data-fix="${esc(f.id)}" aria-pressed="${fx.has(f.id)}" ${st&&st.locked?'disabled':''}>${fx.has(f.id)?'✓ Fix':'Fix'}</button>
+      ${OPEN.has(f.id)?`<div class="more">${f.suggestion?`<p><b>Suggested</b> · <span class="ar" dir="auto">${esc(f.suggestion)}</span></p>`:''}${(f.notes||[]).map(n=>`<p class="warn small">${esc(n)}</p>`).join('')}
+        <p class="tiny muted">${esc(f.severity)} · ${esc(f.timecode)} · AI reviewer · ${[...f.frames, ...f.evidence.map(e=>e.kind+' '+e.ref)].map(esc).join(', ')||'—'}</p></div>`:''}
+    </div>`;
+  const verdict = st&&st.decision ? `<p class="verdict ${st.decision==='approved'?'yes':'warn'}">${st.decision==='approved'?'✓ Approved':'✎ Fixes requested'} <span class="sync ${st.sync}">· ${esc(st.text)}</span></p>` : '';
+  const n = fx.size;
+  return `${flowHead(link('review'), 'Scene '+esc(s.id), i, v.scenes.length, v.scenes[i-1]&&link('scene',v.scenes[i-1].id), v.scenes[i+1]&&link('scene',v.scenes[i+1].id))}
+    <div class="dots" aria-label="Scenes">${v.scenes.map(x=>{ const m = sceneMark(x); return `<a href="${link('scene',x.id)}" class="${m.k} ${m.pend?'pend':''} ${x.id===s.id?'cur':''}" title="${esc(x.id)}" aria-label="${esc(x.id)}"></a>`; }).join('')}</div>
+    <div class="scenebox">
+      <div class="stack" style="gap:6px">${videoTag(s.clip,`id="sv" controls loop autoplay muted poster="${esc(s.thumb)}"`)}
+        <div class="row between tiny muted"><span>${fmtT(s.start)}–${fmtT(s.end)}</span><a href="${link('art', s.id)}">Other looks ›</a></div></div>
+      <div class="stack" style="gap:14px">
+        <p class="nar ar" dir="auto">${esc(s.narration||'')}</p>
+        ${verdict}
+        <div class="stack" style="gap:8px"><h3>${s.findings.length} ${s.findings.length===1?'note':'notes'} from the reviewer</h3>
+          ${main.map(issue).join('')}
+          ${rest.length?`<details class="fold"><summary>${rest.length} small idea${rest.length>1?'s':''}</summary><div>${rest.map(issue).join('')}</div></details>`:''}</div>
+      </div></div>
+    <div class="actionbar">
+      ${st&&st.locked ? `<button type="button" data-scenefix="${esc(s.id)}">✎ Reopen for fixes</button>`
+        : `<button type="button" class="primary" data-sceneok="${esc(s.id)}" id="okBtn">✓ Approve</button><button type="button" data-scenefix="${esc(s.id)}" id="fixBtn" ${n?'':'disabled'}>✎ Fix ${n}</button>`}
+      <button type="button" class="skip" data-href="${v.scenes[i+1]?link('scene',v.scenes[i+1].id):link('review')}">Skip ›</button></div>`;
 }
-function seekTo(t, id){ const vid = $(id||'tlv') || $('pv'); if(!vid) return; const go = () => { vid.currentTime = t + 0.05; vid.play().catch(()=>{}); };
-  if(vid.readyState>=1) go(); else vid.addEventListener('loadedmetadata', go, {once:true}); vid.scrollIntoView({block:'nearest'}); }
-
-// ------------------------------------------------------------------ SCENE
-function sceneView(){
-  const v = V(), s = v.scenes.find(x=>x.id===arg) || v.scenes[0], i = v.scenes.indexOf(s);
-  const byB = b => (s.findings||[]).filter(f=>f.bucket===b);
-  return `<div class="row between"><a href="#${P_SHORT[proj]}~timeline">‹ Timeline</a><div class="row">${v.scenes[i-1]?`<a href="#${P_SHORT[proj]}~scene~${v.scenes[i-1].id}">‹ ${esc(v.scenes[i-1].id)}</a>`:''}${v.scenes[i+1]?`<a href="#${P_SHORT[proj]}~scene~${v.scenes[i+1].id}">${esc(v.scenes[i+1].id)} ›</a>`:''}</div></div>
-    <div class="row"><h2 class="mono">${esc(s.id)}</h2><span class="muted small">${fmtT(s.start)}–${fmtT(s.end)}</span></div>
-    <div class="split"><div class="media stack">${s.clip?videoTag(s.clip,'controls muted loop autoplay poster="'+esc(s.thumb)+'"'):`<img src="${esc(s.thumb)}" alt="">`}
-      <p class="tiny muted">${s.clip?'3-second preview from the published render':'Animatic frame (storyboard text). The film\'s artwork is not in this workspace.'}</p>
-      ${s.audio?`<audio controls preload="metadata" src="${esc(s.audio)}"></audio><p class="tiny muted">Approved narration · line ${esc(s.voice_line)}</p>`:''}</div>
-    <div class="stack" style="gap:14px">
-      <div class="panel"><p class="ar" dir="auto" style="font-size:1.08rem">${esc(s.narration||'—')}</p>${s.objective?`<p class="small"><b>Objective</b> · ${esc(s.objective)}</p>`:''}${s.plan?`<p class="small muted ar" dir="auto">${esc(s.plan)}</p>`:''}</div>
-      ${proj==='diabetes-history'?`<div class="panel"><div class="row between"><h3>Technical checks</h3>${pill('k-auto','automated · measured')}</div><p class="small muted">No technical finding in this scene. Size, length, black, frozen, static, loudness, true peak and palette all passed on the whole video.</p></div>
-      <div class="panel"><div class="row between"><h3>Art review</h3>${pill('k-ai','AI recommendations · not proof')}</div>
-        ${['decide','fixable','blocked','suggestion'].map(b=>byB(b).length?`<p class="small">${pill('b-'+b, BSHORT[b])} <span class="muted">${esc(DATA.bucket_labels[b])}</span></p>${byB(b).map(findingCard).join('')}`:'').join('') || '<p class="muted small">No findings.</p>'}
-        <p class="tiny muted">Nothing changes the artwork unless you decide it should.</p></div>`:''}
-      <div class="panel"><h3>History</h3>${(s.history||[]).length?`<div class="feed">${s.history.map(e=>`<div class="ev"><time>${fmtAt(e.at)}</time><div class="ar" dir="auto">${esc(e.what)}</div></div>`).join('')}</div>`:'<p class="small muted">No revision recorded for this scene.</p>'}</div>
-    </div></div>`;
+function nextAfterScene(id){
+  const v = V(), i = v.scenes.findIndex(x=>x.id===id);
+  const order = [...v.scenes.slice(i+1), ...v.scenes.slice(0,i)];
+  const nx = order.find(x => sceneMark(x).k==='todo');
+  return nx ? link('scene', nx.id) : link('final');
 }
-function findingCard(f){
-  return `<div class="finding"><div class="row">${pill('v-'+f.severity,f.severity,true)}<button type="button" class="mono small" data-seekscene-t="${f.t}" style="min-height:26px;padding:0 8px">▶ ${esc(f.timecode)}</button><span class="tiny muted">${esc(f.dimension)} · confidence ${esc(f.confidence)}</span></div>
-    <p class="ar" dir="auto">${esc(f.problem)}</p>${f.suggestion?`<p class="small muted ar" dir="auto">Suggested: ${esc(f.suggestion)}</p>`:''}
-    ${(f.notes||[]).map(n=>`<p class="tiny" style="color:var(--wait)">${esc(n)}</p>`).join('')}
-    <p class="tiny muted">Source: independent AI reviewer · evidence ${[...f.frames, ...f.evidence.map(e=>e.kind+' '+e.ref)].map(esc).join(', ')||'—'}</p>
-    ${decBlock(f.id, [['accepted', f.bucket==='fixable'?'Accept · let Claude fix':'Accept'],['dismissed','Dismiss'],['needs_source','Needs a source']])}</div>`;
+async function sceneOk(id){
+  if(await save('art-ep7-'+id, 'approved')){ await refresh(); toast(MODE==='local'?'Scene approved':'Approved · waiting to sync'); location.hash = nextAfterScene(id); render(); }
+}
+async function sceneFix(id){
+  const s = V().scenes.find(x=>x.id===id), fx = [...fixSet(s)];
+  if(!fx.length){ toast('Mark at least one note “Fix”.'); return; }
+  for(const f of fx){ const cur = state(f); if(!cur || cur.decision!=='accepted') if(!await save(f, 'accepted')) return; }
+  if(await save('art-ep7-'+id, 'changes_requested', 'fix: '+fx.join(', '))){ await refresh(); toast(`${fx.length} fix${fx.length>1?'es':''} requested`); location.hash = nextAfterScene(id); render(); }
 }
 
-// ------------------------------------------------------------------ ART
-let artTab = 'concepts', compareSet = new Set();
-function art(){
-  const v = V();
-  const s = v.scenes.find(x=>x.id===arg) || (proj==='diabetes-history' ? v.scenes.find(x=>x.id==='b1') : v.scenes[0]);
-  const chips = `<div class="chips" role="group" aria-label="Scene">${v.scenes.map(x=>`<button type="button" data-artscene="${x.id}" aria-pressed="${x.id===s.id}">${esc(x.id)}${(x.versions||[]).length>1?' · '+x.versions.length+' rev':''}</button>`).join('')}</div>`;
-  const cur = (s.versions||[]).find(x => (state(x.id)||{}).decision==='approved') || (s.versions||[])[(s.versions||[]).length-1];
-  const head = `<div class="split"><div class="media stack">${cur?`<img src="${esc(cur.img)}" alt="Current visual" data-full="${esc(cur.img)}" style="cursor:zoom-in">`:`<img src="${esc(s.thumb)}" alt="Animatic frame" data-full="${esc(s.thumb)}">`}
-      <p class="small">${cur?((state(cur.id)||{}).decision==='approved'?pill('s-approved','Approved visual',true):pill('s-waiting_review','Current visual · draft',true))+' '+esc(cur.label):pill('s-unknown','No artwork in this workspace',true)+' Animatic frame shown'}</p>
-      ${s.clip?`<button type="button" data-clip="${esc(s.clip)}">▶ Motion preview</button>`:''}</div>
-    <div class="stack"><p class="ar" dir="auto" style="font-size:1.08rem">${esc(s.narration||'')}</p>${s.objective?`<p><b>Scene objective</b> · ${esc(s.objective)}</p>`:'<p class="small muted">No scene objective written yet.</p>'}
-      <div class="seg" role="group" aria-label="Comparison"><button type="button" data-arttab="concepts" aria-pressed="${artTab==='concepts'}">Creative concepts</button><button type="button" data-arttab="revisions" aria-pressed="${artTab==='revisions'}">Revisions of this scene</button></div>
-      <p class="small muted">${artTab==='concepts'?'Different artistic directions the Art Director proposes for this scene. They are <b>proposals</b>: text, plus a reference image from another scene of this series where one exists. Nothing has been drawn for this scene. Selecting a concept is not approving art.':'Earlier versions of this same scene from real renders, oldest first. Approving a version locks it.'}</p></div></div>`;
-  return `<div class="row between"><div><p class="eyebrow">${esc(v.episode)}</p><h2>Art</h2></div><span class="small muted">Scene <b class="mono">${esc(s.id)}</b> · ${fmtT(s.start)}–${fmtT(s.end)}</span></div>${chips}${head}${artTab==='concepts'?concepts(s):revisions(s)}`;
-}
-function revisions(s){
-  const vs = s.versions||[];
-  if(!vs.length) return `<div class="empty">No rendered versions of this scene in this workspace.</div>`;
-  return `${vs.length===1?'<p class="small muted">Only the published render exists for this scene; no earlier revisions were saved.</p>':''}
-    <div class="cards">${vs.map(x=>{ const st = state(x.id); return `<div class="card ${st&&st.locked?'locked':''}"><div class="row between"><b>${esc(x.label)}</b>${st&&st.locked?pill('s-approved','Approved · locked',true):''}</div>
-      <div class="pv ${vs.length>1&&s.id==='b1'?'wide':''}"><img src="${esc(x.img)}" alt="${esc(x.label)}" data-full="${esc(x.img)}"></div>
-      <p class="small">${esc(x.what||'')}</p><p class="tiny muted">Source: ${esc(x.source)} · ${esc(x.cost)}</p>
-      <div class="acts"><button type="button" data-full="${esc(x.img)}">Full screen</button>${x.clip?`<button type="button" data-clip="${esc(x.clip)}">▶ Motion</button>`:''}</div>
-      ${decBlock(x.id, [['approved','Approve this version'],['rejected','Reject'],['changes_requested','Request changes']])}</div>`;}).join('')}</div>`;
-}
-function concepts(s){
-  const c = s.concepts||{options:[]};
-  if(!c.options.length) return `<div class="empty">${esc(c.note||'No concepts yet.')}</div>`;
-  const rec = c.options.find(o=>o.recommended);
-  return `${rec?`<div class="panel" style="border-color:var(--accent)"><p class="eyebrow">Recommended concept</p><p><b>${esc(rec.name)}</b> · ${esc(rec.reasons.join('; '))}${rec.warnings.length?' · <span style="color:var(--wait)">'+esc(rec.warnings.join('; '))+'</span>':''}</p></div>`:''}
-    <div class="row between"><span class="small muted">${c.options.length} proposals · tick up to 3 to compare side by side</span><button type="button" id="cmpBtn" data-compare="1" ${compareSet.size<2?'disabled':''}>Compare ${compareSet.size||''}</button></div>
-    <div class="cards">${c.options.map(o=>{ const st = state(o.id); return `<div class="card ${o.recommended?'rec':''}">
-      <div class="row between"><b>${esc(o.name)}</b>${o.recommended?pill('s-processing','Recommended'):''}</div>
-      <div class="pv">${o.preview?`<img src="${esc(o.preview.img)}" alt="Reference" data-full="${esc(o.preview.img)}"><span class="lab">${esc(o.preview.label)}</span>`:'<div class="none"><b>Proposal only</b><br>No artwork exists for this concept. It would be drawn only if you select it.</div>'}</div>
-      <div class="row">${pill('k-plain','Proposal')} ${pill(o.cost==='paid'?'s-blocked':'s-approved', o.cost==='paid'?'Paid':'Free', true)} ${pill(o.renderable?'s-approved':'s-blocked', o.renderable?'Renderable now':'Not renderable yet', true)}</div>
-      <dl class="kv"><dt>Why</dt><dd>${esc(o.reasons.join('; ')||'—')}</dd>
-        <dt>Renderable</dt><dd>${esc(o.renderable_why)}</dd>
-        <dt>Assets</dt><dd>${o.required_assets.needs.length?'needs '+esc(o.required_assets.needs.join(' or ')):'none (drawn)'}${o.required_assets.missing.length?' · <span class="no">missing '+esc(o.required_assets.missing.join(', '))+'</span>':''}<br><span class="muted">${esc(o.required_assets.note||'')}</span></dd>
-        <dt>Sources</dt><dd>${o.sources.length?o.sources.map(f=>`${esc(f.id)}: ${(f.sources||[]).slice(0,2).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(', ')}`).join('<br>'):'<span class="muted">no fact attached to this scene</span>'}</dd>
-        <dt>Limits</dt><dd>${esc(o.limitations||'—')}</dd>
-        <dt>Risks</dt><dd class="ar" dir="auto">${o.risks.map(esc).join('<br>')}</dd></dl>
-      ${o.preview&&o.preview.clip?`<button type="button" data-clip="${esc(o.preview.clip)}">▶ Motion of the reference</button>`:''}
-      <label class="small"><input type="checkbox" data-cmp="${esc(o.id)}" ${compareSet.has(o.id)?'checked':''}> Compare</label>
-      ${decBlock(o.id, [['concept_selected','Select this concept'],['changes_requested','Request changes']])}</div>`;}).join('')}</div>
-    ${(c.excluded||[]).length?`<details class="fold"><summary>${c.excluded.length} techniques not offered, with reasons</summary><div><ul class="small">${c.excluded.map(e=>`<li>${esc(e.technique)}: ${esc(e.reason)}</li>`).join('')}</ul></div></details>`:''}`;
-}
-
-// ------------------------------------------------------------------ REVIEWS
-let rvFilter = 'open';
-function reviews(){
-  const T = DATA.review_tasks, focus = arg==='task' ? location.hash.split('~')[3] : null;
-  const counts = s => T.filter(t => s==='open' ? (t.status!=='done') : t.status===s).length;
-  const shown = T.filter(t => rvFilter==='open' ? t.status!=='done' : t.status===rvFilter)
-    .sort((a,b)=> (a.project===proj?0:1)-(b.project===proj?0:1) || ['needs_decision','fixable','blocked','suggestion','done'].indexOf(a.status)-['needs_decision','fixable','blocked','suggestion','done'].indexOf(b.status));
-  const pend = Object.values(PAGE).filter(d=>!RECEIPT[d.decision_id]).length, prob = Object.values(PAGE).filter(d=>RECEIPT[d.decision_id]&&!['recorded','duplicate'].includes(RECEIPT[d.decision_id].status)).length;
-  return `<div class="row between"><div><p class="eyebrow">Both projects</p><h2>Reviews</h2></div>${MODE==='artifact'?`<span class="small ${pend?'sync pending':prob?'sync problem':'muted'}">${pend?pend+' decision(s) saved here, waiting for the local app':prob?prob+' decision(s) not recorded: see below':'Every decision made here is recorded'}</span>`:'<span class="small muted">Local app: decisions go straight to the event log</span>'}</div>
-    ${prob?`<details class="fold" open><summary>${prob} page decision(s) the local app did not record</summary><div class="stack" style="gap:6px">${Object.values(PAGE).filter(d=>RECEIPT[d.decision_id]&&!['recorded','duplicate'].includes(RECEIPT[d.decision_id].status)).map(d=>{const r=RECEIPT[d.decision_id];return `<p class="small"><span class="sync problem">${esc(r.status)}</span> <span class="mono">${esc(d.item)}</span> · ${esc(DEC_LABEL[d.decision]||d.decision)} · ${esc(r.reason)}</p>`;}).join('')}</div></details>`:''}
-    <div class="summary">${[['needs_decision','Need your decision'],['fixable','Claude can fix (no change to approved content)'],['blocked','Blocked by missing evidence or assets'],['suggestion','Suggestions only'],['done','Done']].map(([k,l])=>`<button type="button" data-rv="${k}" aria-pressed="${rvFilter===k}"><b>${counts(k)}</b><span class="small">${l}</span></button>`).join('')}
-      <button type="button" data-rv="open" aria-pressed="${rvFilter==='open'}"><b>${counts('open')}</b><span class="small">All open tasks</span></button></div>
-    <p class="tiny muted">One task per scene or narration line; the findings and checks inside are never counted twice. The final video waits on the scene reviews instead of repeating them.</p>
-    <div class="stack" style="gap:12px">${shown.map(t=>taskCard(t, t.id===focus)).join('') || '<div class="empty">Nothing here.</div>'}</div>`;
-}
-function taskCard(t, focus){
-  const pname = DATA.projects[t.project].name;
-  let body = '';
-  if(t.type==='art'){
-    const main = t.findings.filter(f=>['critical','major'].includes(f.severity)||f.bucket==='decide'||f.bucket==='blocked'), rest = t.findings.filter(f=>!main.includes(f));
-    body = `<div class="row">${Object.entries(t.buckets).map(([b,n])=>pill('b-'+b, n+' · '+BSHORT[b])).join('')}</div>
-      ${main.map(findingCard).join('')}${rest.length?`<details class="fold"><summary>${rest.length} more ${rest.length>1?'recommendations':'recommendation'} (minor)</summary><div>${rest.map(findingCard).join('')}</div></details>`:''}
-      <div class="acts"><button type="button" data-goproj="${P_SHORT[t.project]}~art~${esc(t.scene)}">Open in Art</button><button type="button" data-goproj="${P_SHORT[t.project]}~scene~${esc(t.scene)}">Scene details</button></div>`;
-  } else if(t.checks){
-    body = t.checks.map(c => checkCard(c)).join('');
-  } else {
-    const ch = t.type==='direction' ? [['selected','Choose a direction now'],['changes_requested','None fit yet']] : [['approved','Approve'],['rejected','Reject'],['changes_requested','Request changes']];
-    body = `${t.blocked_by?`<p class="small" style="color:var(--bad)">Blocked: ${esc(t.blocked_by)}</p>`:''}${t.type==='direction'?'<p class="small muted">Details on the creative directions page (Milestone 4). Choosing here records which way you lean; the profile stays a draft.</p>':''}
-      ${t.status==='blocked'&&t.type!=='final'?'':decBlock(t.id, ch, {disabled: t.status==='blocked'})}`;
-  }
-  return `<article class="task ${t.status}" id="task-${esc(t.id)}" ${focus?'style="outline:2px solid var(--accent)"':''}>
-    <div class="row">${pill('k-plain',t.type)} <span class="pill k-plain">${esc(pname)}</span> ${stP(t.status)} ${t.priority&&['critical','major','minor'].includes(t.priority)?pill('v-'+t.priority,t.priority):''}${t.scene?`<a class="mono small" href="#${P_SHORT[t.project]}~scene~${esc(t.scene)}">${esc(t.scene)}</a>`:''}${t.progress?`<span class="tiny muted">${t.progress.done}/${t.progress.total} done</span>`:''}</div>
-    <p class="title ar" dir="auto">${esc(t.title)}</p><p class="small muted ar" dir="auto">${esc(t.why)}</p>${(t.notes||[]).map(n=>`<p class="tiny muted">${esc(n)}</p>`).join('')}${body}</article>`;
-}
-function checkCard(c){
-  const ev = PLAY[c.id];
-  const gate = !c.available ? '<span class="no">The audio file is missing, so this cannot be answered as a listening result.</span>'
-    : ev&&ev.error ? `<span class="no">The audio did not play (${esc(ev.error)}). This cannot count as a listening result.</span>`
-    : ev&&ev.ok ? `<span class="yes">✓ ${esc(ev.text)}</span>` : `<span style="color:var(--wait)">Play the flagged word (${fmtT(c.word_s)}–${fmtT(c.word_e)}) before answering.</span>`;
-  return `<div class="check" data-check="${esc(c.id)}"><div class="row between"><b class="ar" dir="auto">«${esc(c.written)}» → <bdi>${esc(c.sent)}</bdi></b><span class="tiny muted">line ${esc(c.line)}${c.cost_if_changed?' · a fix would cost '+c.cost_if_changed+' ElevenLabs characters':''}</span></div>
-    <audio controls preload="metadata" src="${esc(c.audio)}" data-audio="${esc(c.id)}"></audio>
-    <div class="row"><button type="button" data-word="${esc(c.id)}" ${c.available?'':'disabled'}>▶ Play the flagged word</button><span class="gate">${gate}</span></div>
-    ${decBlock(c.id, [['article_heard','Article heard'],['article_missing','Article missing'],['unsure','Not sure']], {gate:true})}
-    ${ev&&ev.error?decBlock(c.id+'', [['playback_failed','Report: audio would not play']]):''}</div>`;
+// ------------------------------------------------------------------ VOICE (one check at a time)
+function voice(){
+  const cs = DATA.inbox_checks; if(proj!=='timekeeper' || !cs.length) return more();
+  const i = Math.min(Math.max(0, +arg||0), cs.length-1), c = cs[i], ev = PLAY[c.id], st = state(c.id);
+  const gate = !c.available ? '<span class="no">Audio file missing</span>' : ev&&ev.error ? `<span class="no">Audio would not play</span>`
+    : ev&&ev.ok ? `<span class="yes">✓ Played</span>` : '<span class="muted">Play the word first</span>';
+  const bare = c.written.replace(/^(?:بال|ال)/,'');
+  return `${flowHead(link('review'), 'Listen', i, cs.length, cs[i-1]&&link('voice',i-1), cs[i+1]&&link('voice',i+1))}
+    <div class="dots" aria-label="Checks">${cs.map((x,j)=>{ const s2 = state(x.id); return `<a href="${link('voice',j)}" class="${checkDone(x)?'ok':''} ${s2&&s2.sync==='pending'?'pend':''} ${j===i?'cur':''}" aria-label="Check ${j+1}"></a>`; }).join('')}</div>
+    <div class="panel check" data-check="${esc(c.id)}" style="gap:16px;align-items:stretch;max-width:520px;width:100%;margin-inline:auto">
+      <p class="tiny muted" style="text-align:center">Line ${esc(c.line)}</p>
+      <p class="word"><span class="ar" dir="rtl">«${esc(c.written)}»</span></p>
+      <p class="muted" style="text-align:center">Do you hear «الـ» at the start? <span class="tiny">(${esc(c.sent)})</span></p>
+      <button type="button" class="playbig" data-word="${esc(c.id)}" ${c.available?'':'disabled'}><b>▶</b>Play word</button>
+      <p class="gate" data-gate="${esc(c.id)}">${gate}</p>
+      <audio controls preload="metadata" src="${esc(c.audio)}" data-audio="${esc(c.id)}"></audio>
+      ${st&&st.decision?`<p class="verdict yes" style="text-align:center">${esc(DEC_LABEL[st.decision]||st.decision)} <span class="sync ${st.sync}">· ${esc(st.text)}</span></p>`:''}
+      ${ev&&ev.error?`<button type="button" data-dec="playback_failed" data-item="${esc(c.id)}">Report: audio would not play</button>`:''}
+    </div>
+    <div class="actionbar">${[['article_heard','Heard «الـ»'],['article_missing','Only «'+bare+'»'],['unsure','Not sure']].map(([d,l]) =>
+      `<button type="button" data-ans="${d}" data-dec="${d}" data-item="${esc(c.id)}" ${ev&&ev.ok?'':'disabled'} aria-pressed="${!!st&&st.decision===d}" class="${d==='article_heard'?'primary':''}">${esc(l)}</button>`).join('')}</div>`;
 }
 function bindAudio(){
   document.querySelectorAll('audio[data-audio]').forEach(a => {
@@ -508,11 +461,11 @@ function bindAudio(){
       const ranges = []; for(let i=0;i<a.played.length;i++) ranges.push([+a.played.start(i).toFixed(3), +a.played.end(i).toFixed(3)]);
       const s = Math.max(0, c.word_s - 0.15), e = c.word_e; let cov = 0;
       ranges.forEach(([x,y]) => { const lo=Math.max(x,s), hi=Math.min(y,e); if(hi>lo) cov+=hi-lo; });
-      const pct = cov/(e-s), durOk = isFinite(a.duration) && Math.abs(a.duration - c.duration) <= 0.25;
-      const ok = durOk && pct >= 0.8;
+      const pct = cov/(e-s), durOk = isFinite(a.duration) && Math.abs(a.duration - c.duration) <= 0.25, ok = durOk && pct >= 0.8;
       const was = PLAY[id] && PLAY[id].ok;
-      PLAY[id] = {ok, error:null, text: ok?`played ${Math.round(pct*100)} % of the flagged word`:'', record:{src:a.currentSrc, duration:+a.duration.toFixed(3), played:ranges, error:null}};
-      if(ok && !was){ const card = a.closest('.check'); card.querySelector('.gate').innerHTML = `<span class="yes">✓ ${esc(PLAY[id].text)}</span>`; card.querySelectorAll('button[data-dec]').forEach(b=>{ if(['article_heard','article_missing','unsure'].includes(b.dataset.dec) && !(state(id)||{}).locked) b.disabled=false; }); }
+      PLAY[id] = {ok, error:null, text: ok?`played ${Math.round(pct*100)} %`:'', record:{src:a.currentSrc, duration:+a.duration.toFixed(3), played:ranges, error:null}};
+      if(ok && !was){ const g = document.querySelector(`.gate[data-gate="${CSS.escape(id)}"]`); if(g) g.innerHTML = '<span class="yes">✓ Played</span>';
+        document.querySelectorAll(`button[data-item="${CSS.escape(id)}"]`).forEach(b=>{ if(LISTEN.includes(b.dataset.dec) && !(state(id)||{}).locked) b.disabled=false; }); }
     };
     a.addEventListener('timeupdate', upd); a.addEventListener('pause', upd); a.addEventListener('ended', upd);
     a.addEventListener('error', () => { PLAY[id] = {ok:false, error:(a.error&&a.error.message)||'media error '+(a.error&&a.error.code), record:{src:a.currentSrc||a.src, error:'load failed'}}; render(); });
@@ -525,74 +478,198 @@ function playWord(id){
     const h = () => { if(a.currentTime >= stop){ a.pause(); a.removeEventListener('timeupdate', h); } }; a.addEventListener('timeupdate', h); };
   if(a.readyState>=1) go(); else { a.addEventListener('loadedmetadata', go, {once:true}); a.load(); }
 }
-
-// ------------------------------------------------------------------ IDENTITY (style boards)
-function identity(){
-  const card = k => { const x = DATA.identity[k], b = x.board, pal = x.palette||{};
-    return `<section class="board" ${k===proj?'style="outline:2px solid var(--accent)"':''}>
-      <div class="head" style="background:${esc(pal.bg||pal.paper||'#eee')};color:${esc(pal.ink||'#111')}"><span style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;opacity:.8">${k===proj?'Active project · ':''}${esc(x.status)} profile</span>
-        <b style="font-size:1.3rem">${esc(DATA.projects[k].name)}</b><span class="mono" style="font-size:.78rem;opacity:.85">${esc(x.profile)}</span></div>
-      ${b.logo?`<div class="row"><img src="${esc(b.logo)}" alt="Logo" style="width:64px;height:64px;border-radius:10px;border:1px solid var(--line)"><span class="small muted">${esc(b.logo_note)}</span></div>`:`<p class="small muted">${esc(b.logo_note)}</p>`}
-      <div class="stack"><h3>Palette</h3><div class="swatches">${b.palette.map(c=>`<div class="swatch"><i style="background:${esc(c.hex)}"></i><span><code>${esc(c.hex)}</code><br>${esc(c.name)}</span></div>`).join('')}</div>
-        <p class="tiny muted">Source: ${esc([...new Set(b.palette.map(c=>c.source))].join(' · '))}</p>
-        ${b.palette_film?`<p class="small">Royal Oak film palette (not brand)</p><div class="swatches">${b.palette_film.map(c=>`<div class="swatch"><i style="background:${esc(c.hex)}"></i><span><code>${esc(c.hex)}</code><br>${esc(c.name)}</span></div>`).join('')}</div>`:''}</div>
-      <div class="stack"><h3>Typography</h3>${b.type.map(t=>`<div class="type"><span class="tiny muted">${esc(t.role)} · ${esc(t.font||'unassigned')}${t.source?' · '+esc(t.source):''}</span>${t.sample?`<span dir="auto" style="font-family:'${esc(t.font)}',sans-serif;font-weight:${t.weight};font-size:${t.role==='Display'?'1.9rem':t.role==='Numbers'?'1.4rem':'1.05rem'}">${esc(t.sample)}</span>`:`<span class="small" style="color:var(--wait)">${esc(t.missing)}</span>`}</div>`).join('')}</div>
-      <div class="stack"><h3>Characters and image treatment</h3><div class="gallery3">${b.characters.map(c=>`<figure><img src="${esc(c.img)}" alt="" data-full="${esc(c.img)}"><figcaption>${esc(c.caption)}</figcaption></figure>`).join('')}</div>
-        <ul class="small">${b.image_rules.filter(Boolean).map(r=>`<li>${esc(r)}</li>`).join('')}</ul></div>
-      <div class="stack"><h3>Composition</h3><div class="gallery3">${b.composition.map(c=>`<figure><img src="${esc(c.img)}" alt="" data-full="${esc(c.img)}"><figcaption>${esc(c.caption)}</figcaption></figure>`).join('')}</div></div>
-      <div class="stack"><h3>Motion</h3><div class="gallery3">${b.motion.clips.map(c=>`<figure>${videoTag(c,'muted loop autoplay')}</figure>`).join('')}</div>${b.motion.notes.map(n=>`<p class="small muted">${esc(n)}</p>`).join('')}</div>
-      <div class="stack"><h3>End card</h3><div class="gallery3"><figure><img src="${esc(b.endcard.img)}" alt="" data-full="${esc(b.endcard.img)}"></figure><figure>${videoTag(b.endcard.clip,'muted loop autoplay')}</figure></div><p class="small muted">${esc(b.endcard.caption)}</p></div>
-      <div class="stack"><h3>Sample scenes</h3><div class="gallery3">${b.samples.map(c=>`<figure><img src="${esc(c)}" alt="" data-full="${esc(c)}"></figure>`).join('')}</div>${k==='timekeeper'?'<p class="tiny muted">Animatic frames: storyboard text on the film\'s theme colours. The real photographs are not in this workspace.</p>':''}</div>
-      <p class="small">${x.contamination.hits.length?pill('s-blocked',x.contamination.hits.length+' signature(s) from the other project',true):pill('s-approved','No signature from the other project',true)} <span class="muted">${x.contamination.files_checked} project files checked</span></p></section>`; };
-  return `<div><p class="eyebrow">Creative identity</p><h2>Style boards</h2></div><p class="small muted">Two separate identities. Nothing here is invented: every colour, font and image comes from an approved file or a published frame, and the source is shown. What does not exist yet is marked unassigned.</p>
-    <div class="boards">${card(proj)}${card(proj==='timekeeper'?'diabetes-history':'timekeeper')}</div>
-    <div class="panel"><h3>Kept apart</h3>${DATA.identity.separation.map(c=>`<div class="okrow"><b class="${c.ok?'yes':'no'}">${c.ok?'✓':'✗'}</b><span>${esc(c.check)} <span class="tiny muted">${esc(c.detail)}</span></span></div>`).join('')}</div>`;
+async function answer(id, d){
+  const cs = DATA.inbox_checks, i = cs.findIndex(c=>c.id===id);
+  if(await save(id, d)){ await refresh(); toast(MODE==='local'?'Saved':'Saved · waiting to sync');
+    const nx = [...cs.slice(i+1), ...cs.slice(0,i)].find(c=>!checkDone(c)); location.hash = nx ? link('voice', cs.indexOf(nx)) : link('review'); render(); }
 }
 
-// ------------------------------------------------------------------ COSTS
-function costs(){
-  const c = DATA.costs, a = c.elevenlabs_account;
-  return `<div><p class="eyebrow">Providers and spending</p><h2>Costs</h2></div>
-    <div class="panel" style="border-color:var(--bad)"><div class="row between"><h3>ElevenLabs final narration</h3>${pill('s-blocked','Locked',true)}</div><p class="small">${esc(c.guarantee)}</p>
-      ${c.lock.requires.map(r=>`<div class="okrow"><b class="${r.met?'yes':'no'}">${r.met?'✓':'✗'}</b><span>${esc(r.step)}</span></div>`).join('')}</div>
-    <div class="summary"><div class="panel"><b style="font-size:1.4rem">${c.spend.actual_units}</b><span class="small muted">paid ${esc(c.spend.unit)} spent · ${esc(c.spend.note)}</span></div>
-      ${c.estimates.map(e=>`<div class="panel"><b style="font-size:1.4rem">${e.units.toLocaleString()}</b><span class="small muted">${esc(e.unit)} estimated · ${esc(e.what)}</span></div>`).join('')}</div>
-    <div class="panel"><h3>ElevenLabs account</h3><div class="meter"><i style="width:${100*a.used/a.limit}%"></i></div><p class="small">${a.used.toLocaleString()} of ${a.limit.toLocaleString()} characters · read ${esc(a.read_at.slice(0,16).replace('T',' '))} UTC</p><p class="tiny muted">${esc(a.note)}</p></div>
-    <details class="fold"><summary>Free and paid operations (${c.operations.length})</summary><div><div class="tbl"><table><tr><th>Operation</th><th>Cost</th><th>Where</th></tr>${c.operations.map(o=>`<tr><td>${esc(o.op)}</td><td>${pill(o.kind==='paid'?'s-blocked':'s-approved',o.kind,true)}</td><td class="small muted">${esc(o.where)}</td></tr>`).join('')}</table></div></div></details>
-    <details class="fold"><summary>Voice providers</summary><div>${c.providers.map(p=>`<p class="small"><b>${esc(DATA.projects[p.project].name)}</b> · final ${esc(p.final)} · drafts ${esc(p.draft)}</p>`).join('')}</div></details>`;
+// ------------------------------------------------------------------ FINAL
+function final(){
+  const v = V(); if(proj!=='diabetes-history') return review();
+  const p = path().find(s=>s.key==='final'), st = state('final-ep7'), left = v.scenes.filter(s=>sceneMark(s).k==='todo');
+  return `${flowHead(link('review'), 'Final video')}
+    <section class="home"><div class="player">${previewTag(v.preview,'pv')}</div>
+    <div class="stack" style="gap:14px"><h2 class="ar" dir="auto">${esc(v.title)}</h2>
+      ${st&&st.decision?`<p class="verdict ${st.decision==='approved'?'yes':'warn'}">${esc(DEC_LABEL[st.decision])} <span class="sync ${st.sync}">· ${esc(st.text)}</span></p>`:''}
+      ${p.state==='wait'?`<p class="panel">${left.length?`${left.length} scene${left.length>1?'s':''} still to review.`:'Some scenes are waiting for fixes.'}</p>
+        ${left.length?`<button type="button" class="primary big" data-href="${link('scene', left[0].id)}">Review scene ${esc(left[0].id)} ›</button>`:''}`:''}
+      <p class="small muted">Publishing stays locked until the Fasih licence is checked.</p></div></section>
+    ${p.state!=='wait'?`<div class="actionbar"><button type="button" class="primary" data-dec="approved" data-item="final-ep7" ${st&&st.locked?'disabled':''}>✓ Approve final video</button><button type="button" data-dec="changes_requested" data-item="final-ep7">✎ Needs changes</button></div>`:''}`;
+}
+
+// ------------------------------------------------------------------ SCENES (film + list)
+function scenes(){
+  const v = V(), rend = v.stages.find(s=>s.stage==='render'), running = DATA.tasks.running.filter(r=>r.project===proj);
+  const mark = s => proj==='diabetes-history' ? (()=>{ const m = sceneMark(s); return m.k==='ok'?pill('s-ok','✓ Approved'):m.k==='fix'?pill('s-fix','✎ Fixes'):
+      pill(s.severity==='critical'?'s-bad':s.severity==='major'?'s-wait':'s-unk', s.findings_open+' note'+(s.findings_open===1?'':'s')); })()
+    : (s.listening.asked ? pill(s.listening.answered===s.listening.asked?'s-ok':'s-wait', `🎧 ${s.listening.answered}/${s.listening.asked}`) : s.voice_line ? pill('s-ok','✓ Voice') : '');
+  const to = s => proj==='diabetes-history' ? link('scene', s.id) : (s.listening.asked ? link('voice', DATA.inbox_checks.findIndex(c=>c.line===s.voice_line)) : null);
+  return `<div class="row between"><h2>Scenes</h2><span class="small muted">${v.scenes.length} · ${fmtT(v.duration)}${rend&&rend.units?` · rendered ${rend.units.done}/${rend.units.total}`:''}${running.length?' · processing '+running.map(r=>r.units_done+'/'+r.units_total).join(', '):''}</span></div>
+    <div class="scenes"><div class="player">${previewTag(v.preview,'tlv')}<p class="kind" style="margin-top:6px">${kindChip(v.preview)} Tap a picture to jump there.</p></div>
+      <div class="slist">${v.scenes.map(s=>{ const h = to(s), ver = (s.versions||[]).length>1 ? (s.versions.find(x=>(state(x.id)||{}).decision==='approved')||s.versions[s.versions.length-1]).label : '';
+        return `<div class="srow" id="row-${esc(s.id)}"><button type="button" class="thumb" data-seekscene="${esc(s.id)}" aria-label="Play ${esc(s.id)} at ${fmtT(s.start)}"><img src="${esc(s.thumb)}" alt="" loading="lazy"><span>▶ ${fmtT(s.start)}</span></button>
+        <${h?`a href="${h}"`:'div'} class="body"><span class="row" style="gap:6px"><b class="mono">${esc(s.id)}</b>${mark(s)}${ver?`<span class="tiny muted">${esc(ver)}</span>`:''}</span><span class="nar1 ar" dir="auto">${esc(s.narration||'')}</span></${h?'a':'div'}></div>`; }).join('')}</div></div>`;
+}
+function bindScenes(){
+  const vid = $('tlv'); if(!vid) return; const v = V();
+  vid.addEventListener('timeupdate', () => { const t = vid.currentTime; const s = v.scenes.find(x=>t>=x.start&&t<x.end); if(!s) return;
+    document.querySelectorAll('.srow').forEach(r=>r.classList.toggle('now', r.id==='row-'+s.id)); });
+}
+function seekTo(t, id){ const vid = $(id||'tlv') || $('pv'); if(!vid) return; const go = () => { vid.currentTime = t + 0.05; vid.play().catch(()=>{}); };
+  if(vid.readyState>=1) go(); else vid.addEventListener('loadedmetadata', go, {once:true}); vid.scrollIntoView({block:'nearest'}); }
+
+// ------------------------------------------------------------------ ART (concepts kept apart from revisions)
+let artTab = 'concepts', compareSet = new Set();
+function art(){
+  const v = V(), s = v.scenes.find(x=>x.id===arg) || (proj==='diabetes-history' ? v.scenes.find(x=>x.id==='b1') : v.scenes[0]);
+  return `<div class="row between"><h2>Art</h2><span class="small muted">Scene <b class="mono">${esc(s.id)}</b></span></div>
+    <div class="chips" role="group" aria-label="Scene">${v.scenes.map(x=>`<button type="button" data-artscene="${x.id}" aria-pressed="${x.id===s.id}">${esc(x.id)}${(x.versions||[]).length>1?' · '+x.versions.length:''}</button>`).join('')}</div>
+    <div class="row between"><div class="seg" role="group" aria-label="Show"><button type="button" data-arttab="concepts" aria-pressed="${artTab==='concepts'}">New looks</button><button type="button" data-arttab="revisions" aria-pressed="${artTab==='revisions'}">Versions</button></div>
+      <span class="tiny muted">${artTab==='concepts'?'Proposals · nothing drawn yet':'Real renders of this scene'}</span></div>
+    ${artTab==='concepts'?concepts(s):revisions(s)}`;
+}
+function revisions(s){
+  const vs = s.versions||[];
+  if(!vs.length) return `<div class="empty">No versions of this scene here.</div>`;
+  return `<div class="cards">${vs.map(x=>{ const st = state(x.id); return `<div class="card ${st&&st.locked?'locked':''}"><div class="row between"><b>${esc(x.label)}</b>${st&&st.locked?pill('s-ok','🔒 Approved'):''}</div>
+    <div class="pv ${vs.length>1&&s.id==='b1'?'wide':''}"><img src="${esc(x.img)}" alt="${esc(x.label)}" data-full="${esc(x.img)}"></div>
+    <div class="acts">${x.clip?`<button type="button" data-clip="${esc(x.clip)}">▶ Motion</button>`:''}<button type="button" data-full="${esc(x.img)}">⤢ Full screen</button></div>
+    ${decBlock(x.id, [['approved','Approve'],['rejected','Reject'],['changes_requested','Fix']])}</div>`;}).join('')}</div>`;
+}
+function concepts(s){
+  const c = s.concepts||{options:[]};
+  if(!c.options.length) return `<div class="empty">${esc(c.note||'No proposals yet.')}</div>`;
+  return `<div class="row between"><span class="small muted">${c.options.length} proposals</span><button type="button" id="cmpBtn" data-compare="1" ${compareSet.size<2?'disabled':''}>Compare ${compareSet.size||''}</button></div>
+    <div class="cards">${c.options.map(o=>`<div class="card ${o.recommended?'rec':''}">
+      <div class="row between"><b>${esc(o.name)}</b>${o.recommended?pill('s-proc','★ Suggested'):''}</div>
+      ${o.preview?`<div class="pv"><img src="${esc(o.preview.img)}" alt="Reference" data-full="${esc(o.preview.img)}"><span class="lab">${esc(o.preview.label)}</span></div>`:'<div class="pv nopv"><div class="none">Proposal only · nothing drawn</div></div>'}
+      <div class="row">${pill('s-unk','Proposal')}${pill(o.cost.startsWith('free')?'s-ok':'s-bad', o.cost.startsWith('free')?'Free':'Paid')}${pill(o.renderable?'s-ok':'s-bad', o.renderable?'Can render':'Can\'t render yet')}</div>
+      <p class="small">${esc(o.reasons.join(' · ')||'')}</p>
+      <details><summary class="small">Details</summary><dl class="kv" style="margin-top:6px"><dt>Render</dt><dd>${esc(o.renderable_why)}</dd>
+        <dt>Assets</dt><dd>${o.required_assets.needs.length?esc(o.required_assets.needs.join(' or ')):'none'}${o.required_assets.missing.length?' · <span class="no">missing '+esc(o.required_assets.missing.join(', '))+'</span>':''}</dd>
+        <dt>Sources</dt><dd>${o.sources.length?o.sources.map(f=>`${esc(f.id)}: ${(f.sources||[]).slice(0,2).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(', ')}`).join('<br>'):'—'}</dd>
+        <dt>Limits</dt><dd>${esc(o.limitations||'—')}</dd><dt>Risks</dt><dd class="ar" dir="auto">${o.risks.map(esc).join('<br>')}</dd></dl></details>
+      <div class="acts">${o.preview&&o.preview.clip?`<button type="button" data-clip="${esc(o.preview.clip)}">▶ Motion</button>`:''}<label class="small"><input type="checkbox" data-cmp="${esc(o.id)}" ${compareSet.has(o.id)?'checked':''}> Compare</label></div>
+      ${decBlock(o.id, [['concept_selected','Choose this look']])}</div>`).join('')}</div>`;
+}
+
+// ------------------------------------------------------------------ TASKS (everything, grouped)
+let rvFilter = 'open';
+function tasks(){
+  const TT = DATA.review_tasks;
+  const live = t => { const st = state(t.id); return st && st.decision && t.status!=='done' ? 'done' : t.status; };   // decisions made on this page count at once
+  const counts = s => TT.filter(t => s==='open' ? live(t)!=='done' : live(t)===s).length;
+  const shown = TT.filter(t => rvFilter==='open' ? live(t)!=='done' : live(t)===rvFilter)
+    .sort((a,b)=> (a.project===proj?0:1)-(b.project===proj?0:1) || ['needs_decision','fixable','blocked','suggestion','done'].indexOf(live(a))-['needs_decision','fixable','blocked','suggestion','done'].indexOf(live(b)));
+  const probs = Object.values(PAGE).filter(d=>RECEIPT[d.decision_id]&&!['recorded','duplicate'].includes(RECEIPT[d.decision_id].status));
+  return `${flowHead(link('more'), 'All tasks')}
+    ${probs.length?`<div class="panel" style="border-color:var(--bad)"><b class="no">${probs.length} not saved</b>${probs.map(d=>{const r=RECEIPT[d.decision_id];return `<p class="small"><span class="sync problem">${esc(r.status)}</span> <span class="mono">${esc(d.item)}</span> · ${esc(DEC_LABEL[d.decision]||d.decision)} · ${esc(r.reason)}</p>`;}).join('')}</div>`:''}
+    <div class="summary">${[['needs_decision','Your call'],['fixable','Claude fixes'],['blocked','Needs source'],['suggestion','Ideas'],['done','Done'],['open','All open']].map(([k,l])=>`<button type="button" data-rv="${k}" aria-pressed="${rvFilter===k}"><b>${counts(k)}</b><span class="small">${l}</span></button>`).join('')}</div>
+    <div class="stack" style="gap:10px">${shown.map(t=>taskCard(t, live(t))).join('') || '<div class="empty">Nothing here.</div>'}</div>`;
+}
+function taskCard(t, status){
+  let body = '', act = '';
+  if(t.type==='art'){
+    body = `<div class="row">${Object.entries(t.buckets).map(([b,n])=>pill('b-'+b, n+' '+TAG[b])).join('')}</div>`;
+    act = `<button type="button" class="primary" data-goproj="${P_SHORT[t.project]}~scene~${esc(t.scene)}">Review scene ›</button>`;
+  } else if(t.checks){
+    const i = DATA.inbox_checks.findIndex(c=>c.line===t.checks[0].line);
+    act = `<button type="button" class="primary" data-goproj="tk~voice~${i}">Listen ›</button>`;
+  } else if(t.type==='final'){
+    act = `<button type="button" data-goproj="dh~final">Open ›</button>`;
+  } else if(t.status!=='blocked'){
+    act = decBlock(t.id, t.type==='direction' ? [['selected','Choose now'],['changes_requested','None fit yet']] : [['approved','Allow'],['rejected','No']]);
+  }
+  const lbl = {needs_decision:['s-wait','Your call'], fixable:['s-fix','Claude fixes'], blocked:['s-bad','Blocked'], suggestion:['s-unk','Idea'], done:['s-ok','Done']}[status] || ['s-unk',status];
+  return `<article class="task ${status}" id="task-${esc(t.id)}"><div class="row">${pill(lbl[0], lbl[1], true)}<span class="tiny muted">${esc(SHORT_NAME[t.project])}</span></div>
+    <p class="title ar" dir="auto">${esc(t.title)}</p>${t.blocked_by?`<p class="small no">${esc(t.blocked_by)}</p>`:''}${body}${act?`<div class="acts">${act}</div>`:''}</article>`;
+}
+
+// ------------------------------------------------------------------ STYLE (one board per project, from approved files)
+function style(){
+  const x = DATA.identity[proj], b = x.board, pal = x.palette||{}, other = proj==='timekeeper'?'diabetes-history':'timekeeper';
+  const sep = DATA.identity.separation, ok = sep.every(c=>c.ok);
+  const sw = list => `<div class="swatches">${list.map(c=>`<div class="swatch" title="${esc(c.source||'')}"><i style="background:${esc(c.hex)}"></i><span><code>${esc(c.hex)}</code><br>${esc(c.name)}</span></div>`).join('')}</div>`;
+  const gal = list => `<div class="gallery">${list.join('')}</div>`;
+  return `<div class="row between"><h2>Style</h2>${pill(ok?'s-ok':'s-bad', ok?`✓ Kept apart from ${SHORT_NAME[other]}`:'Shared signature found', true)}</div>
+    <section class="board">
+      <div class="head" style="background:${esc(pal.bg||pal.paper||'#eee')};color:${esc(pal.ink||'#111')}">${b.logo?`<img src="${esc(b.logo)}" alt="Logo">`:''}<div><b style="font-size:1.25rem">${esc(DATA.projects[proj].name)}</b><br><span class="mono" style="font-size:.76rem;opacity:.85">${esc(x.profile)} · ${esc(x.status)}</span></div></div>
+      <div class="stack"><h3>Colours</h3>${sw(b.palette)}${b.palette_film?`<p class="tiny muted">Royal Oak film colours</p>${sw(b.palette_film)}`:''}</div>
+      <div class="stack"><h3>Type</h3>${b.type.map(t=>`<div class="type"><span class="tiny muted">${esc(t.role)} · ${esc(t.font||'unassigned')}</span>${t.sample?`<span dir="auto" style="font-family:'${esc(t.font)}',sans-serif;font-weight:${t.weight};font-size:${t.role==='Display'?'1.8rem':t.role==='Numbers'?'1.4rem':'1.05rem'}">${esc(t.sample)}</span>`:`<span class="small warn">Font file not here · no sample</span>`}</div>`).join('')}</div>
+      <div class="stack"><h3>Characters & images</h3>${gal(b.characters.map(c=>`<img src="${esc(c.img)}" alt="${esc(c.caption)}" title="${esc(c.caption)}" data-full="${esc(c.img)}">`))}</div>
+      <div class="stack"><h3>Layout</h3>${gal(b.composition.map(c=>`<img src="${esc(c.img)}" alt="${esc(c.caption)}" title="${esc(c.caption)}" data-full="${esc(c.img)}">`))}</div>
+      <div class="stack"><h3>Motion</h3>${gal(b.motion.clips.map(c=>videoTag(c,'muted loop autoplay')))}</div>
+      <div class="stack"><h3>End card</h3>${gal([`<img src="${esc(b.endcard.img)}" alt="End card" data-full="${esc(b.endcard.img)}">`, videoTag(b.endcard.clip,'muted loop autoplay')])}</div>
+      <div class="stack"><h3>Sample scenes</h3>${gal(b.samples.map(c=>`<img src="${esc(c)}" alt="" data-full="${esc(c)}">`))}</div>
+      <details class="fold"><summary>Sources and rules</summary><div class="small">
+        <p class="muted">${esc(b.logo_note||'')}</p>
+        <p>Colours: ${esc([...new Set(b.palette.map(c=>c.source))].join(' · '))}</p>
+        ${b.type.map(t=>`<p>${esc(t.role)}: ${esc(t.font||'unassigned')}${t.source?' · '+esc(t.source):''}${t.missing?' · '+esc(t.missing):''}</p>`).join('')}
+        <ul>${b.image_rules.filter(Boolean).map(r=>`<li>${esc(r)}</li>`).join('')}</ul>${b.motion.notes.map(n=>`<p class="muted">${esc(n)}</p>`).join('')}<p class="muted">${esc(b.endcard.caption)}</p>
+        ${sep.map(c=>`<div class="okrow"><b class="${c.ok?'yes':'no'}">${c.ok?'✓':'✗'}</b><span>${esc(c.check)}</span></div>`).join('')}</div></details>
+    </section>`;
+}
+
+// ------------------------------------------------------------------ MORE (tasks, costs, details)
+function more(){
+  const c = DATA.costs, a = c.elevenlabs_account, v = V(), id = DATA.identity[proj];
+  const open = DATA.review_tasks.filter(t=>t.status!=='done').length;
+  return `<h2>More</h2>
+    <a class="panel" href="${link('tasks')}" style="text-decoration:none;color:var(--ink);flex-direction:row;align-items:center;justify-content:space-between"><span><b>All tasks</b><br><span class="small muted">Both projects, grouped</span></span><span class="row"><span class="badge">${open}</span>›</span></a>
+    <div class="panel"><div class="row between"><b>Paid voice</b>${pill('s-bad','🔒 Locked',true)}</div><p class="small">${c.spend.actual_units} spent · ${a.used.toLocaleString()} of ${a.limit.toLocaleString()} account characters used</p><div class="meter"><i style="width:${100*a.used/a.limit}%"></i></div></div>
+    <details class="fold" ${arg==='blockers'?'open':''}><summary>Blockers</summary><div>${v.blockers.length?v.blockers.map(b=>`<p class="small"><b class="ar" dir="auto">${esc(b.what)}</b><br><span class="muted ar" dir="auto">${esc(b.why)}</span></p>`).join(''):'<p class="small muted">None</p>'}</div></details>
+    <details class="fold" ${arg==='voice'?'open':''}><summary>Voice</summary><div class="small"><p>${esc(id.final_voice)} · ${esc(id.voices.map(x=>x.name+' ('+x.status+')').join(', '))}</p>
+      ${v.stages.filter(s=>s.stage==='voice').map(s=>`<p>${s.units?s.units.done+' of '+s.units.total+' '+esc(s.units.unit):''} · ${esc(s.why)}</p>`).join('')}</div></details>
+    <details class="fold"><summary>Costs</summary><div class="small"><p>${esc(c.guarantee)}</p>${c.lock.requires.map(r=>`<div class="okrow"><b class="${r.met?'yes':'no'}">${r.met?'✓':'✗'}</b><span>${esc(r.step)}</span></div>`).join('')}
+      ${c.estimates.map(e=>`<p>${e.units.toLocaleString()} ${esc(e.unit)} estimated · ${esc(e.what)}</p>`).join('')}
+      <div class="tbl"><table><tr><th>Operation</th><th>Cost</th></tr>${c.operations.map(o=>`<tr><td>${esc(o.op)}</td><td>${pill(o.kind==='paid'?'s-bad':'s-ok',o.kind)}</td></tr>`).join('')}</table></div></div></details>
+    <details class="fold"><summary>Stages</summary><div>${v.stages.map(s=>`<p class="small"><b>${esc(s.label)}</b> · ${esc(s.status.replace('_',' '))}${s.units?` · ${s.units.done}/${s.units.total} ${esc(s.units.unit)}`:''}<br><span class="muted ar" dir="auto">${esc(s.why)}</span></p>`).join('')}</div></details>
+    <details class="fold"><summary>Processing runs</summary><div>${runsTable()}</div></details>
+    <details class="fold"><summary>History</summary><div class="feed">${v.history.slice(-14).reverse().map(e=>`<div class="ev"><time>${fmtAt(e.at)}</time><div><span class="ar" dir="auto">${esc(e.what||e.kind)}</span>${e.source==='reconstructed'?' '+pill('s-unk','reconstructed'):''}</div></div>`).join('')}</div></details>
+    <details class="fold"><summary>Technical</summary><div class="small"><dl class="kv"><dt>Profile</dt><dd class="mono">${esc(id.profile)} · v${esc(id.version)} · ${esc(id.status)}</dd><dt>Engine</dt><dd>${esc(id.engine)}</dd>
+      <dt>Pronunciation</dt><dd class="mono">${esc((id.library_scopes||[]).join(', '))}</dd><dt>Film</dt><dd>${esc(v.preview.label)}</dd><dt>Snapshot</dt><dd>${fmtAt(DATA.generated_at)}</dd>
+      <dt>Mode</dt><dd>${MODE==='local'?'Local app · saves to the event log':'Review copy · saves wait for the local app'}</dd></dl></div></details>`;
+}
+function runsTable(){
+  const runs = DATA.tasks.recent.filter(r => r.project===proj);
+  if(!runs.length) return '<p class="muted small">None yet.</p>';
+  return `<div class="tbl"><table><tr><th>Task</th><th>Units</th><th>Took</th><th>ETA check</th></tr>${runs.map(r=>`<tr><td>${esc(r.task)}</td><td class="n">${r.units_done}/${r.units_total}</td><td class="n">${dur(r.elapsed_s)}</td><td class="n">${r.eta_check?`said ${dur(r.eta_check.predicted_s)}, took ${dur(r.eta_check.actual_s)}`:'—'}</td></tr>`).join('')}</table></div>`;
 }
 
 // ------------------------------------------------------------------ render + events
 function render(){
   chrome();
-  const fn = {watch, timeline, scene:sceneView, art, reviews, identity, costs}[view] || watch;
+  const fn = {review, scenes, scene, voice, final, art, style, more, tasks}[view] || review;
   $('view').innerHTML = fn();
-  if(view==='timeline') bindTimeline();
-  if(view==='reviews') bindAudio();
-  if(view==='watch' && arg && !isNaN(+arg)) seekTo(+arg, 'pv');
-  if(view==='reviews' && arg==='task'){ const el = document.getElementById('task-'+location.hash.split('~')[3]); if(el) el.scrollIntoView({block:'start'}); }
+  if(view==='scenes') bindScenes();
+  if(view==='voice') bindAudio();
+  if(view==='review' && arg && !isNaN(+arg)) seekTo(+arg, 'pv');
   const on = document.querySelector('.chips button[aria-pressed="true"]'); if(on) on.scrollIntoView({block:'nearest', inline:'center'});
 }
 document.addEventListener('click', e => {
   const b = e.target.closest('button,img[data-full]'); if(!b) return; const d = b.dataset;
-  if(d.proj){ proj=d.proj; arg=null; go(view==='scene'?'timeline':view); }
+  if(d.proj){ proj=d.proj; arg=null; location.hash = link(FLOWS.includes(view)||view==='tasks'?'review':view); }
+  else if(d.ans){ answer(d.item, d.ans); }
   else if(d.dec){ decide(d.item, d.dec); }
-  else if(d.go){ const [v,a,c] = d.go.split('~'); location.hash = [P_SHORT[proj], v, a, c].filter(Boolean).join('~'); }
+  else if(d.sceneok){ sceneOk(d.sceneok); }
+  else if(d.scenefix){ sceneFix(d.scenefix); }
+  else if(d.fix){ const s = V().scenes.find(x=>x.id===arg) || V().scenes[0], fx = fixSet(s); fx.has(d.fix)?fx.delete(d.fix):fx.add(d.fix); render(); }
+  else if(d.open){ OPEN.has(d.open)?OPEN.delete(d.open):OPEN.add(d.open); render(); }
+  else if(d.href){ location.hash = d.href; }
   else if(d.goproj){ location.hash = d.goproj; }
-  else if(d.seek!=null){ seekTo(+d.seek, 'pv'); }
-  else if(d.seekscene){ if(view!=='timeline'){ location.hash = P_SHORT[proj]+'~timeline'; setTimeout(()=>seekTo(sceneStart(d.seekscene)),300); } else seekTo(sceneStart(d.seekscene)); }
-  else if(d.seeksceneT!=null){ location.hash = P_SHORT[proj]+'~watch~'+d.seeksceneT; }
-  else if(d.artscene){ arg=d.artscene; location.hash = P_SHORT[proj]+'~art~'+d.artscene; }
+  else if(d.seekscene){ if(view!=='scenes'){ location.hash = link('scenes'); setTimeout(()=>seekTo(sceneStart(d.seekscene)),300); } else seekTo(sceneStart(d.seekscene)); }
+  else if(d.artscene){ location.hash = link('art', d.artscene); }
   else if(d.arttab){ artTab=d.arttab; render(); }
   else if(d.rv){ rvFilter=d.rv; render(); }
   else if(d.word){ playWord(d.word); }
   else if(d.clip){ lightbox(`<video controls autoplay muted loop playsinline>${sources(d.clip)}</video>`); }
   else if(d.full){ lightbox(`<img src="${esc(d.full)}" alt="Full-screen view">`); }
   else if(d.compare){ const s = V().scenes.find(x=>x.id===arg) || V().scenes.find(x=>x.id==='b1'); const os = (s.concepts.options||[]).filter(o=>compareSet.has(o.id));
-    lightbox(`<div class="compare">${os.map(o=>`<figure>${o.preview?`<img src="${esc(o.preview.img)}" alt="">`:'<div style="width:220px;height:390px;border:1px dashed #666;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center">Proposal only · no artwork</div>'}<figcaption><b>${esc(o.name)}</b> · Proposal<br>${o.preview?`<span style="color:#f3c96b">${esc(o.preview.label)}</span><br>`:''}${esc(o.cost)} · ${o.renderable?'renderable now':'not renderable yet'}<br>${esc(o.reasons.join('; '))}</figcaption></figure>`).join('')}</div>`); }
+    lightbox(`<div class="compare">${os.map(o=>`<figure>${o.preview?`<img src="${esc(o.preview.img)}" alt="">`:'<div style="width:220px;height:390px;border:1px dashed #666;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:10px;text-align:center">Proposal only · nothing drawn</div>'}<figcaption><b>${esc(o.name)}</b> · Proposal<br>${o.preview?`<span style="color:#f3c96b">${esc(o.preview.label)}</span><br>`:''}${esc(o.cost)} · ${o.renderable?'can render':'can\'t render yet'}</figcaption></figure>`).join('')}</div>`); }
 });
 document.addEventListener('change', e => { const c = e.target.closest('input[data-cmp]'); if(!c) return;
-  if(c.checked){ if(compareSet.size>=3){ c.checked=false; toast('Compare up to 3 concepts.'); return; } compareSet.add(c.dataset.cmp); } else compareSet.delete(c.dataset.cmp);
+  if(c.checked){ if(compareSet.size>=3){ c.checked=false; toast('Compare up to 3.'); return; } compareSet.add(c.dataset.cmp); } else compareSet.delete(c.dataset.cmp);
   const b = $('cmpBtn'); if(b){ b.disabled = compareSet.size<2; b.textContent = 'Compare '+(compareSet.size||''); } });
 function playing(){ return [...document.querySelectorAll('audio,video')].some(m => !m.paused && !m.muted); }   // never re-render under a listener
 function lightbox(html){ $('lbBody').innerHTML = html; $('lb').hidden = false; $('lbClose').focus(); }

@@ -187,6 +187,7 @@ def diabetes_ep7(log, S: Path, decisions: dict, registry, prof):
         open_f = [f for f in views if not f['decision']]
         versions = _versions_ep7(s['id'], log, decisions)
         approved = next((v for v in versions if v['decision'] and v['decision']['decision'] == 'approved'), None)
+        verdict = (decisions.get(f"art-ep7-{s['id']}") or {}).get('decision')     # the whole scene: approved / changes_requested
         scenes.append({
             'id': s['id'], 'start': round(s['start'], 2), 'end': round(s['end'], 2), 'dur': round(s['end'] - s['start'], 2),
             'narration': m.get('narration'), 'objective': (beats.get(s['id']) or {}).get('objective'), 'plan': m.get('plan'),
@@ -194,17 +195,18 @@ def diabetes_ep7(log, S: Path, decisions: dict, registry, prof):
             'clip': f"media/ep7/clips/{s['id']}",
             'selected_version': ({'label': approved['label'], 'state': 'approved'} if approved else
                                  {'label': 'Published render', 'state': 'draft'}),
-            'art_status': 'approved' if approved else ('waiting_review' if open_f else 'no_findings' if not views else 'waiting_review'),
+            'art_status': ('approved' if approved or verdict == 'approved' else 'changes' if verdict == 'changes_requested'
+                           else 'waiting_review' if views else 'no_findings'),
             'severity': min((f['severity'] for f in open_f), key=lambda x: SEV_ORDER[x], default=None),
             'findings': views, 'findings_open': len(open_f), 'render': {'state': 'rendered', 'source': 'published file'},
             'concepts': _concepts(beats.get(s['id']), prof, registry, ev['facts'], fs, decisions, s['id'], ids),
             'versions': versions, 'history': _history(log, 'diabetes-history', 'ep7', s['id'])})
-    decided = sum(1 for f in rep['ai_judgement'] if f['id'] in decisions)
-    live = {'art': {'done': decided, 'total': len(rep['ai_judgement']), 'unit': 'art findings decided'},
+    reviewed = [x for x in scenes if x['art_status'] in ('approved', 'changes')]
+    live = {'art': {'done': len(reviewed), 'total': len(scenes), 'unit': 'scenes reviewed'},
             'voice': {'done': 30, 'total': 30, 'unit': 'narration lines approved'},
             'render': {'done': 5, 'total': 5, 'unit': 'output files rendered'}}
-    if decided == len(rep['ai_judgement']) and decided:
-        live['art'].update(override='approved', why='every art finding has your decision')
+    if scenes and all(x['art_status'] == 'approved' for x in scenes):
+        live['art'].update(override='approved', why='every scene approved')
     stages = _stage_block(log, 'diabetes-history', 'ep7', live)
     return {'id': 'ep7', 'project': 'diabetes-history', 'series': 'قصة السكري', 'episode': 'Episode 7 of 10',
             'title': '«إبرة أقل»', 'title_en': 'One needle less', 'duration': round(pack['meta']['duration'], 2),
@@ -302,7 +304,8 @@ def review_tasks(ep7, ro, checks, decisions, directions_data):
         if not s['findings']:
             continue
         b = Counter(f['bucket'] for f in s['findings'] if not f['decision'])
-        status = ('done' if not sum(b.values()) else 'needs_decision' if b['decide'] else 'blocked' if b['blocked']
+        verdict = (decisions.get(f"art-ep7-{s['id']}") or {}).get('decision')
+        status = ('done' if not sum(b.values()) or verdict in ('approved', 'changes_requested') else 'needs_decision' if b['decide'] else 'blocked' if b['blocked']
                   else 'fixable' if b['fixable'] else 'suggestion')
         top = sorted(s['findings'], key=lambda f: SEV_ORDER[f['severity']])
         tasks.append({'id': f"art-ep7-{s['id']}", 'type': 'art', 'project': 'diabetes-history', 'video': 'ep7', 'scene': s['id'],
@@ -311,9 +314,13 @@ def review_tasks(ep7, ro, checks, decisions, directions_data):
                       'findings': s['findings'], 'progress': {'done': len(s['findings']) - sum(b.values()), 'total': len(s['findings'])},
                       'why': top[0]['problem'], 'decision': decisions.get(f"art-ep7-{s['id']}")})
     open_art = sum(1 for t in tasks if t['type'] == 'art' and t['status'] != 'done')
+    fixes = sum(1 for s in ep7['scenes'] if s['art_status'] == 'changes')
+    final_dec = decisions.get('final-ep7')
     tasks.append({'id': 'final-ep7', 'type': 'final', 'project': 'diabetes-history', 'video': 'ep7', 'scene': None,
-                  'title': 'Approve the final episode 7 video', 'status': 'blocked' if open_art else 'needs_decision',
-                  'priority': 'decision', 'blocked_by': f'{open_art} scene art reviews still open' if open_art else None,
+                  'title': 'Approve the final episode 7 video',
+                  'status': 'done' if final_dec and final_dec['decision'] == 'approved' else 'blocked' if open_art or fixes else 'needs_decision',
+                  'priority': 'decision',
+                  'blocked_by': (f'{open_art} scenes still to review' if open_art else f'{fixes} scenes waiting for fixes' if fixes else None),
                   'why': 'Publishing also stays blocked until the Fasih licence (CPML) is reviewed (your Phase 0.5 decision).',
                   'decision': decisions.get('final-ep7')})
     for pk, title in (('timekeeper', 'Time Keeper'), ('diabetes', 'Diabetes History')):

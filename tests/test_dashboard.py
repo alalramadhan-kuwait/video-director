@@ -107,7 +107,7 @@ class TestDashboard(unittest.TestCase):
                         self.assertLessEqual(st['units']['done'], st['units']['total'])
         ep7 = s['projects']['diabetes-history']['videos'][0]
         art = next(x for x in ep7['stages'] if x['stage'] == 'art')
-        self.assertEqual(art['units']['total'], sum(len(sc['findings']) for sc in ep7['scenes']))
+        self.assertEqual((art['units']['total'], art['units']['unit']), (len(ep7['scenes']), 'scenes reviewed'))
         self.assertEqual(next(x for x in ep7['stages'] if x['stage'] == 'publish')['status'], 'blocked')
         self.assertEqual(len(s['projects']['timekeeper']['videos'][0]['scenes']), 36)
 
@@ -166,6 +166,32 @@ class TestDashboard(unittest.TestCase):
         self.assertEqual(serve.decide(B.log(), q['id'], 'article_missing', playback=self.proof(q))['status'], 'recorded')
         v = next(x for x in B.snapshot()['projects']['timekeeper']['videos'][0]['stages'] if x['stage'] == 'voice')
         self.assertEqual(v['units']['done'], 1)
+
+    def test_scene_review_flow(self):
+        """One decision per scene (looks good / fix the marked notes); the final video opens only when every scene is approved."""
+        ep7 = lambda: B.snapshot()['projects']['diabetes-history']['videos'][0]
+        final = lambda: next(t for t in B.snapshot()['review_tasks'] if t['id'] == 'final-ep7')
+        scenes = [s['id'] for s in ep7()['scenes']]
+        self.assertEqual(final()['status'], 'blocked')
+        self.assertEqual(serve.decide(B.log(), 'art-ep7-' + scenes[0], 'approved')['status'], 'recorded')
+        f = ep7()['scenes'][1]['findings'][0]['id']
+        serve.decide(B.log(), f, 'accepted')
+        serve.decide(B.log(), 'art-ep7-' + scenes[1], 'changes_requested', note='fix: ' + f)
+        s = ep7()
+        self.assertEqual([x['art_status'] for x in s['scenes'][:2]], ['approved', 'changes'])
+        art = next(x for x in s['stages'] if x['stage'] == 'art')
+        self.assertEqual(art['units']['done'], 2)
+        t = {x['id']: x for x in B.snapshot()['review_tasks']}
+        self.assertEqual((t['art-ep7-' + scenes[0]]['status'], t['art-ep7-' + scenes[1]]['status']), ('done', 'done'))
+        self.assertEqual(serve.decide(B.log(), 'art-ep7-' + scenes[0], 'rejected')['status'], 'conflict')      # approved scenes are locked
+        for sid in scenes[2:]:
+            serve.decide(B.log(), 'art-ep7-' + sid, 'approved')
+        self.assertEqual((final()['status'], final()['blocked_by']), ('blocked', '1 scenes waiting for fixes'))
+        serve.decide(B.log(), 'art-ep7-' + scenes[1], 'approved')
+        self.assertEqual(final()['status'], 'needs_decision')
+        self.assertEqual(next(x for x in ep7()['stages'] if x['stage'] == 'art')['status'], 'approved')
+        serve.decide(B.log(), 'final-ep7', 'approved')
+        self.assertEqual(final()['status'], 'done')
 
     def test_listening_answer_needs_proof_the_word_played(self):
         checks = B.snapshot()['inbox_checks']

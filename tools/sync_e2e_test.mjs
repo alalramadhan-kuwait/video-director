@@ -64,30 +64,37 @@ const go = async (h) => { await p.goto(base + '/#' + h); await p.waitForTimeout(
 const syncText = (item) => p.evaluate((it) => { const btn = document.querySelector(`button[data-item="${it}"]`); const s = btn && btn.closest('.acts').querySelector('.sync'); return s ? s.textContent : null; }, item);
 const click = async (item, dec) => { await p.locator(`button[data-item="${item}"][data-dec="${dec}"]`).first().scrollIntoViewIfNeeded(); await p.locator(`button[data-item="${item}"][data-dec="${dec}"]`).first().click(); await p.waitForTimeout(400); };
 
-const I = { concept: 'concept-ep7-b3-scientific_diagram', version: 'ep7-b1-b1_v3', locked: 'ep7-b2-final', finding: 'f_70dc55998b', check: 'voice-p2-q-tk-quartz-107', refused: 'voice-p2-1-tk-steel-59' };
+const I = { scene: 'art-ep7-k1', sceneFix: 'art-ep7-b2', concept: 'concept-ep7-b3-scientific_diagram', version: 'ep7-b1-b1_v3', locked: 'ep7-b2-final', finding: 'f_70dc55998b', check: 'voice-p2-q-tk-quartz-107', refused: 'voice-p2-1-tk-steel-59' };
 
 // 2. decisions on the page (real buttons)
 await go('dh~art~b3'); await click(I.concept, 'concept_selected');
-ok('page: concept selection shows as pending, not recorded', /waiting for the local app/.test(await syncText(I.concept)), await syncText(I.concept));
+ok('page: concept selection shows as pending, not recorded', /Waiting to sync/.test(await syncText(I.concept)), await syncText(I.concept));
 await go('dh~art~b1'); await p.locator('button[data-arttab="revisions"]').click(); await p.waitForTimeout(300);
 await click(I.version, 'approved');
 await go('dh~art~b2'); await p.locator('button[data-arttab="revisions"]').click(); await p.waitForTimeout(300);
 await click(I.locked, 'rejected');                                   // the local app will approve this first → conflict (locked)
-await go('dh~reviews'); await click(I.finding, 'accepted');            // the local app will decide later → conflict (older)
-await go('tk~reviews');
-const card = p.locator(`.check[data-check="${I.check}"]`); await card.scrollIntoViewIfNeeded();
-ok('page: listening answer blocked before playing', await card.locator('button[data-dec="article_heard"]').isDisabled());
-await card.locator('button[data-word]').click();
+// scene review: approve one scene, ask for one fix on another (the local app will decide that note later → conflict)
+await go('dh~scene~k1'); await p.locator('#okBtn').click(); await p.waitForTimeout(500);
+await go('dh~scene~b2');
+await p.evaluate((f) => document.querySelectorAll('button.fixbtn').forEach((b) => { if ((b.getAttribute('aria-pressed') === 'true') !== (b.dataset.fix === f)) b.click(); }), I.finding);
+await p.waitForTimeout(300);
+ok('page: only the chosen note is marked “Fix”', JSON.stringify(await p.locator('button.fixbtn[aria-pressed="true"]').evaluateAll((bs) => bs.map((x) => x.dataset.fix))) === JSON.stringify([I.finding]));
+await p.locator('#fixBtn').click(); await p.waitForTimeout(600);
+// listening check: one at a time, answer only after the word played
+await go('tk~voice~0');
+ok('page: listening answer blocked before playing', await p.locator('button[data-ans="article_heard"]').isDisabled());
+await p.locator('button[data-word]').click();
 await p.waitForFunction((id) => { const a = document.querySelector(`audio[data-audio="${id}"]`); return a && a.played.length && a.paused; }, I.check, { timeout: 15000 });
-await p.waitForTimeout(300); await click(I.check, 'unsure');
-await go('tk~reviews');
-const pendingHeader = await p.locator('main').textContent();
-ok('page: reviews header counts decisions waiting for the local app', /5 decision\(s\) saved here, waiting for the local app/.test(pendingHeader));
+await p.waitForTimeout(300); await p.locator('button[data-ans="unsure"]').click(); await p.waitForTimeout(600);
+await go('tk~review');
+const chip0 = await p.locator('#syncchip').textContent();
+ok('page: the header shows how many decisions wait for the local app', (await p.locator('#syncchip').isVisible()) && chip0.includes('7 to sync'), chip0);
+ok('page: progress already counts the answer, marked as waiting', (await p.locator('li[data-step="voice"] .cnt').textContent()).trim().startsWith('1/'));
 await shot('sync-1-pending');
 
 // a reload keeps them (they live in the page database, not in memory)
 await p.reload(); await p.waitForTimeout(800); await go('dh~art~b3');
-ok('page: after reload the decision is still pending', /waiting for the local app/.test(await syncText(I.concept)));
+ok('page: after reload the decision is still pending', /Waiting to sync/.test(await syncText(I.concept)));
 
 // injected rows: what another device or an old page version could write
 const now = Date.now();
@@ -116,6 +123,8 @@ const r1 = JSON.parse(py('ingest', exp, path.join(out, 'receipts1.json')));
 const by = Object.fromEntries(r1.receipts.map((r) => [r.decision_id, r]));
 const pageId = (item) => Object.values(store.decisions).find((d) => d.item === item && !['second-device-1', 'old-page-1', 'unknown-item-1'].includes(d.decision_id)).decision_id;
 ok('ingest: concept selection recorded', by[pageId(I.concept)].status === 'recorded');
+ok('ingest: scene approval recorded', by[pageId(I.scene)].status === 'recorded');
+ok('ingest: scene fix request recorded', by[pageId(I.sceneFix)].status === 'recorded');
 ok('ingest: version approval recorded', by[pageId(I.version)].status === 'recorded');
 ok('ingest: listening answer with playback proof recorded', by[pageId(I.check)].status === 'recorded');
 ok('ingest: same decision from a second device is a duplicate', by['second-device-1'].status === 'duplicate', by['second-device-1'].reason);
@@ -127,28 +136,32 @@ ok('ingest: unreadable export file → failed (reported, not skipped)', by['corr
 ok('ingest: every decision has exactly one outcome', r1.receipts.length === Object.keys(store.decisions).length + 1, JSON.stringify(r1.summary));
 const after1 = JSON.parse(py('events'));
 const newRows = after1.slice(before.length);
-ok('event log: 3 decisions added, each with origin artifact', newRows.filter((e) => e.kind === 'review_decided').length === 3 && newRows.filter((e) => e.kind === 'review_decided').every((e) => e.origin === 'artifact'));
+ok('event log: one decision added per recorded outcome, each with origin artifact', newRows.filter((e) => e.kind === 'review_decided').length === r1.summary.recorded && r1.summary.recorded === 5 && newRows.filter((e) => e.kind === 'review_decided').every((e) => e.origin === 'artifact'));
 ok('event log: every non-recorded outcome logged as a sync event', newRows.filter((e) => e.kind === 'sync').length === 6, JSON.stringify(newRows.filter((e) => e.kind === 'sync').map((e) => e.status)));
 
 // 6. receipts back to the page
 await go('dh~art~b3');
-ok('page: before receipts arrive, nothing claims to be recorded', /waiting for the local app/.test(await syncText(I.concept)));
+ok('page: before receipts arrive, nothing claims to be recorded', /Waiting to sync/.test(await syncText(I.concept)));
 for (const w of JSON.parse(fs.readFileSync(path.join(out, 'receipts1.json'), 'utf8'))) await p.evaluate(([c, id, v]) => window.__mockPut(c, id, v), [w.collection, w.doc_id, w.data]);
 await p.waitForTimeout(500);
 const tConcept = await syncText(I.concept);
 await p.locator(`button[data-item="${I.concept}"]`).first().scrollIntoViewIfNeeded();
-ok('page: after the receipt the concept shows recorded with its event number', new RegExp('Recorded in the event log · #' + by[pageId(I.concept)].event).test(tConcept), tConcept);
+ok('page: after the receipt the concept shows recorded with its event number', new RegExp('Saved · #' + by[pageId(I.concept)].event).test(tConcept), tConcept);
 await shot('sync-2-recorded-concept');
 await go('dh~art~b1'); await p.locator('button[data-arttab="revisions"]').click(); await p.waitForTimeout(300);
 const tVer = await syncText(I.version);
-ok('page: approved version shows recorded and locked', /Locked/.test(tVer) && /Recorded/.test(tVer), tVer);
+ok('page: approved version shows recorded and locked', /🔒/.test(tVer) && /Saved/.test(tVer), tVer);
 await go('dh~art~b2'); await p.locator('button[data-arttab="revisions"]').click(); await p.waitForTimeout(300);
 const tLock = await syncText(I.locked); await p.locator(`button[data-item="${I.locked}"]`).first().scrollIntoViewIfNeeded();
-ok('page: conflicting decision says it was not recorded and why', /not recorded/i.test(tLock) && /locked/.test(tLock), tLock);
+ok('page: conflicting decision says it was not recorded and why', /Not saved/.test(tLock) && /locked/.test(tLock), tLock);
+await go('dh~scene~k1');
+ok('page: the approved scene shows saved with its event number', new RegExp('Saved · #' + by[pageId(I.scene)].event).test(await p.locator('.verdict').textContent()));
 await shot('sync-3-conflict');
-await go('tk~reviews');
+await go('dh~review');
+const chip1 = await p.locator('#syncchip').textContent();
+ok('page: header now reports problems instead of pending', chip1.includes('4 not saved'), chip1);
+await p.locator('#syncchip').click(); await p.waitForTimeout(400);
 const tHead = await p.locator('main').textContent();
-ok('page: header now reports problems instead of pending', /not recorded: see below/.test(tHead));
 ok('page: each decision that was not recorded is listed with its reason', ['ep9-zz-v1', I.refused, I.locked, I.finding].every((x) => tHead.includes(x)) && /not a confirmed listening result/.test(tHead));
 await shot('sync-4-reviews-after');
 
@@ -156,7 +169,7 @@ await shot('sync-4-reviews-after');
 const r2 = JSON.parse(py('ingest', exp, path.join(out, 'receipts2.json')));
 const after2 = JSON.parse(py('events'));
 ok('re-ingest: nothing new recorded', r2.summary.recorded === 0, JSON.stringify(r2.summary));
-ok('re-ingest: recorded decisions come back as duplicate with the same event number', ['concept', 'version', 'check'].every((k) => { const a = r2.receipts.find((r) => r.decision_id === pageId(I[k])); return a.status === 'duplicate' && a.event === by[pageId(I[k])].event; }));
+ok('re-ingest: recorded decisions come back as duplicate with the same event number', ['concept', 'version', 'check', 'scene', 'sceneFix'].every((k) => { const a = r2.receipts.find((r) => r.decision_id === pageId(I[k])); return a.status === 'duplicate' && a.event === by[pageId(I[k])].event; }));
 ok('re-ingest: no new decision events and no repeated sync events', after2.filter((e) => e.kind === 'review_decided').length === after1.filter((e) => e.kind === 'review_decided').length && after2.length === after1.length, `${after1.length} → ${after2.length}`);
 ok('no page errors', errors.length === 0, errors.join(' | '));
 
