@@ -1,0 +1,43 @@
+// Interface test + screenshots for the art review page (offline Chromium).
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import fs from 'node:fs';
+const require = createRequire(import.meta.url);
+const { chromium } = require(process.env.PW_MODULE || '/opt/node22/lib/node_modules/playwright');
+const [page_, outDir] = process.argv.slice(2);
+const url = 'file://' + path.resolve(page_);
+const res = []; const ok = (n, c, d = '') => res.push({ name: n, pass: !!c, detail: d }); const errors = [];
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+async function open(w, h, scheme, hash = '') {
+  const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, colorScheme: scheme });
+  await ctx.route(/^https?:/, (r) => r.abort()); const p = await ctx.newPage(); p.on('pageerror', (e) => errors.push(e.message));
+  await p.goto(url + hash); await p.waitForTimeout(500); return p;
+}
+let p = await open(390, 844, 'light');
+const n = await p.locator('article.f').count();
+ok('all findings listed', n === 44, String(n));
+ok('every AI finding labelled as a recommendation', (await p.locator('article.f .p-ai').count()) === 44);
+ok('every finding shows scene and timecode', await p.evaluate(() => [...document.querySelectorAll('article.f .sc')].every((s) => /\S+ · \d\d:\d\d\.\d/.test(s.textContent))));
+ok('no horizontal scroll at 390px', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+await p.screenshot({ path: `${outDir}/art-phone-light-top.png` });
+await p.selectOption('#fSev', 'major'); await p.waitForTimeout(150);
+ok('severity filter', (await p.locator('article.f').count()) === 7);
+await p.locator('article.f').first().scrollIntoViewIfNeeded();
+await p.screenshot({ path: `${outDir}/art-phone-light-major.png` });
+await p.locator('article.f').first().locator('button', { hasText: 'Needs a source' }).click(); await p.waitForTimeout(200);
+const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('art-decisions') || '{}'));
+ok('decision saved', Object.values(saved).some((d) => d.status === 'needs_source'));
+await p.locator('#v-blind').click(); await p.waitForTimeout(200);
+ok('blind table has 16 rows', (await p.locator('#btab tr').count()) === 17);
+await p.screenshot({ path: `${outDir}/art-phone-light-blind.png` });
+await p.context().close();
+p = await open(1280, 900, 'dark');
+await p.screenshot({ path: `${outDir}/art-desktop-dark.png` });
+await p.context().close();
+p = await open(1280, 900, 'light', '#blind');
+await p.screenshot({ path: `${outDir}/art-desktop-light-blind.png`, fullPage: true });
+await p.context().close(); await b.close();
+ok('no page errors', errors.length === 0, errors.join(' | '));
+fs.writeFileSync(`${outDir}/art-ui-results.json`, JSON.stringify(res, null, 1));
+for (const r of res) console.log((r.pass ? 'PASS ' : 'FAIL ') + r.name + (r.detail ? '  (' + r.detail + ')' : ''));
+const f = res.filter((r) => !r.pass).length; console.log(`${res.length - f}/${res.length} passed`); process.exit(f ? 1 : 0);

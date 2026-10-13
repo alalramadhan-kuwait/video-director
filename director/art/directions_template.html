@@ -1,0 +1,164 @@
+<title>Creative Directions</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: project switch on top, then one column of direction cards; each card = preview strip + the seven
+   questions the owner asked (style, scenes, engine, assets, limits, cost, accuracy) + sourced colours/fonts +
+   the owner's reaction. Neutral cool greys so the directions' own colours are the only colour on the page. */
+:root{
+  --bg:#f2f3f5; --surface:#ffffff; --ink:#15191f; --muted:#5a6370; --line:#d7dbe1; --accent:#2c5d8a; --accent-soft:#e3ecf5;
+  --ok:#1f7a4f; --ok-soft:#e1f2e9; --warn:#8a5a00; --warn-soft:#fbf0d9; --bad:#b0362b; --bad-soft:#f8e2df;
+  --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101318; --surface:#181d24; --ink:#e7eaee; --muted:#9aa3ae; --line:#2b323c; --accent:#86b6e0; --accent-soft:#1c2c3c;
+  --ok:#6cc79a; --ok-soft:#163326; --warn:#e8b65a; --warn-soft:#3a2d12; --bad:#f08c80; --bad-soft:#3b1d1a; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101318; --surface:#181d24; --ink:#e7eaee; --muted:#9aa3ae; --line:#2b323c; --accent:#86b6e0; --accent-soft:#1c2c3c;
+  --ok:#6cc79a; --ok-soft:#163326; --warn:#e8b65a; --warn-soft:#3a2d12; --bad:#f08c80; --bad-soft:#3b1d1a; color-scheme:dark}
+html{direction:ltr}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:16px/1.65 var(--f-body);padding-inline:16px;padding-block:0 80px}
+main{max-width:980px;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+main>*{min-width:0}
+h1{font-size:1.4rem;margin:0;text-wrap:balance}
+h2{font-size:1.15rem;margin:0;text-wrap:balance}
+h3{font-size:.78rem;margin:0;color:var(--muted);font-weight:500;letter-spacing:.03em}
+p{margin:0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);padding:6px 12px;min-height:36px}
+.seg button{border:0;border-radius:0}
+.seg button+button{border-inline-start:1px solid var(--line)}
+button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700;border-color:var(--accent)}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.notice{background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:10px 14px;font-size:.92rem}
+.list{display:flex;flex-direction:column;gap:16px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:baseline;justify-content:space-between}
+.lid{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);direction:ltr}
+.prev{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.prev img{height:260px;width:auto;border-radius:8px;border:1px solid var(--line);flex:none}
+.prev .none{height:120px;flex:1;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:.9rem;padding:0 12px;text-align:center}
+.cap{font-size:.8rem;color:var(--muted)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px 22px}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f ul{margin:0;padding-inline-start:18px}
+.f li{margin:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.sw{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:2px 10px 2px 4px;font-size:.8rem}
+.sw i{width:18px;height:18px;border-radius:50%;border:1px solid var(--line);display:inline-block}
+.sw code{font-family:var(--f-mono);direction:ltr}
+.un{color:var(--warn);font-weight:500}
+.src{font-size:.78rem;color:var(--muted)}
+.tech{display:flex;flex-wrap:wrap;gap:6px}
+.pill{font-size:.76rem;font-weight:700;border-radius:12px;padding:1px 9px;white-space:normal;max-width:100%}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.react{border-top:1px solid var(--line);padding-top:12px;display:flex;flex-direction:column;gap:8px}
+.choice{display:flex;flex-wrap:wrap;gap:6px}
+textarea{font:inherit;width:100%;box-sizing:border-box;min-height:48px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:8px}
+.saved{font-size:.8rem;color:var(--ok)}
+.err{font-size:.8rem;color:var(--bad)}
+.tbl{min-width:0;max-width:100%;overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+table{border-collapse:collapse;min-width:640px;width:100%;font-size:.86rem}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+th{color:var(--muted);font-weight:500}
+</style>
+
+<main>
+  <div class="bar">
+    <h1>Creative directions</h1>
+    <div class="seg" role="group" aria-label="Project">
+      <button type="button" id="tab-timekeeper" aria-pressed="true">Time Keeper</button>
+      <button type="button" id="tab-diabetes" aria-pressed="false">Diabetes History</button>
+    </div>
+  </div>
+  <p class="notice" id="notice"></p>
+  <div class="tbl"><table id="cmp"></table></div>
+  <div class="list" id="list"></div>
+  <p class="cap">Colours and fonts are copied from approved files; the source is printed under every value. Anything without a source shows as unassigned and was not invented. Engine support and cost per technique come from the technique registry itself.</p>
+</main>
+
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const el = (t,c,x) => { const e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; };
+let proj='timekeeper', db=null; const R={};
+const SRC = k => (DATA.sources[k]||{}).file || k;
+const ST = {available:['p-ok','available'], needs_code:['p-warn','needs code'], paid:['p-bad','paid']};
+const CH = {prefer:'Prefer this', maybe:'Maybe, with changes', no:'No'};
+
+function render(){
+  const P=DATA.projects[proj];
+  ['timekeeper','diabetes'].forEach(k=>$('tab-'+k).setAttribute('aria-pressed',String(k===proj)));
+  $('notice').textContent='Profile “'+P.profile+'” is a draft (version '+P.profile_version+'). Your choice here is saved as an opinion only and does not lock the profile. Locking needs a separate approval from you.';
+  // comparison table
+  const t=$('cmp'); t.textContent='';
+  const hr=el('tr'); hr.append(el('th',null,'')); P.directions.forEach(d=>hr.append(el('th',null,d.name))); t.append(hr);
+  const rows=[['Engine',d=>d.engine],['Support today',d=>d.support_summary],['Cost',d=>d.cost.render+' · '+d.cost.images],
+              ['Colours',d=>d.palette.values?Object.keys(d.palette.values).length+' from '+SRC(d.palette.source):'unassigned'],
+              ['Fonts',d=>d.fonts.values?Object.values(d.fonts.values).join(', '):'unassigned'],['Your view',d=>R[d.id]?CH[R[d.id].choice]:'not chosen']];
+  for(const [lab,f] of rows){ const r=el('tr'); r.append(el('th',null,lab)); P.directions.forEach(d=>r.append(el('td',null,f(d)))); t.append(r); }
+  const box=$('list'); box.textContent='';
+  P.directions.forEach(d=>box.append(card(d)));
+}
+function field(label, content){ const f=el('div','f'); f.append(el('h3',null,label)); f.append(content); return f; }
+function ul(items){ const u=el('ul'); items.forEach(i=>u.append(el('li',null,i))); return u; }
+function card(d){
+  const c=el('section','card'); c.id=d.id;
+  const h=el('div','head'); h.append(el('h2',null,d.name), el('span','lid',d.id)); c.append(h);
+  const pv=el('div','prev');
+  if(d.preview.images && d.preview.images.length) d.preview.images.forEach(s=>{ const i=document.createElement('img'); i.src=s; i.alt=d.name; pv.append(i); });
+  else pv.append(el('div','none','No preview: '+(d.preview.reason||'no approved material here')));
+  c.append(pv);
+  c.append(el('p','cap', d.preview.kind==='real_frames' ? 'Real frames from the published episode 7.' : d.preview.kind==='style_board' ? 'Style board built from the source colours. Not a frame from a film. The photo slot is left empty on purpose: products are real photographs only.' : ''));
+  const g=el('div','grid');
+  g.append(field('Visual style', el('p',null,d.visual_style)));
+  g.append(field('Suitable scenes', ul(d.suitable_scenes)));
+  const te=el('div','tech'); d.techniques.forEach(t=>{ const [cl,lab]=ST[t.status]||['p-warn',t.status]; const p=el('span','pill '+cl,t.name+' · '+lab); p.title=(t.support||[]).join(', ')+' · accuracy '+t.accuracy; if(!t.in_profile){ p.className='pill p-bad'; p.textContent=t.name+' · outside profile'; } te.append(p); });
+  const eng=el('div'); eng.append(el('p',null,d.engine), te, el('p','src',d.support_summary)); g.append(field('Current engine support', eng));
+  g.append(field('Required assets', ul(d.required_assets)));
+  g.append(field('Technical limitations', ul(d.limitations)));
+  g.append(field('Estimated cost', ul([d.cost.render, d.cost.images, d.cost.narration])));
+  g.append(field('Historical or scientific accuracy risks', ul(d.accuracy_risks)));
+  // colours
+  const pal=el('div');
+  if(d.palette.values){ const ch=el('div','chips'); Object.entries(d.palette.values).forEach(([k,v])=>{ const s=el('span','sw'); const i=el('i'); i.style.background=v; s.append(i, el('code',null,v), ' '+k); ch.append(s); }); pal.append(ch, el('p','src','Source: '+SRC(d.palette.source)+(d.palette.note?' · '+d.palette.note:''))); }
+  else pal.append(el('p','un','Unassigned'), el('p','src',d.palette.missing||''));
+  if('accent' in d.palette && !d.palette.accent) pal.append(el('p','src','Accent colour: unassigned (none in the sources)'));
+  g.append(field('Colours', pal));
+  const fo=el('div');
+  if(d.fonts.values){ fo.append(el('p',null,Object.entries(d.fonts.values).map(([k,v])=>k+': '+v).join(' · ')), el('p','src','Source: '+SRC(d.fonts.source))); }
+  else fo.append(el('p','un','Unassigned'));
+  if(d.fonts.missing) fo.append(el('p','src',d.fonts.missing));
+  g.append(field('Fonts', fo));
+  c.append(g);
+  if(d.outside_profile.length) c.append(el('p','err','Techniques outside the current profile: '+d.outside_profile.join(', ')));
+  // reaction
+  const r=el('div','react'); r.append(el('h3',null,'Your view on this direction'));
+  const ch=el('div','choice'); ch.setAttribute('role','group'); ch.setAttribute('aria-label','Your view');
+  const note=document.createElement('textarea'); note.id='note-'+d.id; note.placeholder='Note (optional): what should change?'; note.value=(R[d.id]||{}).note||'';
+  const st=el('span','saved'); st.setAttribute('aria-live','polite');
+  Object.entries(CH).forEach(([k,lab])=>{ const b=el('button',null,lab); b.type='button'; b.dataset.v=k; b.setAttribute('aria-pressed',String((R[d.id]||{}).choice===k));
+    b.addEventListener('click',async()=>{ ch.querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+      await save(d, {choice:k, note:note.value.trim(), project:proj, direction:d.id, at:new Date().toISOString()}, st); }); ch.append(b); });
+  note.addEventListener('change',async()=>{ if(R[d.id]) await save(d,{...R[d.id], note:note.value.trim(), at:new Date().toISOString()}, st); });
+  r.append(ch, note, st); c.append(r);
+  return c;
+}
+async function save(d, row, st){
+  R[d.id]=row;
+  if(db){ try{ await db.doc('reactions/'+d.id).set(row); st.textContent='Saved'; st.className='saved'; }catch(e){ st.textContent='Not saved ('+((e&&e.code)||'error')+'). Try again.'; st.className='err'; } }
+  else { try{ localStorage.setItem('dir-reactions', JSON.stringify(R)); st.textContent='Saved in this browser only'; }catch(e){ st.textContent='Not saved'; st.className='err'; } }
+  renderTableOnly();
+}
+function renderTableOnly(){ const y=scrollY; const open=proj; render(); scrollTo(0,y); }
+['timekeeper','diabetes'].forEach(k=>$('tab-'+k).addEventListener('click',()=>{ proj=k; render(); }));
+try{ Object.assign(R, JSON.parse(localStorage.getItem('dir-reactions')||'{}')); }catch(e){}
+if(location.hash==='#diabetes') proj='diabetes';
+render();
+(async()=>{ try{ db = window.claude && window.claude.use ? await window.claude.use('db') : null; if(!db) return;
+  db.collection('reactions').onSnapshot(s=>{ for(const k in R) delete R[k]; for(const doc of s.docs){ const v=doc.data(); if(v) R[doc.id]=v; } if(!document.activeElement || document.activeElement.tagName!=='TEXTAREA') renderTableOnly(); }, ()=>{});
+}catch(e){ db=null; } })();
+</script>

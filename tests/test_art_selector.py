@@ -66,7 +66,7 @@ class TestSelector(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             log = os.path.join(d, 'decisions.jsonl')
             record_choice(log, 'royal-oak', 'p2-4', 'product_macro', [{'technique': 'archival_collage', 'why': 'too busy'}], reason='owner preference')
-            row = json.loads(open(log).read())
+            row = json.loads(Path(log).read_text())
             self.assertEqual((row['project'], row['chosen']), ('royal-oak', 'product_macro'))
 
 

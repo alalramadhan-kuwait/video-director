@@ -1,0 +1,194 @@
+<title>Episode 7 Art Review</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: summary of the three kinds of result, then a filterable list of finding cards (scene + timecode,
+   severity stripe, problem, evidence images, suggestion, your decision), then the blind-test evidence.
+   Severity is encoded twice: a coloured stripe on the card edge and a labelled pill. */
+:root{
+  --bg:#f2f3f5; --surface:#ffffff; --ink:#15191f; --muted:#5a6370; --line:#d7dbe1; --accent:#2c5d8a; --accent-soft:#e3ecf5;
+  --ok:#1f7a4f; --ok-soft:#e1f2e9; --warn:#8a5a00; --warn-soft:#fbf0d9; --bad:#b0362b; --bad-soft:#f8e2df; --info:#5a6370; --info-soft:#eceef1;
+  --ai:#6b4fa0; --ai-soft:#efe9f8;
+  --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif; --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101318; --surface:#181d24; --ink:#e7eaee; --muted:#9aa3ae; --line:#2b323c; --accent:#86b6e0; --accent-soft:#1c2c3c;
+  --ok:#6cc79a; --ok-soft:#163326; --warn:#e8b65a; --warn-soft:#3a2d12; --bad:#f08c80; --bad-soft:#3b1d1a; --info:#9aa3ae; --info-soft:#232a33;
+  --ai:#b9a2e6; --ai-soft:#2a2140; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101318; --surface:#181d24; --ink:#e7eaee; --muted:#9aa3ae; --line:#2b323c; --accent:#86b6e0; --accent-soft:#1c2c3c;
+  --ok:#6cc79a; --ok-soft:#163326; --warn:#e8b65a; --warn-soft:#3a2d12; --bad:#f08c80; --bad-soft:#3b1d1a; --info:#9aa3ae; --info-soft:#232a33;
+  --ai:#b9a2e6; --ai-soft:#2a2140; color-scheme:dark}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--ink);font:16px/1.6 var(--f-body);padding-inline:16px;padding-block:0 80px}
+main{max-width:980px;margin-inline:auto;display:flex;flex-direction:column;gap:18px}
+main>*{min-width:0}
+h1{font-size:1.4rem;margin:0;text-wrap:balance}
+h2{font-size:1.12rem;margin:0;text-wrap:balance}
+h3{font-size:.78rem;margin:0;color:var(--muted);font-weight:500;letter-spacing:.03em;text-transform:uppercase}
+p{margin:0}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px 10px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-wrap:wrap}
+button,select{font:inherit;cursor:pointer;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--ink);padding:5px 11px;min-height:34px}
+.seg button{border:0;border-radius:0}
+.seg button+button{border-inline-start:1px solid var(--line)}
+button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);font-weight:700;border-color:var(--accent)}
+button:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.kinds{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.kind{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px}
+.kind b{font-size:1.5rem;font-variant-numeric:tabular-nums}
+.kind p{font-size:.86rem;color:var(--muted)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.list{display:flex;flex-direction:column;gap:12px}
+.f{background:var(--surface);border:1px solid var(--line);border-inline-start:5px solid var(--info);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.f.critical{border-inline-start-color:var(--bad)} .f.major{border-inline-start-color:var(--warn)} .f.minor{border-inline-start-color:var(--accent)}
+.top{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center}
+.sc{font-family:var(--f-mono);font-size:.85rem}
+.pill{font-size:.74rem;font-weight:700;border-radius:99px;padding:1px 9px;white-space:nowrap}
+.s-critical{background:var(--bad-soft);color:var(--bad)} .s-major{background:var(--warn-soft);color:var(--warn)}
+.s-minor{background:var(--accent-soft);color:var(--accent)} .s-info{background:var(--info-soft);color:var(--info)}
+.p-ai{background:var(--ai-soft);color:var(--ai)} .p-auto{background:var(--ok-soft);color:var(--ok)}
+.p-dec{background:var(--ok-soft);color:var(--ok)}
+.problem{max-width:75ch}
+.sug{font-size:.92rem;color:var(--muted);max-width:75ch}
+.note{font-size:.82rem;color:var(--warn)}
+.ev{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.ev figure{margin:0;flex:none;display:flex;flex-direction:column;gap:2px}
+.ev img{height:150px;width:auto;border-radius:6px;border:1px solid var(--line)}
+.ev figcaption{font-size:.72rem;color:var(--muted);max-width:340px}
+.cite{font-size:.8rem;color:var(--muted)}
+.dec{display:flex;flex-wrap:wrap;gap:6px;align-items:center;border-top:1px solid var(--line);padding-top:8px}
+.dec textarea{flex:1 1 220px;min-height:34px;font:inherit;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);padding:5px 8px}
+.saved{font-size:.78rem;color:var(--ok)} .err{font-size:.78rem;color:var(--bad)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px}
+.panel ul{margin:0;padding-inline-start:18px}
+.contact{max-width:100%;border-radius:8px;border:1px solid var(--line)}
+.tbl{overflow-x:auto;min-width:0}
+table{border-collapse:collapse;width:100%;min-width:720px;font-size:.86rem}
+th,td{padding:8px;border-bottom:1px solid var(--line);text-align:start;vertical-align:top}
+th{color:var(--muted);font-weight:500}
+td img{width:72px;border-radius:4px;border:1px solid var(--line)}
+.yes{color:var(--ok);font-weight:700} .no{color:var(--bad);font-weight:700}
+</style>
+
+<main>
+  <div class="bar">
+    <h1>Episode 7 art review</h1>
+    <div class="seg" role="group" aria-label="View">
+      <button type="button" id="v-findings" aria-pressed="true">Findings</button>
+      <button type="button" id="v-blind" aria-pressed="false">How far to trust the AI</button>
+    </div>
+  </div>
+
+  <section id="findings" style="display:flex;flex-direction:column;gap:16px">
+    <div class="kinds" id="kinds"></div>
+    <div class="panel">
+      <h2>Automated technical checks</h2>
+      <p id="autoSum"></p>
+      <ul id="checks"></ul>
+    </div>
+    <img class="contact" id="contact" alt="One tile per scene, in order">
+    <div class="filters">
+      <label for="fSev">Severity</label>
+      <select id="fSev"><option value="">all</option><option>critical</option><option>major</option><option>minor</option><option>info</option></select>
+      <label for="fDim">Dimension</label>
+      <select id="fDim"><option value="">all</option></select>
+      <label for="fDec">Decision</label>
+      <select id="fDec"><option value="">all</option><option value="open">not decided</option><option value="decided">decided</option></select>
+      <span class="cite" id="shown"></span>
+    </div>
+    <div class="list" id="list"></div>
+  </section>
+
+  <section id="blind" hidden style="display:flex;flex-direction:column;gap:16px">
+    <div class="kinds" id="bk"></div>
+    <div class="panel" id="bnotes"></div>
+    <div class="tbl"><table id="btab"></table></div>
+  </section>
+</main>
+
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const el = (t,c,x) => { const e=document.createElement(t); if(c) e.className=c; if(x!=null) e.textContent=x; return e; };
+const DECS = {accepted:'Accept', dismissed:'Dismiss', needs_source:'Needs a source', fixed:'Fixed'};
+const D = {}; let db=null;
+
+function kinds(){
+  const k=$('kinds'); k.textContent='';
+  const open = DATA.ai.filter(f=>!D[f.id]).length + DATA.automated.filter(f=>f.requires_human && !D[f.id]).length;
+  [[DATA.counts.automated,'Automated checks','Measured by code. Reproducible; no judgement.','p-auto'],
+   [DATA.counts.ai_judgement,'AI judgements','A model’s opinion from frames, narration and facts. Recommendations, not proof.','p-ai'],
+   [open,'Waiting for your decision','Every AI finding and any automated finding that would change the art.','p-dec']]
+   .forEach(([n,t,d,c])=>{ const b=el('div','kind'); const h=el('div','top'); h.append(el('span','pill '+c,t)); b.append(h, el('b',null,String(n)), el('p',null,d)); k.append(b); });
+}
+function card(f){
+  const c=el('article','f '+f.severity); c.id=f.id;
+  const top=el('div','top');
+  top.append(el('span','sc',f.scene+' · '+f.timecode), el('span','pill s-'+f.severity,f.severity),
+             el('span','pill '+(f.source==='automated'?'p-auto':'p-ai'), f.source==='automated'?'automated':'AI judgement · recommendation'),
+             el('span','cite',f.dimension_label+' · confidence '+f.confidence));
+  if(D[f.id]) top.append(el('span','pill p-dec','you: '+(DECS[D[f.id].status]||D[f.id].status)));
+  c.append(top, el('p','problem',f.problem));
+  const ev=el('div','ev'), cites=[];
+  for(const e of f.evidence){
+    if(e.img){ const fg=el('figure'); const i=document.createElement('img'); i.src=e.img; i.alt=e.kind+' '+e.ref; fg.append(i, el('figcaption',null,e.kind+': '+(e.note||e.ref))); ev.append(fg); }
+    else cites.push(e.kind+' '+e.ref+(e.note?' ('+e.note+')':''));
+  }
+  if(ev.children.length) c.append(ev);
+  if(cites.length) c.append(el('p','cite','Evidence: '+cites.join(' · ')));
+  if(f.suggestion) c.append(el('p','sug','Suggested correction: '+f.suggestion));
+  f.notes.forEach(n=>c.append(el('p','note',n)));
+  const d=el('div','dec'); const st=el('span','saved'); st.setAttribute('aria-live','polite');
+  const note=document.createElement('textarea'); note.id='n-'+f.id; note.placeholder='Note (optional)'; note.value=(D[f.id]||{}).note||'';
+  Object.entries(DECS).forEach(([k,lab])=>{ const b=el('button',null,lab); b.type='button'; b.setAttribute('aria-pressed',String((D[f.id]||{}).status===k));
+    b.addEventListener('click',()=>decide(f,k,note.value.trim(),st)); d.append(b); });
+  d.append(note, st); c.append(d);
+  return c;
+}
+async function decide(f,status,note,st){
+  const row={finding:f.id, scene:f.scene, status, note, source:f.source, at:new Date().toISOString()};
+  D[f.id]=row;
+  if(db){ try{ await db.doc('decisions/'+f.id).set(row); st.textContent='Saved'; st.className='saved'; }catch(e){ st.textContent='Not saved ('+((e&&e.code)||'error')+'). Try again.'; st.className='err'; } }
+  else { try{ localStorage.setItem('art-decisions',JSON.stringify(D)); st.textContent='Saved in this browser only'; }catch(e){ st.textContent='Not saved'; st.className='err'; } }
+  kinds(); const old=$(f.id); if(old){ const n=card(f); n.querySelector('.dec .saved').textContent=st.textContent; old.replaceWith(n); }
+}
+function list(){
+  const sev=$('fSev').value, dim=$('fDim').value, dec=$('fDec').value;
+  const all=[...DATA.automated, ...DATA.ai].filter(f=>(!sev||f.severity===sev)&&(!dim||f.dimension===dim)&&(!dec||(dec==='open')===!D[f.id]));
+  const box=$('list'); box.textContent='';
+  all.forEach(f=>box.append(card(f)));
+  $('shown').textContent=all.length+' shown';
+}
+function blind(){
+  const B=DATA.blind; if(!B){ $('v-blind').hidden=true; return; }
+  const s=B.summary, k=$('bk');
+  [[s.caught+' / '+s.defects,'planted or known defects with a matching finding'],[s.clean_items_with_major_or_critical+' / '+s.clean_items,'untouched published frames that drew a major finding'],[String(DATA.counts.discarded_ai),'AI findings discarded for citing no evidence']]
+    .forEach(([n,t])=>{ const b=el('div','kind'); b.append(el('b',null,n), el('p',null,t)); k.append(b); });
+  const p=$('bnotes'); p.append(el('h2',null,'What the blind test shows'));
+  [['Method',DATA.notes.blind_method],['Read by hand',DATA.notes.strict_reading],['A mistake in the test set',DATA.notes.test_set_error],['Untouched frames',DATA.notes.clean_controls],['Limits',DATA.notes.limits]]
+    .forEach(([h,t])=>{ p.append(el('h3',null,h), el('p',null,t)); });
+  const t=$('btab'); const hr=el('tr'); ['Item','Still','What was planted','Matched?','Reviewer said'].forEach(h=>hr.append(el('th',null,h))); t.append(hr);
+  B.rows.forEach(r=>{ const tr=el('tr'); tr.append(el('td','sc',r.item));
+    const ti=el('td'); const i=document.createElement('img'); i.src=r.img; i.alt=r.item; ti.append(i); tr.append(ti);
+    tr.append(el('td',null, r.truth || 'nothing (untouched published frame)'));
+    tr.append(el('td', r.caught===true?'yes':r.caught===false?'no':'', r.caught===true?'yes':r.caught===false?'no':'—'));
+    const said=el('td'); r.findings.filter(f=>f.severity==='critical'||f.severity==='major').slice(0,3).forEach(f=>said.append(el('p',null,f.severity+' · '+f.dimension+': '+f.problem.slice(0,160)+(f.problem.length>160?'…':''))));
+    if(!said.children.length) said.append(el('p','cite',r.findings.length? r.findings.length+' minor or info finding(s)':'no findings')); tr.append(said);
+    t.append(tr); });
+}
+function view(v){ $('findings').hidden=v!=='findings'; $('blind').hidden=v!=='blind';
+  $('v-findings').setAttribute('aria-pressed',String(v==='findings')); $('v-blind').setAttribute('aria-pressed',String(v==='blind')); }
+$('v-findings').addEventListener('click',()=>view('findings')); $('v-blind').addEventListener('click',()=>view('blind'));
+['fSev','fDim','fDec'].forEach(id=>$(id).addEventListener('change',list));
+[...new Set(DATA.ai.map(f=>f.dimension))].sort().forEach(d=>{ const o=el('option',null,d); o.value=d; $('fDim').append(o); });
+$('autoSum').textContent = DATA.counts.automated ? DATA.counts.automated+' finding(s) below, labelled automated.' : 'All passed on '+(DATA.video||'the video')+'. Checks run:';
+DATA.checks.forEach(c=>$('checks').append(el('li',null,c)));
+if(DATA.contact) $('contact').src=DATA.contact; else $('contact').hidden=true;
+try{ Object.assign(D, JSON.parse(localStorage.getItem('art-decisions')||'{}')); }catch(e){}
+kinds(); list(); blind();
+if(location.hash==='#blind') view('blind');
+(async()=>{ try{ db = window.claude && window.claude.use ? await window.claude.use('db') : null; if(!db) return;
+  db.collection('decisions').onSnapshot(s=>{ for(const k in D) delete D[k]; for(const doc of s.docs){ const v=doc.data(); if(v) D[doc.id]=v; }
+    if(!document.activeElement || document.activeElement.tagName!=='TEXTAREA'){ kinds(); list(); } }, ()=>{});
+}catch(e){ db=null; } })();
+</script>

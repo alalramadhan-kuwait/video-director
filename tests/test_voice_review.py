@@ -109,7 +109,7 @@ class TestVoiceReview(unittest.TestCase):
             r = ingest(rows, self.data, self.lib, self.store, self.voice, d)
             self.assertEqual(self.store.status(take), 'approved')                     # approved stays approved
             self.assertEqual(self.store.status(mock), 'rejected')                     # mock follows the verdict
-            dec = [json.loads(x) for x in open(os.path.join(d, 'decisions.jsonl'), encoding='utf-8')]
+            dec = [json.loads(x) for x in Path(d, 'decisions.jsonl').read_text(encoding='utf-8').splitlines()]
             self.assertIn('replace_requested', [x.get('decision') for x in dec])
             self.assertEqual(r['proposals'], ['prop-p2-1-tk-steel'])
             props = Library.load(os.path.join(d, 'proposals.yaml'))
@@ -117,7 +117,7 @@ class TestVoiceReview(unittest.TestCase):
             self.assertEqual(r['what_if']['lines'], ['p2-1'])
             self.assertEqual(r['what_if']['chars_total'], p21['corrections']['keep_arabic']['chars'])
             # the what-if plan cannot be run without an approval for that exact plan, and it is disabled anyway
-            plan = json.loads(open(os.path.join(d, 'what_if_plan.json'), encoding='utf-8').read())
+            plan = json.loads(Path(d, 'what_if_plan.json').read_text(encoding='utf-8'))
             calls = []
             gw = PaidGateway(Ledger(os.path.join(d, 'l.sqlite')), self.store,
                              {'elevenlabs': ElevenLabsProvider(lambda req: calls.append(req))})

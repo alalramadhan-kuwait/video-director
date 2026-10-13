@@ -1,0 +1,92 @@
+# Design directions offered for owner comparison. PROPOSALS ONLY: neither profile is locked by anything in this file.
+# Colours and fonts are copied from approved sources (each with `source`) or left null (unassigned). Nothing invented.
+# Engine support is NOT restated here: the page reads it from art/techniques.yaml for the listed techniques.
+sources:
+  tk_template: {file: "skills/timekeeper-post/SKILL.md", what: "Time Keeper Instagram template: headline boxes #111111 / #FFFFFF, font Bahij Helvetica Neue Bold"}
+  tk_style: {file: "claude_success-story-video/video/success-story/tk-style.json", what: "Success-story film theme; its note: logo is a black monogram on warm off-white #F0F0EC; boxes #111111/#FFFFFF from the brand template; no accent invented; Cairo used as a stand-in for Bahij"}
+  ro_style: {file: "claude_success-story-video/video/royal-oak/ro-style.json", what: "Royal Oak film palette; its note: no brand colour is taken or invented"}
+  dh_ep7: {file: "profiles/diabetes-history-sci.yaml (look, from the episode 7 project)", what: "Series palette and fonts as published in episodes 5–7"}
+  ro_usage: {file: "royal-oak/voice-abdullah/clips.json", what: "Royal Oak narration: 3,645 characters for 5 min 56 s (about 615 characters per minute)"}
+
+projects:
+  timekeeper:
+    profile: timekeeper-luxury-doc
+    narration_cost: "ElevenLabs final narration only, about 615 characters per minute (Royal Oak used 3,645 characters for 5:56). Billed against the existing plan; previews use gTTS drafts (free)."
+    directions:
+      - id: tk-paper
+        name: Paper story, Time Keeper paper
+        visual_style: Warm off-white and graphite paper, taped polaroids of real photographs, torn-paper banners, black/white caption boxes inverted for emphasis. No accent colour.
+        suitable_scenes: [biography and business stories, real people with their own photos, places and maps, dated timelines, quotes]
+        techniques: [archival_collage, paper_cut, parallax_25d, map, kinetic_type, neutral_placeholder]
+        engine: paper_story (render.mjs) — used for the success-story film
+        required_assets: [real product photos (owned or licensed), photos of people with consent or licence, archival documents with sources, logo public/icon-512.png, end card video/brand/tk_endcard.py]
+        limitations: [2.5D camera only, no true 3D, cut-outs need clean photos, the success-story media is not in this workspace (no live preview), paper-story --check cannot see things under the banner (found in M4)]
+        accuracy_risks: [photo dates (give a year only when the photo proves it), licence of archival photos, matching each product to its exact Ref.]
+        palette: {source: tk_style, values: {logo_paper: "#F0F0EC", ink: "#111111", white: "#FFFFFF", banner_paper: "#F3F0E8", bone: "#E4DFD3", graphite: "#34373E"}, note: "#F0F0EC, #111111, #FFFFFF are brand; the others are the film's theme tones built on them"}
+        fonts: {source: tk_template, values: {headline: Bahij Helvetica Neue Bold}, missing: "font file not in this workspace (the film used Cairo as a stand-in); body face unassigned"}
+        preview: {kind: style_board, theme: tk-bone}
+      - id: tk-blueprint
+        name: Night studio, blueprint
+        visual_style: Ink-navy night studio with drafting paper, graphite and blueprint blue; the watch appears only as real photographs; drawn construction lines for design stories.
+        suitable_scenes: [design origin stories, a designer's process, mechanisms and case construction, reference numbers and dimensions, factory history]
+        techniques: [technical_illustration, product_macro, archival_collage, animated_timeline, verified_3d]
+        engine: paper_story (render.mjs) with the Royal Oak themes; movement-3d for verified 3D
+        required_assets: [real photos of the exact reference (e.g. Ref. 5402), technical drawings with licence, sourced dimensions, 3D model only if verified against the real watch]
+        limitations: [Royal Oak media is not in this workspace (no live preview), verified 3D renders slowly on CPU, product_macro still lives in project code]
+        accuracy_risks: [a redrawn sketch can be mistaken for the designer's original: label it as a reconstruction, wrong variant or year in a photo, trademarked design details]
+        palette: {source: ro_style, values: {night: "#18202E", drafting_paper: "#EFE8D6", ink: "#16181D", steel: "#3B4048", blueprint: "#1D3B5E", alpine: "#D9D2C2"}, note: "film palette for Royal Oak, not a brand palette"}
+        fonts: {source: null, values: null, missing: "unassigned: the film used the engine's default banner face, not a brand font"}
+        preview: {kind: style_board, theme: ro-night}
+      - id: tk-editorial
+        name: Editorial black and white, product macro
+        visual_style: Black and white only, with the product photograph carrying all the colour; slow macro moves across dial, bracelet and caseback; large Arabic headlines in black/white boxes.
+        suitable_scenes: [product introductions, details (dial, finishing, bracelet), comparisons between references, short hooks and cutdowns]
+        techniques: [product_macro, kinetic_type, live_footage]
+        engine: video-ad-editor ad engine (captions, safe zones, b-roll) + paper_story macro() (project code)
+        required_assets: [Time Keeper's own high-resolution product photos or footage of the exact pieces, logo]
+        limitations: [depends entirely on photography quality, the ad engine is built for short ads, not long documentaries, product_macro is not in the shared library yet]
+        accuracy_risks: [low historical risk, retouching must not change the product (dial, hands, finish), exact Ref. and material on every label]
+        palette: {source: tk_template, values: {black: "#111111", white: "#FFFFFF"}, accent: null, note: "no accent colour exists in the sources; left unassigned"}
+        fonts: {source: tk_template, values: {headline: Bahij Helvetica Neue Bold}, missing: "font file not in this workspace; body face unassigned"}
+        preview: {kind: style_board, theme: editorial}
+
+  diabetes:
+    profile: diabetes-history-sci
+    narration_cost: "Fasih (local, free). Publishing stays blocked until the Fasih licence (CPML, non-commercial) is reviewed."
+    directions:
+      - id: dh-papercut
+        name: Layered paper-cut (current series look)
+        visual_style: Navy layered paper with warm clay ground, drawn people from the series kit, gold accents for key words, chapter pills and a running series header.
+        suitable_scenes: [daily life and emotional beats, people by role, places, transitions, simple timelines]
+        techniques: [paper_cut, character_animation, animated_timeline, kinetic_type]
+        engine: motion (papercut.js + stylekit) — episodes 5–7
+        required_assets: [none for the art (procedural kit), a source for every fact]
+        limitations: [drawn people are generic and repeat poses, character animation is low-accuracy by nature]
+        accuracy_risks: [drawn real people (Hagedorn, Elizabeth) must not read as portraits: names on screen only, period details (clothes, glass syringes) need checking]
+        palette: {source: dh_ep7, values: {bg: "#1C3550", ink: "#FFF8EE", acc: "#F2B84B", clay: "#C98A12", hi: "#FFE39A", mut: "#B8CADB"}}
+        fonts: {source: dh_ep7, values: {display: Cairo, body: IBM Plex Sans Arabic, num: Inter}}
+        preview: {kind: real_frames, scenes: [a1, a4, d4]}
+      - id: dh-labnotebook
+        name: Lab notebook, scientific diagrams
+        visual_style: The same series palette, with the screen given over to diagrams — microscope circles, curves, crystals, counters — drawn cleanly with labelled axes.
+        suitable_scenes: [mechanisms (protamine granules, slow release), insulin action curves, numbers and comparisons, before/after]
+        techniques: [scientific_diagram, animated_timeline, kinetic_type, verified_3d]
+        engine: motion (motion-kit charts; cells and crystals drawn per scene in ep7)
+        required_assets: [a source and the data for every diagram, expert-review status for medical claims]
+        limitations: [diagrams simplify, charts without real data become decoration, 3D is slow on CPU]
+        accuracy_risks: [oversimplified or wrong mechanism, curves drawn without data, speculative processes not labelled as such]
+        palette: {source: dh_ep7, values: {bg: "#1C3550", ink: "#FFF8EE", acc: "#F2B84B", mut: "#B8CADB"}}
+        fonts: {source: dh_ep7, values: {display: Cairo, body: IBM Plex Sans Arabic, num: Inter}}
+        preview: {kind: real_frames, scenes: [a3, b3, d1]}
+      - id: dh-archival
+        name: Archival documents and photographs
+        visual_style: Period photographs, newspaper clippings and letters as paper prints, with the series header kept for continuity.
+        suitable_scenes: [real people where a usable photo exists, newspaper stories (1922), documents and places]
+        techniques: [archival_collage, map, neutral_placeholder]
+        engine: paper_story (polaroid / cut-out prints) — not in the motion engine used by this series
+        required_assets: [public-domain or licensed archival images with sources, Fisher Library images are forbidden by the profile]
+        limitations: [needs engine work or a second engine for this series, licensing for the series is not confirmed, no approved archival images in this workspace (no preview)]
+        accuracy_risks: [misattributed or misdated photos, licence, dignity and privacy of patients in historical photos]
+        palette: {source: null, values: null, missing: "unassigned: would follow the archive material; to be chosen by the owner"}
+        fonts: {source: dh_ep7, values: {display: Cairo, body: IBM Plex Sans Arabic}}
+        preview: {kind: none, reason: "no approved archival images in this workspace"}

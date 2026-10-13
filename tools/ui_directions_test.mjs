@@ -1,0 +1,50 @@
+// Interface test + screenshots for the creative directions page (offline Chromium).
+//   node tools/ui_directions_test.mjs var/pages/directions/index.html var/shots
+import { createRequire } from 'node:module';
+import path from 'node:path';
+import fs from 'node:fs';
+const require = createRequire(import.meta.url);
+const { chromium } = require(process.env.PW_MODULE || '/opt/node22/lib/node_modules/playwright');
+const [page_, outDir] = process.argv.slice(2);
+const url = 'file://' + path.resolve(page_);
+fs.mkdirSync(outDir, { recursive: true });
+const res = []; const ok = (n, c, d = '') => res.push({ name: n, pass: !!c, detail: d });
+const errors = [];
+const b = await chromium.launch({ executablePath: '/opt/pw-browsers/chromium-1194/chrome-linux/chrome' });
+async function open(w, h, scheme, hash = '') {
+  const ctx = await b.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: 2, colorScheme: scheme });
+  await ctx.route(/^https?:/, (r) => r.abort());
+  const p = await ctx.newPage(); p.on('pageerror', (e) => errors.push(e.message));
+  await p.goto(url + hash); await p.waitForTimeout(500); return p;
+}
+let p = await open(390, 844, 'light');
+ok('Time Keeper shows 3 directions', (await p.locator('section.card').count()) === 3);
+ok('draft notice says nothing is locked', (await p.locator('#notice').textContent()).includes('does not lock'));
+ok('no horizontal scroll at 390px', await p.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1));
+ok('unassigned values are shown as unassigned', (await p.locator('#tk-blueprint .un').count()) >= 1);
+ok('every colour chip names its source', await p.evaluate(() => [...document.querySelectorAll('.card')].every((c) => !c.querySelector('.sw') || /Source:/.test(c.textContent))));
+ok('style boards labelled as not film frames', (await p.locator('#tk-paper .cap').first().textContent()).includes('Not a frame'));
+await p.screenshot({ path: `${outDir}/directions-phone-light-tk.png` });
+await p.locator('#tk-paper').scrollIntoViewIfNeeded();
+await p.screenshot({ path: `${outDir}/directions-phone-light-tk-card.png` });
+await p.locator('#tk-editorial button[data-v="prefer"]').click(); await p.waitForTimeout(200);
+const saved = await p.evaluate(() => JSON.parse(localStorage.getItem('dir-reactions') || '{}'));
+ok('reaction saved', saved['tk-editorial'] && saved['tk-editorial'].choice === 'prefer');
+ok('table shows the reaction', (await p.locator('#cmp').textContent()).includes('Prefer this'));
+await p.locator('#tab-diabetes').click(); await p.waitForTimeout(300);
+ok('Diabetes shows 3 directions', (await p.locator('section.card').count()) === 3);
+ok('real frames load', await p.evaluate(() => [...document.querySelectorAll('#dh-papercut img')].every((i) => i.naturalWidth > 0)));
+ok('archival direction has no invented preview', (await p.locator('#dh-archival .none').count()) === 1);
+await p.context().close();
+p = await open(390, 844, 'dark', '#diabetes');
+await p.screenshot({ path: `${outDir}/directions-phone-dark-dh.png` });
+await p.locator('#dh-labnotebook').scrollIntoViewIfNeeded();
+await p.screenshot({ path: `${outDir}/directions-phone-dark-dh-card.png` });
+await p.context().close();
+p = await open(1280, 900, 'light');
+await p.screenshot({ path: `${outDir}/directions-desktop-light.png` });
+await p.context().close(); await b.close();
+ok('no page errors', errors.length === 0, errors.join(' | '));
+fs.writeFileSync(`${outDir}/directions-ui-results.json`, JSON.stringify(res, null, 1));
+for (const r of res) console.log((r.pass ? 'PASS ' : 'FAIL ') + r.name + (r.detail ? '  (' + r.detail + ')' : ''));
+const f = res.filter((r) => !r.pass).length; console.log(`${res.length - f}/${res.length} passed`); process.exit(f ? 1 : 0);

@@ -76,7 +76,7 @@ SYNTH = [
 REAL = [   # earlier ep7 renders with defects that were found and fixed before the final (cropped, upscaled)
     ('real_name_over_year', EP7 / 'chk/b1cmp.png', 0, 'b1',
      {'defect': True, 'dimensions': ['composition', 'arabic_text'], 'what': 'doctor name overlaps the «الدنمارك · 1936» card (real defect, fixed in the final)'}),
-    ('real_chip_under_caption', EP7 / 'chk/p2b.png', 720, 'b2',
+    ('real_chip_under_caption', EP7 / 'chk/p2b.png', 720, 'b1',
      {'defect': True, 'dimensions': ['composition', 'arabic_text'], 'what': 'the «مدة أطول» chip is hidden under the caption card (real defect, fixed in the final)'}),
 ]
 CLEAN = ['a2', 'a4', 'b2', 'b5', 'd5', 'd6']
