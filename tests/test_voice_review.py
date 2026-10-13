@@ -116,6 +116,9 @@ class TestVoiceReview(unittest.TestCase):
             self.assertEqual(self.store.status(mock), 'rejected')                     # mock follows the verdict
             dec = [json.loads(x) for x in Path(d, 'decisions.jsonl').read_text(encoding='utf-8').splitlines()]
             self.assertIn('replace_requested', [x.get('decision') for x in dec])
+            listen = [x for x in dec if x['kind'] == 'listening']                     # no playback proof on this page
+            self.assertEqual([(x['heard'], x['confirmed']) for x in listen], [('article_missing', False)])
+            self.assertTrue(any('unconfirmed' in n for n in r['notes']))
             self.assertEqual(r['proposals'], ['prop-p2-1-tk-steel'])
             props = Library.load(os.path.join(d, 'proposals.yaml'))
             self.assertEqual([e.status for e in props.entries], ['proposed'])

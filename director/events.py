@@ -17,7 +17,7 @@ from pathlib import Path
 MIN_UNITS = 3
 MAX_CV = 0.6
 KINDS = {'task_started', 'unit_done', 'task_finished', 'task_failed', 'blocked', 'unblocked',
-         'stage_status', 'review_requested', 'review_decided', 'revision', 'note'}
+         'stage_status', 'review_requested', 'review_decided', 'revision', 'note', 'sync'}
 STAGE_STATUS = ('not_started', 'processing', 'waiting_review', 'approved', 'blocked', 'failed', 'unknown')
 SOURCES = ('live', 'reconstructed')
 

@@ -1,0 +1,27 @@
+# DRAFT scene beats for episode 7, written by Claude from ep7/PLAN.md (the approved episode plan) for the Art
+# Director's concept proposals. Not approved by the owner. `objective` = what the scene must make the viewer understand.
+# `assets` lists what exists for the scene today (facts with sources, dated facts); no photographs are in the workspace.
+project: diabetes-ep7
+profile: diabetes-history-sci
+status: draft
+scenes:
+  - {id: k1, beat: hook, objective: Introduce the episode's question, a life lived with the needle, accuracy: medium, assets: [], facts: []}
+  - {id: a1, beat: person_real, objective: Elizabeth as an adult, wife and mother, with the needle always beside her, accuracy: high, real_person: true, verified_photo: false, assets: [source], facts: [F1]}
+  - {id: a2, beat: action, objective: The daily routine of boiling the glass syringe and three injections a day, accuracy: medium, assets: [source], facts: [F2]}
+  - {id: a3, beat: mechanism, objective: Fast insulin rises hard and ends quickly; late or high doses cause lows, accuracy: high, assets: [source], facts: [F2]}
+  - {id: a4, beat: person_real, objective: Elizabeth hides her injections from friends; the 1922 newspaper story fades, accuracy: high, real_person: true, verified_photo: false, assets: [source], facts: [F1]}
+  - {id: a5, beat: place, objective: Laboratories around the world look for a slower insulin, accuracy: medium, assets: [], facts: []}
+  - {id: a6, beat: transition, objective: Cliffhanger, the answer comes from an unexpected place, accuracy: low, assets: [], facts: []}
+  - {id: b1, beat: person_real, objective: Denmark 1936, a doctor (Hagedorn) looks for a way to keep insulin under the skin longer, accuracy: high, real_person: true, verified_photo: false, assets: [source, dated_facts], facts: [F3]}
+  - {id: b2, beat: action, objective: Many substances tried; protamine from river trout works, accuracy: high, assets: [source], facts: [F3]}
+  - {id: b3, beat: mechanism, objective: Under the microscope insulin forms fine particles with protamine that dissolve slowly, accuracy: high, assets: [source], facts: [F3]}
+  - {id: b4, beat: person_real, objective: Toronto 1936, Scott and Fisher add zinc; one injection lasts a whole day, accuracy: high, real_person: true, verified_photo: false, assets: [source, dated_facts], facts: [F4]}
+  - {id: b5, beat: comparison, objective: The new insulin brings sudden night-time lows and cannot be mixed with fast insulin, accuracy: high, assets: [source], facts: [F4]}
+  - {id: b6, beat: transition, objective: Cliffhanger, can long and fast insulin share one syringe, accuracy: low, assets: [], facts: []}
+  - {id: d1, beat: timeline, objective: 1946, NPH crystals, named after Hagedorn, accuracy: high, assets: [source, dated_facts], facts: [F3, F5]}
+  - {id: d2, beat: comparison, objective: One syringe draws fast insulin and NPH; five injections a day become two, accuracy: high, assets: [source], facts: [F5]}
+  - {id: d3, beat: place, objective: From 1950 NPH spreads worldwide and stays in use for decades, accuracy: medium, assets: [dated_facts], facts: [F5]}
+  - {id: d4, beat: person_real, objective: Elizabeth's full life, three children and the Supreme Court Historical Society, accuracy: high, real_person: true, verified_photo: false, assets: [source], facts: [F1]}
+  - {id: d5, beat: number, objective: About 42,000 injections in 58 years, and the records she destroyed, accuracy: high, assets: [source], facts: [F1]}
+  - {id: d6, beat: hook, objective: The next question, how much insulin does the body need, accuracy: medium, assets: [], facts: []}
+  - {id: end3, beat: transition, objective: Next-episode card, a device at home, accuracy: low, assets: [], facts: []}

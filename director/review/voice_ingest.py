@@ -25,10 +25,19 @@ def ingest(rows: dict, page_data: dict, library: Library, store, voice: dict, ou
     now = time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime())
     decisions, proposals, notes = [], [], []
 
+    # This page sends no proof that the audio played (it is the page that could show 0:00 / 0:00), so its listening
+    # answers are kept as unconfirmed notes, never as pronunciation decisions. Confirmed answers come only from the
+    # dashboard, which records what the browser actually played (director/dashboard/playback.py).
+    unconfirmed = 0
     for k, r in (rows.get('listening') or {}).items():
         decisions.append({'kind': 'listening', 'line': r['line'], 'entry': r['entry'], 'written': r['written'],
                           'sent': r['sent'], 'heard': r['heard'], 'take': r['take'], 'take_kind': r.get('take_kind'),
+                          'confirmed': False, 'unconfirmed_reason': 'no playback proof from the voice review page',
                           'by': by, 'at': r.get('at', now)})
+        unconfirmed += 1
+    if unconfirmed:
+        notes.append(f'{unconfirmed} listening answer(s) kept as unconfirmed: this page cannot prove the audio played; '
+                     'answer them again on the dashboard')
 
     for k, r in (rows.get('verdicts') or {}).items():
         take = store.get(r['take'])
