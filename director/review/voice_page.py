@@ -131,8 +131,9 @@ def build(*, project, manifest, audio_dir, asr_dir, library, store: TakeStore, v
                 break
         queue = any(q['common_noun'] for q in questions)
         corr = None
-        if questions:
-            alt = what_if_keep_arabic(library, lid, c['text'], [q['entry'] for q in questions], voice, store, project)
+        common = [q['entry'] for q in questions if q['common_noun']]
+        if common:   # brand names (Royal Oak, Calibre…) are left to the owner; the correction covers the common nouns only
+            alt = what_if_keep_arabic(library, lid, c['text'], common, voice, store, project)
             corr = {'keep_arabic': {'provider_input': alt['provider_input'], 'action': alt['action'],
                                     'chars': alt['chars'], 'take_key': alt['take_key']}}
         if mock_dir and queue:

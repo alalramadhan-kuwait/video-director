@@ -73,6 +73,11 @@ class TestVoiceReview(unittest.TestCase):
         self.assertIn('الستيل', ka['provider_input']); self.assertNotIn('Steel', ka['provider_input'])
         self.assertEqual((ka['action'], ka['chars']), ('new', len(ka['provider_input'])))
 
+    def test_correction_leaves_brand_names_alone(self):
+        ka = self.L['p2-8']['corrections']['keep_arabic']['provider_input']
+        self.assertIn('الذهب الأبيض', ka); self.assertIn('Royal Oak', ka)          # only the common noun changes
+        self.assertIsNone(self.L['p1-h']['corrections'])                          # brand-only line: nothing proposed
+
     def test_mock_takes_are_labelled_and_separate(self):
         for lid in QUEUE:
             kinds = [t['kind'] for t in self.L[lid]['takes']]

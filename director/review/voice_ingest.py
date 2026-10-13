@@ -59,7 +59,7 @@ def ingest(rows: dict, page_data: dict, library: Library, store, voice: dict, ou
         if r['option'] == 'leave':
             continue
         line = lines[lid]
-        entries = sorted({q['entry'] for q in line['questions']})
+        entries = sorted({q['entry'] for q in line['questions'] if q['common_noun']})
         for eid in entries:
             base = next(e for e in library.entries if e.id == eid)
             if r['option'] == 'keep_arabic':
