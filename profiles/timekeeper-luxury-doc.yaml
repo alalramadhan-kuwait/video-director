@@ -41,3 +41,22 @@ voice:
 signatures:                                            # used by the contamination check in OTHER projects
   critical: [tk_endcard, icon-512.png, XdoLPWNt7ytn6BtU4FBf, DvW6ZBRAvK8C6HRZ68l3, G1QUjBCuRBbLbAmYlTgl, tk_ali_voice]
   major: [timekeeperkw, "TIME KEEPER", tk-style.json, '"type": "watch"', "#F3F0E8"]
+art:
+  allowed:
+  - archival_collage
+  - product_macro
+  - parallax_25d
+  - paper_cut
+  - kinetic_type
+  - map
+  - technical_illustration
+  - verified_3d
+  - neutral_placeholder
+  - animated_timeline
+  preferred:
+  - archival_collage
+  - product_macro
+  - technical_illustration
+  - map
+  forbidden:
+  - character_animation_for_real_people

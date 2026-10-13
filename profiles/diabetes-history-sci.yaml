@@ -29,3 +29,21 @@ platforms: [tiktok]
 signatures:
   critical: [papercut.js, ref_bram, arabic_tts, Fasih]
   major: ["#1C3550", "#F2B84B", kit_people, "قصة السكري"]
+art:
+  allowed:
+  - paper_cut
+  - scientific_diagram
+  - animated_timeline
+  - kinetic_type
+  - character_animation
+  - archival_collage
+  - parallax_25d
+  - neutral_placeholder
+  - verified_3d
+  - map
+  preferred:
+  - scientific_diagram
+  - animated_timeline
+  - paper_cut
+  - character_animation
+  forbidden: []

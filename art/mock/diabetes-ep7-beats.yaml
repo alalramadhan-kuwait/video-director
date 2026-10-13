@@ -1,0 +1,9 @@
+# MOCK beats for testing (not production data). Based on episode 7's published scene plan.
+project: diabetes-ep7
+profile: diabetes-history-sci
+scenes:
+  - {id: b3, beat: mechanism, subject: protamine makes insulin form slow-dissolving granules, accuracy: high, assets: [source]}
+  - {id: d1, beat: timeline, subject: 1936 protamine → 1946 NPH crystals, accuracy: high, assets: [dated_facts]}
+  - {id: b1, beat: person_real, subject: Hans Christian Hagedorn, accuracy: high, real_person: true, verified_photo: false, assets: []}
+  - {id: d5, beat: number, subject: more than 40,000 injections in a lifetime, accuracy: high, assets: [source]}
+  - {id: a2, beat: person_generic, subject: Elizabeth boiling her glass syringe each morning, accuracy: medium, assets: []}

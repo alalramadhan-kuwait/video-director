@@ -1,0 +1,157 @@
+# Visual Technique Registry. "support" lists only what was verified in code during the Phase 0 audit.
+# status: available (works today) | needs_code (engine work required) | paid (external generation, gated)
+techniques:
+  - id: paper_cut
+    name: Paper-cut animation
+    status: available
+    support: [paper_story (engine/paper.js), motion (papercut.js theme)]
+    assets: none (procedural)
+    cost: free
+    accuracy: medium            # stylised: fine for mood and people seen generically, not for exact objects
+    strengths: warm, consistent, cheap to iterate
+    limits: both brands already use paper looks — keep palettes and motifs apart
+    risks: low
+    good_for: [person_generic, place, hook, transition, mechanism]
+  - id: archival_collage
+    name: Archival documentary collage (taped prints, polaroids, cut-outs)
+    status: available
+    support: [paper_story (photo, image polaroid, cutout)]
+    assets: verified photographs or documents with licence
+    cost: free
+    accuracy: high
+    strengths: truthful, gives depth, real people and products
+    limits: needs licensed sources; resolution limits size on screen (--check flags >1.5x)
+    risks: wrong identity, wrong year on a label, licence
+    good_for: [person_real, product, document, place, timeline, hook]
+  - id: parallax_25d
+    name: 2.5D parallax and camera moves
+    status: available
+    support: [paper_story (camera + depth), movement-3d (depth relief from a photo)]
+    assets: layered art, or a photo plus a depth pass
+    cost: free
+    accuracy: medium
+    strengths: cinematic movement from stills
+    limits: depth relief can warp faces
+    risks: never warp a real face
+    good_for: [place, establishing, product, hook, person_generic]
+  - id: product_macro
+    name: Real-product macro (slow push on a real photo)
+    status: available
+    support: [paper_story project code (story.py macro()) — move into the library]
+    assets: high-resolution product photos
+    cost: free
+    accuracy: high
+    strengths: luxury feel, real details
+    limits: bound by photo resolution
+    risks: never generate or alter watch details
+    good_for: [product, detail, hook]
+  - id: kinetic_type
+    name: Kinetic typography
+    status: available
+    support: [motion (text.layout, Arabic kashida), ad engine (per-word effects), paper_story (text)]
+    assets: fonts
+    cost: free
+    accuracy: high              # the words themselves are the content
+    strengths: strong hooks, numbers, quotes; works with sound off
+    limits: Arabic shaping is best in the motion engine
+    risks: low
+    good_for: [hook, number, quote, claim, person_real, person_real_no_photo, timeline, place]
+  - id: animated_timeline
+    name: Animated timeline
+    status: available
+    support: [motion (motion-kit timeline)]
+    assets: dated, sourced facts
+    cost: free
+    accuracy: high
+    strengths: clear chronology
+    limits: motion engine only (paper_story has no timeline element)
+    risks: every date needs a source
+    good_for: [timeline, number]
+  - id: map
+    name: Animated map with routes
+    status: available
+    support: [paper_story (map, Natural Earth)]
+    assets: none
+    cost: free
+    accuracy: high
+    strengths: real outlines, routes, pins
+    limits: paper_story only
+    risks: borders and place names
+    good_for: [place, journey, timeline]
+  - id: technical_illustration
+    name: Technical illustration (self-drawing sketch, procedural mechanism)
+    status: available
+    support: [paper_story (sketch, svg), movement-energy (procedural gear train)]
+    assets: technical sheets
+    cost: free
+    accuracy: high
+    strengths: precise, explains how something works
+    limits: hand-built per piece
+    risks: must match the technical sheet
+    good_for: [mechanism, product, detail]
+  - id: scientific_diagram
+    name: Scientific diagram and data visualisation
+    status: available
+    support: [motion (motion-kit charts: lineChart, compareBars, statGrid, iconArray); per-scene drawn cells/crystals in ep7]
+    assets: sourced data
+    cost: free
+    accuracy: high
+    strengths: explains mechanisms and quantities
+    limits: no reusable cell/molecule kit yet (drawn per scene)
+    risks: speculation shown as fact — label it
+    good_for: [mechanism, number, comparison]
+  - id: character_animation
+    name: Drawn character animation
+    status: available
+    support: [paper_story (puppet rig), motion (kit_people)]
+    assets: character parts (optional)
+    cost: free
+    accuracy: low               # drawn people are generic stand-ins
+    strengths: expressive, no likeness issues
+    limits: simple rigs
+    risks: never present as a real person's face
+    good_for: [person_generic, action]
+  - id: verified_3d
+    name: Verified 3D demonstration
+    status: available
+    support: [movement-3d (three.js), motion (three.js)]
+    assets: accurate 3D model
+    cost: free (slow on CPU)
+    accuracy: high
+    strengths: spectacular mechanisms
+    limits: modelling time; software rendering is slow
+    risks: model must match the real object
+    good_for: [mechanism, product, hook]
+  - id: ai_illustration
+    name: Controlled AI illustration
+    status: paid
+    support: [17_gen_scenes.py (fal.ai, needs a confirmation gate), Higgsfield (connector)]
+    assets: reference images
+    cost: paid
+    accuracy: low
+    strengths: fills gaps for backgrounds and moods
+    limits: likeness drift
+    risks: never real faces, real products or established science; label as AI
+    good_for: [background, mood, place, establishing, hook, product, detail, mechanism, person_real, person_real_no_photo, person_generic]
+  - id: live_footage
+    name: Live action / existing footage
+    status: available
+    support: [ad engine (cuts, b-roll), montage]
+    assets: footage with rights
+    cost: free
+    accuracy: high
+    strengths: real
+    limits: paper_story cannot sync video (no video element)
+    risks: footage rights
+    good_for: [person_real, place, action]
+  - id: neutral_placeholder
+    name: Labelled neutral placeholder (no verified image)
+    status: available
+    support: [paper_story (image silhouette print)]
+    assets: none
+    cost: free
+    accuracy: high              # honest: says no documented photo exists
+    strengths: never invents a face
+    limits: visually plain
+    risks: none
+    good_for: [person_real_no_photo]

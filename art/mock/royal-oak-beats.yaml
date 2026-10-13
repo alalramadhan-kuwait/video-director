@@ -1,0 +1,11 @@
+# MOCK beats for testing (not production data). Based on the published Royal Oak script structure.
+project: royal-oak
+profile: timekeeper-luxury-doc
+scenes:
+  - {id: p1-h, beat: hook, subject: "You know the Royal Oak — do you know the man who drew it?", accuracy: high, assets: [product_photo, photo]}
+  - {id: p1-1, beat: person_real, subject: Gérald Genta aged 23, accuracy: high, real_person: true, verified_photo: true, assets: [photo]}
+  - {id: p2-0, beat: place, subject: Basel fair 1970, accuracy: high, assets: [photo]}
+  - {id: p2-0b, beat: person_real, subject: Charles Dorot (no documented photo), accuracy: high, real_person: true, verified_photo: false, assets: []}
+  - {id: p2-4, beat: product, subject: the eight-screw octagonal bezel, accuracy: high, assets: [product_photo, technical_sheet]}
+  - {id: p3-f, beat: mechanism, subject: Calibre 2121 thinness, accuracy: high, assets: [technical_sheet]}
+  - {id: p2-q, beat: timeline, subject: quartz rollout 1969→1970s, accuracy: high, assets: [dated_facts, product_photo]}
