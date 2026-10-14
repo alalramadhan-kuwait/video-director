@@ -1,0 +1,48 @@
+{
+ "_note": "MOCK AI fixture for the Rolex Oyster idea. Every output built from this file is labelled MOCK AI: no model was called. The research, script, hooks and art brief come from the UAT files written earlier (research/rolex-oyster.json, uat/rolex/*.json); the rest is written here for the mock reviewers.",
+ "match": ["rolex", "oyster", "رولكس", "أويستر", "اويستر"],
+ "direction": {
+  "topic": "Rolex Oyster (1926): how a screw-down crown made a wristwatch people trusted in water",
+  "topic_ar": "رولكس أويستر ١٩٢٦: كيف جعل التاج اللولبي الناس يثقون بساعة في الماء",
+  "angle": "Myth-buster: Rolex did not invent the waterproof wristwatch; it made the world trust one (patent, name, and a public swim).",
+  "angle_ar": "تصحيح خرافة: رولكس لم تخترع الساعة المقاومة للماء، لكنها جعلت العالم يثق بها",
+  "audience": "Time Keeper followers: Arabic-speaking watch buyers in Kuwait and the Gulf",
+  "duration_s": 75,
+  "format": "9:16 vertical, Reels / TikTok",
+  "research": "research/rolex-oyster.json"
+ },
+ "claim_map": {"h": ["c6"], "l2": ["c4"], "l3": ["c3", "c5"], "l4": ["c5"], "l5": ["c1"], "l6": ["c2"], "l7": ["c3"], "l8": ["c8", "c9"],
+               "l9": ["c7", "c8"], "l10": ["c8"], "l11": ["c8"], "l12": ["c9"], "l13": ["c4", "c6"]},
+ "self_revision": {"why": "fact check and editor notes on v1", "lines": "v2_changes"},
+ "owner_revisions": [
+  {"lines": {"l2": "قبل أويستر بسنوات، كانت هناك ساعاتُ يدٍ محكمة: علبُ بورجيل في سويسرا، وساعةُ سبمارين في إدنبرة عام ألفٍ وتسعمئةٍ وخمسة عشر."},
+   "why": "MOCK AI: applied the fixture's prepared revision (shorter l2). The mock does not read your note; the real AI worker does."},
+  {"lines": {"l12": "وبعد شهر، جعلت رولكس قصتها إعلانًا على الصفحة الأولى لصحيفة ديلي ميل."},
+   "why": "MOCK AI: applied the fixture's second prepared revision (l12 wording)."}
+ ],
+ "quality": {
+  "l8": {"code": "SPECULATION", "severity": "major", "detail": "v1 guesses what Wilsdorf was thinking; no source says it", "detail_ar": "تخمين لما كان يفكر فيه فيلسدورف بلا مصدر"},
+  "l11": {"code": "UNATTRIBUTED", "severity": "major", "detail": "'kept perfect time' is the swimmer's and Rolex's account: attribute it", "detail_ar": "«تعمل بدقة» رواية السبّاحة ورولكس: انسبها"},
+  "l2": {"code": "TERM", "severity": "info", "detail": "«سبمارين» is the Tavannes Submarine's name: keep it, check it in the voice step", "detail_ar": "«سبمارين» اسم ساعة تافان: يبقى كما هو ويُراجع نطقه"}
+ },
+ "pronunciation": [
+  {"word": "غلايتسه", "respell": "غلايْتْسَه", "why": "German ei = اي, tz = تس", "why_ar": "ei الألمانية = اي و tz = تس"},
+  {"word": "فيلسدورف", "respell": "فِلْسْدورْف", "why": "German W = ف; keep the short first vowel", "why_ar": "W الألمانية = ف"},
+  {"word": "بيريغو", "respell": "بيريغُو", "why": "final o", "why_ar": "الواو في آخر الاسم"}
+ ],
+ "scene_review": {
+  "l9": [{"code": "LABELS_SMALL", "severity": "minor", "detail": "map labels read small on a phone", "detail_ar": "أسماء الخريطة صغيرة على الهاتف", "fix": {"zoom": "1.18"}}],
+  "l2": [{"code": "SMALL_TEXT", "severity": "minor", "detail": "timeline dates read small on a phone", "detail_ar": "تواريخ الخط الزمني صغيرة على الهاتف", "fix": {"text_size": "1.2"}}]
+ },
+ "film_review": [
+  {"code": "PACE_DIP", "severity": "minor", "scene": "l7", "detail": "three mechanism scenes in a row (l3–l7) slow the middle; a faster cut would help", "detail_ar": "ثلاثة مشاهد آلية متتالية تُبطئ منتصف الفيلم"}
+ ],
+ "assets": [
+  {"id": "wilsdorf_portrait", "scene": "l6", "what": "documented photograph of Hans Wilsdorf", "what_ar": "صورة موثّقة لهانس فيلسدورف", "use": "evidence", "required": false,
+   "fallback": "name_card", "where": ["Rolex press archive (licence needed)", "Wikimedia Commons (check each file's licence page)"]},
+  {"id": "oyster_crown_macro", "scene": "l5", "what": "macro photograph of an early Oyster screw-down crown", "what_ar": "صورة ماكرو لتاج أويستر مبكر", "use": "evidence", "required": false,
+   "fallback": "technical_illustration", "where": ["owner's own watch photographs", "licensed auction-house photographs"]},
+  {"id": "daily_mail_1927", "scene": "l12", "what": "scan of the 24 Nov 1927 Daily Mail front page", "what_ar": "صورة الصفحة الأولى لديلي ميل ٢٤ نوفمبر ١٩٢٧", "use": "evidence", "required": false,
+   "fallback": "newspaper_card", "where": ["British Newspaper Archive (licence needed)"]}
+ ]
+}

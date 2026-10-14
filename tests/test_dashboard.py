@@ -129,7 +129,9 @@ class TestDashboard(unittest.TestCase):
 
     def test_routes(self):
         self.assertEqual(self.req('GET', '/api/snapshot')[0], 200)
-        code, body = self.req('GET', '/')
+        self.assertEqual(self.req('GET', '/')[0], 302)                                  # the guided Studio is the first screen
+        self.assertIn(b'Co-Pilot', self.req('GET', '/studio')[1])
+        code, body = self.req('GET', '/dashboard')
         self.assertEqual(code, 200); self.assertIn(b"const MODE = 'local'", body)
         self.assertTrue(body.startswith(b'<!doctype html>'))
         self.assertIn(b'name="viewport" content="width=device-width', body)          # a phone gets the phone layout

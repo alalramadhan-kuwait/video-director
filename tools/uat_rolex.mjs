@@ -225,7 +225,7 @@ async function D2() {
   const nt = s.voice.takes[s.voice.by_line.l9[1]];
   ok('D', 'the new take was sent the corrected reading', nt.spoken.includes('غْلايْتْسَهْ') && nt.supersedes === s.voice.by_line.l9[0], nt.spoken);
   await go(p, 'voice/l9'); await shot(p, 'D7-compare-old-new');
-  ok('D', 'old and corrected takes are shown side by side', (await p.locator('[data-compare="l9"] .take').count()) === 2);
+  ok('D', 'old take and the new take after the fix are shown side by side', (await p.locator('[data-compare="l9"] .take').count()) === 2);
   // try approving the new take without listening (refused), then listen and approve; reject the old one
   const newT = s.voice.by_line.l9[1], oldT = s.voice.by_line.l9[0];
   await p.click(`[data-tdec="approved"][data-t="${newT}"]`); await p.waitForTimeout(600);
@@ -235,7 +235,7 @@ async function D2() {
   await p.click(`[data-tdec="rejected"][data-t="${oldT}"]`); await p.waitForTimeout(700);
   await p.click(`[data-tdec="approved"][data-t="${newT}"]`); await p.waitForTimeout(700);
   s = await state();
-  ok('D', 'old take rejected, corrected take approved after both were heard', s.voice.takes[oldT].status === 'rejected' && s.voice.takes[newT].status === 'approved');
+  ok('D', 'old take rejected, new take after the fix approved after both were heard', s.voice.takes[oldT].status === 'rejected' && s.voice.takes[newT].status === 'approved');
   await shot(p, 'D8-take-decided');
   // listen to every other line and approve it (real-time playback in the page)
   await go(p, 'voice');

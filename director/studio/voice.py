@@ -68,10 +68,18 @@ def synth(text: str) -> bytes:
 
 
 def _mock_mp3(text):
-    n = max(1, len(checks.words(text)))
-    t = np.arange(int(SR * 0.42 * n)) / SR
-    env = (np.sin(np.pi * ((t / 0.42) % 1)) ** 2)
-    a = (0.3 * np.sin(2 * np.pi * 180 * t) * env).astype(np.float32)
+    """Tests only: one tone per word, never sent anywhere. Each word has its own pitch and length (from its letters), so
+    a line's sound is not periodic and the film's sync check can find it (a repeating tone matches itself every word)."""
+    parts = []
+    for w in checks.words(text) or ['_']:
+        w = checks.bare(w)                                    # vowel marks alone do not change the mock sound
+        k = int(hashlib.sha256(w.encode()).hexdigest()[:6], 16)
+        d = 0.26 + 0.035 * min(len(w), 8)
+        t = np.arange(int(SR * d)) / SR
+        f0 = 130 + k % 170
+        parts.append(0.3 * np.sin(2 * np.pi * (f0 + 60 * t / d) * t) * np.sin(np.pi * t / d) ** 2)
+        parts.append(np.zeros(int(SR * (0.04 + (k % 5) * 0.012))))
+    a = np.concatenate(parts).astype(np.float32)
     return _ff('-f', 'f32le', '-ar', SR, '-ac', 1, '-i', '-', '-c:a', 'libmp3lame', '-b:a', '64k', '-f', 'mp3', '-', inp=a.tobytes())
 
 

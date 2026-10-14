@@ -3,12 +3,16 @@
     python -m director.dashboard.serve [--port 8765]
 
 Routes:
-  GET  /                  the dashboard app with a fresh snapshot
+  GET  /                  → /studio (the guided Co-Pilot Studio is the primary interface)
+  GET  /studio            the Co-Pilot Studio (director/copilot): idea → approvals → reviewed draft film
+  GET  /api/copilot[/<id>] Co-Pilot projects / one project's guided view
+  POST /api/copilot       one owner action (director/copilot/api.handle); the Co-Pilot carries on by itself after it
+  GET  /studio/classic    the classic Studio, step by step (advanced)
+  GET  /dashboard         the review dashboard app with a fresh snapshot (advanced)
   GET  /api/snapshot      the snapshot as JSON (rebuilt from the components on every call)
   GET  /media/<path>      dashboard media, with byte ranges (iPhone Safari will not play audio or video without them)
   POST /api/decision      one decision; the ONLY write. Same rules as the Artifact sync (sync._one), so a decision
                           made here and one carried over from the page are judged identically.
-  GET  /studio            the Studio: new video projects (director/studio)
   GET  /api/studio[/<id>]  studio projects / one project's state and progress
   GET  /files/<id>/<path>  a studio project's files (read-only blobs), with byte ranges
   POST /api/studio        one studio action (director/studio/api.handle); long work runs as tracked jobs
@@ -26,6 +30,8 @@ DECISIONS = {'approved', 'rejected', 'changes_requested', 'selected', 'concept_s
              'needs_source', 'article_heard', 'article_missing', 'heard_english', 'heard_other', 'unsure', 'playback_failed',
              'flagged'}
 STUDIO_PAGE = Path(__file__).resolve().parents[1] / 'studio' / 'studio.html'
+COPILOT_PAGE = Path(__file__).resolve().parents[1] / 'copilot' / 'copilot.html'
+MAX_BODY = 18 * 1024 * 1024
 HTTP = {'recorded': 200, 'duplicate': 200, 'conflict': 409, 'refused': 422, 'failed': 400}
 
 
@@ -62,11 +68,25 @@ class Handler(BaseHTTPRequestHandler):
     def do_GET(self):
         path = self.path.split('?', 1)[0]
         if path == '/':
+            return self._send(302, b'', 'text/plain', {'Location': '/studio'})
+        if path == '/dashboard':
             return self._send(200, B.render_app(B.snapshot(), mode='local').encode(), 'text/html; charset=utf-8')
         if path == '/api/snapshot':
             return self._json(200, B.snapshot())
         if path == '/studio':
+            return self._send(200, COPILOT_PAGE.read_bytes(), 'text/html; charset=utf-8')
+        if path == '/studio/classic':
             return self._send(200, STUDIO_PAGE.read_bytes(), 'text/html; charset=utf-8')
+        if path == '/api/copilot':
+            from ..copilot import api as CA
+            return self._json(200, {'projects': CA.projects(B.VAR)})
+        if path.startswith('/api/copilot/'):
+            from ..copilot import api as CA
+            from ..studio.store import Refused
+            try:
+                return self._json(200, CA.view(B.VAR, path.split('/')[3]))
+            except Refused as e:
+                return self._json(404, {'error': str(e)})
         if path == '/api/studio':
             from ..studio import api as SA
             return self._json(200, {'projects': SA.studio(B.VAR).projects()})
@@ -108,6 +128,27 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(206, data[start:end + 1], ctype, {'Content-Range': f'bytes {start}-{end}/{n}', 'Accept-Ranges': 'bytes'})
 
     def do_POST(self):
+        if self.path == '/api/copilot/_test':                    # failure injection for the browser scenarios, test mode only
+            if os.environ.get('VD_STUDIO_TEST') != '1': return self._json(403, {'error': 'test hooks are off'})
+            from ..copilot import ai as CAI
+            from ..studio import jobs as SJ
+            body = json.loads(self.rfile.read(int(self.headers.get('Content-Length') or 0)) or b'{}')
+            CAI.MOCK_INJECT.clear(); CAI.MOCK_INJECT.update(body.get('inject') or {})
+            SJ.FAIL_NEXT.update(body.get('fail_next') or {})
+            return self._json(200, {'ok': True, 'inject': CAI.MOCK_INJECT})
+        if self.path == '/api/copilot':
+            from ..copilot import api as CA
+            n = int(self.headers.get('Content-Length') or 0)
+            if n > MAX_BODY: return self._json(413, {'status': 'refused', 'reason': 'too large'})
+            try:
+                body = json.loads(self.rfile.read(n) or b'{}')
+            except json.JSONDecodeError as e:
+                return self._json(400, {'status': 'failed', 'reason': str(e)})
+            try:
+                code, r = CA.handle(B.VAR, body)
+            except Exception as e:
+                return self._json(500, {'status': 'failed', 'reason': f'not recorded ({type(e).__name__}: {e})'})
+            return self._json(code, r)
         if self.path in ('/api/studio', '/api/studio/_test'):
             from ..studio import api as SA, jobs as SJ
             try:
@@ -145,7 +186,10 @@ def make_server(port=8765, host='127.0.0.1'):
 if __name__ == '__main__':
     ap = argparse.ArgumentParser(); ap.add_argument('--port', type=int, default=8765); a = ap.parse_args()
     B.prepare()
-    print(f'Video Director dashboard on http://127.0.0.1:{a.port}  (local only; no paid actions)')
+    print(f'Video Director on http://127.0.0.1:{a.port}/studio  (local only; no paid actions)')
+    from director.copilot import orchestrator as _O
+    from director.studio import api as _SA
+    print('Co-Pilot projects resumed:', _O.resume_all(_SA.studio(B.VAR)))
     import signal
 
     def _stop(signum, frame):                                   # a stopped server leaves no renderer running behind it

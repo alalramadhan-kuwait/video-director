@@ -28,6 +28,7 @@ import yaml
 
 from ..events import EventLog, summarize
 from . import checks
+from ..copilot.actions import CopilotActions, empty as _cp_empty, fold as _cp_fold
 
 ROOT = Path(__file__).resolve().parents[2]
 STAGES = ['research', 'script', 'hook', 'voice', 'art', 'storyboard', 'draft', 'review', 'gate']
@@ -72,7 +73,7 @@ def _heard(pb: dict, seconds: float) -> float:
 def _overlap(iv, s: float, e: float) -> float:
     return sum(max(0.0, min(b, e) - max(a, s)) for a, b in _merge(iv))
 
-class Studio:
+class Studio(CopilotActions):
     def __init__(self, var: Path):
         self.var = Path(var)
         self.root = self.var / 'studio'
@@ -142,6 +143,8 @@ class Studio:
             if action != 'create_project':
                 if not pid or not any(e['status'] == 'create_project' for e in self.events(pid)):
                     raise Refused(f'no project {pid!r}')
+            if action.startswith('cp_'):
+                args = {**args, '_rid': request_id}         # nested decisions get request ids derived from this one
             stage, result = fn(pid, args, actor)
             pid = result.pop('_pid', pid)
             seq = self._emit(pid, stage, action, actor, request_id, args, result)
@@ -638,13 +641,16 @@ class Studio:
               'voice': {'takes': {}, 'by_line': {}, 'flags': [], 'rules': [], 'narration_v': None},
               'art': {'concepts': {}, 'by_scene': {}, 'selected': {}, 'approved': {}, 'requests': []},
               'storyboards': [], 'renders': [], 'review': {'runs': [], 'findings': {}}, 'fix_tasks': [],
-              'gate': {'plan': None, 'attempts': []}, 'jobs': [], 'history': [], 'updated': None, 'created': None}
+              'gate': {'plan': None, 'attempts': []}, 'jobs': [], 'history': [], 'updated': None, 'created': None,
+              'copilot': _cp_empty()}
         for e in evs:
             d, r, act = e['data'].get('args') or {}, e['data'].get('result') or {}, e['status']
             st['updated'] = e['at']
             st['history'].append({'seq': e['seq'], 'at': e['at'], 'action': act, 'actor': e['actor'], 'stage': e['stage'],
                                   'summary': _summary(act, d, r)})
-            if act == 'create_project':
+            if act.startswith('cp_'):
+                _cp_fold(st, e)
+            elif act == 'create_project':
                 st.update(title=r['title'], idea=r['idea'], brand=r['brand'], identity=r['identity'], created=e['at'])
             elif act == 'set_identity':
                 st['identity'] = r['identity']
@@ -710,14 +716,15 @@ class Studio:
                 st['art']['requests'].append({**r, 'status': 'waiting_operator' if r.get('needs_operator') else 'open', 'at': e['at'], 'seq': e['seq']})
             elif act == 'art_operator_revision':
                 for q in st['art']['requests']:
-                    if q['concept'] == r['concept'] and q['status'] == 'waiting_operator': q['status'] = 'open'
+                    if q['concept'] == r['concept'] and q['status'] == 'waiting_operator': q.update(status='open', answered=True)
             elif act == 'art_revision':
                 c = st['art']['concepts'][r['concept']]
                 c['versions'].append({**r['version']})
                 for q in st['art']['requests']:
                     if q['concept'] == r['concept'] and q['status'] == 'open':
                         q.update(status='no_visible_change' if r['version'].get('no_visible_change') else
-                                 'waiting_operator' if (q.get('note') or '').strip() else 'done', version=r['version']['v'])   # the note still needs the operator
+                                 'waiting_operator' if (q.get('note') or '').strip() and not q.get('answered') else 'done',
+                                 version=r['version']['v'])   # an unanswered note still needs the operator; an answered one is done
             elif act == 'art_decision':
                 c = st['art']['concepts'][r['concept']]
                 prev = st['art']['approved'].get(r['scene'])
@@ -768,7 +775,7 @@ class Studio:
                 st['gate']['authorized'] = r
             elif act == 'job':
                 prior = next((j for j in st['jobs'] if j['id'] == r['id']), {})
-                st['jobs'] = [j for j in st['jobs'] if j['id'] != r['id']] + [{**prior, **r, 'at': e['at']}]
+                st['jobs'] = [j for j in st['jobs'] if j['id'] != r['id']] + [{**prior, **r, 'at': e['at'], 'seq': e['seq']}]
                 vf = (r.get('args') or prior.get('args') or {}).get('vflag')
                 if r['state'] == 'finished' and vf and (r.get('out') or {}).get('no_effect'):
                     for f in st['voice']['flags']:
@@ -884,7 +891,41 @@ def _summary(act, a, r) -> str:
         'term_decision': lambda: f'final voice gets «{r["surface"]}» as {r["decision"]}',
         'set_budget': lambda: f'ElevenLabs budget set to {r["characters"]} characters',
         'job': lambda: f'{r["what"]}: {r["state"]}',
-    }.get(act, lambda: act)()
+    }.get(act, lambda: _cp_summary(act, a, r))()
+
+
+def _cp_summary(act, a, r) -> str:
+    try:
+        return {
+            'cp_mode': lambda: f'mode: {r["mode"]}',
+            'cp_settings': lambda: 'settings: ' + ', '.join(f'{k}={v}' for k, v in r.items()),
+            'cp_control': lambda: f'Co-Pilot {r["op"]}' + (f' {r["key"]}' if r.get('key') else ''),
+            'cp_ai_budget': lambda: f'AI usage budget set to ${r["usd"]:.2f}',
+            'cp_ai_call': lambda: f'AI {r["role"]} ({r["worker"]}): {r["kind"]} ' + ('ok' if r['ok'] else 'failed') + (f', ${r["cost_usd"]:.4f}' if r.get('cost_usd') else ''),
+            'cp_direction': lambda: f'story direction v{r["v"]}',
+            'cp_check': lambda: f'{r["kind"]} check of {r["target"]} {r["ref"]} by {r.get("by", "?")}',
+            'cp_ready': lambda: f'{r["gate"]} ready for the owner',
+            'cp_stage': lambda: f'{r["stage"]}: {r.get("task", "")} {r.get("state", "")}'.strip(),
+            'cp_gate': lambda: f'{r["gate"]} {r["decision"]} (version {r["ref"]})',
+            'cp_hook': lambda: f'hook {r["hook"]} chosen → script v{r["v"]}',
+            'cp_line_edit': lambda: f'owner edited {r["line"]} → script v{r["v"]}',
+            'cp_pron': lambda: (f'pronunciation «{r["word"]}» → «{r["respell"]}» ({r["source"]})' if r['op'] == 'add' else f'pronunciation {r["id"]} {r["decision"]}'),
+            'cp_voice_adjust': lambda: f'speed {r["speed"]}, pauses {r["pause_before"]}/{r["pause_after"]} s for {r["line"]} (local processing)',
+            'cp_voice_mix': lambda: f'play-all narration ({len(r["segments"])} lines)',
+            'cp_style': lambda: f'{len(r["directions"])} style boards, recommended {r["recommended"]}',
+            'cp_asset': lambda: f'asset {r["id"]}: {r["op"]}',
+            'cp_asset_needs': lambda: f'{len(r["needs"])} pictures needed',
+            'cp_exception': lambda: f'needs your decision: {r["title"]}',
+            'cp_exception_decision': lambda: f'exception {r["id"]}: {r["decision"]}',
+            'cp_scene': lambda: f'scene {r["scene"]} v{r["n"]} (round {r["round"]}): {r["status"]}',
+            'cp_film': lambda: f'film v{r["n"]}: {r["state"]}',
+            'cp_comment': lambda: f'comment at {r["t"]} s on {r["scene"]}',
+            'cp_task': lambda: f'task {r["id"]}: {r.get("status")}',
+            'cp_finding': lambda: f'finding {r["finding"]} explained by the owner',
+            'cp_script_meta': lambda: f'script v{r["v"]} notes',
+        }[act]()
+    except Exception:
+        return act
 
 
 def progress(st: dict):

@@ -86,7 +86,7 @@ def kill_orphans(root: Path) -> list[int]:
     """Renderer processes left by a server that stopped mid-render (their render.pid files)."""
     import signal
     killed = []
-    for pf in Path(root).glob('*/work/render-*/render.pid'):
+    for pf in Path(root).glob('*/work/**/render.pid'):           # draft renders and Co-Pilot scene clips
         try:
             pid = int(pf.read_text().strip())
             cmd = Path(f'/proc/{pid}/cmdline').read_bytes().decode(errors='replace') if Path(f'/proc/{pid}').exists() else ''

@@ -144,7 +144,10 @@ def engine_storyboard(studio, pid, doc: dict, work: Path) -> dict:
             sc['captions'] = s['line']
         scenes.append(sc)
     if doc.get('endcard') == 'timekeeper':
-        for sc in _endcard(work, 'tk-black'):
+        cards = _endcard(work, 'tk-black')
+        if doc.get('endcard_tail') is False:
+            cards = cards[:1]                  # the card already fades to black: no extra silent black scene after it
+        for sc in cards:
             sc.setdefault('banner', None)      # no banner from the last scene on the logo card
             scenes.append(sc)
     return {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style('timekeeper'), 'scenes': scenes}

@@ -107,7 +107,16 @@ def _plan_stale(st) -> bool:
     g = st['gate']['plan']
     apv = [x for x in st['scripts'] if x['status'] == 'approved']
     return bool((st['voice_profile'] or {}).get('name') != g['voice']['name'] or (apv and apv[-1]['v'] != g['script_v']) or
-                g.get('created', '') < max((h['at'] for h in st['history'] if h['action'] not in ('gate_plan', 'hook_still')), default=''))
+                g.get('created', '') < max((h['at'] for h in st['history'] if h['action'] not in ('gate_plan', 'hook_still')
+                                            and not h['action'].startswith('cp_')), default=''))      # Co-Pilot bookkeeping is not a change
+
+
+def _take_note(t) -> str:
+    """What a new take is, said plainly: a take made after a fix is not 'corrected' until someone hears that it is."""
+    if t.get('same_audio_as'): return ' (new take: sounds the same as before — the fix had no effect)'
+    if (t.get('reason') or '').startswith('correction'): return ' (new take after a fix — listen to the word)'
+    if t.get('processed'): return ' (speed/pauses processed locally)'
+    return ''
 
 
 def _undecided_latest(st, concept, v):
@@ -178,7 +187,7 @@ def view(var, pid) -> dict:
     VL = st['voice'].get('lines') or {}
     grp('voice', 'Draft voice', 'voice', [{'what': f'Re-record {ln}: the script changed after it was voiced' if x['status'] == 'stale' else f'Record {ln}', 'href': 'voice'}
                                          for ln, x in VL.items() if x['status'] in ('stale', 'missing') and st['voice']['takes']]
-        + [{'what': f'Listen to {ln}' + (' (corrected take)' if len(st['voice']['by_line'].get(ln, [])) > 1 else ''), 'href': f'voice/{ln}'}
+        + [{'what': f'Listen to {ln}' + _take_note(tk.get(x['take']) or {}), 'href': f'voice/{ln}'}
            for ln, x in VL.items() if x['status'] == 'candidate']
         + [{'what': f'Pronunciation «{f["word"]}» in {f["line"]}: apply the fix', 'href': f'voice/{f["line"]}'} for f in st['voice']['flags'] if f['status'] == 'open']
         + [{'what': f'«{f["word"]}» in {f["line"]}: the draft voice ignored the respelling — try another', 'href': f'voice/{f["line"]}'} for f in st['voice']['flags'] if f['status'] == 'fix_no_effect'])

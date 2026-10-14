@@ -1,0 +1,50 @@
+# Visual style registry for the Co-Pilot (Gate 4: Visual Direction).
+# A style decides, for every scene of the art brief, which technique draws it (first match in `prefer` that the brief
+# gives parameters for), on which paper (`theme`, or `theme_for` per technique), and small layout adjustments.
+# A style never changes the words on screen and never invents a photograph: a scene that would need a real picture
+# the project does not have falls back to `fallback` (and the Co-Pilot says so).
+# status: ready (draws today, free and local) | prototype (shown, not selectable) | needs_assets (needs licensed photos)
+# Add a style by adding an entry here; its board is drawn from the project's own scenes by the same engine.
+version: 1
+styles:
+  - id: paper-story
+    version: 1
+    status: ready
+    name: Paper Story documentary
+    name_ar: قصة ورقية وثائقية
+    about_ar: قصاصات ورق وطبقات وحركة كاميرا هادئة؛ دافئ ومتّسق مع هوية تايم كيبر
+    theme: tk-bone
+    theme_for: {paper_cut: tk-graphite}
+    prefer: [paper_cut, animated_timeline, map, parallax_25d, newspaper_card, kinetic_type, technical_illustration]
+    fallback: {person_real: name_card, product: technical_illustration}
+    text_scale: 1.0
+  - id: technical
+    version: 1
+    status: ready
+    name: Technical illustration
+    name_ar: رسم تقني توضيحي
+    about_ar: رسم بالقلم على ورق فاتح، أجزاء الساعة معلَّمة كرسم مبسّط للمبدأ
+    theme: tk-bone
+    prefer: [technical_illustration, animated_timeline, map, newspaper_card, kinetic_type, paper_cut, parallax_25d]
+    fallback: {person_real: name_card, product: technical_illustration}
+    text_scale: 1.0
+  - id: ink-keynote
+    version: 1
+    status: ready
+    name: Dark keynote
+    name_ar: عرض داكن
+    about_ar: خلفية حبر داكنة وكتابة كبيرة وتباين قوي، إحساس فاخر
+    theme: tk-ink
+    prefer: [dark_keynote, kinetic_type, technical_illustration, map, animated_timeline, newspaper_card, paper_cut, parallax_25d]
+    fallback: {person_real: name_card, product: kinetic_type}
+    text_scale: 1.1
+  - id: archive
+    version: 1
+    status: needs_assets
+    name: Archival collage
+    name_ar: كولاج أرشيفي
+    about_ar: صور ووثائق حقيقية مرخّصة على ورق؛ يحتاج صورًا مرخّصة لكل مشهد
+    theme: tk-linen
+    prefer: [archival_collage, product_macro, newspaper_card, map, kinetic_type]
+    fallback: {person_real: name_card, product: technical_illustration}
+    text_scale: 1.0

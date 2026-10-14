@@ -1,0 +1,672 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Video Director Co-Pilot</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* Co-Pilot Studio: you approve the important decisions; the Co-Pilot does the work in between.
+   One screen at a time, one main decision per screen, iPhone first, Arabic first. */
+:root{
+  --bg:#0f1114; --panel:#16191e; --raise:#1c2026; --sunk:#0b0d10; --ink:#e8eaed; --muted:#9aa1ab; --line:#2a2f37;
+  --accent:#8fb4e3; --accent-ink:#0f1114; --accent-soft:#1d2a3a;
+  --ok:#6cc79a; --ok-soft:#14301f; --wait:#e8b65a; --wait-soft:#362a10; --bad:#f08c80; --bad-soft:#3a1c19;
+  --ai:#b9a3f0; --ai-soft:#271f3d; --unk:#9aa1ab; --unk-soft:#22272e;
+  --f:"IBM Plex Sans Arabic","IBM Plex Sans",system-ui,sans-serif; color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f2f3f5; --panel:#fff; --raise:#f7f8fa; --sunk:#e8ebef; --ink:#14171b; --muted:#59616c; --line:#d6dae0;
+  --accent:#2b5b87; --accent-ink:#fff; --accent-soft:#e2ebf4; --ok:#1d7a4e; --ok-soft:#dff1e7; --wait:#8a5a00; --wait-soft:#fbefd6;
+  --bad:#b0362b; --bad-soft:#f8e1de; --ai:#5b3fb0; --ai-soft:#ece6fb; --unk:#5f6873; --unk-soft:#eceef1; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f2f3f5; --panel:#fff; --raise:#f7f8fa; --sunk:#e8ebef; --ink:#14171b; --muted:#59616c; --line:#d6dae0;
+  --accent:#2b5b87; --accent-ink:#fff; --accent-soft:#e2ebf4; --ok:#1d7a4e; --ok-soft:#dff1e7; --wait:#8a5a00; --wait-soft:#fbefd6;
+  --bad:#b0362b; --bad-soft:#f8e1de; --ai:#5b3fb0; --ai-soft:#ece6fb; --unk:#5f6873; --unk-soft:#eceef1; color-scheme:light}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{max-width:100%;overflow-x:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f);margin:0;overflow-wrap:anywhere}
+a{color:var(--accent)}
+button,select,input,textarea{font:inherit;color:var(--ink)}
+button{background:var(--raise);border:1px solid var(--line);border-radius:12px;padding:8px 14px;min-height:44px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button.big{min-height:54px;width:100%;font-size:1.05rem}
+button.ok{border-color:var(--ok);color:var(--ok)} button.bad{border-color:var(--bad);color:var(--bad)}
+button.link{background:none;border:none;color:var(--accent);padding:4px 6px;min-height:36px}
+button:disabled{opacity:.45;cursor:not-allowed}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+input,textarea,select{background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
+textarea{min-height:84px;resize:vertical}
+input[type=checkbox]{width:22px;height:22px;flex:none}
+body.busy button{pointer-events:none;opacity:.6}
+h1{font-size:1.05rem;margin:0} h2{font-size:1.25rem;margin:0} h3{font-size:1rem;margin:0} p{margin:0}
+.muted{color:var(--muted)} .small{font-size:.88rem} .tiny{font-size:.78rem}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between} .grow{flex:1;min-width:0}
+.stack{display:flex;flex-direction:column;gap:10px;min-width:0}
+header.bar{position:sticky;top:0;z-index:30;background:var(--panel);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;align-items:center;gap:8px}
+header.bar a.home{color:var(--ink);text-decoration:none;font-weight:700;margin-inline-end:auto;display:flex;gap:8px;align-items:center}
+.logo{width:22px;height:22px;border-radius:6px;background:var(--accent);flex:none}
+main{padding:12px 16px 120px;max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font-size:.76rem;font-weight:600;border-radius:99px;padding:2px 9px;line-height:1.5}
+.st-owner_approved,.st-completed{background:var(--ok-soft);color:var(--ok)}
+.st-needs_owner,.st-changes_requested{background:var(--wait-soft);color:var(--wait)}
+.st-blocked{background:var(--bad-soft);color:var(--bad)}
+.st-working,.st-ai_review,.st-ai_reviewed{background:var(--ai-soft);color:var(--ai)}
+.st-outdated,.st-not_started{background:var(--unk-soft);color:var(--unk)}
+.sev-critical{background:var(--bad-soft);color:var(--bad)} .sev-major{background:var(--wait-soft);color:var(--wait)}
+.sev-minor{background:var(--accent-soft);color:var(--accent)} .sev-info,.sev-none{background:var(--unk-soft);color:var(--unk)}
+.crumbs{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:center;font-size:.86rem}
+.crumbs b{font-weight:600} .crumbs .sep{color:var(--muted)}
+.next{background:var(--wait-soft);border:1px solid var(--wait);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center}
+.next.calm{background:var(--ai-soft);border-color:var(--ai)}
+.stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.stages button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:4px 8px;min-height:44px;text-align:start;font-size:.76rem;line-height:1.3}
+.stages button .pill{font-size:.68rem;padding:0 7px}
+.stages button.cur{outline:2px solid var(--accent)}
+.lockline{font-size:.8rem;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
+.timeline{display:flex;gap:3px;width:100%}
+.timeline button{flex:1 1 0;min-width:0;min-height:30px;padding:0;border-radius:6px;font-size:.66rem;border-width:2px}
+.timeline button.on{outline:2px solid var(--ink)}
+.tl-ai_reviewed{background:var(--ai-soft);border-color:var(--ai);color:var(--ai)} .tl-needs_owner{background:var(--wait-soft);border-color:var(--wait);color:var(--wait)}
+.tl-outdated{background:repeating-linear-gradient(45deg,var(--unk-soft) 0 5px,transparent 5px 10px);border-color:var(--unk)} .tl-not_started{border-style:dashed}
+.tl-working{background:var(--ai-soft);border-color:var(--ai);animation:pulse 1.2s infinite}
+@keyframes pulse{50%{opacity:.5}}
+.line{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.line.sel{border-color:var(--accent)}
+.line .txt{font-size:1.05rem;line-height:1.8}
+.hooks{display:grid;grid-template-columns:1fr;gap:8px}
+.hook{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.hook.sel{border-color:var(--ok);border-width:2px}
+.frames{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.frames img,.board img{width:100%;border-radius:8px;display:block;background:var(--sunk)}
+.board{border:1px solid var(--line);border-radius:14px;padding:8px;display:flex;flex-direction:column;gap:6px}
+.board.sel{border-color:var(--accent);border-width:2px}
+video,audio{width:100%;border-radius:12px;background:#000;display:block}
+audio{background:none}
+.words{line-height:2.1;font-size:1.08rem}
+.w{border-radius:6px;padding:1px 2px;cursor:pointer}
+.w.now{background:var(--accent);color:var(--accent-ink)} .w.est{text-decoration:underline dotted var(--wait)}
+.w.heard{color:var(--ok)}
+.seg{border-inline-start:3px solid var(--line);padding-inline-start:8px;margin:6px 0}
+.seg.need{border-color:var(--wait)} .seg.ok{border-color:var(--ok)}
+.meter{height:8px;background:var(--sunk);border-radius:99px;overflow:hidden} .meter i{display:block;height:100%;background:var(--ok)}
+.sheet{border:1px solid var(--accent);border-radius:14px;padding:12px;background:var(--raise);display:flex;flex-direction:column;gap:8px}
+.finding{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.finding img{width:120px;border-radius:8px}
+.label-ai{background:var(--ai-soft);color:var(--ai);border-radius:10px;padding:6px 10px;font-size:.8rem;font-weight:600}
+.label-draft{background:var(--wait-soft);color:var(--wait);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:600}
+.label-lock{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:600}
+.toast{position:fixed;inset-inline:16px;bottom:18px;z-index:50;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-weight:600;max-width:588px;margin:0 auto}
+.toast.bad{background:var(--bad);color:#fff}
+.inbox li{margin:4px 0} ul{padding-inline-start:20px;margin:0}
+.claims li{margin:6px 0}
+.ft{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem}
+.mode{display:grid;grid-template-columns:1fr;gap:8px}
+.mode label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px}
+.mode label.dis{opacity:.5}
+.mode input{width:22px;height:22px;margin-top:3px}
+.kv{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:.92rem}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips button{min-height:38px;font-size:.88rem}
+.vers{display:flex;flex-wrap:wrap;gap:6px}
+.vers button{min-height:34px;font-size:.8rem;padding:2px 10px}
+</style>
+</head>
+<body>
+<header class="bar">
+  <a class="home" href="#/"><span class="logo"></span><span data-t="app">مخرج الفيديو</span></a>
+  <button class="link" id="lang" aria-label="language">EN</button>
+</header>
+<main id="main"></main>
+<div class="toast" id="toast" hidden></div>
+<script>
+'use strict';
+const T = {
+  ar: {app:'مخرج الفيديو', projects:'مشاريعك', newvid:'فيديو جديد', title:'العنوان', idea:'الفكرة', brand:'العلامة', mode:'طريقة العمل',
+    copilot:'مساعد (Co-Pilot)', copilot_d:'توافق على القرارات المهمة، والمساعد ينجز ما بينها', manual:'يدوي', manual_d:'الاستوديو الكلاسيكي خطوة بخطوة',
+    auto:'تلقائي', auto_d:'غير متاح بعد', duration:'المدة (ثوانٍ)', start:'ابدأ', stage:'المرحلة', task:'المهمة', next:'قرارك التالي',
+    approve:'موافقة', changes:'اطلب تعديلًا', reject:'رفض', note:'ملاحظة', pause:'إيقاف مؤقت', resume:'متابعة', stop:'إيقاف', to_manual:'التحويل إلى اليدوي',
+    retry:'أعد المحاولة', working:'المساعد يعمل', waiting:'ينتظر قرارك', paused:'متوقف مؤقتًا', stopped:'متوقف', idle:'لا شيء قيد العمل',
+    processing:'وقت العمل', waittime:'وقت الانتظار', open:'افتح', scenes:'المشاهد', inbox:'صندوق القرارات', history:'السجل', advanced:'متقدم',
+    classic:'الاستوديو الكلاسيكي', dashboard:'لوحة التقارير', ai_usage:'استخدام الذكاء', cost:'التكلفة', angle:'الزاوية', audience:'الجمهور', format:'المقاس',
+    claims:'الادعاءات والمصادر', toverify:'للتحقق', verified:'موثّق', attributed:'منسوب', avoid:'مرفوض', disputed:'مختلف عليه', sources:'مصادر',
+    script:'النص', hooks:'الافتتاحيات', usehook:'استخدم هذه', recommended:'مُوصى بها', chosen:'المختارة', edit:'تعديل', save:'حفظ', cancel:'إلغاء',
+    whyline:'لماذا', override:'تجاوز بدليل (رقم ادعاء مثل c4 أو رابط)', ack:'قرأت التحذير', versions:'النسخ', playall:'تشغيل الكل',
+    heard:'سمعت', of:'من', listen_need:'استمع إلى الأسطر المتغيرة كاملة قبل الموافقة', fixword:'صحّح النطق', respell:'كيف تُقرأ (بالتشكيل)',
+    speed:'السرعة', pbefore:'وقفة قبل', pafter:'وقفة بعد', compare:'قارن النسخ', apply:'طبّق', pron:'قاموس النطق', proposed:'مقترح', approved:'معتمد', rejected:'مرفوض',
+    qa:'فحوص الصوت', style:'الأسلوب', choose:'اختر هذا', notready:'غير جاهز', pictures:'الصور', upload:'رفع صورة', slot:'لأي مشهد / عنصر',
+    use_ev:'صورة حقيقية (دليل)', use_il:'رسم توضيحي', licence:'الترخيص', evidence:'رابط دليل الترخيص', declare:'أملك هذه الصورة أو حقوقها',
+    own:'ملكي', licensed:'مرخّصة', pd:'ملكية عامة', cc:'Creative Commons', addlic:'أضف الترخيص', missing:'غير موجودة', film:'الفيلم', comment:'تعليق عند',
+    send:'أرسل', findings:'ملاحظات المراجعة', explain:'اشرح لماذا تبقى', ackall:'أقرّ بالملاحظات البسيطة المتبقية', watch_need:'شاهد الفيلم كاملًا قبل الموافقة',
+    paid:'التعليق المدفوع', authorize:'تفويض', blockers:'ما يمنع', locked:'مقفل', ex:'يحتاج قرارك', ai_rev:'راجعه الذكاء', owner_ok:'وافقتَ',
+    accept_best:'اقبل أفضل نسخة', retry_with_change:'جرّب بتعديل', remove_banner:'احذف العنوان', keep_fallback:'أبقِ البديل', edit_myself:'سأعدّلها بنفسي',
+    dismiss_comment:'تجاهل التعليق', why:'السبب', scene:'مشهد', clip:'المقطع', rounds:'جولات التصحيح', issues:'ملاحظات', none:'لا شيء',
+    budget:'ميزانية الذكاء', spent:'المصروف', worker:'العامل', calls:'الاستدعاءات', mock:'ذكاء تجريبي (بلا نموذج)', back:'رجوع', lang:'EN',
+    interrupted:'توقف أثناء العمل (سيُستأنف)', ai_label:'نتائج تجريبية', draftvoice:'صوت تجريبي', target:'الهدف', s:'ث'},
+  en: {app:'Video Director', projects:'Your projects', newvid:'New video', title:'Title', idea:'Idea', brand:'Brand', mode:'How to work',
+    copilot:'Co-Pilot', copilot_d:'You approve the important decisions; the Co-Pilot does the work in between', manual:'Manual', manual_d:'The classic Studio, step by step',
+    auto:'Auto', auto_d:'Not yet implemented', duration:'Length (seconds)', start:'Start', stage:'Stage', task:'Task', next:'Your next decision',
+    approve:'Approve', changes:'Request changes', reject:'Reject', note:'Note', pause:'Pause', resume:'Resume', stop:'Stop', to_manual:'Switch to Manual',
+    retry:'Retry', working:'Co-Pilot is working', waiting:'Waiting for you', paused:'Paused', stopped:'Stopped', idle:'Nothing running',
+    processing:'Working time', waittime:'Waiting time', open:'Open', scenes:'Scenes', inbox:'Decisions', history:'History', advanced:'Advanced',
+    classic:'Classic Studio', dashboard:'Reports dashboard', ai_usage:'AI usage', cost:'Cost', angle:'Angle', audience:'Audience', format:'Format',
+    claims:'Claims and sources', toverify:'To verify', verified:'verified', attributed:'attributed', avoid:'avoid', disputed:'disputed', sources:'sources',
+    script:'Script', hooks:'Hooks', usehook:'Use this one', recommended:'recommended', chosen:'chosen', edit:'Edit', save:'Save', cancel:'Cancel',
+    whyline:'Why', override:'Override with evidence (a claim id like c4, or a link)', ack:'I read the warning', versions:'Versions', playall:'Play all',
+    heard:'heard', of:'of', listen_need:'Listen to every changed line before approving', fixword:'Fix the pronunciation', respell:'How it should be read (with tashkeel)',
+    speed:'Speed', pbefore:'Pause before', pafter:'Pause after', compare:'Compare versions', apply:'Apply', pron:'Pronunciation dictionary', proposed:'proposed', approved:'approved', rejected:'rejected',
+    qa:'Voice checks', style:'Style', choose:'Choose this', notready:'not ready', pictures:'Pictures', upload:'Upload a picture', slot:'For which scene / item',
+    use_ev:'Genuine record (evidence)', use_il:'Illustration', licence:'Licence', evidence:'Link to the licence evidence', declare:'I own this picture or its rights',
+    own:'mine', licensed:'licensed', pd:'public domain', cc:'Creative Commons', addlic:'Add licence', missing:'missing', film:'Film', comment:'Comment at',
+    send:'Send', findings:'Review findings', explain:'Explain why it stays', ackall:'I acknowledge the minor issues that remain', watch_need:'Watch the whole film before approving',
+    paid:'Paid narration', authorize:'Authorize', blockers:'What blocks it', locked:'locked', ex:'Needs your decision', ai_rev:'AI reviewed', owner_ok:'approved by you',
+    accept_best:'Accept the best version', retry_with_change:'Try with a change', remove_banner:'Remove the banner', keep_fallback:'Keep the fallback', edit_myself:'I will edit it myself',
+    dismiss_comment:'Dismiss the comment', why:'Why', scene:'Scene', clip:'Clip', rounds:'correction rounds', issues:'issues', none:'none',
+    budget:'AI budget', spent:'spent', worker:'worker', calls:'calls', mock:'MOCK AI (no model)', back:'Back', lang:'ع',
+    interrupted:'stopped mid-way (will be resumed)', ai_label:'mock results', draftvoice:'Draft voice', target:'target', s:'s'}
+};
+let LANG = 'ar';
+try { LANG = localStorage.getItem('cp_lang') || 'ar'; } catch (e) {}
+const t = k => (T[LANG][k] ?? T.en[k] ?? k);
+const AR = () => LANG === 'ar';
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const rid = () => (crypto.randomUUID ? crypto.randomUUID() : 'r' + Math.random().toString(36).slice(2) + Date.now());
+const fmt = s => { s = Math.max(0, Math.round(s || 0)); const m = Math.floor(s / 60); return m ? `${m}:${String(s % 60).padStart(2, '0')}` : `${s} ${t('s')}`; };
+const S = { pid: null, v: null, panel: null, sig: '', cov: {}, sel: {}, editing: null, ex: null, list: null };
+
+function applyLang() {
+  document.documentElement.lang = LANG; document.documentElement.dir = AR() ? 'rtl' : 'ltr';
+  $('#lang').textContent = t('lang');
+  document.querySelectorAll('[data-t]').forEach(e => e.textContent = t(e.dataset.t));
+}
+$('#lang').onclick = () => { LANG = AR() ? 'en' : 'ar'; try { localStorage.setItem('cp_lang', LANG); } catch (e) {} applyLang(); S.sig = ''; render(true); };
+
+function toast(msg, bad) { const e = $('#toast'); e.textContent = msg; e.className = 'toast' + (bad ? ' bad' : ''); e.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => e.hidden = true, bad ? 6000 : 2600); }
+async function get(u) { const r = await fetch(u, { cache: 'no-store' }); if (!r.ok) throw new Error((await r.json()).error || r.status); return r.json(); }
+async function post(action, args, project) {
+  document.body.classList.add('busy');
+  try {
+    const r = await fetch('/api/copilot', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project: project ?? S.pid, action, args: args || {}, request_id: rid() }) });
+    const j = await r.json();
+    if (j.status === 'refused' || j.status === 'failed') { toast(j.reason || 'refused', true); return null; }
+    return j;
+  } catch (e) { toast(String(e), true); return null; }
+  finally { document.body.classList.remove('busy'); }
+}
+
+// ------------------------------------------------------------------ playback coverage: the parts actually heard
+const LAST = {};
+function tick(id, el) {
+  const p = S.cov[id] ||= {};
+  const tt = el.currentTime, l = LAST[id];
+  if (l != null && !el.paused && !el.muted && el.volume > 0 && el.playbackRate <= 2.01) {
+    const dt = tt - l; if (dt > 0 && dt < 1.0) for (let k = Math.floor(l * 10); k < Math.ceil(tt * 10); k++) p[k] = 1;
+  }
+  LAST[id] = tt;
+}
+function covered(id) { const ks = Object.keys(S.cov[id] || {}).map(Number).sort((a, b) => a - b), out = [];
+  for (const k of ks) { const l = out[out.length - 1]; if (l && Math.abs(l[1] - k / 10) < 1e-6) l[1] = (k + 1) / 10; else out.push([k / 10, (k + 1) / 10]); }
+  return out.map(([a, b]) => [+a.toFixed(1), +b.toFixed(1)]); }
+function heardIn(id, a, b) { let n = 0; for (const k in (S.cov[id] || {})) { const x = k / 10; if (x >= a - 0.05 && x < b) n++; } return n / 10; }
+function bindMedia(el, id, onT) {
+  el.addEventListener('timeupdate', () => { tick(id, el); onT && onT(el.currentTime); });
+  el.addEventListener('seeking', () => { LAST[id] = null; });
+  el.addEventListener('pause', () => { LAST[id] = null; });
+  el.addEventListener('play', () => { LAST[id] = el.currentTime; });
+}
+const playing = () => [...document.querySelectorAll('audio,video')].some(m => !m.paused);
+
+// ------------------------------------------------------------------ routing
+function route() {
+  const h = location.hash.replace(/^#\/?/, '').split('/');
+  if (h[0] === 'new') return { page: 'new' };
+  if (h[0] === 'p' && h[1]) return { page: 'project', pid: decodeURIComponent(h[1]), panel: h.slice(2).join('/') || null };
+  return { page: 'home' };
+}
+window.addEventListener('hashchange', () => { S.sig = ''; S.editing = null; render(true); });
+
+async function render(force) {
+  applyLang();
+  const r = route();
+  if (r.page === 'home') return home();
+  if (r.page === 'new') return newForm();
+  if (S.pid !== r.pid) { S.pid = r.pid; S.v = null; S.cov = {}; }
+  S.panel = r.panel;
+  try { S.v = await get('/api/copilot/' + encodeURIComponent(S.pid)); } catch (e) { $('#main').innerHTML = `<div class="card">${esc(e.message)}</div>`; return; }
+  project(force);
+}
+
+// ------------------------------------------------------------------ home and new
+async function home() {
+  let ps = [];
+  try { ps = (await get('/api/copilot')).projects; } catch (e) {}
+  $('#main').innerHTML = `
+    <button class="primary big" onclick="location.hash='#/new'">＋ ${t('newvid')}</button>
+    <div class="card"><h2>${t('projects')}</h2>
+      ${ps.length ? ps.map(p => `<a class="row between" style="text-decoration:none;color:inherit;border-top:1px solid var(--line);padding-top:8px"
+          href="${p.mode === 'copilot' ? '#/p/' + encodeURIComponent(p.id) : '/studio/classic#' + encodeURIComponent(p.id)}">
+          <span class="grow"><b>${esc(p.title)}</b><br><span class="tiny muted">${esc(p.brand)} · ${p.mode === 'copilot' ? t('copilot') : p.mode === 'manual' ? t('manual') : t('classic')}</span></span>
+          <span class="pill st-${p.run === 'running' ? 'working' : 'not_started'}">${esc(p.run)}</span></a>`).join('') : `<p class="muted">—</p>`}
+    </div>
+    <div class="ft muted"><a href="/studio/classic">${t('classic')}</a><a href="/dashboard">${t('dashboard')}</a></div>`;
+}
+function newForm() {
+  $('#main').innerHTML = `
+    <div class="card"><h2>${t('newvid')}</h2>
+      <label class="stack small">${t('idea')}<textarea id="n-idea" placeholder="${AR() ? 'مثال: كيف جعلت رولكس أويستر الناس يثقون بساعة في الماء' : 'e.g. How the Rolex Oyster made people trust a watch in water'}"></textarea></label>
+      <label class="stack small">${t('title')}<input id="n-title"></label>
+      <label class="stack small">${t('brand')}<select id="n-brand"><option value="timekeeper">Time Keeper</option><option value="diabetes-history">Diabetes History</option></select></label>
+      <div class="stack small">${t('mode')}
+        <div class="mode">
+          <label><input type="radio" name="mode" value="copilot" checked><span><b>${t('copilot')}</b><br><span class="tiny muted">${t('copilot_d')}</span></span></label>
+          <label><input type="radio" name="mode" value="manual"><span><b>${t('manual')}</b><br><span class="tiny muted">${t('manual_d')}</span></span></label>
+          <label class="dis"><input type="radio" name="mode" value="auto" disabled><span><b>${t('auto')}</b><br><span class="tiny muted">${t('auto_d')}</span></span></label>
+        </div></div>
+      <label class="stack small">${t('duration')}<input id="n-dur" type="number" min="20" max="180" value="75" inputmode="numeric"></label>
+      <button class="primary big" id="n-go">${t('start')}</button>
+    </div>`;
+  $('#n-go').onclick = async () => {
+    const mode = document.querySelector('input[name=mode]:checked').value;
+    const j = await post('create', { idea: $('#n-idea').value, title: $('#n-title').value, brand: $('#n-brand').value, mode, duration_s: +$('#n-dur').value }, null);
+    if (!j) return;
+    location.hash = mode === 'copilot' ? '#/p/' + encodeURIComponent(j.project) : '';
+    if (mode !== 'copilot') location.href = '/studio/classic#' + encodeURIComponent(j.project);
+  };
+}
+
+// ------------------------------------------------------------------ project
+const STN = s => AR() ? s.state_name_ar : s.state_name;
+function sig(v) { return JSON.stringify([v.current, v.run, v.mode, v.waiting, v.exceptions.map(x => x.id + x.status), v.blocked.map(b => b.key),
+  (v.scenes || []).map(s => s.id + s.state + (s.pick && s.pick.n)), v.g5 && v.g5.films, v.g3 && v.g3.mix_current, v.g3 && v.g3.adjust.length,
+  v.g3 && v.g3.pron.map(p => p.status), v.assets.library.map(a => a.status), v.g2 && v.g2.check ? 1 : 0, v.g4 && v.g4.n, v.g6 && v.g6.plan && v.g6.plan.hash,
+  (v.g5 && v.g5.findings || []).map(f => f.decision), v.gates, (v.g5 && v.g5.comments || []).length, LANG]); }
+function defaultPanel(v) {
+  const n = v.top.next;
+  if (n && n.kind === 'exception') return 'ex/' + n.id;
+  if (n && n.kind === 'gate') return n.gate.toLowerCase();
+  const s = v.stages.find(x => x.id === v.top.stage_id);
+  return ({ direction: 'g1', script: 'g2', voice: 'g3', style: 'g4', assets: 'assets', scenes: 'scenes', film: 'g5', paid: 'g6', export: 'g6' })[s ? s.id : 'direction'];
+}
+function project(force) {
+  const v = S.v;
+  const top = topHtml(v);
+  const s = sig(v) + '|' + (S.panel || '');
+  const typing = document.activeElement && ['TEXTAREA', 'INPUT', 'SELECT'].includes(document.activeElement.tagName) && $('#main').contains(document.activeElement);
+  if (!force && s === S.sig && $('#topbox')) { $('#topbox').innerHTML = top; return; }
+  if (!force && (typing || playing()) && $('#topbox')) { $('#topbox').innerHTML = top; return; }
+  S.sig = s;
+  const panel = S.panel || defaultPanel(v);
+  $('#main').innerHTML = `<div id="topbox">${top}</div><div id="panel" class="stack">${panelHtml(v, panel)}</div>${footHtml(v)}`;
+  wire(v, panel);
+}
+function topHtml(v) {
+  const n = v.top.next;
+  const runTxt = v.task ? t('working') : v.run === 'paused' ? t('paused') : v.run === 'stopped' ? t('stopped') : n ? t('waiting') : t('idle');
+  const tk = v.task;
+  return `<div class="card">
+    <div class="crumbs"><b>${esc(v.title)}</b><span class="sep">›</span><span>${esc(AR() ? v.top.stage_ar : v.top.stage)}</span><span class="sep">›</span>
+      <span class="muted">${esc(tk ? tk.what : runTxt)}</span></div>
+    ${n ? `<a class="next" href="#/p/${encodeURIComponent(v.id)}/${n.kind === 'gate' ? n.gate.toLowerCase() : 'ex/' + n.id}" style="color:inherit;text-decoration:none">
+        <span class="grow"><span class="tiny muted">${t('next')}</span><br><b>${esc(n.kind === 'gate' ? (AR() ? n.title_ar : n.title) : n.title)}</b></span><span>${AR() ? '‹' : '›'}</span></a>`
+      : `<div class="next calm"><span class="grow"><b>${runTxt}</b>${tk ? `<br><span class="small">${esc(tk.what)}${tk.units_total ? ` · ${tk.units_done}/${tk.units_total}` : ''} · ${fmt(tk.elapsed_s)}${tk.eta_s != null ? ` · ~${fmt(tk.eta_s)}` : ''}</span>` : ''}</span></div>`}
+    ${v.interrupted.length && !v.task ? `<div class="tiny muted">${t('interrupted')}</div>` : ''}
+    <div class="stages">${v.stages.map(s => `<button data-go="${({ direction: 'g1', script: 'g2', voice: 'g3', style: 'g4', assets: 'assets', scenes: 'scenes', film: 'g5', paid: 'g6', export: 'g6' })[s.id]}"
+        class="${s.id === v.top.stage_id ? 'cur' : ''}"><span>${esc(AR() ? s.name_ar : s.name)}</span><span class="pill st-${s.state}">${esc(STN(s))}</span></button>`).join('')}</div>
+    <div class="row between small">
+      <span class="muted">${t('processing')} ${fmt(v.timing.processing_s)} · ${t('waittime')} ${fmt(v.timing.waiting_s)}</span>
+      <span class="row">${v.mode === 'copilot' ? (v.run === 'running' ? `<button data-ctl="pause">${t('pause')}</button>` : `<button class="primary" data-ctl="resume">${t('resume')}</button>`)
+        + (v.run !== 'stopped' ? `<button class="bad" data-ctl="stop">${t('stop')}</button>` : '') : ''}</span></div>
+    ${v.blocked.length ? v.blocked.map(b => `<div class="label-lock">${esc(b.what)}: ${esc(b.error).slice(0, 160)} <button data-retry="${esc(b.key)}">${t('retry')}</button></div>`).join('') : ''}
+    ${timelineHtml(v)}
+    <div class="lockline"><span class="dot" style="background:var(--bad)"></span>${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}
+      · ${t('ai_usage')}: ${v.ai.worker === 'mock' ? t('mock') : esc(v.ai.label)} · $${(v.ai.spent_usd || 0).toFixed(3)} / $${(v.ai.budget_usd || 0).toFixed(2)}</div>
+  </div>`;
+}
+function timelineHtml(v) {
+  if (!v.scenes || !v.scenes.length) return '';
+  return `<div class="stack"><div class="row between tiny muted"><span>${t('scenes')}</span><span><span class="pill st-ai_reviewed">${t('ai_rev')}</span> ≠ <span class="pill st-owner_approved">${t('owner_ok')}</span></span></div>
+    <div class="timeline">${v.scenes.map(s => { const w = v.task && v.task.what && v.task.what.startsWith('scene ' + s.id + ':');
+      return `<button class="tl-${w ? 'working' : s.state}" data-go="scene/${s.id}" title="${esc(s.id)}">${esc(s.id)}</button>`; }).join('')}</div></div>`;
+}
+function footHtml(v) {
+  return `<div class="card"><div class="ft"><a href="#/p/${encodeURIComponent(v.id)}/inbox">${t('inbox')} (${v.inbox.length})</a>
+    <a href="#/p/${encodeURIComponent(v.id)}/ai">${t('ai_usage')}</a><a href="#/p/${encodeURIComponent(v.id)}/history">${t('history')}</a>
+    <a href="${v.classic_url}">${t('advanced')}: ${t('classic')}</a><a href="/dashboard">${t('dashboard')}</a>
+    ${v.mode === 'copilot' ? `<button class="link" data-manual="1">${t('to_manual')}</button>` : `<span class="pill st-not_started">${t('manual')}</span>`}</div></div>`;
+}
+function decisionButtons(g, opts) {
+  opts = opts || {};
+  return `<div class="stack"><textarea id="note-${g}" placeholder="${t('note')}"></textarea>
+    <button class="primary big" data-gate="${g}" data-d="approved" ${opts.disabled ? 'disabled' : ''}>${t('approve')}</button>
+    <div class="row"><button class="grow" data-gate="${g}" data-d="changes_requested">${t('changes')}</button>
+    ${opts.noReject ? '' : `<button class="bad" data-gate="${g}" data-d="rejected">${t('reject')}</button>`}</div></div>`;
+}
+const pill = (cls, txt) => `<span class="pill ${cls}">${esc(txt)}</span>`;
+function gateState(v, g) { const s = v.stages.find(x => x.gate === g); return s ? pill('st-' + s.state, STN(s)) + (s.why ? ` <span class="tiny muted">${esc(s.why)}</span>` : '') : ''; }
+function working(v, stage) { return v.task && v.task.stage === stage ? `<div class="label-ai">${t('working')}: ${esc(v.task.what)}</div>` : ''; }
+
+function panelHtml(v, p) {
+  if (p === 'g1') return g1(v);
+  if (p === 'g2') return g2(v);
+  if (p === 'g3') return g3(v);
+  if (p === 'g4') return g4(v);
+  if (p === 'assets') return assets(v);
+  if (p === 'scenes') return scenesList(v);
+  if (p && p.startsWith('scene/')) return sceneSheet(v, p.slice(6));
+  if (p === 'g5') return g5(v);
+  if (p === 'g6') return g6(v);
+  if (p && p.startsWith('ex/')) return exPanel(v, p.slice(3));
+  if (p === 'inbox') return inbox(v);
+  if (p === 'ai') return aiPanel(v);
+  if (p === 'history') return historyPanel(v);
+  return g1(v);
+}
+
+// ---------------------------------------------------------------- G1
+function g1(v) {
+  const d = v.g1;
+  if (!d) return `<div class="card"><h2>${t('stage')} 1</h2>${working(v, 'direction') || `<p class="muted">—</p>`}</div>`;
+  const doc = d.doc, cl = d.claims;
+  const st = c => ({ verified: 'st-owner_approved', attributed: 'st-ai_review', avoid: 'st-blocked', disputed: 'st-needs_owner' })[c.status] || '';
+  return `<div class="card"><div class="row between"><h2>${AR() ? 'اتجاه القصة' : 'Story direction'} · v${d.v}</h2>${gateState(v, 'G1')}</div>
+    ${d.mock ? `<div class="label-ai">${t('mock')}</div>` : ''}
+    <p style="font-size:1.08rem"><b>${esc(AR() ? (doc.angle_ar || doc.angle) : doc.angle)}</b></p>
+    <div class="kv"><span class="muted">${t('audience')}</span><span>${esc(doc.audience)}</span>
+      <span class="muted">${t('duration')}</span><span>${esc(doc.duration_s)}</span><span class="muted">${t('format')}</span><span>${esc(doc.format)}</span></div>
+    ${doc.note_answer ? `<p class="tiny muted">${esc(doc.note_answer)}</p>` : ''}</div>
+  <div class="card"><h3>${t('claims')} (${cl.length})</h3><ul class="claims">${cl.map(c => `<li>${pill(st(c), c.id + ' · ' + t(c.status))} ${esc(c.text)}
+      ${c.why ? `<div class="tiny muted">${esc(c.why)}</div>` : ''}${c.careful ? `<div class="tiny muted">⚠ ${esc(c.careful)}</div>` : ''}
+      <div class="tiny">${(c.sources || []).map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener">[${i + 1}]</a>`).join(' ')}</div></li>`).join('')}</ul>
+    ${doc.claims_to_verify && doc.claims_to_verify.length ? `<h3>${t('toverify')}</h3><ul>${doc.claims_to_verify.map(x => `<li>${esc(x.claim)}: ${esc(AR() ? x.why_ar || x.why : x.why)}</li>`).join('')}</ul>` : ''}
+    ${d.check ? `<div class="tiny muted">${esc(d.check.by || '')}: ${d.check.findings.map(f => `${f.claim} ${f.code}`).join(' · ') || t('none')}</div>` : ''}</div>
+  <div class="card">${v.validity.G1.valid ? `<p>${pill('st-owner_approved', t('owner_ok'))}</p>` : decisionButtons('G1')}</div>`;
+}
+
+// ---------------------------------------------------------------- G2
+function g2(v) {
+  const d = v.g2;
+  if (!d) return `<div class="card"><h2>${t('script')}</h2>${working(v, 'script') || `<p class="muted">—</p>`}</div>`;
+  const ck = d.check ? d.check.lines : {};
+  const hk = d.hooks;
+  const lines = d.lines.map(l => { const c = ck[l.id] || { severity: 'none', why: [], verdict: '' }; const ed = S.editing === l.id;
+    return `<div class="line ${ed ? 'sel' : ''}" id="ln-${l.id}"><div class="row between"><span class="tiny muted">${esc(l.id)}${l.role === 'hook' ? ' · ' + t('hooks') : ''}</span>
+      <span>${c.verdict ? pill('sev-' + c.severity, c.verdict) : ''}</span></div>
+      ${ed ? `<textarea id="ed-${l.id}">${esc(l.text)}</textarea><div class="row"><button class="primary" data-saveline="${l.id}">${t('save')}</button><button data-canceledit="1">${t('cancel')}</button></div>`
+           : `<div class="txt">${esc(l.text)}</div>`}
+      ${c.why && c.why.length ? `<div class="tiny">${c.why.map(w => `• ${esc(w)}`).join('<br>')}</div>` : ''}
+      ${c.sources && c.sources.length ? `<div class="tiny">${t('sources')}: ${c.claims.join(', ')} ${c.sources.map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener">[${i + 1}]</a>`).join(' ')}</div>` : ''}
+      ${c.severity === 'critical' && d.status === 'draft' ? `<input data-ov="${l.id}" placeholder="${t('override')}">` : ''}
+      ${c.severity === 'major' && d.status === 'draft' ? `<label class="row small"><input type="checkbox" data-ack="${l.id}"> ${t('ack')}</label>` : ''}
+      ${l.role !== 'hook' && !ed && d.status === 'draft' ? `<button class="link" data-edit="${l.id}">${t('edit')}</button>` : ''}</div>`; }).join('');
+  return `<div class="card"><div class="row between"><h2>${t('script')} · v${d.v}</h2>${gateState(v, 'G2')}</div>
+    ${working(v, 'script')}
+    <div class="tiny muted">${esc(d.note)} · ${esc(d.author)}${d.check ? ` · ${esc(d.check.fact_label || '')}` : ''}</div>
+    <div class="vers">${d.versions.map(x => `<button aria-pressed="${x.v === d.v}" disabled>v${x.v} · ${esc(x.status)}</button>`).join('')}</div></div>
+  <div class="card"><h3>${t('hooks')}</h3><div class="hooks">${hk.options.map(o => `<div class="hook ${hk.selected === o.id ? 'sel' : ''}">
+      <div class="row between"><b>${esc(o.id)} · ${esc(o.type)}</b><span>${o.id === hk.recommended ? pill('st-ai_review', t('recommended')) : ''} ${hk.selected === o.id ? pill('st-owner_approved', t('chosen')) : ''}</span></div>
+      <div>${esc(o.spoken)}</div><div class="tiny muted">${esc(o.on_screen)} · ${esc(o.visual)}</div>
+      ${hk.selected !== o.id ? `<button data-hook="${o.id}">${t('usehook')}</button>` : ''}</div>`).join('')}</div>
+    ${d.status === 'approved' ? `<p class="tiny muted">${AR() ? 'تغيير الافتتاحية الآن يصنع نسخة جديدة؛ يُعاد تسجيل سطر الافتتاحية ومشهدها فقط' : 'Changing the hook now makes a new version; only the hook line and its scene are redone'}</p>` : ''}
+    <p class="tiny muted">${esc(hk.reasons)}</p></div>
+  <div class="card"><h3>${t('script')}</h3>${lines}</div>
+  <div class="card">${d.status === 'draft' ? decisionButtons('G2', { disabled: !d.check }) : pill('st-' + (d.status === 'approved' ? 'owner_approved' : 'needs_owner'), d.status)}</div>`;
+}
+
+// ---------------------------------------------------------------- G3
+function g3(v) {
+  const d = v.g3;
+  if (!d) return `<div class="card"><h2>${AR() ? 'الصوت' : 'Voice'}</h2>${working(v, 'voice') || `<p class="muted">—</p>`}</div>`;
+  const mix = d.mix;
+  const id = mix ? 'mix-' + JSON.stringify(mix.takes).length + '-' + mix.seconds : 'mix';
+  S.mixId = id;
+  const segs = mix ? mix.segments.map(s => { const need = s.status !== 'approved'; const h = heardIn(id, s.start, s.end), L = s.end - s.start;
+    return `<div class="seg ${need ? 'need' : 'ok'}" data-seg="${s.line}"><div class="row between tiny"><span class="muted">${esc(s.line)}</span>
+      <span>${need ? `${t('heard')} <b data-h="${s.line}">${Math.min(100, Math.round(100 * h / L))}%</b>` : pill('st-owner_approved', t('owner_ok'))}</span></div>
+      <div class="words">${s.words.map((w, i) => `<span class="w ${w.est ? 'est' : ''}" data-ws="${w.s}" data-we="${w.e}" data-line="${s.line}" data-word="${esc(w.w)}">${esc(w.w)}</span>`).join(' ')}</div></div>`; }).join('') : '';
+  const sel = S.sel.word;
+  const ln = sel ? d.lines.find(x => x.line === sel.line) : null;
+  return `<div class="card"><div class="row between"><h2>${AR() ? 'الصوت' : 'Voice'}</h2>${gateState(v, 'G3')}</div>
+    <div class="label-draft">${esc(AR() ? d.label_ar : d.label)}</div>${working(v, 'voice')}
+    ${mix ? `<audio id="mix" controls preload="metadata" src="${esc(mix.url)}"></audio>
+      <div class="tiny muted">${t('playall')} · ${fmt(mix.seconds)}${d.mix_current ? '' : ' · ⟳'}</div>` : ''}</div>
+  ${sel && ln ? `<div class="sheet"><div class="row between"><b>«${esc(sel.word)}»</b><span class="tiny muted">${esc(sel.line)}</span></div>
+      <div class="row"><button data-playword="1">▶ ${AR() ? 'الكلمة' : 'word'}</button></div>
+      <label class="stack small">${t('fixword')}<input id="respell" placeholder="${t('respell')}" value="${esc(sel.word)}"></label>
+      <button class="primary" data-pron="1">${t('apply')}</button>
+      <div class="row small"><label class="grow">${t('speed')}<select id="sp"><option>0.9</option><option selected>1.0</option><option>1.1</option></select></label>
+        <label class="grow">${t('pbefore')}<select id="pb"><option>0</option><option>0.3</option><option>0.6</option></select></label>
+        <label class="grow">${t('pafter')}<select id="pa"><option>0</option><option>0.3</option><option>0.6</option></select></label></div>
+      <button data-adjust="1">${t('apply')} (${AR() ? 'معالجة محلية مجانية' : 'free local processing'})</button>
+      <h3>${t('compare')}</h3>${ln.takes.map((k, i) => `<div class="row small"><span class="grow">v${i + 1} · ${esc(k.status)} · ${esc(k.processed ? (AR() ? 'معالجة محلية' : 'processed locally') : (k.reason || ''))}${k.same_audio_as ? ' · ' + (AR() ? 'الصوت نفسه' : 'same audio as before') : ''}</span>
+        <audio controls preload="none" src="${esc(k.audio)}" style="max-width:220px"></audio></div>`).join('')}
+      <button class="link" data-closeword="1">${t('cancel')}</button></div>` : ''}
+  <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة للاستماع إليها أو تصحيحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
+  <div class="card"><h3>${t('pron')}</h3>${d.pron.length ? d.pron.map(p => `<div class="row small"><span class="grow">«${esc(p.word)}» → «${esc(p.respell)}» <span class="tiny muted">${esc(p.why || '')}</span></span>
+      ${pill(p.status === 'approved' ? 'st-owner_approved' : 'st-ai_review', (p.source === 'ai' ? 'AI · ' : '') + t(p.status))}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
+    <h3>${t('qa')}</h3>${d.qa.flags.length ? d.qa.flags.map(f => `<label class="row small"><input type="checkbox" data-qack="${f.id}" ${f.status !== 'open' ? 'checked disabled' : ''}>
+      <span class="grow">${pill('sev-' + f.severity, f.code)} ${esc(f.line)}: ${esc(AR() ? f.detail_ar : f.detail)}</span></label>`).join('') : `<p class="muted small">${t('none')}</p>`}</div>
+  <div class="card">${v.validity.G3.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('listen_need')}</p>` + decisionButtons('G3', { noReject: true, disabled: !d.mix_current })}</div>`;
+}
+
+// ---------------------------------------------------------------- G4
+function g4(v) {
+  const d = v.g4;
+  if (!d) return `<div class="card"><h2>${t('style')}</h2>${working(v, 'style') || `<p class="muted">—</p>`}</div>`;
+  S.sel.style ||= (d.approved && d.approved.id) || d.recommended;
+  return `<div class="card"><div class="row between"><h2>${t('style')}</h2>${gateState(v, 'G4')}</div>
+    <p class="tiny muted">${AR() ? 'إطارات حقيقية من مشاهد هذا الفيلم بكل أسلوب' : 'Real frames of this film\'s scenes in each style'} · ${esc(d.eval_by || '')}</p></div>
+  ${d.directions.map(x => `<div class="board ${S.sel.style === x.id ? 'sel' : ''}">
+      <div class="row between"><b>${esc(AR() ? x.name_ar : x.name)}</b><span>${x.id === d.recommended ? pill('st-ai_review', t('recommended')) : ''}
+        ${d.approved && d.approved.id === x.id ? pill('st-owner_approved', t('owner_ok')) : ''} ${!x.ready ? pill('st-not_started', t('notready')) : ''}</span></div>
+      ${x.board ? `<img src="${esc(x.board)}" alt="${esc(x.name)}" loading="lazy">` : `<p class="small muted">${esc(AR() ? x.why_not_ar : x.why_not)}</p>`}
+      <p class="small">${esc(AR() ? x.about_ar : '')} ${esc((AR() ? d.reasons_ar : d.reasons)[x.id] || '')}</p>
+      ${x.ready ? `<button data-style="${x.id}" aria-pressed="${S.sel.style === x.id}">${t('choose')}</button>` : ''}</div>`).join('')}
+  <div class="card">${v.validity.G4.valid && d.approved && d.approved.id === S.sel.style ? pill('st-owner_approved', t('owner_ok')) : decisionButtons('G4', { noReject: true })}</div>`;
+}
+
+// ---------------------------------------------------------------- assets
+function assets(v) {
+  const a = v.assets;
+  return `<div class="card"><h2>${t('pictures')}</h2><p class="small muted">${esc(AR() ? a.rule_ar : a.rule)}</p>
+    ${a.needs.map(n => `<div class="line"><div class="row between"><b>${esc(AR() ? n.what_ar || n.what : n.what)}</b>${pill(n.status === 'verified' ? 'st-owner_approved' : n.status === 'missing' ? 'st-not_started' : 'st-needs_owner', n.status)}</div>
+      <div class="tiny muted">${t('scene')} ${esc(n.scene)} · ${esc(n.id)} · ${esc((n.where || []).join(' · '))}</div>
+      <div class="tiny">${esc(n.found || '')}${n.fallback ? ' · ' + (AR() ? 'البديل: ' : 'fallback: ') + esc(n.fallback) : ''}</div></div>`).join('') || `<p class="muted">—</p>`}</div>
+  <div class="card"><h3>${t('upload')}</h3>
+    <input type="file" id="up-file" accept="image/jpeg,image/png,image/webp">
+    <label class="stack small">${t('slot')}<select id="up-slot">${a.needs.map(n => `<option value="${esc(n.id)}|${esc(n.scene)}">${esc(n.scene)} · ${esc(AR() ? n.what_ar || n.what : n.what)}</option>`).join('')}<option value="|">—</option></select></label>
+    <div class="row small"><label class="row"><input type="radio" name="use" value="evidence" checked> ${t('use_ev')}</label><label class="row"><input type="radio" name="use" value="illustration"> ${t('use_il')}</label></div>
+    <input id="up-credit" placeholder="${AR() ? 'المصدر / الحقوق' : 'Source / credit'}">
+    <button class="primary" data-upload="1">${t('upload')}</button></div>
+  <div class="card"><h3>${AR() ? 'مكتبة الصور' : 'Library'}</h3>${a.library.map(x => `<div class="line"><div class="row between"><b>${esc(x.name || x.id)}</b>${pill(x.status === 'verified' ? 'st-owner_approved' : 'st-needs_owner', x.status)}</div>
+      ${x.file ? `<img src="${esc(x.file)}" style="max-width:160px;border-radius:8px">` : ''}<div class="tiny muted">${esc(x.slot)} · ${esc(x.use)} · ${esc(x.credit)}</div>
+      ${x.licence ? `<div class="tiny">${t('licence')}: ${esc(x.licence.licence)} · ${esc(x.licence.evidence)}</div>` : x.status === 'unverified' ? `
+        <select data-lickind="${x.id}"><option value="licensed">${t('licensed')}</option><option value="owner_owned">${t('own')}</option><option value="public_domain">${t('pd')}</option><option value="cc">${t('cc')}</option></select>
+        <input data-licev="${x.id}" placeholder="${t('evidence')}"><label class="row small"><input type="checkbox" data-licdec="${x.id}"> ${t('declare')}</label>
+        <button data-lic="${x.id}">${t('addlic')}</button>` : ''}</div>`).join('') || `<p class="muted">—</p>`}</div>`;
+}
+
+// ---------------------------------------------------------------- scenes
+function scenesList(v) {
+  if (!v.scenes.length) return `<div class="card"><h2>${t('scenes')}</h2><p class="muted">—</p></div>`;
+  return `<div class="card"><h2>${t('scenes')}</h2><p class="tiny muted">${AR() ? 'المساعد يرسم كل مشهد ويفحصه ويصحّحه (جولتان كحد أقصى). موافقتك على المشاهد تكون مع الفيلم.' : 'The Co-Pilot draws, checks and fixes each scene (two rounds at most). You approve scenes with the film.'}</p></div>
+    ${v.scenes.map(s => `<a class="card" href="#/p/${encodeURIComponent(v.id)}/scene/${s.id}" style="color:inherit;text-decoration:none">
+      <div class="row between"><b>${esc(s.id)}</b>${pill('st-' + s.state, s.state === 'ai_reviewed' ? t('ai_rev') : s.state)}</div>
+      ${s.pick ? `<div class="frames">${s.pick.stills.slice(0, 3).map(u => `<img src="${esc(u)}" loading="lazy">`).join('')}</div>` : ''}
+      <div class="small">${esc(s.text)}</div></a>`).join('')}`;
+}
+function sceneSheet(v, sid) {
+  const s = v.scenes.find(x => x.id === sid);
+  if (!s) return `<div class="card">—</div>`;
+  const p = s.pick;
+  return `<div class="card"><div class="row between"><h2>${t('scene')} ${esc(s.id)}</h2>${pill('st-' + s.state, s.state === 'ai_reviewed' ? t('ai_rev') : s.state)}</div>
+    <div class="small">${esc(s.text)}</div>
+    ${p ? `<video controls playsinline preload="metadata" poster="${esc(p.stills[1])}">${p.clip_webm ? `<source src="${esc(p.clip_webm)}" type="video/webm">` : ''}<source src="${esc(p.clip)}" type="video/mp4"></video>
+      <div class="frames">${p.stills.map(u => `<img src="${esc(u)}" loading="lazy">`).join('')}</div>
+      <div class="kv small"><span class="muted">${AR() ? 'التقنية' : 'Technique'}</span><span>${esc(p.technique)} · ${esc(p.theme)}</span>
+        <span class="muted">${t('rounds')}</span><span>${p.rounds} · ${esc(p.why)}</span><span class="muted">${t('issues')}</span><span>${p.open.map(f => pill('sev-' + f.severity, f.code)).join(' ') || t('none')}</span></div>
+      ${p.fallback ? `<p class="tiny muted">${esc(p.fallback)}</p>` : ''}<div class="tiny muted">${esc(p.reviewer || '')}</div>` : working(v, 'scenes')}
+    ${s.exception ? `<a class="next" href="#/p/${encodeURIComponent(v.id)}/ex/${s.exception}">${t('ex')}</a>` : ''}</div>
+  <div class="card"><h3>${t('versions')}</h3>${s.versions.map(x => `<div class="row small"><img src="${esc(x.still)}" style="width:54px;border-radius:6px"><span class="grow">v${x.n} · ${AR() ? 'جولة' : 'round'} ${x.round}
+      ${Object.keys(x.changes).length ? ' · ' + esc(Object.entries(x.changes).map(([k, y]) => k + ' ' + y).join(', ')) : ''}<br>${x.findings.map(f => pill('sev-' + f.severity, f.code)).join(' ')}</span></div>`).join('')}</div>`;
+}
+
+// ---------------------------------------------------------------- G5
+function g5(v) {
+  const d = v.g5;
+  if (!d || !d.n) return `<div class="card"><h2>${t('film')}</h2>${working(v, 'film') || working(v, 'scenes') || `<p class="muted">—</p>`}</div>`;
+  const id = 'film-' + d.n; S.filmId = id;
+  const open = d.findings.filter(f => !f.decision);
+  const big = open.filter(f => f.severity === 'critical' || f.severity === 'major');
+  const minor = open.filter(f => f.severity === 'minor');
+  const h = heardIn(id, 0, d.seconds);
+  const canWebm = document.createElement('video').canPlayType('video/webm; codecs="vp9"');
+  return `<div class="card"><div class="row between"><h2>${t('film')} v${d.n}</h2>${gateState(v, 'G5')}</div>
+    <div class="label-draft">${esc(AR() ? d.label_ar || d.label : d.label)}</div>
+    <video id="film" controls playsinline preload="metadata" poster="${esc(d.poster)}">${canWebm && d.webm ? `<source src="${esc(d.webm)}" type="video/webm">` : ''}<source src="${esc(d.mp4)}" type="video/mp4"></video>
+    <div class="timeline" id="ftl">${d.timeline.map(s => `<button data-seek="${s.start}" data-sid="${s.id}" class="tl-${(v.scenes.find(x => x.id === s.id) || {}).state || 'ai_reviewed'}"
+      style="flex-grow:${Math.max(0.5, s.end - s.start)}">${esc(s.id === 'endcard' ? '■' : s.id)}</button>`).join('')}</div>
+    <div class="row between small"><span>${t('heard')} <b id="fheard">${fmt(h)}</b> ${t('of')} ${fmt(d.seconds)}</span><span class="tiny muted">${d.approved_film ? 'v' + d.approved_film.n + ' ' + t('owner_ok') : ''}</span></div>
+    <div class="row"><input id="cm" class="grow" placeholder="${t('comment')} …"><button data-comment="1">${t('send')}</button></div>
+    ${d.comments.map(c => { const tk = d.tasks.find(x => x.source === 'comment ' + c.id) || {}; return `<div class="tiny">⏱ ${fmt(c.t)} · ${esc(c.scene)} · «${esc(c.text)}» · ${esc(tk.status || '')}</div>`; }).join('')}</div>
+  <div class="card"><h3>${t('findings')}</h3>
+    ${big.map(f => `<div class="finding"><div class="row between">${pill('sev-' + f.severity, f.code)}<button class="link" data-seek="${f.t || 0}">⏱ ${fmt(f.t)}</button></div>
+      <div class="small">${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>${f.evidence ? `<img src="${esc(f.evidence)}" loading="lazy">` : ''}
+      <div class="tiny muted">${esc(f.perspective || '')} · ${esc(f.recommendation || '')}</div>
+      <input data-fexp="${f.id}" placeholder="${f.severity === 'critical' ? t('override') : t('explain')}"><button data-fdis="${f.id}">${t('save')}</button></div>`).join('')}
+    ${minor.length ? `<div class="stack">${minor.map(f => `<div class="small">${pill('sev-minor', f.code)} ${esc(f.scene || '')} · ${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>`).join('')}
+      <label class="row small"><input type="checkbox" id="ackminor"> ${t('ackall')} (${minor.length})</label></div>` : ''}
+    ${!big.length && !minor.length ? `<p class="muted small">${t('none')}</p>` : ''}
+    ${d.findings.filter(f => f.decision).length ? `<details class="tiny"><summary>${d.findings.filter(f => f.decision).length} ✓</summary>${d.findings.filter(f => f.decision).map(f => `<div>${esc(f.code)} · ${esc(f.decision)} · ${esc(f.decision_note || '')}</div>`).join('')}</details>` : ''}</div>
+  <div class="card">${v.validity.G5.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('watch_need')}</p>` + decisionButtons('G5', { noReject: false, disabled: big.length > 0 })}</div>`;
+}
+
+// ---------------------------------------------------------------- G6
+function g6(v) {
+  const d = v.g6;
+  const p = d && d.plan;
+  return `<div class="card"><div class="row between"><h2>${t('paid')}</h2>${gateState(v, 'G6')}</div>
+    <div class="label-lock">${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}</div>
+    ${p ? `<div class="kv small"><span class="muted">${t('script')}</span><span>v${p.script_v}</span><span class="muted">Voice</span><span>${esc(p.voice.name)} · ${esc(p.voice.model || p.voice.provider)}</span>
+      <span class="muted">${AR() ? 'الأحرف' : 'Characters'}</span><span>${p.chars_total}</span><span class="muted">${t('budget')}</span><span>${p.budget_remaining ?? '—'}</span></div>
+      <details><summary class="small">${AR() ? 'النص الذي سيُرسل' : 'Exact text that would be sent'} (${p.items.length})</summary>${p.items.map(i => `<div class="tiny">${esc(i.line)} · ${esc(i.action)} · ${i.chars} · ${esc(i.provider_input)}</div>`).join('')}</details>
+      <h3>${t('blockers')}</h3><ul class="small">${p.blockers.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+      <p class="tiny muted">${esc(AR() ? d.note_ar : d.note)}</p>
+      <input id="g6c" inputmode="numeric" placeholder="${AR() ? 'اكتب عدد الأحرف للتأكيد' : 'Type the character count to confirm'}">
+      <button class="bad big" data-g6="1">${t('authorize')}</button>` : `<p class="muted small">${AR() ? 'تُبنى الخطة بعد موافقتك على الفيلم' : 'The plan is built after you approve the film'}</p>`}
+    <p class="tiny muted">${AR() ? 'التصدير النهائي والنشر: تفويضات منفصلة، لا تحدث تلقائيًا أبدًا.' : 'Final export and publishing are separate authorizations and never automatic.'}</p></div>`;
+}
+
+// ---------------------------------------------------------------- exceptions, inbox, ai, history
+function exPanel(v, id) {
+  const x = v.exceptions.find(e => e.id === id);
+  if (!x) return `<div class="card">—</div>`;
+  const chips = ['text_size:1.2', 'zoom:1.18', 'slower:1.4', 'theme:tk-ink', 'theme:tk-bone'];
+  return `<div class="card"><div class="row between"><h2>${t('ex')}</h2>${pill(x.status === 'open' ? 'st-needs_owner' : 'st-completed', x.status)}</div>
+    <p><b>${esc(x.title)}</b></p><p class="small">${esc(AR() ? x.detail_ar || x.detail : x.detail)}</p>
+    ${x.evidence && x.evidence.length ? `<div class="frames">${x.evidence.map(u => `<img src="${esc(u)}">`).join('')}</div>` : ''}
+    ${x.scene ? `<a href="#/p/${encodeURIComponent(v.id)}/scene/${x.scene}">${t('scene')} ${esc(x.scene)}</a>` : ''}
+    ${x.status === 'open' ? `<textarea id="exnote" placeholder="${t('why')}"></textarea>
+      ${x.options.includes('retry_with_change') ? `<div class="chips">${chips.map(c => `<button data-chip="${c}" aria-pressed="${!!(S.sel.chips || {})[c]}">${esc(c)}</button>`).join('')}</div>` : ''}
+      <div class="stack">${x.options.map(o => `<button data-exd="${o}" class="${o === 'manual' ? '' : 'primary'}">${t(o)}</button>`).join('')}</div>`
+      : `<p class="small">${esc(x.decision)} · ${esc(x.decision_note || '')}</p>`}</div>`;
+}
+function inbox(v) {
+  const g = {};
+  v.inbox.forEach(i => (g[i.group] ||= []).push(i));
+  return `<div class="card"><h2>${t('inbox')}</h2>${Object.keys(g).length ? Object.entries(g).map(([k, xs]) => `<h3>${esc(k)}</h3><ul class="inbox">${xs.map(i =>
+    `<li><a href="#/p/${encodeURIComponent(v.id)}/${i.kind === 'gate' ? i.gate.toLowerCase() : i.kind === 'exception' ? 'ex/' + i.id : i.kind === 'scene' ? 'scene/' + i.scene : ''}">${esc(AR() ? i.title_ar || i.title : i.title)}</a></li>`).join('')}</ul>`).join('') : `<p class="muted">${t('none')}</p>`}</div>`;
+}
+function aiPanel(v) {
+  const a = v.ai;
+  return `<div class="card"><h2>${t('ai_usage')}</h2><div class="kv small"><span class="muted">${t('worker')}</span><span>${esc(a.label)}</span>
+    <span class="muted">${t('budget')}</span><span>$${a.budget_usd.toFixed(2)}</span><span class="muted">${t('spent')}</span><span>$${a.spent_usd.toFixed(4)}</span>
+    <span class="muted">${t('calls')}</span><span>${a.n_calls}</span></div>
+    <p class="tiny muted">${AR() ? 'العامل الحقيقي (Claude) لا يعمل إلا بميزانية توافق عليها، وكل استدعاء يُسجَّل بتكلفته، ولا إعادة تلقائية.' : 'The real worker (Claude) runs only with a budget you authorize; every call is recorded with its cost; no automatic retries.'}</p>
+    ${a.calls.slice().reverse().map(c => `<div class="tiny">${esc(c.at)} · ${esc(c.role)} · ${esc(c.kind)} · ${c.ok ? 'ok' : 'failed'} · $${(c.cost_usd || 0).toFixed(4)} · ${c.duration_s}s</div>`).join('')}</div>`;
+}
+function historyPanel(v) {
+  return `<div class="card"><h2>${t('history')}</h2>${v.history.map(h => `<div class="tiny"><span class="muted">${esc(h.at.slice(11, 19))} · ${esc(h.actor)}</span> ${esc(h.summary)}</div>`).join('')}</div>`;
+}
+
+// ------------------------------------------------------------------ wiring
+function gateArgs(v, g, d) {
+  const a = { gate: g, decision: d, content_hash: v.current[g] && v.current[g].hash, note: ($('#note-' + g) || {}).value || '' };
+  if (g === 'G2') { a.ack = [...document.querySelectorAll('[data-ack]:checked')].map(e => e.dataset.ack);
+    a.overrides = Object.fromEntries([...document.querySelectorAll('[data-ov]')].filter(e => e.value.trim()).map(e => [e.dataset.ov, e.value.trim()])); }
+  if (g === 'G3') { a.playback = { covered: covered(S.mixId) }; a.ack = [...document.querySelectorAll('[data-qack]:checked')].map(e => e.dataset.qack); }
+  if (g === 'G4') a.choice = S.sel.style;
+  if (g === 'G5') { a.playback = { covered: covered(S.filmId) }; a.ack = ($('#ackminor') || {}).checked ? v.g5.findings.filter(f => !f.decision && f.severity === 'minor').map(f => f.id) : []; }
+  return a;
+}
+async function act(action, args) { const j = await post(action, args); if (j) { toast('✓'); S.sig = ''; await render(true); } return j; }
+function wire(v, panel) {
+  const P = encodeURIComponent(v.id);
+  document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => location.hash = `#/p/${P}/${b.dataset.go}`);
+  document.querySelectorAll('[data-ctl]').forEach(b => b.onclick = () => act('cp_control', { op: b.dataset.ctl }));
+  document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => act('cp_control', { op: 'retry', key: b.dataset.retry }));
+  document.querySelectorAll('[data-manual]').forEach(b => b.onclick = () => { if (confirm(AR() ? 'التحويل إلى اليدوي؟ لا تُمحى أي موافقة.' : 'Switch to Manual? No approval is erased.')) act('cp_mode', { mode: 'manual' }); });
+  document.querySelectorAll('[data-gate]').forEach(b => b.onclick = () => act('cp_gate', gateArgs(v, b.dataset.gate, b.dataset.d)));
+  document.querySelectorAll('[data-hook]').forEach(b => b.onclick = () => act('cp_hook', { hook: b.dataset.hook }));
+  document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { S.editing = b.dataset.edit; S.sig = ''; project(true); });
+  document.querySelectorAll('[data-canceledit]').forEach(b => b.onclick = () => { S.editing = null; S.sig = ''; project(true); });
+  document.querySelectorAll('[data-saveline]').forEach(b => b.onclick = async () => { const l = b.dataset.saveline; const j = await act('cp_line_edit', { line: l, text: $('#ed-' + l).value }); if (j) S.editing = null; });
+  document.querySelectorAll('[data-style]').forEach(b => b.onclick = () => { S.sel.style = b.dataset.style; S.sig = ''; project(true); });
+  document.querySelectorAll('[data-exd]').forEach(b => b.onclick = () => act('cp_exception_decision', { id: panel.slice(3), decision: b.dataset.exd, note: ($('#exnote') || {}).value || '',
+    changes: Object.fromEntries(Object.keys(S.sel.chips || {}).filter(k => S.sel.chips[k]).map(c => c.split(':'))) }));
+  document.querySelectorAll('[data-chip]').forEach(b => b.onclick = () => { S.sel.chips ||= {}; S.sel.chips[b.dataset.chip] = !S.sel.chips[b.dataset.chip]; b.setAttribute('aria-pressed', S.sel.chips[b.dataset.chip]); });
+  document.querySelectorAll('[data-fdis]').forEach(b => b.onclick = () => act('cp_finding', { finding: b.dataset.fdis, note: (document.querySelector(`[data-fexp="${b.dataset.fdis}"]`) || {}).value || '' }));
+  document.querySelectorAll('[data-lic]').forEach(b => b.onclick = () => { const id = b.dataset.lic;
+    act('cp_asset', { op: 'licence', id, licence: document.querySelector(`[data-lickind="${id}"]`).value, evidence: document.querySelector(`[data-licev="${id}"]`).value,
+      declare: document.querySelector(`[data-licdec="${id}"]`).checked }); });
+  const up = document.querySelector('[data-upload]');
+  if (up) up.onclick = async () => { const f = $('#up-file').files[0]; if (!f) return toast(AR() ? 'اختر صورة' : 'Choose a picture', true);
+    const data = await new Promise(r => { const fr = new FileReader(); fr.onload = () => r(String(fr.result).split(',')[1]); fr.readAsDataURL(f); });
+    const [slot, scene] = $('#up-slot').value.split('|');
+    act('upload', { data, name: f.name, ext: f.name.split('.').pop(), slot, scene, use: document.querySelector('input[name=use]:checked').value, credit: $('#up-credit').value }); };
+  const g6b = document.querySelector('[data-g6]');
+  if (g6b) g6b.onclick = () => act('cp_gate', { gate: 'G6', decision: 'approved', content_hash: v.current.G6 && v.current.G6.hash, confirm_text: $('#g6c').value });
+  // voice
+  const mix = $('#mix');
+  if (mix) {
+    let stopAt = null;
+    bindMedia(mix, S.mixId, tt => {
+      document.querySelectorAll('.w.now').forEach(e => e.classList.remove('now'));
+      const w = [...document.querySelectorAll('.w')].find(e => tt >= +e.dataset.ws && tt < +e.dataset.we); if (w) w.classList.add('now');
+      v.g3.mix.segments.forEach(s => { const e = document.querySelector(`[data-h="${s.line}"]`); if (e) e.textContent = Math.min(100, Math.round(100 * heardIn(S.mixId, s.start, s.end) / (s.end - s.start))) + '%'; });
+      if (stopAt != null && tt >= stopAt) { mix.pause(); stopAt = null; }
+    });
+    document.querySelectorAll('.w').forEach(e => e.onclick = () => { S.sel.word = { line: e.dataset.line, word: e.dataset.word, s: +e.dataset.ws, e: +e.dataset.we };
+      mix.currentTime = Math.max(0, +e.dataset.ws - 0.05); S.sig = ''; project(true); });
+    const pw = document.querySelector('[data-playword]');
+    if (pw) pw.onclick = () => { const w = S.sel.word; const m = $('#mix'); m.currentTime = Math.max(0, w.s - 0.08); stopAt = w.e + 0.08; m.play(); };
+  }
+  const cw = document.querySelector('[data-closeword]'); if (cw) cw.onclick = () => { S.sel.word = null; S.sig = ''; project(true); };
+  const pr = document.querySelector('[data-pron]'); if (pr) pr.onclick = () => act('cp_pron', { word: S.sel.word.word, respell: $('#respell').value, lines: [S.sel.word.line] });
+  const ad = document.querySelector('[data-adjust]'); if (ad) ad.onclick = () => act('cp_voice_adjust', { line: S.sel.word.line, speed: +$('#sp').value, pause_before: +$('#pb').value, pause_after: +$('#pa').value });
+  // film
+  const fv = $('#film');
+  if (fv) {
+    bindMedia(fv, S.filmId, tt => { const e = $('#fheard'); if (e) e.textContent = fmt(heardIn(S.filmId, 0, v.g5.seconds));
+      document.querySelectorAll('#ftl button').forEach(b => b.classList.toggle('on', tt >= +b.dataset.seek && tt < (+b.dataset.seek + (+b.style.flexGrow || 0)))); });
+    document.querySelectorAll('[data-seek]').forEach(b => b.onclick = () => { fv.currentTime = +b.dataset.seek; fv.play(); });
+    const cm = document.querySelector('[data-comment]');
+    if (cm) cm.onclick = () => act('cp_comment', { film: v.g5.n, t: +fv.currentTime.toFixed(2), text: $('#cm').value });
+  }
+}
+
+// ------------------------------------------------------------------ polling
+async function poll() {
+  if (route().page === 'project' && S.pid) {
+    try { S.v = await get('/api/copilot/' + encodeURIComponent(S.pid)); project(false); } catch (e) {}
+  }
+  setTimeout(poll, S.v && (S.v.task || S.v.runner_alive) ? 2000 : 6000);
+}
+render(true).then(() => setTimeout(poll, 2000));
+</script>
+</body>
+</html>
