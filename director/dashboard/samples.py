@@ -158,3 +158,33 @@ def tk_board(S: Path, media: Path):
     shutil.copyfile(S / 'audit/claude_success-story-video/public/icon-512.png', media / 'timekeeper/logo.png')
     for f in ('tk-paper.jpg', 'tk-blueprint.jpg', 'tk-editorial.jpg'):
         shutil.copyfile(ROOT / 'var/pages/directions/img' / f, out / f)
+
+
+# ------------------------------------------------------------------------------------------------ prototype looks
+LOOKS = {'diabetes-history': ['copperplate_engraving', 'silent_film_cards'], 'timekeeper': ['swiss_grid', 'dark_keynote']}
+FONTS = Path('/home/user/majedphotos/video-ad-editor/video-ad-editor/motion/fonts')
+
+
+def looks(log: EventLog, media: Path, seconds=3.0, fps=24):
+    """Code-made samples of the prototype looks (director/art/looks.html), each in its own brand's approved palette.
+    Fonts and the logo are copied into a temporary folder; nothing is read over the network."""
+    out = media / 'looks'; out.mkdir(parents=True, exist_ok=True)
+    page = (ROOT / 'director/art/looks.html').read_text(encoding='utf-8')
+    for project, ids in LOOKS.items():
+        with log.task(project, 'prototype look samples (code-made, approved palette)', len(ids), stage='dashboard') as t, \
+                tempfile.TemporaryDirectory() as td:
+            for f in ('Cairo-VF.ttf', 'IBMPlexSansArabic-Bold.ttf'):
+                shutil.copy(FONTS / f, Path(td) / f)
+            shutil.copy(media / 'timekeeper/logo.png', Path(td) / 'logo.png')
+            html = Path(td) / 'looks.html'
+            html.write_text(page.replace('__FONTS__', '.').replace('__LOGO__', 'logo.png'), encoding='utf-8')
+            for tid in ids:
+                frames = Path(td) / tid
+                env = {k: v for k, v in os.environ.items() if k not in ('ELEVENLABS_API_KEY', 'FAL_KEY')}
+                subprocess.run(['node', str(ROOT / 'tools/canvas_clip.mjs'), str(html), f'look={tid}', str(frames), str(seconds), str(fps)],
+                               check=True, env=env, timeout=900, capture_output=True)
+                _ff('-framerate', fps, '-i', frames / 'f_%05d.png', '-c:v', 'libx264', '-crf', '18', '-pix_fmt', 'yuv420p', Path(td) / f'{tid}.mp4')
+                two_formats(Path(td) / f'{tid}.mp4', out / tid, scale='360:640', audio=False)
+                last = sorted(frames.glob('f_*.png'))[-1]
+                _ff('-i', last, '-vf', 'scale=360:-2', '-q:v', '3', out / f'{tid}.jpg')
+                t.unit(what=tid)

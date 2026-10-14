@@ -1,0 +1,111 @@
+<!doctype html>
+<!-- Prototype look samples for the Art Director. One canvas, draw(t) is a pure function of time (seekable,
+     deterministic: no clocks, seeded noise). Colours are ONLY the brands' approved palettes:
+       Diabetes History (episode 5-7 project): bg #1C3550 · ink #FFF8EE · acc #F2B84B · clay #C98A12 · hi #FFE39A · mut #B8CADB
+       Time Keeper (timekeeper-post template / logo): #111111 · #FFFFFF · #F0F0EC
+     Fonts: Cairo + IBM Plex Sans Arabic (series fonts) for Diabetes. Time Keeper's font is not in this workspace,
+     so its samples show bars where text would go. Text shown is taken from episode 7 (sourced facts). -->
+<html><head><meta charset="utf-8">
+<style>
+@font-face { font-family: "Cairo"; src: url("__FONTS__/Cairo-VF.ttf"); font-weight: 200 1000; }
+@font-face { font-family: "PlexAr"; src: url("__FONTS__/IBMPlexSansArabic-Bold.ttf"); font-weight: 700; }
+html,body{margin:0;background:#000} canvas{display:block}
+</style></head>
+<body><canvas id="c" width="540" height="960"></canvas>
+<img id="logo" src="__LOGO__" style="display:none">
+<script>
+const C = document.getElementById('c'), X = C.getContext('2d'), W = 1080, H = 1920;
+const DH = {bg:'#1C3550', ink:'#FFF8EE', acc:'#F2B84B', clay:'#C98A12', hi:'#FFE39A', mut:'#B8CADB'};
+const TK = {black:'#111111', white:'#FFFFFF', paper:'#F0F0EC'};
+const clamp = v => Math.max(0, Math.min(1, v));
+const at = (t, a, b) => clamp((t - a) / (b - a));
+const ease = u => 1 - Math.pow(1 - u, 3);
+function rng(seed){ let s = seed >>> 0; return () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296); }
+function alpha(hex, a){ const n = parseInt(hex.slice(1), 16); return `rgba(${n>>16},${(n>>8)&255},${n&255},${a})`; }
+
+// ---------------------------------------------------------------- Diabetes · copperplate engraving
+function engraving(t){
+  X.fillStyle = DH.ink; X.fillRect(0, 0, W, H);
+  const r = rng(7); X.fillStyle = alpha(DH.clay, 0.05);                       // paper tooth
+  for (let i = 0; i < 2600; i++) X.fillRect(r() * W, r() * H, 2, 2);
+  const b = ease(at(t, 0, 0.6));                                              // double engraved border
+  X.strokeStyle = DH.bg; X.lineWidth = 6; X.globalAlpha = b; X.strokeRect(70, 70, W - 140, H - 140);
+  X.lineWidth = 2; X.strokeRect(92, 92, W - 184, H - 184); X.globalAlpha = 1;
+  // plate: Erlenmeyer flask + microscope, outlines then hatching
+  const flask = new Path2D('M330 760 L330 980 L190 1300 Q180 1340 220 1340 L600 1340 Q640 1340 630 1300 L490 980 L490 760 Z');
+  // microscope: base, curved arm, stage, angled tube with eyepiece — one connected silhouette
+  const scope = new Path2D('M690 1340 L990 1340 L990 1296 L900 1296 L900 1262 Q960 1180 930 1060 L962 1046 L918 930 L948 918 L904 800 L846 822 L890 940 L860 952 L896 1052 Q912 1150 862 1226 L862 1296 L760 1296 L760 1262 L800 1262 L800 1236 L700 1236 L700 1262 L740 1262 L740 1296 L690 1296 Z');
+  const draw = (p, k) => { X.save(); X.lineWidth = 5; X.strokeStyle = DH.bg; X.setLineDash([4000]); X.lineDashOffset = 4000 * (1 - k); X.stroke(p); X.restore(); };
+  draw(flask, ease(at(t, 0.2, 1.2))); draw(scope, ease(at(t, 0.4, 1.4)));
+  const hatch = (p, k, ang, gap) => { X.save(); X.clip(p); X.strokeStyle = alpha(DH.bg, 0.85); X.lineWidth = 2;
+    const n = Math.floor(80 * k); for (let i = 0; i < n; i++) { const x = 120 + i * gap; X.beginPath(); X.moveTo(x, 700); X.lineTo(x + Math.tan(ang) * 700, 1400); X.stroke(); } X.restore(); };
+  hatch(flask, at(t, 1.0, 2.2), 0.5, 12); hatch(scope, at(t, 1.2, 2.3), 0.5, 10);
+  // liquid level in honey, the only warm accent
+  const lq = ease(at(t, 1.6, 2.4)); if (lq > 0) { X.save(); X.clip(flask); X.fillStyle = alpha(DH.acc, 0.55); X.fillRect(150, 1340 - 170 * lq, 520, 170 * lq); X.restore(); }
+  // caption plate
+  const c = ease(at(t, 1.9, 2.6)); X.globalAlpha = c; X.fillStyle = DH.bg; X.textAlign = 'center'; X.direction = 'rtl';
+  X.font = '800 76px Cairo'; X.fillText('الدنمارك · 1936', W / 2, 1520);
+  X.fillStyle = DH.clay; X.fillRect(W / 2 - 140, 1560, 280, 4);
+  X.font = '700 34px PlexAr'; X.fillStyle = alpha(DH.bg, 0.8); X.fillText('رسم توضيحي للأدوات · ليس صورة', W / 2, 1625); X.globalAlpha = 1;
+}
+
+// ---------------------------------------------------------------- Diabetes · silent-film title card
+function silent(t){
+  X.fillStyle = DH.bg; X.fillRect(0, 0, W, H);                               // only the series palette: no black
+  const iris = ease(at(t, 0, 0.7)); X.save(); X.beginPath(); X.arc(W / 2, H / 2, 1200 * iris, 0, Math.PI * 2); X.clip();
+  const fl = 0.92 + 0.08 * Math.sin(t * 37) * Math.sin(t * 13);                // flicker, a pure function of t
+  X.globalAlpha = fl; X.strokeStyle = DH.ink; X.lineWidth = 4; X.strokeRect(120, 520, W - 240, 880);
+  X.lineWidth = 2; X.strokeRect(140, 540, W - 280, 840);
+  for (const [cx, cy] of [[140, 540], [W - 140, 540], [140, 1380], [W - 140, 1380]]) { X.beginPath(); X.arc(cx, cy, 22, 0, Math.PI * 2); X.stroke(); }
+  X.textAlign = 'center'; X.direction = 'rtl';
+  const a1 = at(t, 0.6, 1.1), a2 = at(t, 1.3, 1.8);
+  X.globalAlpha = fl * a1; X.fillStyle = DH.ink; X.font = '800 92px Cairo'; X.fillText('الإنسولين السريع', W / 2, 900);
+  X.fillStyle = DH.acc; X.fillRect(W / 2 - 160, 960, 320, 5);
+  X.globalAlpha = fl * a2; X.font = '800 150px Cairo'; X.fillStyle = DH.hi; X.fillText('1936', W / 2, 1170);
+  X.globalAlpha = 1;
+  const r = rng(Math.floor(t * 24) + 1);                                      // grain + scratches, new seed per frame
+  X.fillStyle = alpha(DH.ink, 0.06); for (let i = 0; i < 1800; i++) X.fillRect(r() * W, r() * H, 3, 3);
+  X.strokeStyle = alpha(DH.ink, 0.18); X.lineWidth = 2; for (let i = 0; i < 2; i++) { const x = r() * W; X.beginPath(); X.moveTo(x, 0); X.lineTo(x + r() * 20 - 10, H); X.stroke(); }
+  X.restore();
+}
+
+// ---------------------------------------------------------------- Time Keeper · Swiss grid
+function swiss(t){
+  X.fillStyle = TK.paper; X.fillRect(0, 0, W, H);
+  X.strokeStyle = alpha(TK.black, 0.08); X.lineWidth = 2;                       // 12-column grid
+  for (let i = 0; i <= 12; i++) { const x = 60 + i * 80; X.beginPath(); X.moveTo(x, 0); X.lineTo(x, H); X.stroke(); }
+  const bar = (x, y, w, h, s, col) => { const k = ease(at(t, s, s + 0.45)); if (k <= 0) return; X.fillStyle = col; X.fillRect(x, y, w * k, h); };
+  bar(60, 300, 640, 120, 0.1, TK.black);                                       // headline (text goes here)
+  bar(60, 450, 420, 120, 0.25, TK.black);
+  X.fillStyle = TK.black; const sq = ease(at(t, 0.5, 1.0)); X.fillRect(620, 760, 400 * sq, 400 * sq);   // the one block
+  for (let i = 0; i < 4; i++) { bar(60, 760 + i * 110, 480, 18, 0.9 + i * 0.12, alpha(TK.black, 0.75)); bar(60, 800 + i * 110, 300, 14, 0.95 + i * 0.12, alpha(TK.black, 0.4)); }
+  const rule = ease(at(t, 1.5, 2.1)); X.fillStyle = TK.black; X.fillRect(60, 1300, 960 * rule, 6);
+  for (let i = 0; i < 3; i++) { bar(60 + i * 320, 1360, 240, 90, 1.7 + i * 0.15, TK.black); bar(60 + i * 320, 1470, 200, 16, 1.8 + i * 0.15, alpha(TK.black, 0.5)); }
+  const lg = document.getElementById('logo'), lk = at(t, 2.2, 2.7);
+  if (lk > 0 && lg.complete) { X.globalAlpha = lk; X.drawImage(lg, W - 220, H - 260, 160, 160); X.globalAlpha = 1; }
+}
+
+// ---------------------------------------------------------------- Time Keeper · dark keynote reveal
+function keynote(t){
+  X.fillStyle = TK.black; X.fillRect(0, 0, W, H);
+  const s = ease(at(t, 0.1, 1.0));                                             // spotlight
+  const g = X.createRadialGradient(W / 2, 760, 10, W / 2, 900, 700); g.addColorStop(0, alpha(TK.white, 0.22 * s)); g.addColorStop(1, alpha(TK.white, 0));
+  X.fillStyle = g; X.fillRect(0, 0, W, H);
+  const p = ease(at(t, 0.6, 1.4));                                             // where the REAL product photo goes
+  X.save(); X.globalAlpha = p; X.strokeStyle = alpha(TK.white, 0.7); X.lineWidth = 4; X.setLineDash([22, 16]);
+  X.strokeRect(290, 520, 500, 640); X.setLineDash([]);
+  X.strokeStyle = alpha(TK.white, 0.55); X.lineWidth = 6; X.strokeRect(470, 780, 140, 100); X.beginPath(); X.arc(540, 830, 30, 0, Math.PI * 2); X.stroke();
+  X.fillStyle = alpha(TK.white, 0.55); X.fillRect(500, 760, 40, 20); X.restore();
+  const sb = (y, w, s0, a) => { const k = ease(at(t, s0, s0 + 0.5)); if (k <= 0) return; X.fillStyle = alpha(TK.white, a); X.fillRect(W / 2 - w / 2, y, w * k, 22); };
+  sb(1260, 520, 1.4, 0.85); sb(1310, 360, 1.55, 0.5);
+  for (let i = 0; i < 3; i++) { const x = 180 + i * 260, k = ease(at(t, 1.8 + i * 0.12, 2.3 + i * 0.12)); X.fillStyle = alpha(TK.white, 0.9 * k); X.fillRect(x, 1420, 200, 70); X.fillStyle = alpha(TK.white, 0.45 * k); X.fillRect(x, 1510, 160, 14); }
+  const lg = document.getElementById('logo'), lk = at(t, 2.3, 2.8);
+  if (lk > 0 && lg.complete) { X.globalAlpha = lk; X.save(); X.beginPath(); X.arc(W / 2, 1700, 60, 0, Math.PI * 2); X.clip(); X.drawImage(lg, W / 2 - 60, 1640, 120, 120); X.restore(); X.globalAlpha = 1; }
+}
+
+const LOOKS = {copperplate_engraving: engraving, silent_film_cards: silent, swiss_grid: swiss, dark_keynote: keynote};
+const look = new URLSearchParams(location.search).get('look');
+window.draw = t => { X.setTransform(C.width / W, 0, 0, C.height / H, 0, 0); LOOKS[look](t); };
+window.ready = Promise.all([document.fonts.load('800 40px Cairo'), document.fonts.load('700 40px PlexAr'),
+  new Promise(r => { const l = document.getElementById('logo'); if (l.complete) r(); else { l.onload = r; l.onerror = r; } })]);
+</script></body></html>

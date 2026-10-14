@@ -155,3 +155,54 @@ techniques:
     limits: visually plain
     risks: none
     good_for: [person_real_no_photo]
+  # --- Prototype looks (Oct 2026). Style families studied in lemo-opuscar (MIT, github.com/lemomo-ai/lemo-opuscar);
+  #     our own specs and code, drawn only in each brand's approved palette. Samples: media/looks/<id>.
+  #     status prototype: a code-made sample exists; not in the production engines yet.
+  - id: copperplate_engraving
+    name: Copperplate engraving plates (period scientific prints)
+    status: prototype
+    support: [sample renderer (director/art/looks.html) — not in paper_story/motion yet]
+    assets: none (line art drawn in code)
+    cost: free
+    accuracy: medium            # drawn apparatus and places; never a real person's face
+    strengths: feels like the 1920s-40s papers and labs the series is about; quiet, authoritative
+    limits: slow to draw by hand; hatching must stay readable on a phone
+    risks: never engrave a real person's portrait without a verified photo; label apparatus as illustrative
+    good_for: [place, establishing, mechanism, detail]
+    inspired_by: lemo-opuscar "Copperplate Engraving"
+  - id: silent_film_cards
+    name: Silent-film title cards (dates, places, quotes)
+    status: prototype
+    support: [sample renderer (director/art/looks.html) — not in paper_story/motion yet]
+    assets: fonts
+    cost: free
+    accuracy: high              # the words are the content
+    strengths: marks eras and jumps in time; works with sound off
+    limits: text-only; overuse feels slow
+    risks: quotes must be sourced
+    good_for: [timeline, transition, hook, place]
+    inspired_by: lemo-opuscar "1920s Silent Film"
+  - id: swiss_grid
+    name: Swiss grid motion (specs, numbers, comparisons)
+    status: prototype
+    support: [sample renderer (director/art/looks.html) — not in the ad engine yet]
+    assets: "brand font (not in this workspace: Bahij Helvetica Neue)"
+    cost: free
+    accuracy: high
+    strengths: precise and restrained, suits watch specifications and Swiss watchmaking
+    limits: needs the brand font to look right; the sample uses bars where text would go
+    risks: every number must come from a reference sheet
+    good_for: [number, comparison, timeline, hook]
+    inspired_by: lemo-opuscar "Swiss Motion Graphics"
+  - id: dark_keynote
+    name: Dark keynote product reveal
+    status: prototype
+    support: [sample renderer (director/art/looks.html) — not in the ad engine yet]
+    assets: high-resolution product photos (none of Royal Oak in this workspace)
+    cost: free
+    accuracy: high              # shows the real product photo, never a drawn watch
+    strengths: luxury launch feel, focuses on one object
+    limits: only as good as the product photo
+    risks: never draw or generate the watch; use the real photo
+    good_for: [product, detail, hook]
+    inspired_by: lemo-opuscar "Dark Tech Keynote"

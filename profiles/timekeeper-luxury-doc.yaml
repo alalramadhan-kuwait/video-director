@@ -53,6 +53,8 @@ art:
   - verified_3d
   - neutral_placeholder
   - animated_timeline
+  - swiss_grid
+  - dark_keynote
   preferred:
   - archival_collage
   - product_macro

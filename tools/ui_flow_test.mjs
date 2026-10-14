@@ -167,7 +167,7 @@ await p.locator('.card').first().locator('button[data-dec="concept_selected"]').
 snap = await api();
 const b3 = snap.projects['diabetes-history'].videos[0].scenes.find((s) => s.id === 'b3');
 ok('art: choosing a look is recorded as a selection, not an approval', b3.concepts.options[0].decision.decision === 'concept_selected' && b3.versions[0].decision === null);
-ok('art: every look is labelled a proposal', (await p.locator('.card .pill', { hasText: 'Proposal' }).count()) === b3.concepts.options.length);
+ok('art: every look is labelled a proposal', (await p.locator('.card:not([data-look]) .pill', { hasText: 'Proposal' }).count()) === b3.concepts.options.length);
 await p.locator('input[data-cmp]').nth(0).check(); await p.locator('input[data-cmp]').nth(1).check(); await p.locator('#cmpBtn').click(); await p.waitForTimeout(300);
 { const caps = await p.locator('#lb .compare figcaption').allTextContents();
   ok('art: compare shows them side by side, references keep “not drawn for this scene”', caps.length === 2 && caps.every((c) => /Proposal/.test(c)) && caps.some((c) => /Not drawn for b3/.test(c)), caps.join(' | ')); }
@@ -178,6 +178,21 @@ ok('art: three real versions of b1', (await p.locator('.card img').count()) === 
 await p.locator('.card').nth(2).locator('button[data-dec="approved"]').click(); await p.waitForTimeout(700);
 ok('art: an approved version is locked', await p.locator('.card').nth(2).locator('button[data-dec="rejected"]').isDisabled());
 await shot(p, 'desktop-light-art-versions');
+await p.context().close();
+
+// ---------------- brand looks (prototype samples): Time Keeper sees only its own
+p = await open('phone', 'dark', 'tk~art');
+ok('looks: Time Keeper art shows its two looks with samples', JSON.stringify(await p.locator('.card[data-look]').evaluateAll((cs) => cs.map((c) => c.dataset.look))) === JSON.stringify(['swiss_grid', 'dark_keynote'])
+  && (await p.locator('.card[data-look] .pv img').count()) === 2);
+ok('looks: no Diabetes look on Time Keeper', (await p.locator('.card[data-look="copperplate_engraving"], .card[data-look="silent_film_cards"]').count()) === 0);
+ok('phone: no sideways scroll (looks)', await noScroll(p));
+await shot(p, 'phone-dark-looks-tk');
+await p.locator('.card[data-look="swiss_grid"] button[data-dec="concept_selected"]').click(); await p.waitForTimeout(700);
+snap = await api();
+ok('looks: choosing a look is recorded as a selection', (snap.looks.timekeeper.find((x) => x.technique === 'swiss_grid').decision || {}).decision === 'concept_selected');
+await go(p, 'dh~art~d1');
+ok('looks: a Diabetes scene offers its look with the sample, labelled not drawn for it', (await p.locator('.card', { hasText: 'Silent-film' }).locator('.lab').first().textContent()).includes('not drawn for d1'));
+await shot(p, 'phone-dark-looks-dh-d1');
 await p.context().close();
 
 // ---------------- the remaining screens, both sizes

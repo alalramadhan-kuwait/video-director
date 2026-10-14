@@ -24,6 +24,7 @@ ASSET_NEEDS = {  # what a technique cannot work without
     'animated_timeline': {'dated_facts'},
     'scientific_diagram': {'data', 'source'},
     'ai_illustration': {'reference_images'},
+    'dark_keynote': {'product_photo'},
 }
 
 
@@ -66,6 +67,8 @@ def recommend(scene: dict, profile: dict, registry: dict, n: int = 3) -> dict:
             score += 3 - preferred.index(tid) * 0.5; reasons.append('preferred by the profile')
         if beat in t['good_for']:
             score += 2; reasons.append(f'suited to a {beat.replace("_", " ")} beat')
+        if t['status'] == 'prototype':
+            score -= 0.5; warnings.append('prototype: a sample exists, not in the production engine yet')
         if ACC[t['accuracy']] >= need_acc:
             score += 1
         else:

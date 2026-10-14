@@ -121,6 +121,17 @@ def _finding_view(f, decisions):
 
 
 # ---------------------------------------------------------------------------------------------------- concepts
+_LOOK_SAMPLES: set = set()          # prototype looks with a code-made sample in media/looks (set by build())
+
+
+def _look_sample(tid, scene_id=None):
+    if tid not in _LOOK_SAMPLES:
+        return None
+    where = f'not drawn for {scene_id}' if scene_id else 'not tied to a scene'
+    return {'kind': 'sample', 'img': f'media/looks/{tid}.jpg', 'clip': f'media/looks/{tid}',
+            'label': f'Sample of this look, made here in the brand colours · {where}.'}
+
+
 def _concepts(beat, prof, registry, facts, scene_findings, decisions, scene_id, refs_available):
     if not beat:
         return {'note': 'no beat written for this scene', 'options': [], 'recommended': None}
@@ -133,7 +144,9 @@ def _concepts(beat, prof, registry, facts, scene_findings, decisions, scene_id, 
         renderable = t['status'] == 'available' and (not need or bool(need & have))
         ref = DH_REFERENCE.get(o['technique'])
         preview = None
-        if ref and ref in refs_available:
+        if t['status'] == 'prototype':
+            preview = _look_sample(o['technique'], scene_id)
+        elif ref and ref in refs_available:
             preview = {'kind': 'reference', 'scene': ref, 'img': f'media/ep7/stills/{ref}.jpg',
                        'clip': f'media/ep7/clips/{ref}', 'label': f'Reference: how this looks in scene {ref} of this episode. Not drawn for {scene_id}.'}
         risks = [t['risks']] + [f['problem'] for f in scene_findings if f['dimension_label'] in FACTUAL][:2]
@@ -146,6 +159,7 @@ def _concepts(beat, prof, registry, facts, scene_findings, decisions, scene_id, 
                     'sources': [f for f in facts if f['id'] in (beat.get('facts') or [])],
                     'renderable': renderable,
                     'renderable_why': ('renderable now with free local tools' if renderable else
+                                       'prototype: a sample exists, not in the production engine yet' if t['status'] == 'prototype' else
                                        'needs engine work first' if t['status'] != 'available' else
                                        'missing: ' + ' or '.join(sorted(need))),
                     'cost': t['cost'], 'support': t.get('support'), 'preview': preview, 'decision': decisions.get(cid)})
@@ -353,6 +367,25 @@ def next_action(tasks, project):
     return cand[0] if cand else None
 
 
+def brand_looks(project, prof, registry, decisions):
+    """The prototype looks this brand's profile allows, with their samples. Proposals: choosing one is not approving art."""
+    short = 'tk' if project == 'timekeeper' else 'dh'
+    out = []
+    for tid in (prof.get('art') or {}).get('allowed', []):
+        t = registry.get(tid)
+        if not t or t['status'] != 'prototype':
+            continue
+        need = ASSET_NEEDS.get(tid)
+        iid = f'look-{short}-{tid}'
+        out.append({'id': iid, 'technique': tid, 'name': t['name'], 'kind': 'proposal', 'status': t['status'],
+                    'good_for': t['good_for'], 'strengths': t.get('strengths'), 'limitations': t.get('limits'), 'risks': [t['risks']],
+                    'required_assets': {'needs': sorted(need) if need else [], 'note': t.get('assets')},
+                    'inspired_by': t.get('inspired_by'), 'cost': t['cost'], 'renderable': False,
+                    'renderable_why': 'prototype: a sample exists, not in the production engine yet',
+                    'preview': _look_sample(tid), 'decision': decisions.get(iid)})
+    return out
+
+
 # ---------------------------------------------------------------------------------------------------- costs
 def costs(registry, voice_data, ledger: Ledger, S: Path):
     base = json.loads((S / 'phase05/elevenlabs_baseline.json').read_text(encoding='utf-8'))
@@ -459,6 +492,7 @@ def build(log: EventLog, S: Path, voice_data: dict, directions_data: dict, media
     profs = {'timekeeper': profiles.load(ROOT / 'profiles/timekeeper-luxury-doc.yaml'),
              'diabetes-history': profiles.load(ROOT / 'profiles/diabetes-history-sci.yaml')}
     decisions = {**_decisions(log), **(extra_decisions or {})}
+    _LOOK_SAMPLES.clear(); _LOOK_SAMPLES.update(p.stem for p in (media / 'looks').glob('*.jpg'))
     ep7 = diabetes_ep7(log, S, decisions, registry, profs['diabetes-history'])
     ro = royal_oak(log, S, decisions, voice_data)
     checks = listening_checks(voice_data, media, decisions)
@@ -476,6 +510,7 @@ def build(log: EventLog, S: Path, voice_data: dict, directions_data: dict, media
             'tasks': {'running': [r for r in runs if r['state'] == 'running'], 'failed': [r for r in runs if r['state'] == 'failed'],
                       'recent': [r for r in runs if r['state'] == 'finished'][-10:]},
             'review_tasks': tasks, 'inbox_checks': checks, 'bucket_labels': BUCKET_LABEL,
+            'looks': {pk: brand_looks(pk, profs[pk], registry, decisions) for pk in profs},
             'costs': costs(registry, voice_data, Ledger(ROOT / 'var/dashboard/ledger.sqlite'), S),
             'identity': identity(profs, S),
             'counts': {'tasks_open': len(open_tasks),

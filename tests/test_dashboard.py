@@ -299,10 +299,47 @@ class TestDashboard(unittest.TestCase):
                 self.assertEqual(o['kind'], 'proposal')
                 self.assertTrue(o['cost'].startswith('free'), o['cost'])          # nothing here would spend money
                 if o['preview']:
-                    self.assertEqual(o['preview']['kind'], 'reference')
-                    self.assertIn('Not drawn for ' + sc['id'], o['preview']['label'])
+                    self.assertIn(o['preview']['kind'], ('reference', 'sample'))      # a frame from another scene, or a look sample
+                    self.assertIn('not drawn for ' + sc['id'], o['preview']['label'].lower())
                 if o['decision']:
                     self.assertNotEqual(o['decision']['decision'], 'approved')      # selecting is not approving
+
+    def test_prototype_looks_stay_with_their_brand(self):
+        """Opuscar-inspired looks: our own code, each brand's looks only in its own profile, samples in approved colours."""
+        import yaml
+        from director.art.selector import load_registry, recommend
+        reg = load_registry(ROOT / 'art/techniques.yaml')
+        protos = {k for k, t in reg.items() if t['status'] == 'prototype'}
+        self.assertEqual(protos, {'copperplate_engraving', 'silent_film_cards', 'swiss_grid', 'dark_keynote'})
+        dh = yaml.safe_load((ROOT / 'profiles/diabetes-history-sci.yaml').read_text(encoding='utf-8'))
+        tk = yaml.safe_load((ROOT / 'profiles/timekeeper-luxury-doc.yaml').read_text(encoding='utf-8'))
+        self.assertEqual(protos & set(dh['art']['allowed']), {'copperplate_engraving', 'silent_film_cards'})
+        self.assertEqual(protos & set(tk['art']['allowed']), {'swiss_grid', 'dark_keynote'})
+        s = B.snapshot()
+        self.assertEqual([x['technique'] for x in s['looks']['timekeeper']], ['swiss_grid', 'dark_keynote'])
+        self.assertEqual([x['technique'] for x in s['looks']['diabetes-history']], ['copperplate_engraving', 'silent_film_cards'])
+        for x in s['looks']['timekeeper'] + s['looks']['diabetes-history']:
+            self.assertEqual((x['kind'], x['renderable']), ('proposal', False))
+            self.assertTrue((B.MEDIA / x['preview']['img']).exists() if False else (B.MEDIA / x['preview']['img'][len('media/'):]).exists())
+            self.assertIn('made here', x['preview']['label'])
+        # the selector offers a prototype with an honest warning, never to the other brand
+        r = recommend({'id': 'x', 'beat': 'timeline', 'accuracy': 'high', 'assets': ['dated_facts']}, dh, reg, n=6)
+        opt = next(o for o in r['options'] if o['technique'] == 'silent_film_cards')
+        self.assertIn('prototype: a sample exists, not in the production engine yet', opt['warnings'])
+        self.assertNotIn('swiss_grid', [o['technique'] for o in r['options']])
+        r = recommend({'id': 'x', 'beat': 'product', 'accuracy': 'high', 'assets': []}, tk, reg, n=8)
+        dk = next(o for o in r['options'] if o['technique'] == 'dark_keynote')
+        self.assertIn('missing assets: product_photo', dk['warnings'])                    # never a drawn watch
+        # every colour drawn in the samples comes from an approved palette
+        approved = {'#1C3550', '#FFF8EE', '#F2B84B', '#C98A12', '#FFE39A', '#B8CADB', '#111111', '#FFFFFF', '#F0F0EC'}
+        used = set(c.upper() for c in re.findall(r"#[0-9A-Fa-f]{6}\b", (ROOT / 'director/art/looks.html').read_text(encoding='utf-8')))
+        self.assertEqual(used - approved, set())
+        # choosing a look is recorded as a selection for that brand, not an approval
+        r = serve.decide(B.log(), 'look-tk-swiss_grid', 'concept_selected')
+        self.assertEqual(r['status'], 'recorded')
+        ev = B.log().rows(kind='review_decided')[-1]
+        self.assertEqual((ev['project'], ev['status']), ('timekeeper', 'concept_selected'))
+        self.assertEqual(B.snapshot()['looks']['timekeeper'][0]['decision']['decision'], 'concept_selected')
 
     def test_history_import_is_idempotent(self):
         n = len(B.log().rows())

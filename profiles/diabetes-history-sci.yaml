@@ -41,6 +41,8 @@ art:
   - neutral_placeholder
   - verified_3d
   - map
+  - copperplate_engraving
+  - silent_film_cards
   preferred:
   - scientific_diagram
   - animated_timeline

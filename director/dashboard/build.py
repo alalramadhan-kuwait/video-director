@@ -44,6 +44,8 @@ def prepare():
         samples.ep7_preview(L, S, MEDIA)
     if not (MEDIA / 'timekeeper/logo.png').exists():
         samples.tk_board(S, MEDIA)
+    if not (MEDIA / 'looks/dark_keynote.jpg').exists():
+        samples.looks(L, MEDIA)
     return L
 
 
@@ -62,6 +64,8 @@ def locate(item: str):
     if item.startswith('ep7-'): return 'diabetes-history', 'ep7', item.split('-')[1]          # gallery version ep7-<scene>-<v>
     if item.startswith('concept-ep7-'): return 'diabetes-history', 'ep7', item.split('-')[2]   # concept-ep7-<scene>-<technique>
     if item.startswith('task-voice-'): return 'timekeeper', 'royal-oak', item[len('task-voice-'):]
+    if item.startswith('look-tk-'): return 'timekeeper', None, None
+    if item.startswith('look-dh-'): return 'diabetes-history', None, None
     if item.startswith('f_'): return 'diabetes-history', 'ep7', None
     if item == 'final-ep7': return 'diabetes-history', 'ep7', None
     if item == 'direction-timekeeper' or item == 'eng-paper-banner': return 'timekeeper', None, None

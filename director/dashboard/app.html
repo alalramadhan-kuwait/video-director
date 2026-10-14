@@ -537,9 +537,24 @@ function revisions(s){
     <div class="acts">${x.clip?`<button type="button" data-clip="${esc(x.clip)}">▶ Motion</button>`:''}<button type="button" data-full="${esc(x.img)}">⤢ Full screen</button></div>
     ${decBlock(x.id, [['approved','Approve'],['rejected','Reject'],['changes_requested','Fix']])}</div>`;}).join('')}</div>`;
 }
+function brandLooks(){
+  const L = (DATA.looks||{})[proj]||[];
+  if(!L.length) return '';
+  return `<div class="row between"><h3>${esc(SHORT_NAME[proj])} looks</h3><span class="tiny muted">Prototype samples · brand colours only</span></div>
+    <div class="cards">${L.map(o=>`<div class="card" data-look="${esc(o.technique)}">
+      <div class="row between"><b>${esc(o.name)}</b>${pill('s-proc','Prototype')}</div>
+      ${o.preview?`<div class="pv"><img src="${esc(o.preview.img)}" alt="Sample" data-full="${esc(o.preview.img)}"><span class="lab">${esc(o.preview.label)}</span></div>`:'<div class="pv nopv"><div class="none">No sample yet</div></div>'}
+      <div class="row">${pill('s-unk','Proposal')}${pill(o.cost.startsWith('free')?'s-ok':'s-bad', o.cost.startsWith('free')?'Free':'Paid')}${o.required_assets.needs.length?pill('s-wait','Needs '+o.required_assets.needs.join(', ').replace(/_/g,' ')):''}</div>
+      <p class="small">${esc(o.strengths||'')}</p>
+      <details><summary class="small">Details</summary><dl class="kv" style="margin-top:6px"><dt>Use for</dt><dd>${esc(o.good_for.join(', ').replace(/_/g,' '))}</dd>
+        <dt>Assets</dt><dd>${esc(o.required_assets.note||'none')}</dd><dt>Limits</dt><dd>${esc(o.limitations||'—')}</dd><dt>Risks</dt><dd>${o.risks.map(esc).join('<br>')}</dd>
+        <dt>Idea from</dt><dd>${esc(o.inspired_by||'—')} · our own code</dd></dl></details>
+      <div class="acts">${o.preview?`<button type="button" data-clip="${esc(o.preview.clip)}">▶ Motion</button>`:''}</div>
+      ${decBlock(o.id, [['concept_selected','Choose this look']])}</div>`).join('')}</div>`;
+}
 function concepts(s){
   const c = s.concepts||{options:[]};
-  if(!c.options.length) return `<div class="empty">${esc(c.note||'No proposals yet.')}</div>`;
+  if(!c.options.length) return `<p class="small muted">${esc(c.note||'No proposals for this scene yet.')}</p>${brandLooks()}`;
   return `<div class="row between"><span class="small muted">${c.options.length} proposals</span><button type="button" id="cmpBtn" data-compare="1" ${compareSet.size<2?'disabled':''}>Compare ${compareSet.size||''}</button></div>
     <div class="cards">${c.options.map(o=>`<div class="card ${o.recommended?'rec':''}">
       <div class="row between"><b>${esc(o.name)}</b>${o.recommended?pill('s-proc','★ Suggested'):''}</div>
@@ -551,7 +566,8 @@ function concepts(s){
         <dt>Sources</dt><dd>${o.sources.length?o.sources.map(f=>`${esc(f.id)}: ${(f.sources||[]).slice(0,2).map(u=>`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/,'').split('/')[0])}</a>`).join(', ')}`).join('<br>'):'—'}</dd>
         <dt>Limits</dt><dd>${esc(o.limitations||'—')}</dd><dt>Risks</dt><dd class="ar" dir="auto">${o.risks.map(esc).join('<br>')}</dd></dl></details>
       <div class="acts">${o.preview&&o.preview.clip?`<button type="button" data-clip="${esc(o.preview.clip)}">▶ Motion</button>`:''}<label class="small"><input type="checkbox" data-cmp="${esc(o.id)}" ${compareSet.has(o.id)?'checked':''}> Compare</label></div>
-      ${decBlock(o.id, [['concept_selected','Choose this look']])}</div>`).join('')}</div>`;
+      ${decBlock(o.id, [['concept_selected','Choose this look']])}</div>`).join('')}</div>
+    ${(DATA.looks||{})[proj]&&DATA.looks[proj].length?`<details class="fold"><summary>${esc(SHORT_NAME[proj])} looks (${DATA.looks[proj].length})</summary><div>${brandLooks()}</div></details>`:''}`;
 }
 
 // ------------------------------------------------------------------ TASKS (everything, grouped)
