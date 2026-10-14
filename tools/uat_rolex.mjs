@@ -29,6 +29,7 @@ const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 let PID = fs.existsSync(`${out}/pid`) ? fs.readFileSync(`${out}/pid`, 'utf8').trim() : null;
 const state = async () => (await fetch(`${base}/api/studio/${PID}`)).json();
 const post = async (action, args, actor = 'writer:claude', rid) => { const r = await fetch(`${base}/api/studio`, { method: 'POST', body: JSON.stringify({ project: PID, action, args, actor, request_id: rid }) }); return { code: r.status, ...(await r.json()) }; };
+const notBusy = async (p) => { await p.waitForTimeout(300); await p.waitForFunction(() => !document.body.classList.contains('busy'), null, { timeout: 180000 }); await p.waitForTimeout(500); };   // a request the page is still waiting for
 async function allFit(p) {   // every Studio screen, each freshly loaded (a phone keeps a widened layout across hash changes)
   const wide = [];
   for (const st of ['overview', 'inbox', 'research', 'script', 'hook', 'voice', 'art', 'storyboard', 'draft', 'review', 'gate', 'history']) {
@@ -316,7 +317,7 @@ async function E() {
 // =============================================================== G. storyboard + draft
 async function G() {
   const p = await page('phone');
-  await go(p, 'storyboard'); await p.click('[data-build]'); await p.waitForTimeout(1200);
+  await go(p, 'storyboard'); await p.click('[data-build]'); await notBusy(p);
   let s = await state();
   const sb = s.storyboard;
   const apv = s.scripts.filter((x) => x.status === 'approved').slice(-1)[0].v;
@@ -439,7 +440,7 @@ async function J() {
   const p = await page('phone');
   const desk = await page('desktop'); await desk.goto(`${base}/studio#/p/${PID}/inbox`); await desk.waitForTimeout(1200);
   const hadGate = await desk.$('[data-group="gate"]');
-  await go(p, 'gate'); await p.click('[data-gplan]'); await p.waitForTimeout(1500);
+  await go(p, 'gate'); await p.click('[data-gplan]'); await notBusy(p);
   for (let i = 0; i < 20 && !(await desk.$('[data-group="gate"]')); i++) await desk.waitForTimeout(500);
   ok('R', 'approval sync: the plan built on the phone shows up in the open desktop inbox without a reload', !hadGate && !!(await desk.$('[data-group="gate"]')));
   await shot(desk, 'J0-desktop-inbox-synced'); await desk.close();
@@ -458,7 +459,7 @@ async function J() {
   await go(p, 'gate'); await p.fill('#gbudget', String(g.chars_total + 400)); await p.click('[data-gbudget]'); await p.waitForTimeout(600);
   await go(p, 'gate');
   ok('J', 'the plan is marked out of date after the owner\'s decisions', !!(await p.$('#gstale')));
-  await p.click('[data-gplan]'); await p.waitForTimeout(1500);
+  await p.click('[data-gplan]'); await notBusy(p);
   s = await state(); const g2 = s.gate.plan;
   ok('J', 'after the owner\'s decisions only the open correction task (from the accepted review finding, closed in K) and the environment lock block paid narration', g2.blockers.length === 2 && g2.blockers.some((b) => /correction task/.test(b)) && g2.blockers.some((b) => b.includes('disabled in this environment')), g2.blockers.join(' | '));
   ok('J', 'approved names go to the final voice in Latin letters (as Time Keeper does)', g2.items.some((i) => i.provider_input.includes('Rolex')) && g2.chars_total !== g.chars_total, `${g.chars_total} → ${g2.chars_total} chars`);
@@ -540,7 +541,7 @@ async function K() {   // a review finding accepted → fixed → re-rendered �
   const r = await post('art_brief', { brief: fixed }, 'art:claude');
   ok('K', 'operator recorded the corrected art brief (hook text attributed on screen)', r.status === 'recorded');
   const p = await page('phone');
-  await go(p, 'storyboard'); await p.click('[data-build]'); await p.waitForTimeout(1200);
+  await go(p, 'storyboard'); await p.click('[data-build]'); await notBusy(p);
   await go(p, 'storyboard'); await p.click('[data-sbdec="approved"]'); await p.waitForTimeout(700);
   await go(p, 'draft'); await p.click('#renderBtn'); await p.waitForTimeout(3000);
   await untilIdle('re-render', 2400);
@@ -559,7 +560,7 @@ async function K() {   // a review finding accepted → fixed → re-rendered �
   await go(p, 'review'); await p.click(`[data-fixdone="${task.id}"]`); await p.waitForTimeout(700);
   for (const f of fs2) { await p.fill(`[data-fnote="${f.id}"]`, 'checked on the corrected draft'); await p.click(`[data-fdec="dismissed"][data-f="${f.id}"]`); await p.waitForTimeout(500); }
   await shot(p, 'K1-correction-closed');
-  await go(p, 'gate'); await p.click('[data-gplan]'); await p.waitForTimeout(1500);
+  await go(p, 'gate'); await p.click('[data-gplan]'); await notBusy(p);
   s = await state();
   const bl = s.gate.plan.blockers.join(' | ');
   ok('K', 'after the correction only the environment lock blocks paid narration', s.gate.plan.blockers.length === 1 && bl.includes('disabled in this environment'), bl);
@@ -581,7 +582,7 @@ async function L() {   // fix found in Claude's own frame review: banners carrie
   fixed.hook_visuals.H1.params = { ...fixed.hook_visuals.H1.params, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 860 } };
   await post('art_brief', { brief: fixed }, 'art:claude');
   const p = await page('phone');
-  await go(p, 'storyboard'); await p.click('[data-build]'); await p.waitForTimeout(1200);
+  await go(p, 'storyboard'); await p.click('[data-build]'); await notBusy(p);
   await go(p, 'draft'); await p.click('#renderBtn'); await p.waitForTimeout(3000);
   await untilIdle('render r3', 2400);
   s = await state();
@@ -598,7 +599,7 @@ async function L() {   // fix found in Claude's own frame review: banners carrie
   ok('L', 're-review of the clean draft: no carried-over banner, no text overlap, no unsupported claim', !fs3.some((f) => ['BANNER_CARRIED_OVER', 'TEXT_OVERLAP', 'CLAIM_ON_SCREEN'].includes(f.code)), fs3.map((f) => `${f.code}@${f.scene}`).join(',') || 'no findings');
   await go(p, 'review');
   for (const f of fs3) { await p.fill(`[data-fnote="${f.id}"]`, 'checked on the clean draft'); await p.click(`[data-fdec="dismissed"][data-f="${f.id}"]`); await p.waitForTimeout(500); }
-  await go(p, 'gate'); await p.click('[data-gplan]'); await p.waitForTimeout(1500); await go(p, 'gate'); await shot(p, 'L1-gate-final');
+  await go(p, 'gate'); await p.click('[data-gplan]'); await notBusy(p); await go(p, 'gate'); await shot(p, 'L1-gate-final');
   await go(p, 'overview'); await shot(p, 'L2-overview-final');
   const { execFileSync } = await import('node:child_process');
   execFileSync('ffmpeg', ['-v', 'error', '-y', '-sseof', '-3', '-i', `var/dashboard-uat/studio/${PID}/${after.file}`, '-frames:v', '1', '-vf', 'scale=540:-2', `${SH}/L3-endcard-after.png`]);
@@ -698,7 +699,7 @@ async function F2() {   // a free-text art request goes to the operator; nothing
 }
 async function Z() {   // the finished project: rebuild the plan; nothing but the workspace lock may block paid narration
   const p = await page('phone');
-  await go(p, 'gate'); await p.click('[data-gplan]'); await p.waitForTimeout(1500);
+  await go(p, 'gate'); await p.click('[data-gplan]'); await notBusy(p);
   const s = await state(); const bl = s.gate.plan.blockers;
   ok('Z', 'finished project: the rebuilt plan is blocked only by the workspace lock (no paid call possible here)', bl.length === 1 && bl[0].includes('disabled in this environment'), bl.join(' | '));
   const acc = s.history.filter((h) => ['gate_authorize', 'final_generate'].includes(h.action));
