@@ -448,8 +448,12 @@ function g3(v) {
   <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة للاستماع إليها أو تصحيحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
   <div class="card"><h3>${t('pron')}</h3>${d.pron.length ? d.pron.map(p => `<div class="row small"><span class="grow">«${esc(p.word)}» → «${esc(p.respell)}» <span class="tiny muted">${esc(p.why || '')}</span></span>
       ${pill(p.status === 'approved' ? 'st-owner_approved' : 'st-ai_review', (p.source === 'ai' ? 'AI · ' : '') + t(p.status))}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
-    <h3>${t('qa')}</h3>${d.qa.flags.length ? d.qa.flags.map(f => `<label class="row small"><input type="checkbox" data-qack="${f.id}" ${f.status !== 'open' ? 'checked disabled' : ''}>
-      <span class="grow">${pill('sev-' + f.severity, f.code)} ${esc(f.line)}: ${esc(AR() ? f.detail_ar : f.detail)}</span></label>`).join('') : `<p class="muted small">${t('none')}</p>`}</div>
+    <h3>${t('qa')}</h3>${(() => { const open = d.qa.flags.filter(f => f.status === 'open');
+      const at = f => { const sg = mix && mix.segments.find(x => x.line === f.line); return sg && f.s != null ? (sg.start + f.s) : (sg ? sg.start : 0); };
+      return d.qa.flags.length ? `<div class="chips">${d.qa.flags.map(f => `<button data-seekmix="${at(f).toFixed(2)}" title="${esc(f.detail)}">${esc(f.line)} · ${esc(f.word || f.code)}${f.status !== 'open' ? ' ✓' : ''}</button>`).join('')}</div>
+        <p class="tiny muted">${AR() ? 'كلمات لم يتعرّف عليها النسخ الآلي بوضوح: اضغط لتسمعها. الآلة لا تحكم على النطق؛ أنت تحكم.' : 'Words the transcription could not place: tap to hear them. The machine does not judge pronunciation; you do.'}</p>
+        ${open.length ? `<label class="row small"><input type="checkbox" id="ackqa"> ${AR() ? 'استمعتُ إلى هذه الكلمات' : 'I listened to these words'} (${open.length})</label>` : ''}`
+        : `<p class="muted small">${t('none')}</p>`; })()}</div>
   <div class="card">${v.validity.G3.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('listen_need')}</p>` + decisionButtons('G3', { noReject: true, disabled: !d.mix_current })}</div>`;
 }
 
@@ -598,7 +602,7 @@ function gateArgs(v, g, d) {
   const a = { gate: g, decision: d, content_hash: v.current[g] && v.current[g].hash, note: ($('#note-' + g) || {}).value || '' };
   if (g === 'G2') { a.ack = [...document.querySelectorAll('[data-ack]:checked')].map(e => e.dataset.ack);
     a.overrides = Object.fromEntries([...document.querySelectorAll('[data-ov]')].filter(e => e.value.trim()).map(e => [e.dataset.ov, e.value.trim()])); }
-  if (g === 'G3') { a.playback = { covered: covered(S.mixId) }; a.ack = [...document.querySelectorAll('[data-qack]:checked')].map(e => e.dataset.qack); }
+  if (g === 'G3') { a.playback = { covered: covered(S.mixId) }; a.ack = ($('#ackqa') || {}).checked ? v.g3.qa.flags.filter(f => f.status === 'open').map(f => f.id) : []; }
   if (g === 'G4') a.choice = S.sel.style;
   if (g === 'G5') { a.playback = { covered: covered(S.filmId) }; a.ack = ($('#ackminor') || {}).checked ? v.g5.findings.filter(f => !f.decision && f.severity === 'minor').map(f => f.id) : []; }
   return a;
@@ -642,6 +646,7 @@ function wire(v, panel) {
     });
     document.querySelectorAll('.w').forEach(e => e.onclick = () => { S.sel.word = { line: e.dataset.line, word: e.dataset.word, s: +e.dataset.ws, e: +e.dataset.we };
       mix.currentTime = Math.max(0, +e.dataset.ws - 0.05); S.sig = ''; project(true); });
+    document.querySelectorAll('[data-seekmix]').forEach(e => e.onclick = () => { mix.currentTime = Math.max(0, +e.dataset.seekmix - 0.3); stopAt = +e.dataset.seekmix + 1.2; mix.play(); });
     const pw = document.querySelector('[data-playword]');
     if (pw) pw.onclick = () => { const w = S.sel.word; const m = $('#mix'); m.currentTime = Math.max(0, w.s - 0.08); stopAt = w.e + 0.08; m.play(); };
   }

@@ -95,6 +95,14 @@ try {
   await page.locator('.w').nth(3).click(); await page.waitForTimeout(800); await shot('05-g3-word');
   ok('S1', 'tapping a word opens its pronunciation / speed / compare sheet', await page.locator('.sheet').isVisible());
   await page.locator('[data-closeword]').click(); await page.waitForTimeout(600);
+  v = await view();
+  const nq = v.g3.qa.flags.filter(f => f.status === 'open').length;
+  if (nq) {
+    await page.locator('[data-seekmix]').first().click(); await page.waitForTimeout(2000);       // hear one of them as an owner would
+    await gateBtn('G3', 'approved').click(); await page.waitForTimeout(800);
+    ok('S1', 'uncertain words must be confirmed before the voice is approved', /(uncertain|غير)/i.test(await toastText()), nq);
+    await page.check('#ackqa');
+  }
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S1', 'voice approved after play-all: every line approved', v.validity.G3.valid, v.validity.G3);
@@ -192,6 +200,7 @@ try {
   await go('g3');
   const seg = v.g3.mix.segments.find(s => s.line === 'h');
   await playRange('#mix', seg.start, seg.end + 0.1, 1);
+  if (await page.locator('#ackqa').count()) await page.check('#ackqa');
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S3', 'Gate 3 needed only the changed line', v.validity.G3.valid, v.validity.G3);
