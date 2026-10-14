@@ -41,13 +41,14 @@ async function shot(name) { await page.screenshot({ path: `${OUT}/${name}.png` }
 async function go(panel) { await page.goto(`${BASE}/studio#/p/${encodeURIComponent(PID)}/${panel}`); await page.waitForTimeout(1200); }
 async function overflow() { return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth); }
 async function toastText() { const t = page.locator('#toast'); await page.waitForTimeout(400); return (await t.isVisible()) ? (await t.textContent()) : ''; }
-async function playToEnd(sel, rate, maxS) {
-  await page.evaluate(({ sel, rate }) => { const m = document.querySelector(sel); m.currentTime = 0; m.playbackRate = rate; return m.play(); }, { sel, rate });
-  await page.waitForFunction(sel => { const m = document.querySelector(sel); return m && m.ended; }, sel, { timeout: maxS * 1000, polling: 500 });
+async function playToEnd(sel, rate, maxS) {          // wait for THIS player's 'ended' (the page may redraw the panel after it stops)
+  await page.evaluate(({ sel, rate }) => { const m = document.querySelector(sel); window.__ended = false; m.addEventListener('ended', () => { window.__ended = true; }, { once: true });
+    m.currentTime = 0; m.playbackRate = rate; return m.play(); }, { sel, rate });
+  await page.waitForFunction(() => window.__ended === true, null, { timeout: maxS * 1000, polling: 500 });
 }
 async function playRange(sel, a, b2, rate = 1) {
   await page.evaluate(({ sel, a, rate }) => { const m = document.querySelector(sel); m.currentTime = a; m.playbackRate = rate; return m.play(); }, { sel, a, rate });
-  await page.waitForFunction(({ sel, b2 }) => document.querySelector(sel).currentTime >= b2, { sel, b2 }, { timeout: 180e3, polling: 200 });
+  await page.waitForFunction(({ sel, b2 }) => { const m = document.querySelector(sel); return m.currentTime >= b2 || m.ended; }, { sel, b2 }, { timeout: 180e3, polling: 200 });
   await page.evaluate(sel => document.querySelector(sel).pause(), sel);
 }
 const gateBtn = (g, d) => page.locator(`[data-gate="${g}"][data-d="${d}"]`);

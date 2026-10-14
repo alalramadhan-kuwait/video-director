@@ -301,8 +301,13 @@ function project(force) {
   if (!force && (typing || playing()) && $('#topbox')) { $('#topbox').innerHTML = top; return; }
   S.sig = s;
   const panel = S.panel || defaultPanel(v);
+  const keep = {};                              // a refresh never moves a player you paused part-way
+  document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => { if (m.currentTime > 0 && !m.ended) keep[m.id] = [m.currentSrc, m.currentTime]; });
   $('#main').innerHTML = `<div id="topbox">${top}</div><div id="panel" class="stack">${panelHtml(v, panel)}</div>${footHtml(v)}`;
   wire(v, panel);
+  document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => {
+    const restore = () => { const k = keep[m.id]; if (k && k[0] === m.currentSrc) m.currentTime = k[1]; };
+    if (m.readyState >= 1) restore(); else m.addEventListener('loadedmetadata', restore, { once: true }); });
 }
 function topHtml(v) {
   const n = v.top.next;
