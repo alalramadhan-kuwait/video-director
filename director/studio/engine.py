@@ -61,7 +61,8 @@ def video(sb_path: Path, out: Path, scale=1.0, workers=4, extra=(), progress=Non
     import re as _re
     sb_path = Path(sb_path).resolve()
     p = subprocess.Popen(['node', str(RENDER), str(sb_path), '-o', str(Path(out).resolve()), '--scale', str(scale), '--workers', str(workers),
-                          *map(str, extra)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=_env(), cwd=str(sb_path.parent))
+                          *map(str, extra)], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, env=_env(), cwd=str(sb_path.parent),
+                         start_new_session=True)               # its own process group: the renderer and its browsers stop together
     pidf = sb_path.parent / 'render.pid'; pidf.write_text(str(p.pid))      # a restarted server kills it (see kill_orphans)
     lines, last = [], 0
     for line in p.stdout:
@@ -90,7 +91,9 @@ def kill_orphans(root: Path) -> list[int]:
             pid = int(pf.read_text().strip())
             cmd = Path(f'/proc/{pid}/cmdline').read_bytes().decode(errors='replace') if Path(f'/proc/{pid}').exists() else ''
             if 'render.mjs' in cmd:
-                os.kill(pid, signal.SIGTERM); killed.append(pid)
+                try: os.killpg(pid, signal.SIGTERM)             # the renderer and the browsers it started
+                except OSError: os.kill(pid, signal.SIGTERM)
+                killed.append(pid)
         except (ValueError, OSError):
             pass
         pf.unlink(missing_ok=True)

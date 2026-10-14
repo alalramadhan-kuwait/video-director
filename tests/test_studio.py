@@ -158,9 +158,16 @@ class TestVoice(Env):
             self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved'})
         with self.assertRaises(Refused):                                   # 'ended' alone (a seek to the end) is not listening
             self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved', 'playback': {'ended': True, 'listened_s': 0.4}})
-        self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved', 'playback': {'listened_s': new['seconds']}})
+        w = new['words'][wi]; L = new['seconds']
+        with self.assertRaises(Refused):                                   # the same opening part four times is not 80 % of the take
+            self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved', 'playback': {'listened_s': L, 'covered': [[0, 0.25 * L]] * 4}})
+        with self.assertRaises(Refused):                                   # 80 % heard, but not the fixed word
+            self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved', 'playback': {'covered': [[0, w['s'] - 0.01], [w['e'] + 0.01, L]]}})
+        with self.assertRaises(Refused):                                   # a total without the parts heard is not enough for a re-take
+            self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved', 'playback': {'listened_s': L}})
+        self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'approved', 'playback': {'covered': [[0, L]]}})
         with self.assertRaises(Refused):
-            self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'rejected', 'playback': {'listened_s': new['seconds']}})
+            self.S.act(self.pid, 'take_decision', {'take': new['id'], 'decision': 'rejected', 'playback': {'covered': [[0, L]]}})
 
     def test_interrupted_job_is_shown_as_interrupted(self):
         self.approved_v2()
@@ -256,10 +263,23 @@ class TestAuditDefects(Env):
         self.assertTrue(checks._claim_hits('أول ساعة مقاومة للماء: يقولون', c6))                # attribution after the claim
         self.assertTrue(checks._claim_hits('كانت أويستر أولَ ساعةِ يدٍ مضادةٍ للماء في العالم', c6))
 
+    def test_D02_round2_variants(self):
+        claims = lambda t: [c for c in checks.check_version([{'id': 'x', 'text': t}], RESEARCH, []) if c['code'] == 'CLAIM_UNSUPPORTED']
+        for t in ('وهذا ما جعل أويستر أول ساعة مقاومة للماء في التاريخ.', 'كانت أويستر ساعةً ثقيلة وأول ساعة مقاومة للماء.',
+                  'كانت رولكس السبّاقة إلى الساعة المقاومة للماء.', 'أويستر ساعة لم تسبقها أي ساعة مقاومة للماء.',
+                  'يقولون: إنها جميلة. أويستر أول ساعة مقاومة للماء.'):
+            self.assertTrue(claims(t), t)
+        for t in ('أول ما يدخل الماء إلى الساعة يأتي من التاج.', 'سبقتها ساعات مقاومة للماء من بورجيل وتافان.',
+                  'يقولون: أول ساعة مقاومة للماء… والحقيقة أذكى من ذلك.', 'لم تكن أويستر أول ساعة مقاومة للماء.'):
+            self.assertFalse(claims(t), t)
+
     def test_D02_override_needs_a_reason(self):
         self.S.act(self.pid, 'script_version', {'lines': SCRIPT['v1']})
         with self.assertRaises(Refused):
             self.S.act(self.pid, 'script_decision', {'v': 1, 'decision': 'approved', 'override': True})
+        for junk in ('aaaaaaaaaaaa', 'ok ok ok ok ok', 'fine'):
+            with self.assertRaises(Refused):                               # a reason, not 12 characters
+                self.S.act(self.pid, 'script_decision', {'v': 1, 'decision': 'approved', 'override': True, 'note': junk})
         r = self.S.act(self.pid, 'script_decision', {'v': 1, 'decision': 'approved', 'override': True, 'note': 'UAT: testing the override path'})
         self.assertTrue(r['result']['override'])
 
@@ -332,6 +352,37 @@ class TestAuditDefects(Env):
         with self.assertRaises(Refused):
             self.S.act(self.pid, 'research_decision', {'decision': 'changes_requested'})
 
+    def test_N1_opening_visual_follows_the_selected_hook(self):
+        self.approved_v2(); self._hooks()
+        self.S.act(self.pid, 'art_brief', {'brief': json.loads((ROOT / 'uat/rolex/art_brief.json').read_text(encoding='utf-8'))})
+        from director.studio import storyboard
+        for hook, tech in (('H2', 'paper_cut'), ('H1', 'kinetic_type')):
+            self.S.act(self.pid, 'hook_select', {'hook': hook})
+            v = self.S.state(self.pid)['scripts'][-1]['v']
+            self.S.act(self.pid, 'script_decision', {'v': v, 'decision': 'approved'})
+            sb = storyboard.build(self.S, self.pid)
+            h = sb['scenes'][0]
+            self.assertEqual((h['id'], h['technique']), ('h', tech), hook)
+        self.assertIsNone(h['banner'])                                       # H1's card carries its own text
+        self.S.act(self.pid, 'hook_select', {'hook': 'H2'})
+        v = self.S.state(self.pid)['scripts'][-1]['v']
+        self.S.act(self.pid, 'script_decision', {'v': v, 'decision': 'approved'})
+        h = storyboard.build(self.S, self.pid)['scenes'][0]
+        self.assertEqual(h['banner'], 'عشر ساعات في بحرٍ بارد')              # a picture hook shows its on-screen text
+        self.assertIn('hook H2', h['status']['art'])
+
+    def test_D03_word_window_decides_whether_the_fix_changed_the_flagged_word(self):
+        import numpy as np
+        sr = voice.SR; t = np.arange(sr * 3) / sr
+        a = 0.3 * np.sin(2 * np.pi * 180 * t)
+        w = {'s': 1.0, 'e': 1.6}
+        b = a.copy(); b[int(2.2 * sr):int(2.6 * sr)] *= 0.2                  # elsewhere changed, flagged word identical
+        self.assertLess(voice.word_change(a, b, w, w), voice.WORD_SAME)
+        c = a.copy(); c[int(1.0 * sr):int(1.6 * sr)] = 0.3 * np.sin(2 * np.pi * 260 * t[int(1.0 * sr):int(1.6 * sr)])
+        self.assertGreater(voice.word_change(a, c, w, w), voice.WORD_SAME)   # the flagged word itself changed
+        shifted = np.concatenate([np.zeros(int(.02 * sr)), a])[:len(a)]      # same sound 20 ms later
+        self.assertLess(voice.word_change(a, shifted, w, w), voice.WORD_SAME)
+
     def test_D08_gate_blockers_are_actionable(self):
         self.S.act(self.pid, 'set_voice', {'voice': 'abdullah'})
         self.approved_v2()
@@ -347,6 +398,33 @@ class TestAuditDefects(Env):
         self.assertIn('Rolex', ' '.join(i['provider_input'] for i in g['items']))       # approved Latin names are used
         self.assertIn('disabled in this environment', b1)
 
+    def test_round2_voice_authorization_survives_switching_back(self):
+        self.S.act(self.pid, 'set_voice', {'voice': 'abdullah'})
+        self.S.act(self.pid, 'authorize_voice', {'note': 'owner: OK for the Rolex film'})
+        self.S.act(self.pid, 'set_voice', {'voice': 'ali_recorded'})
+        self.S.act(self.pid, 'set_voice', {'voice': 'abdullah'})
+        self.assertEqual(self.S.state(self.pid)['voice_profile']['status'], 'usable')
+
+    def test_round2_unreviewed_draft_blocks_and_stale_plan_is_not_shown_as_current(self):
+        self.S.act(self.pid, 'set_voice', {'voice': 'abdullah'})
+        self.approved_v2()
+        self.S.act(self.pid, 'render', {'id': 'r1', 'state': 'ok', 'seconds': 10, 'file': 'x.mp4'}, 'system')
+        b = gate.plan(self.S, self.pid)['blockers']
+        self.assertTrue(any('not been checked by the independent reviewer' in x for x in b), b)
+        api._STUDIOS.clear()
+        v = api.view(Path(self.tmp.name), self.pid)
+        self.assertFalse(v['gate']['plan_stale'])
+        self.assertTrue(any('budget' in x['what'] for x in v['blockers']))
+        import time; time.sleep(1.1)
+        Studio(Path(self.tmp.name)).act(self.pid, 'set_budget', {'characters': 5000})
+        api._STUDIOS.clear()
+        v = api.view(Path(self.tmp.name), self.pid)
+        self.assertTrue(v['gate']['plan_stale'])
+        gate_items = [x['what'] for x in v['blockers'] if x['why'] == 'final gate']
+        self.assertEqual(gate_items, [api.STALE_PLAN])                     # not the old 'no budget' blocker
+        g = next(x for x in v['inbox_groups'] if x['key'] == 'gate')
+        self.assertFalse(any('budget' in i['what'] for i in g['items']))
+
     def test_D17_recorded_voice_has_no_paid_plan(self):
         self.S.act(self.pid, 'set_voice', {'voice': 'ali_recorded'})
         self.approved_v2()
@@ -359,6 +437,33 @@ class TestArtAndReview(Env):
         c = {'id': 'l9-map', 'scene': 'l9', 'technique': 'map', 'support': 'rendered', 'params': {}, 'theme': 'tk-graphite',
              'versions': [{'v': 1, 'stills': [], 'status': None}]}
         self.S.act(self.pid, 'art_concepts', {'scene': 'l9', 'concepts': [c, {**c, 'id': 'l9-photo', 'technique': 'archival_collage', 'support': 'blocked: missing asset'}]}, 'system')
+
+    def test_round2_only_effective_changes_and_notes_reach_the_operator(self):
+        brief = json.loads((ROOT / 'uat/rolex/art_brief.json').read_text(encoding='utf-8'))
+        tl = brief['scenes']['l2']['concepts']['animated_timeline']
+        self.assertNotIn('text_size:1.2', art.effective_changes('animated_timeline', tl, 'tk-bone'))
+        mp = brief['scenes']['l9']['concepts']['map']
+        self.assertTrue({'zoom:1.18', 'text_size:1.2'} <= set(art.effective_changes('map', mp, 'tk-bone')))   # a map can be pushed in
+        c = {'id': 'l2-tl', 'scene': 'l2', 'technique': 'animated_timeline', 'support': 'rendered', 'params': tl, 'theme': 'tk-bone',
+             'versions': [{'v': 1, 'stills': ['blobs/a.png'], 'status': None, 'params': tl, 'theme': 'tk-bone'}]}
+        self.S.act(self.pid, 'art_concepts', {'scene': 'l2', 'concepts': [c]}, 'system')
+        with self.assertRaises(Refused):
+            self.S.act(self.pid, 'art_modify', {'concept': 'l2-tl', 'changes': {'text_size': '1.2'}})
+        self.S.act(self.pid, 'art_modify', {'concept': 'l2-tl', 'changes': {'theme': 'tk-ink'}, 'note': 'and put 1926 on its own line'})
+        self.S.act(self.pid, 'art_revision', {'concept': 'l2-tl', 'version': {'v': 2, 'stills': ['blobs/b.png'], 'status': None}}, 'system')
+        q = self.S.state(self.pid)['art']['requests'][-1]
+        self.assertEqual((q['status'], q['version']), ('waiting_operator', 2))     # the note is not dropped
+
+    def test_round2_pending_revision_of_approved_art_is_in_the_inbox(self):
+        c = {'id': 'l9-map', 'scene': 'l9', 'technique': 'map', 'support': 'rendered', 'params': {}, 'theme': 'tk-bone',
+             'versions': [{'v': 1, 'stills': ['blobs/a.png'], 'status': None}]}
+        self.S.act(self.pid, 'art_concepts', {'scene': 'l9', 'concepts': [c]}, 'system')
+        self.S.act(self.pid, 'art_decision', {'concept': 'l9-map', 'version': 1, 'decision': 'approved'})
+        self.S.act(self.pid, 'art_revision', {'concept': 'l9-map', 'version': {'v': 2, 'stills': ['blobs/b.png'], 'status': None}}, 'system')
+        api._STUDIOS.clear()
+        v = api.view(Path(self.tmp.name), self.pid)
+        items = [i['what'] for g in v['inbox_groups'] for i in g['items']]
+        self.assertTrue(any('approve or reject v2' in i for i in items), items)
 
     def test_select_is_not_approve_and_withdraw_needs_a_reason(self):
         self._concept()

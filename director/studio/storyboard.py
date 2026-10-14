@@ -9,7 +9,7 @@ render(): the free local engine (paper-story) draws 1080x1920 frames and mixes t
   card is Time Keeper's own (gold hand draws the logo, two ticks, black). Output: an MP4 marked DRAFT.
 """
 from __future__ import annotations
-import importlib.util, json, shutil, subprocess, time
+import importlib.util, json, os, shutil, subprocess, time
 from pathlib import Path
 
 from . import art, engine
@@ -31,6 +31,28 @@ def _endcard(sb_dir: Path, theme='tk-black'):
     return m.endcard(str(sb_dir), theme)
 
 
+def _hook_owner(brief) -> str | None:
+    """Which hook the brief's 'h' scene draws (its default concept is that hook's opening visual)."""
+    h = brief['scenes'].get('h') or {}
+    if h.get('hook'): return h['hook']
+    d = h.get('default'); p = (h.get('concepts') or {}).get(d)
+    return next((k for k, v in brief.get('hook_visuals', {}).items() if v['technique'] == d and v['params'] == p), None)
+
+
+def _previews(studio, pid, st, scenes, warnings, v):
+    """One drawn frame per scene (what the owner approves 'as shown'), from the same visual the render will use."""
+    if os.environ.get('VD_DRAFT_VOICE') == 'offline-mock':
+        return                                                  # unit tests: no browser
+    try:
+        from . import engine
+        sbe = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style(st['brand']),
+               'scenes': [{**art.scene_visual(s['technique'], s['params'], s['theme'], s['dur'], s['banner']), 'dur': s['dur']} for s in scenes]}
+        files = engine.stills(sbe, studio.pdir(pid) / 'work' / f'sb-{v}', [s['start'] + min(1.6, s['dur'] * 0.5) for s in scenes], scale=0.3)
+        for s, f in zip(scenes, files): s['still'] = studio.put_file(pid, f, 'png')
+    except Exception as e:                                      # the storyboard is still usable; say the pictures are missing
+        warnings.append(f'scene previews could not be drawn: {str(e)[:160]}')
+
+
 def build(studio, pid) -> dict:
     from .store import Refused
     st = studio.state(pid)
@@ -49,7 +71,14 @@ def build(studio, pid) -> dict:
         vl = (st['voice'].get('lines') or {}).get(sid, {})
         take = st['voice']['takes'].get(vl.get('take')) if vl.get('take') else None     # only a take of THIS text
         appr = st['art']['approved'].get(sid if sid in brief['scenes'] else 'h')
-        if appr:
+        hv = None
+        if ln.get('role') == 'hook' and hook and _hook_owner(brief) not in (None, hook['id']):
+            hv = brief.get('hook_visuals', {}).get(hook['id'])    # the brief's 'h' scene (and its approved art) belong to another hook
+            appr = None
+        if hv:
+            tech, params, theme = hv['technique'], hv['params'], hv.get('theme', b.get('theme', 'tk-bone'))
+            art_status = f'not reviewed (opening visual of hook {hook["id"]})'
+        elif appr:
             c = st['art']['concepts'][appr['concept']]
             ver = next(v for v in c['versions'] if v['v'] == appr['version'])
             tech, params, theme, art_status = c['technique'], ver.get('params', c['params']), ver.get('theme', c['theme']), 'approved'
@@ -58,6 +87,8 @@ def build(studio, pid) -> dict:
             art_status = 'not reviewed (brief default)'
         dur = round(VOICE_AT + take['seconds'] + TAIL, 2) if take else b.get('dur', 5.0)
         banner = None if ln.get('role') == 'hook' else b.get('banner')        # the hook visual itself carries the on-screen text in frame 1
+        if hv and tech != 'kinetic_type':
+            banner = hook.get('on_screen')                                     # a picture hook: its on-screen text, as on the hook frames
         status = {'voice': ('approved' if take and take['status'] == 'approved' else 'not approved' if take else
                             'stale: the script changed after it was voiced' if vl.get('status') == 'stale' else 'missing'),
                   'art': art_status}
@@ -70,6 +101,7 @@ def build(studio, pid) -> dict:
                        'transition': TRANSITION.get(sid, 'cut' if scenes else 'none'),
                        'concept': appr and appr['concept'], 'art_version': appr and appr['version']})
         t += dur
+    _previews(studio, pid, st, scenes, warnings, len(st['storyboards']) + 1)
     seconds = round(t + 4.5 + 1.3, 2)
     # what the FINAL narration would take: words at the brand narrator's measured pace, same pauses and end card
     n_words = sum(len(checks_words(s['line'])) for s in scenes)
@@ -80,7 +112,7 @@ def build(studio, pid) -> dict:
     rel = studio.put(pid, json.dumps(doc, ensure_ascii=False, indent=1).encode(), 'json')
     rec = {'v': doc['v'], 'file': rel, 'script_v': sv['v'], 'hook': doc['hook'], 'seconds': seconds, 'warnings': warnings,
            'words': n_words, 'est_final_seconds': est, 'pace': {'words_per_s': rate, 'source': rate_src},
-           'scenes': [{k: s[k] for k in ('id', 'start', 'dur', 'technique', 'take', 'status', 'transition', 'banner', 'concept', 'art_version')} for s in scenes]}
+           'scenes': [{k: s.get(k) for k in ('id', 'start', 'dur', 'technique', 'take', 'status', 'transition', 'banner', 'concept', 'art_version', 'still')} for s in scenes]}
     studio.act(pid, 'storyboard', rec, actor='system')
     return rec
 

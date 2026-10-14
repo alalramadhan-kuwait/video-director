@@ -201,5 +201,31 @@ def fix_line(studio, pid, task, line, vflag):
     out['others_unchanged'] = before == after and sums == sums1
     out['others_checked'] = len(before)
     new = st1['voice']['takes'][st1['voice']['by_line'][line][-1]]
-    out['no_effect'] = bool(new.get('same_audio_as'))        # the draft voice ignored the respelling: say so, do not call it corrected
+    f = next((x for x in st1['voice']['flags'] if x['vflag'] == vflag), None)
+    old = st1['voice']['takes'].get(f['take']) if f else None
+    out['word_change'] = None
+    if old and new['id'] != old['id'] and f['wi'] < len(old['words']) and f['wi'] < len(new['words']):
+        out['word_change'] = round(word_change(decode(studio.path(pid, old['wav']).read_bytes()), decode(studio.path(pid, new['wav']).read_bytes()),
+                                               old['words'][f['wi']], new['words'][f['wi']]), 3)
+    # the draft voice ignored the respelling (whole take, or just the flagged word): say so, do not call it corrected
+    out['no_effect'] = bool(new.get('same_audio_as')) or (out['word_change'] is not None and out['word_change'] < WORD_SAME)
     return out
+
+
+WORD_SAME = 0.3
+
+
+def word_change(a: np.ndarray, b: np.ndarray, wa: dict, wb: dict) -> float:
+    """How different the flagged word sounds in two takes: relative RMS difference of the word's own audio window
+    (plus 50 ms each side), at the best alignment within ±40 ms. 0 = the same sound; a changed sound is well above 0.3.
+    A machine check of 'did anything change', not of 'is it right' (that is the owner's ear)."""
+    seg = lambda x, w: x[int(max(0, w['s'] - .05) * SR): int((w['e'] + .05) * SR)]
+    sa, sb = seg(a, wa), seg(b, wb)
+    if not len(sa) or not len(sb) or abs(len(sa) - len(sb)) > 0.15 * max(len(sa), len(sb)):
+        return 1.0                                              # the word's length changed: something changed
+    n, L = min(len(sa), len(sb)), int(.04 * SR)
+    if n <= 2 * L + 1:
+        return 1.0
+    x = sa[L:n - L]; ref = max(float(np.sqrt(np.mean(x ** 2))), 1e-9)
+    best = min(float(np.sqrt(np.mean((x - sb[L + d:n - L + d]) ** 2))) for d in range(-L, L + 1, max(1, int(.002 * SR))))
+    return best / ref

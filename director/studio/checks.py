@@ -94,16 +94,21 @@ def _claim_hits(text: str, claim: dict) -> list[str]:
                 if at is None: break
                 idx.append(at)
             else:
+                ws = [bare(w) for w in words(clause)]
+                i0 = idx[0]                                     # the 'first / preceded' word
+                if ws[i0].endswith('اول') and i0 + 1 < len(ws) and ws[i0 + 1] == 'ما':
+                    continue                                    # «أول ما يدخل الماء…» = 'the first thing that…', not a claim
                 pos = flat.index(bare(words(clause)[min(idx)])) if words(clause) else 0
                 inv = [stem(x) for x in rule.get('negation_affirms', [])]   # «لم يسبقها أحد» = she was first
-                inverted = any(toks[idx[0]].startswith(x) or x in toks[idx[0]] for x in inv)
-                negated = any(re.search(r'(^|\s)' + bare(n) + r'(\s|$)', flat[:pos]) for n in rule.get('negation', []))
-                if inverted and not negated and re.search(r'(ها|ه|هم|هما)$', toks[idx[0]]):
+                inverted = any(toks[i0].startswith(x) or x in toks[i0] for x in inv)
+                neg = {bare(n) for n in rule.get('negation', [])}
+                negated = any(ws[j] in neg for j in range(max(0, i0 - 2), i0))     # the negation belongs to that verb
+                if inverted and not negated and re.search(r'(ها|ه|هم|هما)$', toks[i0]):
                     continue                                    # «سبقتها ساعات…»: something came BEFORE it — the opposite claim
         if pos is None: continue
         before = flat[:pos]
-        if any(bare(a) in before for a in claim.get('allowed_with', [])):
-            continue
+        if any(re.search(r'(^|\s)[وفبل]?' + re.escape(bare(a)), before) for a in claim.get('allowed_with', [])):
+            continue                                            # a whole word: «ثقيلة» does not contain the attribution «قيل»
         if not inverted and any(re.search(r'(^|\s)' + bare(n) + r'(\s|$)', before) for n in (rule or {}).get('negation', [])):
             continue
         hits.append(clause.strip())

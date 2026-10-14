@@ -146,4 +146,11 @@ if __name__ == '__main__':
     ap = argparse.ArgumentParser(); ap.add_argument('--port', type=int, default=8765); a = ap.parse_args()
     B.prepare()
     print(f'Video Director dashboard on http://127.0.0.1:{a.port}  (local only; no paid actions)')
+    import signal
+
+    def _stop(signum, frame):                                   # a stopped server leaves no renderer running behind it
+        from director.studio.engine import kill_orphans
+        kill_orphans(B.VAR / 'studio')
+        raise SystemExit(0)
+    signal.signal(signal.SIGTERM, _stop)
     make_server(a.port).serve_forever()

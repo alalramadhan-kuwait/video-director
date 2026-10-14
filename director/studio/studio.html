@@ -372,11 +372,12 @@ function voice(r) {
   ${P.running.filter((x) => x.stage === 'voice').map(runRow).join('')}
   ${P.voice.flags.filter((f) => ['open', 'fix_no_effect'].includes(f.status)).length ? `<div class="panel" id="vflags"><h3>Pronunciation flags</h3>${P.voice.flags.filter((f) => ['open', 'fix_no_effect'].includes(f.status)).map((f) => `<div class="issue"><span class="pill ${f.status === 'open' ? 's-wait' : 's-bad'}">${f.status === 'open' ? 'open' : 'no effect'}</span><div class="stack" style="gap:4px">
     <span class="small"><span class="mono">${esc(f.line)}</span> ${ar(f.word)} · ${esc(P.vflag_kinds[f.kind])}${f.note ? ' — ' + esc(f.note) : ''}</span>
-    ${f.status === 'fix_no_effect' ? `<span class="small" style="color:var(--bad)">The draft voice ignored «${esc(f.respell)}»: the new take is the same audio. Try a different spelling.</span>` : ''}
+    ${f.status === 'fix_no_effect' ? `<span class="small" style="color:var(--bad)">The draft voice ignored «${esc(f.respell)}»: the flagged word sounds the same in the new take (machine check). Try a different spelling.</span>` : ''}
     <div class="row"><input data-respell="${esc(f.vflag)}" class="ar" dir="rtl" value="${esc(f.respell || '')}" placeholder="how the draft voice should read it" style="max-width:240px"><button class="primary" data-vfix="${esc(f.vflag)}">Apply fix · re-record ${esc(f.line)} only</button></div></div></div>`).join('')}</div>` : ''}
   <div class="stack" id="vlines">${nar.lines.filter((l) => !only || l.id === only).map((l) => { const x = VL[l.id] || {}; const ids = (P.voice.by_line[l.id] || []).filter((i) => tk[i].text === l.text);
     const cur = x.take ? tk[x.take] : null; const pi = cur ? ids.indexOf(cur.id) : -1; const prev = pi > 0 ? tk[ids[pi - 1]] : null; const stale = x.status === 'stale' ? tk[x.stale_take] : null;
-    const afterLabel = cur && cur.same_audio_as ? 'After — IDENTICAL audio: the respelling had no effect' : 'After (corrected)';
+    const noEff = cur && (cur.same_audio_as || P.voice.flags.some((f) => f.line === l.id && f.status === 'fix_no_effect'));
+    const afterLabel = cur && cur.same_audio_as ? 'After — IDENTICAL audio: the respelling had no effect' : noEff ? 'After — the flagged word sounds the same (machine check)' : 'After (new take — listen to the flagged word)';
     return `<div class="panel" data-vline="${esc(l.id)}"><div class="row between"><span class="mono small">${esc(l.id)}</span>${cur ? `<span class="tiny muted">${ids.length} take${ids.length > 1 ? 's' : ''}</span>` : stale ? '<span class="pill s-bad">script changed · re-record</span>' : '<span class="pill s-unk">no take</span>'}</div>
      <p>${ar(l.text)}</p>
      ${stale ? `<div class="banner-lock" data-stale="${esc(l.id)}">The approved take was recorded for older text: «${esc(stale.text)}». It no longer counts.</div>` : ''}
@@ -412,7 +413,7 @@ function art() {
        ${c.versions.length > 1 ? `<div class="row tiny">${c.versions.map((x) => `<a href="#" data-full="${esc(x.stills[0])}" data-group="${esc(c.id)}">v${x.v}${x.status ? ' ' + esc(x.status) : ''}</a>`).join(' · ')}</div>` : ''}
        ${req ? `<span class="pill s-proc">revision in progress</span>` : ''}
        ${A.requests.filter((q) => q.concept === c.id && q.status === 'waiting_operator').map(() => '<span class="pill s-wait">note sent to the art operator · no new version yet</span>').join('')}
-       ${v.no_visible_change ? '<span class="pill s-bad">v' + v.v + ': no visible change from v' + v.from + '</span>' : ''}
+       ${v.no_visible_change ? '<span class="pill s-bad">v' + v.v + ': looks exactly like v' + (v.same_as || v.from) + '</span>' : ''}
        ${v.status === 'rejected' || v.status === 'withdrawn' ? `<span class="pill s-bad">${esc(v.status)}</span>` : ''}
        ${c.support === 'rendered' && !appr && !['rejected', 'withdrawn'].includes(v.status) ? `<div class="row"><button ${sel === c.id ? 'disabled' : ''} data-asel="${esc(c.id)}">${sel === c.id ? 'Selected' : 'Select'}</button>
           <button data-amod="${esc(c.id)}" ${req ? 'disabled' : ''}>Request changes</button>
@@ -428,9 +429,11 @@ function art() {
 }
 function modSheet(cid) {
   const c = P.art.concepts[cid];
+  const CH = { 'theme:tk-ink': 'Darker paper', 'theme:tk-bone': 'Lighter paper', 'text_size:1.2': 'Bigger text', 'zoom:1.18': 'Push in closer', 'slower:1.4': 'Slower' };
+  const eff = (P.art_changes || {})[cid] || [];
   openSheet(`<h3>Changes to ${esc(c.name)}</h3><div class="chips" id="mods">
-    <button data-mod="theme:tk-ink" aria-pressed="false">Darker paper</button><button data-mod="theme:tk-bone" aria-pressed="false">Lighter paper</button>
-    <button data-mod="text_size:1.2" aria-pressed="false">Bigger text</button><button data-mod="zoom:1.18" aria-pressed="false">Push in closer</button><button data-mod="slower:1.4" aria-pressed="false">Slower</button></div>
+    ${eff.map((k) => `<button data-mod="${k}" aria-pressed="false">${CH[k]}</button>`).join('')}</div>
+    ${Object.keys(CH).length > eff.length ? `<span class="tiny muted">Not offered because this drawing would not change: ${Object.keys(CH).filter((k) => !eff.includes(k)).map((k) => CH[k]).join(', ')}. Write it in the note for the art operator.</span>` : ''}
     <textarea id="mnote" placeholder="Anything else for the artist"></textarea>
     <div class="row"><button data-close>Cancel</button><button class="primary" data-msave="${esc(cid)}">Request this revision</button></div>`);
 }
@@ -444,7 +447,7 @@ function storyboard() {
   <div class="panel tablewrap" id="sbtable"><table class="t"><tr><th>Scene</th><th>Time</th><th>Visual</th><th>Status</th></tr>
   ${sb.scenes.map((s) => { const c = s.concept && P.art.concepts[s.concept]; const v = c && c.versions.find((x) => x.v === s.art_version);
     return `<tr data-sbscene="${esc(s.id)}"><td><span class="mono">${esc(s.id)}</span><br><span class="small">${ar(s.banner || '')}</span></td><td class="mono tiny">${s.start.toFixed(1)}–${(s.start + s.dur).toFixed(1)} s<br>${esc(s.transition)}</td>
-    <td>${v ? `<img src="${F(PID, v.stills[0])}" style="width:54px;border-radius:6px" alt="" data-full="${esc(v.stills[0])}" data-group="sb">` : ''}<span class="tiny">${esc(s.technique)}</span></td>
+    <td>${(() => { const im = (rec.scenes.find((x) => x.id === s.id) || {}).still || (v && v.stills[0]); return im ? `<img src="${F(PID, im)}" style="width:54px;border-radius:6px" alt="${esc(s.id)} preview" data-full="${esc(im)}" data-group="sb">` : ''; })()}<span class="tiny">${esc(s.technique)}</span></td>
     <td><span class="pill ${s.status.voice === 'approved' ? 's-ok' : 's-wait'}">voice ${esc(s.status.voice)}</span> <span class="pill ${s.status.art === 'approved' ? 's-ok' : 's-unk'}">art ${esc(s.status.art)}</span></td></tr>`; }).join('')}
   <tr><td><span class="mono">end</span></td><td class="mono tiny">+5.8 s</td><td class="tiny">Time Keeper end card</td><td></td></tr></table></div>` : ''}`;
 }
@@ -501,6 +504,7 @@ function gate() {
     <span class="small">Script v${g.script_v} · library ${esc(g.library_version)} · new ${g.totals.new} · reuse ${g.totals.reuse} · review ${g.totals.review} · blocked ${g.totals.blocked} · budget ${g.budget_remaining == null ? 'not set' : g.budget_remaining}</span>
     <div class="tablewrap"><table class="t"><tr><th>Line</th><th>Sent to ElevenLabs (exact)</th><th>Chars</th><th>Action</th></tr>${g.items.map((i) => `<tr><td class="mono">${esc(i.line)}</td><td class="ar">${esc(i.provider_input)}</td><td class="mono">${i.chars}</td><td>${esc(i.action)}</td></tr>`).join('')}</table></div>
     ${g.proposed_terms.length ? `<span class="small">Names the final voice would get in Latin letters once approved: ${g.proposed_terms.map((t) => `${ar(t.surface)} → <span class="mono">${esc(t.rule.spoken || 'as written')}</span>`).join(' · ')}</span>` : ''}</div>
+  ${(g.overrides || []).length ? `<div class="panel" id="goverride"><h3>Approved over a critical check</h3>${g.overrides.map((o) => `<div class="issue"><span class="pill s-wait">!</span><span class="small">${esc(o)}</span></div>`).join('')}</div>` : ''}
   <div class="panel" id="gblock"><h3>Blockers (${g.blockers.length})</h3>${g.blockers.map((b) => `<div class="issue"><span class="pill s-bad">■</span><span class="small">${esc(b)}</span></div>`).join('')}</div>
   <div class="panel" id="gauth"><h3>Owner authorization</h3><span class="small muted">Type the number of billable characters to authorize this exact plan once.</span>
     <div class="row"><input id="gconfirm" inputmode="numeric" placeholder="${g.chars_total}" style="max-width:160px"><button class="primary" data-gauth="${esc(g.hash)}">Authorize this plan</button></div>
@@ -545,10 +549,18 @@ function playTake(tid, from = 0, to = null) {
   else start();
 }
 let LASTT = { id: null, t: 0 };
-function heardTick(id, el) {               // count only continuous playback at up to 2x; a jump (seek) counts nothing
-  const p = play.proof[id] ||= { played_s: 0, listened_s: 0, ended: false };
-  const t = el.currentTime; if (LASTT.id === id && !el.paused && el.playbackRate <= 2.01) { const dt = t - LASTT.t; if (dt > 0 && dt < 0.6) p.listened_s += dt; }
+function heardTick(id, el) {   // count the PARTS heard (0.1 s bins): continuous, audible, at up to 2x. A seek, a replay of the same
+  const p = play.proof[id] ||= { played_s: 0, listened_s: 0, ended: false };   // part or muted playback adds nothing
+  p.bins ||= {};
+  const t = el.currentTime;
+  if (LASTT.id === id && !el.paused && el.playbackRate <= 2.01 && !el.muted && el.volume > 0) { const dt = t - LASTT.t;
+    if (dt > 0 && dt < 1.0) { for (let k = Math.floor(LASTT.t * 10); k < Math.ceil(t * 10); k++) p.bins[k] = 1; p.listened_s = Object.keys(p.bins).length / 10; } }
   LASTT = { id, t }; return p;
+}
+function covered(p) {          // the heard parts as [[start, end], ...] seconds
+  const ks = Object.keys((p && p.bins) || {}).map(Number).sort((a, b) => a - b), out = [];
+  for (const k of ks) { const l = out[out.length - 1]; if (l && Math.abs(l[1] - k / 10) < 1e-6) l[1] = (k + 1) / 10; else out.push([k / 10, (k + 1) / 10]); }
+  return out.map(([a, b]) => [+a.toFixed(1), +b.toFixed(1)]);
 }
 play.audio.addEventListener('timeupdate', () => { const tid = play.audio.dataset.take; if (!tid) return; heardTick(tid, play.audio); if (play.stopAt == null) proofMark(tid, play.audio.currentTime, false); });
 play.audio.addEventListener('seeking', () => { LASTT = { id: null, t: 0 }; });
@@ -609,7 +621,7 @@ document.addEventListener('click', async (ev) => {
   if (d.vsave) { const [tid, wi] = d.vsave.split(':'); const kind = $('[data-vk][aria-pressed="true"]')?.dataset.vk;
     const j = await api('voice_flag', { take: tid, wi: +wi, kind, note: $('#vnote').value, respell: $('#vrespell').value.trim(), played: !!play.proof[tid]?.word }); if (j) { closeSheet(); toast('Word flagged'); refresh(); } return; }
   if (d.vfix) { const r = $(`[data-respell="${CSS.escape(d.vfix)}"]`).value.trim(); const j = await api('voice_fix', { vflag: d.vfix, respell: r }); if (j) { toast('Re-recording that line only'); refresh(); } return; }
-  if (d.tdec) { const pr = play.proof[d.t] || {}; const j = await api('take_decision', { take: d.t, decision: d.tdec, playback: { listened_s: +(pr.listened_s || 0).toFixed(2) } }); if (j) { toast(`Take ${d.tdec}`); refresh(); } return; }
+  if (d.tdec) { const pr = play.proof[d.t] || {}; const j = await api('take_decision', { take: d.t, decision: d.tdec, playback: { listened_s: +(pr.listened_s || 0).toFixed(2), covered: covered(pr) } }); if (j) { toast(`Take ${d.tdec}`); refresh(); } return; }
   if (d.asel) { const j = await api('art_select', { concept: d.asel }); if (j) { toast('Selected — not approved yet'); refresh(); } return; }
   if (d.amod) return modSheet(d.amod);
   if (d.mod) { t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true'); return; }
@@ -622,7 +634,7 @@ document.addEventListener('click', async (ev) => {
   if (d.sbdec) { const note = d.sbdec === 'changes_requested' ? (prompt('What should change?') || '') : '';
     const j = await api('storyboard_decision', { v: +d.sbv, decision: d.sbdec, note }); if (j) { toast('Storyboard ' + d.sbdec); refresh(); } return; }
   if ('build' in d) { const j = await api('build_storyboard'); if (j) { toast(`Storyboard v${j.result.v}`); refresh(); } return; }
-  if (d.rdec) { const pr = play.proof['film-' + d.r] || {}; const j = await api('render_decision', { render: d.r, decision: d.rdec, note: d.rdec === 'changes_requested' ? prompt('What should change?') || '' : '', playback: { listened_s: +(pr.listened_s || 0).toFixed(2) } }); if (j) refresh(); return; }
+  if (d.rdec) { const pr = play.proof['film-' + d.r] || {}; const j = await api('render_decision', { render: d.r, decision: d.rdec, note: d.rdec === 'changes_requested' ? prompt('What should change?') || '' : '', playback: { listened_s: +(pr.listened_s || 0).toFixed(2), covered: covered(pr) } }); if (j) refresh(); return; }
   if (d.fdec) { const note = $(`[data-fnote="${CSS.escape(d.f)}"]`).value; const j = await api('finding_decision', { finding: d.f, decision: d.fdec, note }); if (j) { toast(d.fdec === 'accepted' ? 'Correction task created' : 'Dismissed (kept in history)'); refresh(); } return; }
   if (d.fixdone) { const j = await api('fix_done', { task: d.fixdone, note: 'done' }); if (j) refresh(); return; }
   if ('gvoice' in d) { const j = await api('authorize_voice', { note: $('#gvnote').value }); if (j) { toast('Voice authorized for this film'); refresh(); } return; }

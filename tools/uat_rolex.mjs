@@ -280,13 +280,14 @@ async function E() {
   ok('F', 'selecting a concept records a selection, not an approval', s.art.selected.l9 === 'l9-map' && !s.art.approved.l9);
   // request modification, review the revision, approve that version
   await p.click('[data-amod="l9-map"]'); await p.waitForTimeout(300);
-  await p.click('[data-mod="zoom:1.18"]'); await p.fill('#mnote', 'closer on the Channel, the date card should be bigger');
+  await p.click('[data-mod="zoom:1.18"]');
   await shot(p, 'F2-modification-sheet', false);
   await p.click('[data-msave="l9-map"]'); await p.waitForTimeout(800);
   await untilIdle('revision', 600);
   s = await state();
   const c9 = s.art.concepts['l9-map'];
   ok('F', 'requested revision produced v2 (v1 kept)', c9.versions.length === 2 && c9.versions[1].changes.zoom === '1.18' && c9.versions[0].stills.length === 2);
+  ok('F', 'v2 really looks different from v1 (closer map), not a copy', c9.versions[1].stills.every((x, i) => x !== c9.versions[0].stills[i]) && !c9.versions[1].no_visible_change);
   await go(p, 'art'); await p.locator('[data-cmp="l9-map"]').scrollIntoViewIfNeeded(); await shot(p, 'F3-revision', false);
   ok('F', 'v1 and v2 of the revised concept are shown side by side as images', (await p.locator('[data-cmp="l9-map"] img').count()) === 2);
   await p.click('[data-aok="l9-map"]'); await p.waitForTimeout(700);
@@ -354,12 +355,19 @@ async function G() {
   await p.evaluate(async () => { const v = document.querySelector('video[data-film]'); v.muted = true; await new Promise((ok) => { if (v.readyState >= 1) ok(); else v.addEventListener('loadedmetadata', ok, { once: true }); }); v.currentTime = v.duration - 1; await v.play(); await new Promise((ok) => v.addEventListener('ended', ok, { once: true })); });
   const r0 = (await state()).renders.filter((x) => x.state === 'ok').pop();
   await p.click(`[data-rdec="approved_as_draft"][data-r="${r0.id}"]`); await p.waitForTimeout(700);
-  ok('R', 'approving a draft after jumping to its end is refused (skipping is not watching)', (await p.textContent('#toast')).includes('skipping does not count') && !(await state()).renders.find((x) => x.id === r0.id).decision, await p.textContent('#toast'));
+  ok('R', 'approving a draft after jumping to its end is refused (skipping is not watching)', (await p.textContent('#toast')).includes('does not count') && !(await state()).renders.find((x) => x.id === r0.id).decision, await p.textContent('#toast'));
   await go(p, 'draft');
   const playable = await p.evaluate(async () => { const v = document.querySelector('video[data-film]'); v.muted = true; await v.play(); await new Promise((r) => setTimeout(r, 2500)); const t = v.currentTime; v.pause(); return { t, src: v.currentSrc.split('.').pop(), w: v.videoWidth }; });
   ok('G', 'the latest draft actually plays in the page', playable.t > 1.5, JSON.stringify(playable));
-  // watch: playback at 4x in the page (the harness cannot sit through it at 1x every time; recorded as such)
-  await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = true; v.playbackRate = 2; return v.play(); });
+  // muted playback is not watching (audit round 2): the whole film at 2x with the sound off, then try to approve
+  await go(p, 'draft');
+  await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = true; v.currentTime = 0; v.playbackRate = 2; return v.play(); });
+  await p.waitForTimeout((r.seconds / 2) * 1000 + 3000);
+  await p.click(`[data-rdec="approved_as_draft"][data-r="${r.id}"]`); await p.waitForTimeout(700);
+  ok('R', 'watching the whole draft muted does not count; approval refused', (await p.textContent('#toast')).includes('does not count') && !(await state()).renders.find((x) => x.id === r.id).decision, await p.textContent('#toast'));
+  // watch: audible playback at 2x in the page (the harness cannot sit through it at 1x every time; recorded as such)
+  await go(p, 'draft');
+  await p.click('h2').catch(() => p.click('body')); await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = false; v.volume = 1; v.currentTime = 0; v.playbackRate = 2; return v.play(); });   // audible, as an owner watches it
   await p.waitForTimeout((r.seconds / 2) * 1000 + 3000);
   await p.click(`[data-rdec="approved_as_draft"][data-r="${r.id}"]`); await p.waitForTimeout(700);
   s = await state();
@@ -527,8 +535,8 @@ async function K() {   // a review finding accepted → fixed → re-rendered �
   // the art operator fixes the hook visual: the belief is attributed on screen too («يقولون»), so it reads right on mute
   const fixed = JSON.parse(JSON.stringify(BRIEF));
   const lines = [{ text: 'يقولون:', size: 64, at: 0.0, in: 'slam' }, { text: 'أول ساعة', size: 92, at: 0.1, in: 'slam' }, { text: 'مقاومة للماء؟', size: 92, at: 0.3, in: 'slam' }];
-  fixed.scenes.h.concepts.kinetic_type = { ...fixed.scenes.h.concepts.kinetic_type, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 900 } };
-  fixed.hook_visuals.H1.params = { ...fixed.hook_visuals.H1.params, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 900 } };
+  fixed.scenes.h.concepts.kinetic_type = { ...fixed.scenes.h.concepts.kinetic_type, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 860 } };
+  fixed.hook_visuals.H1.params = { ...fixed.hook_visuals.H1.params, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 860 } };
   const r = await post('art_brief', { brief: fixed }, 'art:claude');
   ok('K', 'operator recorded the corrected art brief (hook text attributed on screen)', r.status === 'recorded');
   const p = await page('phone');
@@ -540,7 +548,7 @@ async function K() {   // a review finding accepted → fixed → re-rendered �
   const after = s.renders.filter((x) => x.state === 'ok').pop();
   ok('K', 'a new draft was rendered after the fix; the old one is kept', after.id !== before.id && s.renders.some((x) => x.id === before.id), `${before.id} → ${after.id}`);
   await go(p, 'draft');
-  await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = true; v.playbackRate = 2; return v.play(); });
+  await p.click('h2').catch(() => p.click('body')); await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = false; v.volume = 1; v.playbackRate = 2; return v.play(); });   // audible, as an owner watches it
   await p.waitForTimeout((after.seconds / 2) * 1000 + 3000);
   await p.click(`[data-rdec="approved_as_draft"][data-r="${after.id}"]`); await p.waitForTimeout(700);
   await go(p, 'review'); await p.click('[data-run="run_review"]'); await p.waitForTimeout(1500); await untilIdle('re-review', 1200);
@@ -569,8 +577,8 @@ async function L() {   // fix found in Claude's own frame review: banners carrie
   const before = s.renders.filter((r) => r.state === 'ok').pop();
   const fixed = JSON.parse(JSON.stringify(BRIEF));
   const lines = [{ text: 'يقولون:', size: 64, at: 0.0, in: 'slam' }, { text: 'أول ساعة', size: 92, at: 0.1, in: 'slam' }, { text: 'مقاومة للماء؟', size: 92, at: 0.3, in: 'slam' }];
-  fixed.scenes.h.concepts.kinetic_type = { ...fixed.scenes.h.concepts.kinetic_type, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 900 } };
-  fixed.hook_visuals.H1.params = { ...fixed.hook_visuals.H1.params, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 900 } };
+  fixed.scenes.h.concepts.kinetic_type = { ...fixed.scenes.h.concepts.kinetic_type, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 860 } };
+  fixed.hook_visuals.H1.params = { ...fixed.hook_visuals.H1.params, lines, y: 380, stamp: { text: 'ليس تمامًا', at: 1.2, y: 860 } };
   await post('art_brief', { brief: fixed }, 'art:claude');
   const p = await page('phone');
   await go(p, 'storyboard'); await p.click('[data-build]'); await p.waitForTimeout(1200);
@@ -580,7 +588,7 @@ async function L() {   // fix found in Claude's own frame review: banners carrie
   const after = s.renders.filter((x) => x.state === 'ok').pop();
   ok('L', 'clean draft rendered after the banner/stamp fix', after.id !== before.id, `${before.id} → ${after.id}`);
   await go(p, 'draft');
-  await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = true; v.playbackRate = 2; return v.play(); });
+  await p.click('h2').catch(() => p.click('body')); await p.evaluate(() => { const v = document.querySelector('video[data-film]'); v.muted = false; v.volume = 1; v.playbackRate = 2; return v.play(); });   // audible, as an owner watches it
   await p.waitForTimeout((after.seconds / 2) * 1000 + 3000);
   await p.click(`[data-rdec="approved_as_draft"][data-r="${after.id}"]`); await p.waitForTimeout(700);
   await go(p, 'review'); await p.click('[data-run="run_review"]'); await p.waitForTimeout(1500); await untilIdle('review r3', 1200);
@@ -629,11 +637,18 @@ async function D4() {   // seeking is not listening (audit D-04). Run on a DISPO
   const ln = s.voice.lines.h; const tid = ln.take;
   ok('R', 'disposable copy: the H2 hook take is a candidate waiting for a decision', ln.status === 'candidate', JSON.stringify(ln));
   await go(p, 'voice/h');
+  // the same opening quarter four times is not hearing the take (audit round 2)
+  const sec = s.voice.takes[tid].seconds;
+  for (let k = 0; k < 4; k++) { await p.click(`[data-tplay="${tid}"]`); await p.waitForTimeout(sec * 250); await p.evaluate(() => document.querySelectorAll('audio').forEach((a) => a.pause())); await p.waitForTimeout(300); }
+  await p.click(`[data-tdec="rejected"][data-t="${tid}"]`); await p.waitForTimeout(600);
+  let t0 = await p.textContent('#toast');
+  ok('R', 'replaying the opening quarter four times does not count as hearing the take; decision refused', t0.includes('does not count') && (await state()).voice.takes[tid].status === 'candidate', t0);
+  await go(p, 'voice/h');
   const svg = p.locator(`[data-wave="${tid}"]`); const box = await svg.boundingBox();
   await p.mouse.click(box.x + box.width * 0.97, box.y + box.height / 2); await p.waitForTimeout(1500);
   await p.click(`[data-tdec="rejected"][data-t="${tid}"]`); await p.waitForTimeout(600);
   let t = await p.textContent('#toast'); s = await state();
-  ok('R', 'clicking the waveform near the end does not count as listening; the decision is refused', t.includes('skipping does not count') && s.voice.takes[tid].status === 'candidate', t);
+  ok('R', 'clicking the waveform near the end does not count as listening; the decision is refused', t.includes('does not count') && s.voice.takes[tid].status === 'candidate', t);
   await shot(p, 'D11-seek-refused');
   await p.click(`[data-tplay="${tid}"]`); await p.waitForTimeout(s.voice.takes[tid].seconds * 1000 + 1500);
   const heard = await p.textContent(`[data-heard="${tid}"]`);
@@ -656,12 +671,24 @@ async function F2() {   // a free-text art request goes to the operator; nothing
   await untilIdle('operator revision', 600);
   s = await state(); const vs = s.art.concepts['l11-kinetic_type'].versions;
   ok('F', 'the operator\'s revision is a real new image (v2 differs from v1)', vs.length === 2 && vs[1].stills[0] !== vs[0].stills[0] && !vs[1].no_visible_change);
+  // a structured change WITH a note: the change is drawn, and the note still goes to the art operator (audit N-3)
+  await go(p, 'art'); await p.click('[data-amod="l2-kinetic_type"]'); await p.waitForTimeout(300);
+  await p.click('[data-mod="theme:tk-ink"]'); await p.fill('#mnote', 'and put the year 1926 on its own line'); await p.click('[data-msave="l2-kinetic_type"]'); await p.waitForTimeout(900);
+  await untilIdle('revision with a note', 600);
+  s = await state(); const rq = s.art.requests.filter((q) => q.concept === 'l2-kinetic_type').pop();
+  ok('F', 'a change plus a note: the change makes v2 and the note waits for the art operator (not marked done)', s.art.concepts['l2-kinetic_type'].versions.length === 2 && rq.status === 'waiting_operator', JSON.stringify({ status: rq.status, version: rq.version }));
+  // a change the drawing would ignore is not offered
+  await go(p, 'art'); await p.click('[data-amod="l2-animated_timeline"]'); await p.waitForTimeout(300);
+  ok('F', 'changes a drawing would ignore are not offered (timeline: no "Bigger text")', (await p.locator('#mods [data-mod="text_size:1.2"]').count()) === 0 && (await p.textContent('.sheet, #sheet, body')).includes('Not offered'));
+  await p.click('[data-close]').catch(() => {}); await p.waitForTimeout(300);
   // revise APPROVED art: the approved version stays in the film until the new one is approved, which then replaces it
   const ap0 = s.art.approved.l9;
   await go(p, 'art'); await p.click('[data-amod="l9-map"]'); await p.waitForTimeout(300);
   await p.click('[data-mod="text_size:1.2"]'); await p.click('[data-msave="l9-map"]'); await p.waitForTimeout(900);
   await untilIdle('revision of approved l9', 600);
-  s = await state(); const nv = s.art.concepts['l9-map'].versions.slice(-1)[0].v;
+  s = await state(); const nv = s.art.concepts['l9-map'].versions.slice(-1)[0].v; const vsm = s.art.concepts['l9-map'].versions;
+  ok('F', 'the revision of the approved map looks different from every earlier version', !vsm.slice(-1)[0].no_visible_change && vsm.slice(0, -1).every((x) => x.stills[0] !== vsm.slice(-1)[0].stills[0]));
+  await go(p, 'inbox'); ok('F', 'the inbox asks to approve or reject the new version of the approved art', (await p.textContent('main')).includes(`approve or reject v${nv}`));
   ok('F', 'changes can be requested on approved art; the approved version stays in use meanwhile', nv === ap0.version + 1 && s.art.approved.l9.version === ap0.version, `v${nv}, approved v${s.art.approved.l9.version}`);
   await go(p, 'art'); await p.locator('[data-scene="l9"]').scrollIntoViewIfNeeded(); await shot(p, 'F6-approved-art-revision');
   await p.click(`[data-aok="l9-map"][data-av="${nv}"]`); await p.waitForTimeout(800);

@@ -52,6 +52,26 @@ def _slug(s: str) -> str:
     return s[:40] or 'project'
 
 
+
+def _merge(iv):
+    out = []
+    for a, b in sorted((float(a), float(b)) for a, b in (iv or []) if float(b) > float(a)):
+        if out and a <= out[-1][1] + 1e-6: out[-1][1] = max(out[-1][1], b)
+        else: out.append([a, b])
+    return out
+
+
+def _heard(pb: dict, seconds: float) -> float:
+    """Seconds of the media actually heard. The page sends the parts it heard ('covered'); a caller that sends only a total
+    ('listened_s', the API and older pages) is taken at its word, capped at the length."""
+    if 'covered' in pb:
+        return sum(min(b, seconds) - max(a, 0) for a, b in _merge(pb['covered']) if min(b, seconds) > max(a, 0))
+    return min(float(pb.get('listened_s', 0) or 0), seconds)
+
+
+def _overlap(iv, s: float, e: float) -> float:
+    return sum(max(0.0, min(b, e) - max(a, s)) for a, b in _merge(iv))
+
 class Studio:
     def __init__(self, var: Path):
         self.var = Path(var)
@@ -245,8 +265,9 @@ class Studio:
             crit = [c for c in sv['checks'] if c['severity'] == 'critical']
             if crit and not a.get('override'):
                 raise Refused(f'v{v} has {len(crit)} critical finding(s): {crit[0]["detail"]}')
-            if crit and len((a.get('note') or '').strip()) < 12:
-                raise Refused('to approve over a critical finding, write why the check is wrong here (kept with the version)')
+            note = (a.get('note') or '').strip()
+            if crit and (len(note) < 12 or len([w for w in note.split() if len(w) >= 2]) < 3 or len(set(note.replace(' ', ''))) < 5):
+                raise Refused('to approve over a critical finding, write in a sentence why the check is wrong here (kept with the version)')
             open_flags = [f for f in st['flags'] if f['v'] == v and f['status'] == 'open']
             if open_flags:
                 raise Refused(f'v{v} has {len(open_flags)} open correction request(s)')
@@ -404,8 +425,15 @@ class Studio:
         if t['status'] in ('approved', 'rejected'):
             raise Refused(f'this take is already {t["status"]}')
         pb = a.get('playback') or {}
-        if pb.get('listened_s', 0) < 0.8 * t['seconds']:
-            raise Refused(f'listen to the take before deciding: {pb.get("listened_s", 0):.1f} s of {t["seconds"]:.1f} s heard (skipping does not count)')
+        heard = _heard(pb, t['seconds'])
+        if heard < 0.8 * t['seconds']:
+            raise Refused(f'listen to the take before deciding: {heard:.1f} s of {t["seconds"]:.1f} s heard '
+                          '(skipping, replaying the same part or muted playback does not count)')
+        f = next((x for x in st['voice']['flags'] if t.get('reason') == f'correction {x["vflag"]}'), None)
+        if f and f['wi'] < len(t['words']):                     # a re-take after a fix: the fixed word itself must be heard
+            w = t['words'][f['wi']]
+            if _overlap(pb.get('covered'), w['s'], w['e']) < 0.6 * (w['e'] - w['s']):
+                raise Refused(f'listen to the fixed word «{w["w"]}» ({w["s"]:.1f}–{w["e"]:.1f} s) before deciding on this take')
         if d == 'approved' and t.get('same_audio_as') and st['voice']['takes'].get(t['same_audio_as'], {}).get('status') == 'rejected':
             raise Refused('this take is the same audio as a take you rejected')
         return 'voice', {'take': t['id'], 'line': t['line'], 'decision': d, 'note': a.get('note', ''), 'playback': pb}
@@ -439,6 +467,14 @@ class Studio:
             raise Refused('say what to change')
         if any(q['concept'] == c['id'] and q['status'] in ('open', 'waiting_operator') for q in self.state(pid)['art']['requests']):
             raise Refused('a change request for this concept is already open')
+        if ch:
+            from . import art
+            last = c['versions'][-1]
+            eff = art.effective_changes(c['technique'], last.get('params', c['params']), last.get('theme', c['theme']))
+            dead = [f'{k}:{v}' for k, v in ch.items() if f'{k}:{v}' not in eff]
+            if dead:
+                raise Refused(f'this {c["technique"]} drawing would not change with: '
+                              + ', '.join(art.CHANGE_CHIPS.get(d, d) for d in dead) + ' (say it in the note for the art operator instead)')
         return 'art', {'scene': c['scene'], 'concept': c['id'], 'changes': ch, 'note': a.get('note', ''),
                        'from_version': c['versions'][-1]['v'], 'needs_operator': not ch}
 
@@ -536,8 +572,10 @@ class Studio:
         if r.get('decision'):
             raise Refused(f'this draft is already {r["decision"]}; render a new one to decide again')
         pb = a.get('playback') or {}
-        if pb.get('listened_s', 0) < 0.8 * r['seconds']:
-            raise Refused(f'watch the draft before deciding: {pb.get("listened_s", 0):.0f} s of {r["seconds"]:.0f} s watched (skipping does not count)')
+        heard = _heard(pb, r['seconds'])
+        if heard < 0.8 * r['seconds']:
+            raise Refused(f'watch the draft before deciding: {heard:.0f} s of {r["seconds"]:.0f} s watched '
+                          '(skipping, replaying the same part or muted playback does not count)')
         return 'draft', {'render': r['id'], 'decision': a['decision'], 'note': a.get('note', ''), 'playback': pb}
 
     # ------------------------------------------------------------------ H. review
@@ -612,6 +650,9 @@ class Studio:
                 st['identity'] = r['identity']
             elif act == 'set_voice':
                 st['voice_profile'] = r['voice']
+                why = st['gate'].setdefault('voice_auth', {}).get(r['voice']['name'])
+                if why:                                          # authorized earlier for this film: switching back keeps it
+                    st['voice_profile'] = {**r['voice'], 'status': 'usable', 'why': why}
             elif act == 'research':
                 st['research'] = {**r, 'status': 'waiting', 'at': e['at']}
             elif act == 'research_decision':
@@ -627,7 +668,7 @@ class Studio:
                         if f['flag'] == r['flag']: f.update(status='applied', applied_in=r['v'], replacement=r['replacement'])
             elif act == 'script_decision':
                 for s in st['scripts']:
-                    if s['v'] == r['v']: s.update(status=r['decision'], decided=e['at'], note_decision=r['note'])
+                    if s['v'] == r['v']: s.update(status=r['decision'], decided=e['at'], note_decision=r['note'], override=r.get('override', False))
             elif act == 'flag_word':
                 st['flags'].append({**r, 'status': 'open', 'at': e['at']})
             elif act == 'dismiss_flag':
@@ -675,7 +716,8 @@ class Studio:
                 c['versions'].append({**r['version']})
                 for q in st['art']['requests']:
                     if q['concept'] == r['concept'] and q['status'] == 'open':
-                        q.update(status='no_visible_change' if r['version'].get('no_visible_change') else 'done', version=r['version']['v'])
+                        q.update(status='no_visible_change' if r['version'].get('no_visible_change') else
+                                 'waiting_operator' if (q.get('note') or '').strip() else 'done', version=r['version']['v'])   # the note still needs the operator
             elif act == 'art_decision':
                 c = st['art']['concepts'][r['concept']]
                 prev = st['art']['approved'].get(r['scene'])
@@ -699,6 +741,7 @@ class Studio:
             elif act == 'authorize_voice':
                 if st['voice_profile'] and st['voice_profile']['name'] == r['voice']:
                     st['voice_profile'] = {**st['voice_profile'], 'status': 'usable', 'why': f'authorized for this film by the owner: {r["note"]}'}
+                    st['gate'].setdefault('voice_auth', {})[r['voice']] = st['voice_profile']['why']
             elif act == 'term_decision':
                 st['gate'].setdefault('terms', {})[r['surface']] = r['decision']
             elif act == 'set_budget':

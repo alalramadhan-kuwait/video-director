@@ -362,12 +362,40 @@ def apply_changes(params: dict, theme: str, changes: dict):
         f = float(changes['text_size'])
         for ln in p.get('lines', []): ln['size'] = round(ln.get('size', 66) * f)
         for t in p.get('tags', []): t['size'] = round(t.get('size', 40) * f)
-    if changes.get('zoom'): p['zoom'] = p['push'] = float(changes['zoom'])
+        for lb in p.get('labels', []): lb['size'] = round(lb.get('size', 40) * f)          # map labels
+    if changes.get('zoom'):
+        p['zoom'] = p['push'] = float(changes['zoom'])
+        if isinstance(p.get('view'), dict) and 'span' in p['view']:                         # a map: show a smaller area
+            p['view'] = {**p['view'], 'span': round(p['view']['span'] / float(changes['zoom']), 2)}
     if changes.get('slower'):
         f = float(changes['slower'])
         for k in ('screw_at', 'close_at', 'open_at', 'date_at', 'stamp_at', 'card_at'):
             if k in p: p[k] = round(p[k] * f, 2)
     return p, th
+
+
+CHANGE_CHIPS = {'theme:tk-ink': 'Darker paper', 'theme:tk-bone': 'Lighter paper', 'text_size:1.2': 'Bigger text',
+                'zoom:1.18': 'Push in closer', 'slower:1.4': 'Slower'}
+
+
+def effective_changes(tech: str, params: dict, theme: str) -> list[str]:
+    """The change chips that actually alter this drawing: the engine scene is built before and after the change and
+    compared. A change this technique ignores (e.g. 'Bigger text' on a map whose labels have a fixed size) is not offered."""
+    if tech not in BUILDERS:
+        return []
+    try:
+        base = json.dumps(scene_visual(tech, params, theme, 5.0), sort_keys=True, default=str)
+    except Exception:                                          # incomplete parameters: cannot tell, so do not hide anything
+        return list(CHANGE_CHIPS)
+    out = []
+    for chip in CHANGE_CHIPS:
+        k, v = chip.split(':')
+        p2, th2 = apply_changes(params, theme, {k: v})
+        try:
+            if json.dumps(scene_visual(tech, p2, th2, 5.0), sort_keys=True, default=str) != base: out.append(chip)
+        except Exception:
+            pass
+    return out
 
 
 def revise(studio, pid, task, concept, params=None, theme=None):
@@ -384,12 +412,12 @@ def revise(studio, pid, task, concept, params=None, theme=None):
     visual = scene_visual(c['technique'], params, theme, dur, brief.get('banner'))
     v = last['v'] + 1
     stills, _ = _render_concept(studio, pid, studio.pdir(pid) / 'work/concepts' / f'{concept}-v{v}', visual, dur, st['brand'])
-    same = stills == last['stills']                    # content-addressed: equal paths = byte-identical images
+    same = next((x['v'] for x in reversed(c['versions']) if x['stills'] == stills), None)   # content-addressed: equal paths = identical images
     task.unit(scene=c['scene'], concept=concept)
     studio.act(pid, 'art_revision', {'concept': concept, 'scene': c['scene'],
                                      'version': {'v': v, 'stills': stills, 'changes': req['changes'], 'note': req['note'],
                                                  'params': params, 'theme': theme, 'status': None, 'from': last['v'],
-                                                 **({'no_visible_change': True} if same else {})}}, actor='system')
+                                                 **({'no_visible_change': True, 'same_as': same} if same else {})}}, actor='system')
     return {'concept': concept, 'version': v}
 
 

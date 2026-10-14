@@ -27,7 +27,7 @@ SH_D4 = ROOT / 'var/uat-d4/shots'
 NOTES = json.loads((UAT / 'harness_notes.json').read_text(encoding='utf-8')) if (UAT / 'harness_notes.json').exists() else {}
 for r in R:
     if not r['pass'] and r['name'] in NOTES: r['note'] = NOTES[r['name']]
-PRIOR = {n: json.loads((UAT / f'results-{n}.json').read_text(encoding='utf-8')) for n in ('run1', 'run2', 'run3') if (UAT / f'results-{n}.json').exists()}
+PRIOR = {n: json.loads((UAT / f'results-{n}.json').read_text(encoding='utf-8')) for n in ('run1', 'run2', 'run3', 'run4') if (UAT / f'results-{n}.json').exists()}
 DEF = json.loads((UAT / 'defects/defects.json').read_text(encoding='utf-8')) if (UAT / 'defects/defects.json').exists() else None
 CLS = json.loads((ROOT / 'uat/classification.json').read_text(encoding='utf-8'))
 AUDIT = (ROOT / 'var/audit/AUDIT_REPORT.md').read_text(encoding='utf-8') if (ROOT / 'var/audit/AUDIT_REPORT.md').exists() else '(not yet)'

@@ -50,7 +50,7 @@ def handle(var, body: dict) -> tuple[int, dict]:
             r = S.act(pid, 'voice_fix', args, actor, rid)
             if r['status'] == 'recorded':
                 f = r['result']
-                r['job'] = jobs.start(S, pid, 'voice', 'voice', f'corrected take {f["line"]}', 1, voice.fix_line, {'line': f['line'], 'vflag': f['vflag']})
+                r['job'] = jobs.start(S, pid, 'voice', 'voice', f'new take {f["line"]} after a fix', 1, voice.fix_line, {'line': f['line'], 'vflag': f['vflag']})
             return 200, r
         if action == 'art_modify':
             r = S.act(pid, 'art_modify', args, actor, rid)
@@ -96,6 +96,23 @@ def handle(var, body: dict) -> tuple[int, dict]:
     except Refused as e:
         S.refuse_log(pid, action, args, str(e), actor)
         return 422, {'status': 'refused', 'reason': str(e), 'action': action}
+
+
+STALE_PLAN = 'the final-voice plan is out of date: rebuild it (Final voice) to see what still blocks paid narration'
+
+
+def _plan_stale(st) -> bool:
+    """Anything recorded after the plan was built (a decision, a take, a render, a review, an art change…) can change
+    what it says, so its blockers are not shown as current."""
+    g = st['gate']['plan']
+    apv = [x for x in st['scripts'] if x['status'] == 'approved']
+    return bool((st['voice_profile'] or {}).get('name') != g['voice']['name'] or (apv and apv[-1]['v'] != g['script_v']) or
+                g.get('created', '') < max((h['at'] for h in st['history'] if h['action'] not in ('gate_plan', 'hook_still')), default=''))
+
+
+def _undecided_latest(st, concept, v):
+    c = st['art']['concepts'].get(concept)
+    return bool(c) and c['versions'][-1]['v'] == v and not c['versions'][-1].get('status')
 
 
 def hook_stills(S, pid, task):
@@ -169,16 +186,23 @@ def view(var, pid) -> dict:
                              for sc in st['art']['by_scene'] if sc not in st['art']['approved']]
         + [{'what': f'Revision of {q["concept"]} is being drawn', 'href': 'art', 'wait': True} for q in st['art']['requests'] if q['status'] == 'open']
         + [{'what': f'{q["concept"]}: your note is waiting for the art operator', 'href': 'art', 'wait': True} for q in st['art']['requests'] if q['status'] == 'waiting_operator']
-        + [{'what': f'{q["concept"]} v{q.get("version")}: the change made no visible difference', 'href': 'art'} for q in st['art']['requests'] if q['status'] == 'no_visible_change'])
+        + [{'what': f'{q["concept"]} v{q.get("version")}: the change made no visible difference', 'href': 'art'} for q in st['art']['requests']
+           if q['status'] == 'no_visible_change' and _undecided_latest(st, q['concept'], q.get('version'))]
+        + [{'what': f'{c["id"]}: approve or reject v{c["versions"][-1]["v"]} (v{st["art"]["approved"][c["scene"]]["version"]} stays in the film until you decide)', 'href': 'art'}
+           for c in st['art']['concepts'].values() if st['art']['approved'].get(c['scene'], {}).get('concept') == c['id']
+           and c['versions'][-1]['v'] > st['art']['approved'][c['scene']]['version'] and not c['versions'][-1].get('status')])
     sbl = st['storyboards'][-1] if st['storyboards'] else None
     grp('storyboard', 'Storyboard', 'storyboard', [{'what': f'Approve storyboard v{sbl["v"]} (every scene\'s visual)', 'href': 'storyboard'}] if sbl and not sbl.get('decision') else [])
     grp('draft', 'Draft film', 'draft', [{'what': f'Watch draft {r["id"]} and decide', 'href': 'draft'} for r in st['renders'] if r.get('state') == 'ok' and not r.get('decision')])
     grp('review', 'Review findings', 'review', [{'what': f'{f["severity"]}: {f["code"]} · {f.get("scene") or "film"}', 'href': 'review', 'severity': f['severity']}
                                                for f in st['review']['findings'].values() if not f['decision']]
         + [{'what': f'Correction task: {t["what"]} ({t.get("scene") or "film"})', 'href': 'review'} for t in st['fix_tasks'] if t['status'] == 'open'])
+    stale = bool(st['gate']['plan']) and _plan_stale(st)
     if st['gate']['plan'] and not st['gate'].get('authorized'):
         env = [b for b in st['gate']['plan']['blockers'] if 'disabled in this environment' in b]
-        grp('gate', 'Final voice (paid) — blocked until', 'gate', [{'what': b, 'href': 'gate', 'blocker': True} for b in st['gate']['plan']['blockers'] if b not in env]
+        grp('gate', 'Final voice (paid) — blocked until', 'gate',
+            ([{'what': STALE_PLAN, 'href': 'gate', 'blocker': True}] if stale else
+             [{'what': b, 'href': 'gate', 'blocker': True} for b in st['gate']['plan']['blockers'] if b not in env])
             + [{'what': b + ' — not a decision: this workspace never runs paid generation', 'href': 'gate', 'wait': True} for b in env])
     st['inbox_groups'] = G
     # scene by scene: what is done for each line of the latest script
@@ -210,7 +234,9 @@ def view(var, pid) -> dict:
         if j['state'] in ('failed', 'interrupted') and not later_ok:          # a later successful run clears it
             blockers.append({'what': f"{j['what']} {j['state']}", 'why': j.get('error', 'the server stopped while it ran'), 'job': j['id']})
     if st['gate']['plan']:
-        for b in st['gate']['plan']['blockers']: blockers.append({'what': b, 'why': 'final gate'})
+        if stale: blockers.append({'what': STALE_PLAN, 'why': 'final gate'})
+        else:
+            for b in st['gate']['plan']['blockers']: blockers.append({'what': b, 'why': 'final gate'})
     st['blockers'] = blockers
     if st['scripts']:
         latest = st['scripts'][-1]
@@ -227,16 +253,14 @@ def view(var, pid) -> dict:
     if st['storyboards']:
         st['storyboard'] = S.read_json(pid, st['storyboards'][-1]['file'])
     st['support'] = art.support_matrix(S.profile(st['brand']))
+    st['art_changes'] = {cid: art.effective_changes(c['technique'], c['versions'][-1].get('params', c['params']), c['versions'][-1].get('theme', c['theme']))
+                         for cid, c in st['art']['concepts'].items() if c.get('support') == 'rendered'}
     st['flag_kinds'], st['vflag_kinds'], st['stage_names'] = FLAG_KINDS, VFLAG_KINDS, STAGE_NAMES
     st['revisions'] = art.REVISIONS
     st['paid_enabled'] = os.environ.get('VIDEO_DIRECTOR_PAID_ENABLED') == '1'
     if st['gate']['plan']:
         st['gate']['plan'] = {k: v for k, v in st['gate']['plan'].items() if k != 'plan'}
-        apv = [x for x in st['scripts'] if x['status'] == 'approved']
-        st['gate']['plan_stale'] = bool((st['voice_profile'] or {}).get('name') != st['gate']['plan']['voice']['name'] or
-                                        (apv and apv[-1]['v'] != st['gate']['plan']['script_v']) or
-                                        st['gate']['plan'].get('created', '') < max((h['at'] for h in st['history'] if h['action'] in
-                                        ('term_decision', 'set_budget', 'authorize_voice', 'set_voice', 'take_decision', 'storyboard_decision', 'render_decision')), default=''))
+        st['gate']['plan_stale'] = _plan_stale(st)
     try:
         st['research_terms'] = [{'ar': t['ar'], 'term': t['term'], 'default': t.get('final', 'latin'), 'decision': (st['gate'].get('terms') or {}).get(t['ar'])}
                                 for t in (S.research(pid) or {}).get('terms', [])]

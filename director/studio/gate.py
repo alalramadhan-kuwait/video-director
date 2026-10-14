@@ -76,6 +76,7 @@ def plan(studio, pid) -> dict:
            'totals': p['totals'], 'chars_total': p['chars_total'], 'findings': p['findings'], 'budget_remaining': remaining,
            'paid_enabled': os.environ.get('VIDEO_DIRECTOR_PAID_ENABLED') == '1', 'blockers': blockers,
            'proposed_terms': [{'surface': e.surface, 'rule': e.providers[PROVIDER]} for e in lib.entries if e.status != 'approved'],
+           'overrides': [f"script v{x['v']} was approved over a critical check: {x.get('note_decision', '')}" for x in st['scripts'] if x.get('override') and x['status'] == 'approved'],
            'plan': p}
     studio.act(pid, 'gate_plan', rec, actor='system')
     return rec
@@ -108,6 +109,8 @@ def blockers_for(st, v, p, lib, remaining) -> list[str]:
     ok_r = [r for r in st['renders'] if r.get('state') == 'ok']
     if not ok_r or ok_r[-1].get('decision') != 'approved_as_draft':
         b.append('the latest draft film is not approved')
+    if ok_r and not any(rv.get('render') == ok_r[-1]['id'] for rv in st['review']['runs']):
+        b.append(f'the latest draft film ({ok_r[-1]["id"]}) has not been checked by the independent reviewer')
     open_f = [f for f in st['review']['findings'].values() if not f['decision']]
     if open_f: b.append(f'{len(open_f)} review finding(s) open')
     open_t = [t for t in st['fix_tasks'] if t['status'] == 'open']
