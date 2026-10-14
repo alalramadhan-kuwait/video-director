@@ -1,9 +1,9 @@
 <title>Rolex Oyster Review</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
-/* Layout: a phone-first review desk — sticky tab bar, one screen per job, paper cards for things to judge. */
+/* Layout: a phone-first review desk — sticky tab bar, one screen per job, few words; Arabic (RTL) first, English one tap away. */
 :root{
   --paper:#EEEAE0; --card:#F8F6F0; --ink:#17181B; --muted:#5E5B54; --line:#D6D0C3; --accent:#8A6A2E;
   --ok:#2F6B45; --okb:#DCEBDF; --warn:#8A5A00; --warnb:#F6E6C4; --bad:#9B2C2C; --badb:#F5DCDA; --info:#3C4A66; --infob:#DFE4EE;
@@ -18,57 +18,55 @@
   --ok:#8CC9A0; --okb:#1E3326; --warn:#E6BE6A; --warnb:#3A2E14; --bad:#F0A39C; --badb:#3D1F1D; --info:#AFC0E6; --infob:#232B3D; color-scheme:dark}
 *{box-sizing:border-box} [hidden]{display:none!important}
 body{background:var(--paper);color:var(--ink);font:15px/1.5 var(--f-ui);margin:0}
-.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:12px 64px}
-h1{font-size:1.35rem;margin:0;text-wrap:balance;letter-spacing:-.01em} h2{font-size:1.1rem;margin:0 0 4px;text-wrap:balance} h3{font-size:.98rem;margin:0}
-p{margin:0} .muted{color:var(--muted)} .small{font-size:.86rem} .tiny{font-size:.76rem} .mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
-.ar{font-family:var(--f-ar);direction:rtl;text-align:right;line-height:1.75}
+body.rtl{font-family:var(--f-ar);font-size:16px}
+.wrap{max-width:860px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px 64px}
+h1{font-size:1.25rem;margin:0;text-wrap:balance} h2{font-size:1.05rem;margin:0;text-wrap:balance} h3{font-size:.95rem;margin:0}
+p{margin:0} .muted{color:var(--muted)} .small{font-size:.86rem} .tiny{font-size:.76rem}
+.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums;direction:ltr;unicode-bidi:isolate}
+.ar{font-family:var(--f-ar);direction:rtl;text-align:right;line-height:1.8}
 .stack{display:flex;flex-direction:column;gap:10px;min-width:0} .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;min-width:0}
 .between{justify-content:space-between}
-.lock{border:1.5px solid var(--warn);background:var(--warnb);color:var(--ink);border-radius:10px;padding:10px 12px;font-size:.86rem;display:flex;flex-direction:column;gap:4px}
-.lock b{color:var(--warn)}
-.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:8px max(16px,env(safe-area-inset-left,0px)) 0}
+.lock{border:1.5px solid var(--warn);background:var(--warnb);border-radius:10px;padding:8px 12px;font-size:.84rem;font-weight:600;color:var(--warn)}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--line);margin-inline:calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:6px max(16px,env(safe-area-inset-left,0px)) 0}
 .tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none} .tabs::-webkit-scrollbar{display:none}
 .tabs a{flex:none;padding:9px 12px;border-radius:8px 8px 0 0;color:var(--muted);text-decoration:none;font-weight:600;font-size:.9rem}
 .tabs a[aria-current="page"]{color:var(--ink);background:var(--card);box-shadow:inset 0 -2px 0 var(--accent)}
-.screen{display:flex;flex-direction:column;gap:14px;padding-top:14px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.pill{display:inline-flex;align-items:center;gap:4px;font:600 .72rem/1.3 var(--f-ui);letter-spacing:.03em;text-transform:uppercase;border-radius:6px;padding:3px 7px;max-width:100%;white-space:normal}
+.screen{display:flex;flex-direction:column;gap:12px;padding-top:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:4px;font-weight:600;font-size:.74rem;line-height:1.3;border-radius:6px;padding:3px 7px;max-width:100%;white-space:normal}
 .p-ok{background:var(--okb);color:var(--ok)} .p-warn{background:var(--warnb);color:var(--warn)} .p-bad{background:var(--badb);color:var(--bad)} .p-info{background:var(--infob);color:var(--info)}
-button{font:600 .9rem var(--f-ui);border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:9px 13px;cursor:pointer;min-height:40px}
-button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button{font:inherit;font-weight:600;font-size:.9rem;border-radius:9px;border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 12px;cursor:pointer;min-height:40px}
+button:focus-visible,a:focus-visible,textarea:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 button:disabled{opacity:.45;cursor:not-allowed}
-button.save{border-color:var(--accent);background:var(--accent);color:var(--card)} button.save::after{content:"saves";font:600 .62rem var(--f-mono);margin-left:7px;opacity:.8;text-transform:uppercase}
-button.chip{min-height:34px;padding:6px 10px;font-weight:500} button.chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
-textarea,input[type=text]{width:100%;font:15px/1.4 var(--f-ui);background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 10px}
+button.save{border-color:var(--accent);background:var(--accent);color:var(--card)} button.save::before{content:"●";font-size:.55rem;margin-inline-end:6px;vertical-align:middle}
+button.chip{min-height:34px;padding:5px 10px;font-weight:500} button.chip[aria-pressed="true"]{background:var(--ink);color:var(--card);border-color:var(--ink)}
+button.lang{min-height:32px;padding:4px 10px;font-size:.8rem}
+textarea{width:100%;font:inherit;font-size:15px;background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:8px 10px}
 video{width:100%;max-width:420px;aspect-ratio:9/16;background:#000;border-radius:12px;display:block;margin-inline:auto}
 .frames{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-width:420px}
 .frames figure,.thumbs figure{margin:0;display:flex;flex-direction:column;gap:3px}
 .frames img,.thumbs img{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:8px;border:1px solid var(--line);background:var(--paper)}
-.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
 figcaption{font-size:.72rem;color:var(--muted)}
-.scenehead{display:grid;grid-template-columns:auto 1fr;gap:4px 10px;align-items:baseline}
 .sid{font:700 1rem var(--f-mono)} .flagged{border:2px solid var(--warn)}
 .words{display:flex;flex-wrap:wrap;gap:4px;direction:rtl}
 .words button{font:500 1rem var(--f-ar);min-height:34px;padding:3px 8px} .words button.on{background:var(--accent);color:var(--card);border-color:var(--accent)}
 .words button.pick{outline:2px solid var(--bad);outline-offset:1px}
-.tablewrap{overflow-x:auto;max-width:100%} table{border-collapse:collapse;width:100%;font-size:.84rem} td,th{text-align:start;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-.legend{display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;font-size:.84rem}
-.saved{border-left:3px solid var(--accent);padding:6px 10px;background:var(--paper);border-radius:0 8px 8px 0;font-size:.84rem}
+.tablewrap{overflow-x:auto;max-width:100%} table{border-collapse:collapse;width:100%;font-size:.82rem} td,th{text-align:start;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.saved{border-inline-start:3px solid var(--accent);padding:6px 10px;background:var(--paper);border-radius:8px;font-size:.84rem}
+details>summary{cursor:pointer;font-weight:600;font-size:.88rem;color:var(--muted)} details[open]>summary{margin-bottom:8px}
 .prio{font:700 .78rem var(--f-mono);color:var(--accent)}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:8px 10px;align-items:center;font-size:.86rem}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.86);display:flex;align-items:center;justify-content:center;z-index:20;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px))}
 .lightbox img{max-height:100%;max-width:100%;border-radius:10px}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--card);padding:10px 14px;border-radius:10px;font-size:.9rem;z-index:30;max-width:calc(100% - 32px)}
-details>summary{cursor:pointer;font-weight:600}
 @media (prefers-reduced-motion: reduce){*{scroll-behavior:auto!important;transition:none!important}}
 </style>
 
 <div class="wrap">
   <header class="stack" style="gap:8px">
-    <div class="row between"><h1>Rolex Oyster · review copy</h1><span class="pill p-info" id="snap"></span></div>
-    <div class="lock" id="lock">
-      <span><b>Draft for your review only.</b> Temporary narration: free draft voice (gTTS), not the final narrator. Artwork is unapproved unless a scene says approved; 9 scenes still use default art nobody has reviewed.</span>
-      <span>This copy cannot generate voice, images or video, cannot spend anything and cannot change the project. It holds no keys. Buttons marked <span class="mono">saves</span> only record your review decision here; Claude applies them to the project when you ask.</span>
-    </div>
+    <div class="row between"><h1 id="title"></h1><button class="lang" id="lang"></button></div>
+    <div class="lock" id="lock"></div>
   </header>
   <nav class="bar" aria-label="Sections"><div class="tabs" id="tabs"></div></nav>
   <main id="main"></main>
@@ -83,9 +81,83 @@ const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [..
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const ar = (s) => `<p class="ar">${esc(s)}</p>`;
 const fmt = (s) => { s = Math.max(0, s); return `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`; };
+const tc = (s) => `<span class="mono">${fmt(s)}</span>`;
 const toast = (m) => { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 2600); };
-const TABS = [['film', 'Film'], ['scenes', 'Scenes'], ['voice', 'Voice'], ['art', 'Art'], ['inbox', 'Inbox'], ['history', 'Progress'], ['fixes', 'Fix plan'], ['about', 'Access']];
-$('#snap').textContent = 'snapshot ' + D.project.snapshot.replace('T', ' ').replace('Z', ' UTC');
+
+// ---------------------------------------------------------------- words (Arabic first; English one tap away)
+let LANG = 'ar'; try { LANG = localStorage.getItem('lang') || 'ar'; } catch (e) {}
+const T = {
+  ar: { title: 'أويستر رولكس · مراجعة', lang: 'English', lock: 'مسودة للمراجعة · صوت مؤقت · رسوم غير معتمدة · لا توليد ولا دفع',
+    tabs: ['الفيلم', 'المشاهد', 'الصوت', 'الرسوم', 'الوارد', 'التقدّم', 'خطة الإصلاح', 'الصلاحيات'],
+    film: 'الفيلم', loadFilm: 'تشغيل الفيلم كاملًا', notLoaded: (mb) => `غير محمّل (${mb} م.ب)`, loading: (g, t) => `جارٍ التحميل… ${g} من ${t} م.ب`, loaded: 'تم التحميل',
+    scenesPlay: 'تشغيل مشهد', verdict: 'رأيك في المسودة', looksRight: 'مقبولة كمسودة', needsChanges: 'تحتاج تعديلًا', notePh: 'ملاحظة (اختياري)',
+    hook: 'الافتتاحية المختارة', onScreen: 'على الشاشة', why: 'سبب الاختيار', others: 'الافتتاحيات الأخرى', playHook: 'تشغيل الافتتاحية', keepHook: 'الإبقاء عليها', reHook: 'إعادة النظر',
+    scenesTitle: (n) => `${n} مشاهد برسوم افتراضية لم تُراجع`, unrev: 'رسم افتراضي · لم يُراجع', placeholder: 'صورة مؤقتة', approvedV: (v) => `معتمد · v${v}`,
+    voiceOf: (s) => `الصوت: ${s}`, playScene: '▶ تشغيل المشهد', versions: 'النسخ', approveV: (v) => `اعتماد v${v}`, reqChanges: 'طلب تعديل', send: 'إرسال الطلب',
+    modPh: 'ملاحظة للفنان (مثلًا: صورة حقيقية هنا)', banner: 'الشريط',
+    voiceTitle: 'صوت مؤقت (gTTS) — للصياغة والإيقاع فقط', play: '▶ تشغيل', before: 'قبل الإصلاح', after: 'بعد الإصلاح', take: 'التسجيل',
+    soundsRight: 'سليم', flag: 'إبلاغ عن الكلمة', picked: (w) => `الكلمة: «${w}»`, noPick: 'اضغط كلمة أولًا', heard: 'ما سمعته الآلة', vnotePh: 'ملاحظة',
+    artNone: 'لا شيء معتمد', blocked: 'محجوب · يحتاج صورة مرخّصة', selected: 'مختار',
+    mine: 'قراراتك المحفوظة', noneYet: 'لا شيء بعد.', open: 'بنود مفتوحة', unrevScenes: 'مشاهد لم تُراجع', gate: 'الصوت النهائي', waiting: 'بانتظار', toDecide: 'للقرار',
+    steps: 'المراحل', work: 'وقت العمل المقاس', hist: (n) => `السجل (${n} خطوة)`, histNote: 'بالإنجليزية كما سجّله النظام',
+    planTitle: 'خطة الإصلاح — لم يُنفَّذ شيء بعد', what: 'المشكلة', how: 'الإصلاح المقترح',
+    access: 'الصلاحيات', viewOnly: 'عرض فقط', viewOnlyD: 'التشغيل، الصور، القراءة.', saves: 'يحفظ', savesD: 'أزرار بنقطة ●: قرارك يُحفظ هنا فقط ولا يُطبَّق على المشروع إلا بطلبك.',
+    never: 'غير ممكن', neverD: 'توليد صوت أو صور أو فيديو، الدفع، تعديل المشروع أو الأعمال المعتمدة. لا مفاتيح في هذه النسخة.',
+    snapshot: 'لقطة من الاختبار المجمّد', savedD: 'محفوظ', notApplied: 'لم يُطبَّق بعد', cantSave: 'الحفظ غير متاح هنا', readOnly: 'للقراءة فقط',
+    saved: 'تم الحفظ', notSaved: 'لم يُحفظ', pickFirst: 'اختر تعديلًا أو اكتب ملاحظة', tapPlay: 'اضغط تشغيل في الفيلم', audioErr: 'تعذّر تشغيل الصوت',
+    est: (s) => `≈ ${s} بصوت الراوي`, draftOnly: 'معتمد كمسودة فقط' },
+  en: { title: 'Rolex Oyster · review', lang: 'العربية', lock: 'Draft for review · temporary voice · unapproved art · no generation, no spending',
+    tabs: ['Film', 'Scenes', 'Voice', 'Art', 'Inbox', 'Progress', 'Fix plan', 'Access'],
+    film: 'Film', loadFilm: 'Play the whole film', notLoaded: (mb) => `Not loaded (${mb} MB)`, loading: (g, t) => `Loading… ${g} of ${t} MB`, loaded: 'Loaded',
+    scenesPlay: 'Play a scene', verdict: 'Your verdict', looksRight: 'OK as a draft', needsChanges: 'Needs changes', notePh: 'Note (optional)',
+    hook: 'Selected hook', onScreen: 'On screen', why: 'Why it was chosen', others: 'Other hooks', playHook: 'Play the hook', keepHook: 'Keep it', reHook: 'Reconsider',
+    scenesTitle: (n) => `${n} scenes use unreviewed default art`, unrev: 'Default art · unreviewed', placeholder: 'Placeholder', approvedV: (v) => `Approved · v${v}`,
+    voiceOf: (s) => `Voice: ${s}`, playScene: '▶ Play scene', versions: 'Versions', approveV: (v) => `Approve v${v}`, reqChanges: 'Request changes', send: 'Send request',
+    modPh: 'Note for the artist (e.g. a real photo here)', banner: 'Banner',
+    voiceTitle: 'Temporary voice (gTTS) — wording and rhythm only', play: '▶ Play', before: 'Before the fix', after: 'After the fix', take: 'Take',
+    soundsRight: 'Sounds right', flag: 'Flag word', picked: (w) => `Word: «${w}»`, noPick: 'Tap a word first', heard: 'Machine transcript', vnotePh: 'Note',
+    artNone: 'Nothing approved', blocked: 'Blocked · needs a licensed photo', selected: 'Selected',
+    mine: 'Your saved decisions', noneYet: 'None yet.', open: 'Open items', unrevScenes: 'Unreviewed scenes', gate: 'Final voice', waiting: 'waiting', toDecide: 'to decide',
+    steps: 'Steps', work: 'Measured work', hist: (n) => `History (${n} steps)`, histNote: 'as logged by the system',
+    planTitle: 'Fix plan — nothing changed yet', what: 'Problem', how: 'Proposed fix',
+    access: 'Access', viewOnly: 'View only', viewOnlyD: 'Playing, images, reading.', saves: 'Saves', savesD: 'Buttons with ●: your decision is saved here only, applied to the project only when you ask.',
+    never: 'Not possible', neverD: 'Generating voice, images or video; spending; changing the project or approved work. No keys in this copy.',
+    snapshot: 'Snapshot of the frozen test', savedD: 'Saved', notApplied: 'not applied yet', cantSave: 'Saving is not available here', readOnly: 'Read-only',
+    saved: 'Saved', notSaved: 'Not saved', pickFirst: 'Pick a change or write a note', tapPlay: 'Tap play on the film', audioErr: 'Audio could not play',
+    est: (s) => `≈ ${s} with the narrator`, draftOnly: 'approved as a draft only' } };
+const t = (k, ...a) => { const v = T[LANG][k]; return typeof v === 'function' ? v(...a) : v; };
+const TECH = { ar: { kinetic_type: 'نص متحرك', animated_timeline: 'خط زمني', technical_illustration: 'رسم تقني مبسّط', neutral_placeholder: 'صورة مؤقتة', map: 'خريطة',
+  parallax_25d: 'مشهد بعمق', paper_cut: 'قصاصات ورق', newspaper_card: 'بطاقة صحيفة', archival_collage: 'كولاج أرشيفي', product_macro: 'لقطة منتج', dark_keynote: 'عرض داكن' } };
+const tech = (k) => (LANG === 'ar' ? TECH.ar[k] : null) || k.replace(/_/g, ' ');
+const CHIP = { ar: { 'theme:tk-ink': 'ورق أغمق', 'theme:tk-bone': 'ورق أفتح', 'text_size:1.2': 'نص أكبر', 'zoom:1.18': 'تقريب', 'slower:1.4': 'أبطأ' } };
+const chip = (c) => (LANG === 'ar' ? CHIP.ar[c] : D.chip_names[c]) || c;
+const ST = { ar: { approved: 'معتمد', rejected: 'مرفوض', replaced: 'مُستبدَل', withdrawn: 'مسحوب', candidate: 'بانتظار القرار', default: 'افتراضي', ok: 'تم', failed: 'فشل', interrupted: 'متوقف',
+  finished: 'منتهٍ', running: 'يعمل', waiting_review: 'بانتظارك', not_started: 'لم يبدأ', approved_as_draft: 'معتمد كمسودة', looks_right_as_draft: 'مقبولة كمسودة', needs_changes: 'تحتاج تعديلًا',
+  keep_hook: 'إبقاء الافتتاحية', reconsider_hook: 'إعادة النظر في الافتتاحية', approve_version: 'اعتماد نسخة', request_changes: 'طلب تعديل', sounds_right: 'سليم', flag_word: 'كلمة مُبلَّغ عنها' } };
+const st = (s) => (LANG === 'ar' ? ST.ar[s] : null) || String(s ?? '').replace(/_/g, ' ');
+const KIND = { ar: { film: 'الفيلم', hook: 'الافتتاحية', scene: 'مشهد', voice: 'صوت' } };
+const STEP = { ar: { project: 'المشروع', research: 'البحث', script: 'النص', hook: 'الافتتاحية', voice: 'الصوت', art: 'الرسوم', storyboard: 'لوحة المشاهد', draft: 'المسودة', review: 'المراجعة', gate: 'الصوت النهائي' } };
+function inboxText(w) {
+  if (LANG !== 'ar') return w;
+  let m = w.match(/^(\S+): your note is waiting for the art operator/); if (m) return `${m[1]}: ملاحظتك بانتظار الفنان`;
+  if (/disabled in this environment/.test(w)) return 'التوليد المدفوع مقفل في بيئة الاختبار (ليس قرارًا مطلوبًا)';
+  return w;
+}
+const PLAN = {
+  ar: [['1', 'كبير', 'فحص الادعاء التاريخي يفوّت الصيغة الأوضح', 'لا يكتشف «اخترعت رولكس الساعة المقاومة للماء» وخمس صيغ أخرى، ويُخطئ في «في أول مرة نزلت فيها الساعة إلى الماء».', 'قواعد مشتركة لكل المشاريع، ومجموعة اختبار من ٤٠ جملة على الأقل، وصيغ جديدة من المدقق لم يرها النظام.'],
+    ['2', 'كبير', 'تسعة مشاهد برسوم افتراضية لم تُراجع', 'h وl3 وl4 وl6 وl7 وl8 وl10 وl12 وl13 دخلت الفيلم دون قرار مستقل.', 'قرار لكل مشهد قبل اعتماد لوحة المشاهد؛ l6 يحتاج صورة مرخّصة أو تصميمًا بلا صورة.'],
+    ['3', 'متوسط', 'الإطار الأول فارغ والنهاية سوداء صامتة', 'غلاف ريلز فارغ، و١٫٣ ثانية سوداء بلا صوت في النهاية.', 'بطاقة الافتتاحية ظاهرة من الإطار الأول، وقصّ النهاية، وفحصان جديدان للمراجع.'],
+    ['4', 'متوسط', 'كشف «الإصلاح لم يغيّر شيئًا» غير موثوق', 'يعتمد على موقع تقديري للكلمة.', 'الربط بالكلمات المجاورة، وإن تعذّر يقول «لا أستطيع الحكم — استمع».'],
+    ['5', 'متوسط', 'عبارة «تسجيل مُصحّح» مضلِّلة', 'الوارد يقول «corrected take».', '«تسجيل جديد بعد إصلاح» في كل مكان.'],
+    ['6', 'متوسط', 'ملاحظة الفنان تعود إلى «بانتظار» بعد الرد', 'ملاحظتا l11 وl2 في المشروع المنتهي.', 'إغلاق الملاحظة حين يجيب الفنان بنسخة جديدة.'],
+    ['7', 'منخفض', 'مشكلات الجوال والاستخدام', 'رسالة خاطئة بعد العودة لصوت مُصرّح، معاينات وسط الحركة، تنبيهات صغيرة جدًا، لم يُجرَّب على آيفون حقيقي.', 'إصلاحها بعد ملاحظاتك من هذه النسخة.']],
+  en: [['1', 'Major', 'Claim check misses the plainest form', 'Misses «اخترعت رولكس الساعة المقاومة للماء» and 5 other phrasings; wrongly flags «في أول مرة نزلت فيها الساعة إلى الماء».', 'Shared rules for every project, a test set of 40+ sentences, and new unseen phrasings from the auditor.'],
+    ['2', 'Major', 'Nine scenes with unreviewed default art', 'h, l3, l4, l6, l7, l8, l10, l12, l13 entered the film without their own decision.', 'A decision per scene before the storyboard can pass; l6 needs a licensed photo or a no-photo design.'],
+    ['3', 'Medium', 'Blank first frame, black silent end', 'Empty Reels cover; 1.3 s of black silence at the end.', 'Hook card visible at frame 0, trim the tail, two new reviewer checks.'],
+    ['4', 'Medium', '"The fix changed nothing" detection unreliable', 'Relies on an estimated word position.', 'Anchor on neighbouring words; otherwise say "cannot tell — listen".'],
+    ['5', 'Medium', 'Misleading "corrected take" wording', 'The inbox says "corrected take".', '"New take after a fix" everywhere.'],
+    ['6', 'Medium', 'Answered art note returns to "waiting"', 'l11 and l2 notes in the finished project.', 'Close the note when the operator answers with a new version.'],
+    ['7', 'Low', 'Mobile and usability', 'Wrong toast after switching back to an authorized voice, mid-animation previews, tiny disclaimers, never tried on a real iPhone.', 'Fix after your notes from this copy.']] };
 
 // ---------------------------------------------------------------- saved review decisions (artifact store; owner writes)
 let DB = null, DECISIONS = [], CANWRITE = false;
@@ -94,19 +166,19 @@ let DB = null, DECISIONS = [], CANWRITE = false;
     const user = await window.claude?.use?.('user');
     DB = await window.claude?.use?.('db');
     CANWRITE = !!DB && ((user && (await user.isOwner())) ?? false);
-    if (DB) DB.collection('decisions').orderBy('at', 'asc').onSnapshot((snap) => { DECISIONS = snap.docs.map((d) => ({ id: d.id, ...d.data() })); render(); },
-      () => { DB = null; render(); });
+    if (DB) DB.collection('decisions').orderBy('at', 'asc').onSnapshot((snap) => { DECISIONS = snap.docs.map((d) => ({ id: d.id, ...d.data() })); render(); }, () => { DB = null; render(); });
   } catch (e) { DB = null; }
   render();
 })();
 async function save(kind, target, decision, extra = {}) {
-  if (!DB || !CANWRITE) { toast('Saving is not available in this view'); return false; }
-  try { await DB.collection('decisions').add({ kind, target, decision, ...extra, at: new Date().toISOString() }); toast('Saved: ' + decision.replace(/_/g, ' ')); return true; }
-  catch (e) { toast('Not saved: ' + (e.code || 'error')); return false; }
+  if (!DB || !CANWRITE) { toast(t('cantSave')); return false; }
+  try { await DB.collection('decisions').add({ kind, target, decision, ...extra, at: new Date().toISOString() }); toast(t('saved')); return true; }
+  catch (e) { toast(t('notSaved') + ' (' + (e.code || 'error') + ')'); return false; }
 }
 const latest = (kind, target) => DECISIONS.filter((d) => d.kind === kind && d.target === target).pop();
-const savedNote = (d) => d ? `<div class="saved">Your saved decision · <b>${esc(d.decision.replace(/_/g, ' '))}</b>${d.version ? ' · v' + esc(d.version) : ''}${d.changes?.length ? ' · ' + esc(d.changes.map((c) => D.chip_names[c] || c).join(', ')) : ''}${d.word ? ' · word «' + esc(d.word) + '»' : ''}${d.note ? ' — ' + esc(d.note) : ''}<br><span class="tiny muted">${esc(d.at.replace('T', ' ').slice(0, 16))} · not yet applied to the project</span></div>` : '';
-const saveState = () => !DB ? '<span class="tiny muted">Saving is unavailable in this view (signed out or storage not granted); everything else works.</span>' : !CANWRITE ? '<span class="tiny muted">Read-only for you: only the owner can save review decisions.</span>' : '';
+const decText = (d) => `<b>${esc(st(d.decision))}</b>${d.version ? ' · v' + esc(d.version) : ''}${d.changes?.length ? ' · ' + esc(d.changes.map(chip).join('، ')) : ''}${d.word ? ' · «' + esc(d.word) + '»' : ''}${d.note ? ' — ' + esc(d.note) : ''}`;
+const savedNote = (d) => d ? `<div class="saved">${t('savedD')}: ${decText(d)} <span class="tiny muted">· ${t('notApplied')}</span></div>` : '';
+const saveState = () => !DB ? `<span class="tiny muted">${t('cantSave')}</span>` : !CANWRITE ? `<span class="tiny muted">${t('readOnly')}</span>` : '';
 
 // ---------------------------------------------------------------- media: fetched once, played from memory (works without range requests)
 const BLOBS = {};
@@ -123,161 +195,139 @@ let FILM = null, STOP_AT = null;
 async function filmReady() {
   const v = $('#film'); if (!v) return null;
   if (FILM) return v;
-  const st = $('#filmstate'); st.textContent = 'Loading the film…';
+  const stt = $('#filmstate');
   const src = v.canPlayType('video/mp4; codecs="avc1.4d401f, mp4a.40.2"') ? D.film.src : D.film.webm;   // iPhone: MP4
-  try { v.src = await blobUrl(src, (g, t) => (st.textContent = `Loading the film… ${(g / 1e6).toFixed(1)} of ${(t / 1e6).toFixed(1)} MB`)); }
-  catch (e) { v.src = src; }
+  try { v.src = await blobUrl(src, (g, n) => (stt.textContent = t('loading', (g / 1e6).toFixed(1), (n / 1e6).toFixed(1)))); } catch (e) { v.src = src; }
   await new Promise((ok) => { if (v.readyState >= 1) ok(); else v.addEventListener('loadedmetadata', ok, { once: true }); });
-  st.textContent = 'Film loaded. Draft narration; artwork mostly unreviewed.'; FILM = v; return v;
+  stt.textContent = t('loaded'); FILM = v; return v;
 }
-async function playRange(a, b) {
-  const v = await filmReady(); if (!v) return;
-  STOP_AT = b; v.currentTime = a; try { await v.play(); } catch (e) { toast('Tap play on the film to start'); }
-}
+async function playRange(a, b) { const v = await filmReady(); if (!v) return; STOP_AT = b; v.currentTime = a; try { await v.play(); } catch (e) { toast(t('tapPlay')); } }
 document.addEventListener('timeupdate', (e) => { const v = e.target; if (v.id === 'film' && STOP_AT != null && v.currentTime >= STOP_AT) { v.pause(); STOP_AT = null; } }, true);
 const AUD = new Audio(); let AUD_STOP = null, AUD_TAKE = null;
 AUD.addEventListener('timeupdate', () => { if (AUD_STOP != null && AUD.currentTime >= AUD_STOP) { AUD.pause(); AUD_STOP = null; } hiWord(); });
 async function playTake(take, from = 0, to = null) {
-  try { const u = await blobUrl(take.audio); if (AUD.dataset.src !== u) { AUD.src = u; AUD.dataset.src = u; } } catch (e) { toast('Audio could not load'); return; }
-  AUD_TAKE = take; AUD_STOP = to; AUD.currentTime = from; try { await AUD.play(); } catch (e) { toast('Tap again to play'); }
+  try { const u = await blobUrl(take.audio); if (AUD.dataset.src !== u) { AUD.src = u; AUD.dataset.src = u; } } catch (e) { toast(t('audioErr')); return; }
+  AUD_TAKE = take; AUD_STOP = to; AUD.currentTime = from; try { await AUD.play(); } catch (e) { toast(t('audioErr')); }
 }
-function hiWord() { if (!AUD_TAKE) return; const t = AUD.currentTime; $$(`[data-w="${AUD_TAKE.id}"]`).forEach((b) => { const w = AUD_TAKE.words[+b.dataset.i]; b.classList.toggle('on', !AUD.paused && t >= w.s && t < w.e); }); }
+function hiWord() { if (!AUD_TAKE) return; const x = AUD.currentTime; $$(`[data-w="${AUD_TAKE.id}"]`).forEach((b) => { const w = AUD_TAKE.words[+b.dataset.i]; b.classList.toggle('on', !AUD.paused && x >= w.s && x < w.e); }); }
 AUD.addEventListener('pause', hiWord);
 
 // ---------------------------------------------------------------- screens
-const scenePill = (s) => s.unreviewed ? `<span class="pill p-warn">Unreviewed default art</span>${s.placeholder ? '<span class="pill p-bad">Placeholder, real photo needed</span>' : ''}`
-  : `<span class="pill p-ok">Art approved · v${s.approved.version}</span>`;
+const scenePill = (s) => s.unreviewed ? `<span class="pill p-warn">${t('unrev')}</span>${s.placeholder ? `<span class="pill p-bad">${t('placeholder')}</span>` : ''}` : `<span class="pill p-ok">${t('approvedV', s.approved.version)}</span>`;
 function film() {
   const h = D.hook, sel = h.options.find((o) => o.id === h.selected);
-  return `<section class="card"><div class="row between"><h2>The latest draft film</h2><span class="pill p-warn">Draft · temporary voice</span></div>
-    <p class="small muted">${esc(D.film.id)} · ${fmt(D.film.seconds)} · ${esc(D.film.master)} · ${D.film.size_mb} MB. In the project it is approved <i>as a draft</i> only. About ${fmt(D.storyboard.est_final_seconds || 0)} with the brand narrator's pace.</p>
+  return `<section class="card"><div class="row between"><h2>${t('film')} ${tc(D.film.seconds)}</h2><span class="pill p-warn">${t('draftOnly')}</span></div>
     <video id="film" controls playsinline preload="none" poster="${esc(D.film.poster)}"></video>
-    <div class="row"><button id="loadfilm">Load and play the whole film</button><span class="tiny muted" id="filmstate">Not loaded yet (${D.film.size_mb} MB).</span></div>
-    <div class="stack" style="gap:6px"><h3>Play one scene</h3><div class="row">${D.scenes.map((s) => `<button class="chip" data-scene-play="${s.id}" title="${fmt(s.start)}–${fmt(s.end)}"><span class="mono">${s.id}</span>&nbsp;${fmt(s.start)}</button>`).join('')}</div></div>
-    ${saveState()}
-    <div class="stack" style="gap:6px"><h3>Your verdict on this draft</h3><textarea id="filmnote" rows="2" placeholder="What should change in the film (optional)"></textarea>
-    <div class="row"><button class="save" data-film-dec="looks_right_as_draft">Looks right as a draft</button><button class="save" data-film-dec="needs_changes">Needs changes</button></div>${savedNote(latest('film', D.film.id))}</div></section>
-  <section class="card"><div class="row between"><h2>Selected hook: ${esc(sel.id)} · ${esc(sel.type)}</h2><span class="pill p-info">Payoff: ${esc(h.delivery?.line || '—')}</span></div>
-    ${ar(sel.spoken)}<p class="small"><b>On screen:</b> <span class="ar" style="display:inline">${esc(sel.on_screen)}</span></p>
-    <div class="thumbs">${sel.frames.map((f, i) => `<figure><img src="${esc(f)}" alt="${esc(sel.id)} frame ${i + 1}" data-zoom loading="lazy"><figcaption>${['0.0 s', '0.5 s', '2.0 s'][i] || ''}</figcaption></figure>`).join('')}</div>
-    <p class="small muted">Why it was recommended: ${esc(h.reasons)}</p>
-    <div class="row"><button data-scene-play="h">Play the hook as it is in the film</button></div>
-    <details><summary class="small">The other three hooks</summary><div class="stack" style="margin-top:8px">${h.options.filter((o) => o.id !== sel.id).map((o) => `<div class="stack" style="gap:4px"><b class="small">${esc(o.id)} · ${esc(o.type)}</b>${ar(o.spoken)}<div class="thumbs">${o.frames.slice(0, 2).map((f) => `<img src="${esc(f)}" alt="${esc(o.id)}" data-zoom loading="lazy">`).join('')}</div></div>`).join('')}</div></details>
-    <div class="row"><button class="save" data-hook-dec="keep_hook">Keep ${esc(sel.id)}</button><button class="save" data-hook-dec="reconsider_hook">Reconsider the hook</button></div>${savedNote(latest('hook', 'hook'))}</section>`;
+    <div class="row"><button id="loadfilm">${t('loadFilm')}</button><span class="tiny muted" id="filmstate">${t('notLoaded', D.film.size_mb)}</span></div>
+    <span class="tiny muted">${t('est', fmt(D.storyboard.est_final_seconds || 0))}</span>
+    <h3>${t('scenesPlay')}</h3><div class="row">${D.scenes.map((s) => `<button class="chip" data-scene-play="${s.id}"><span class="mono">${s.id}</span></button>`).join('')}</div>
+    <h3>${t('verdict')}</h3>${saveState()}<textarea id="filmnote" rows="2" placeholder="${t('notePh')}"></textarea>
+    <div class="row"><button class="save" data-film-dec="looks_right_as_draft">${t('looksRight')}</button><button class="save" data-film-dec="needs_changes">${t('needsChanges')}</button></div>${savedNote(latest('film', D.film.id))}</section>
+  <section class="card"><div class="row between"><h2>${t('hook')} · ${esc(sel.id)}</h2><button data-scene-play="h">${t('playHook')}</button></div>
+    ${ar(sel.spoken)}<p class="small"><b>${t('onScreen')}:</b> <span class="ar" style="display:inline">${esc(sel.on_screen)}</span></p>
+    <div class="thumbs">${sel.frames.map((f, i) => `<img src="${esc(f)}" alt="${esc(sel.id)} ${i + 1}" data-zoom loading="lazy">`).join('')}</div>
+    <details><summary>${t('why')}</summary><p class="small" dir="ltr">${esc(h.reasons)}</p></details>
+    <details><summary>${t('others')}</summary><div class="stack">${h.options.filter((o) => o.id !== sel.id).map((o) => `<div class="stack" style="gap:4px"><b class="small mono">${esc(o.id)}</b>${ar(o.spoken)}<div class="thumbs">${o.frames.slice(0, 2).map((f) => `<img src="${esc(f)}" alt="${esc(o.id)}" data-zoom loading="lazy">`).join('')}</div></div>`).join('')}</div></details>
+    <div class="row"><button class="save" data-hook-dec="keep_hook">${t('keepHook')}</button><button class="save" data-hook-dec="reconsider_hook">${t('reHook')}</button></div>${savedNote(latest('hook', 'hook'))}</section>`;
 }
 function scenes() {
-  const n = D.scenes.filter((s) => s.unreviewed).length;
-  return `<section class="card"><h2>All 13 scenes, as they appear in the film</h2>
-    <p class="small">${n} scenes use <b>unreviewed default art</b>: nobody approved them one by one, and they are not treated as approved. Frames are taken from the draft film itself. For each scene: play it, then approve a specific version or request changes.</p>${saveState()}</section>
+  return `<section class="card"><h2>${t('scenesTitle', D.scenes.filter((s) => s.unreviewed).length)}</h2>${saveState()}</section>
   ${D.scenes.map((s) => {
-    const d = latest('scene', s.id);
     const vers = s.versions.length ? s.versions : [{ v: 1, status: 'default', stills: s.frames.map((f) => f.src), changes: {} }];
     return `<section class="card ${s.unreviewed ? 'flagged' : ''}" id="sc-${s.id}">
-      <div class="scenehead"><span class="sid">${s.id}</span><div class="row">${scenePill(s)}<span class="pill p-info">voice ${esc(s.voice_status)}</span></div>
-      <span></span><span class="tiny muted mono">${fmt(s.start)}–${fmt(s.end)} · ${esc(s.technique.replace(/_/g, ' '))} · ${esc(s.concept_name)}</span></div>
-      ${s.banner ? `<p class="small"><b>Banner:</b> <span class="ar" style="display:inline">${esc(s.banner)}</span></p>` : ''}
+      <div class="row between"><div class="row"><span class="sid">${s.id}</span>${scenePill(s)}</div><span class="tiny muted">${tc(s.start)}–${tc(s.end)} · ${esc(tech(s.technique))}</span></div>
       ${ar(s.line)}
-      <div class="frames">${s.frames.map((f) => `<figure><img src="${esc(f.src)}" alt="${s.id} at ${f.t} s" data-zoom loading="lazy"><figcaption class="mono">${fmt(f.t)} in the film</figcaption></figure>`).join('')}</div>
-      <div class="row"><button data-scene-play="${s.id}">▶ Play this scene</button></div>
-      <div class="stack" style="gap:6px"><h3>Versions</h3>
-        <div class="thumbs">${vers.map((x) => `<figure><img src="${esc(x.stills[0])}" alt="${s.id} v${x.v}" data-zoom loading="lazy"><figcaption>v${x.v} ${x.status ? '· ' + esc(x.status) : ''}${Object.keys(x.changes || {}).length ? ' · ' + esc(Object.keys(x.changes).join(', ')) : ''}</figcaption></figure>`).join('')}</div>
-        <div class="row">${vers.map((x) => `<button class="save" data-sc-approve="${s.id}" data-v="${x.v}">Approve v${x.v}${s.unreviewed ? ' (default, as shown)' : ''}</button>`).join('')}</div></div>
-      <div class="stack" style="gap:6px"><h3>Request changes</h3>
-        <div class="row">${s.chips.map((c) => `<button class="chip" data-chip="${s.id}" data-c="${c}" aria-pressed="false">${esc(D.chip_names[c] || c)}</button>`).join('')}</div>
-        <textarea id="note-${s.id}" rows="2" placeholder="Anything else for the art operator (for example: a real photo here, move the label)"></textarea>
-        <div class="row"><button class="save" data-sc-mod="${s.id}">Request changes to ${s.id}</button></div>
-        <span class="tiny muted">Only changes that really alter this drawing are offered.</span></div>
-      ${savedNote(d)}</section>`; }).join('')}`;
+      <div class="frames">${s.frames.map((f) => `<img src="${esc(f.src)}" alt="${s.id} ${f.t}" data-zoom loading="lazy">`).join('')}</div>
+      <div class="row"><button data-scene-play="${s.id}">${t('playScene')}</button></div>
+      ${vers.length > 1 ? `<div class="thumbs">${vers.map((x) => `<figure><img src="${esc(x.stills[0])}" alt="${s.id} v${x.v}" data-zoom loading="lazy"><figcaption>v${x.v} ${x.status ? '· ' + esc(st(x.status)) : ''}</figcaption></figure>`).join('')}</div>` : ''}
+      <div class="row">${vers.map((x) => `<button class="save" data-sc-approve="${s.id}" data-v="${x.v}">${t('approveV', x.v)}</button>`).join('')}</div>
+      <details><summary>${t('reqChanges')}</summary><div class="stack">
+        <div class="row">${s.chips.map((c) => `<button class="chip" data-chip="${s.id}" data-c="${c}" aria-pressed="false">${esc(chip(c))}</button>`).join('')}</div>
+        <textarea id="note-${s.id}" rows="2" placeholder="${t('modPh')}"></textarea>
+        <div class="row"><button class="save" data-sc-mod="${s.id}">${t('send')}</button></div></div></details>
+      ${savedNote(latest('scene', s.id))}</section>`; }).join('')}`;
 }
 let PICK = {};
 function voice() {
-  return `<section class="card"><h2>Draft voice, line by line</h2><p class="small"><span class="pill p-warn">Temporary narration</span> Free draft voice (gTTS). It shows wording, order and rhythm. It cannot tell how the final narrator will pronounce a name. Tap a word to hear it; tap <b>Flag</b> after picking a word to record a pronunciation problem.</p>${saveState()}</section>
-  ${D.voice.map((l) => `<section class="card" id="vo-${l.line}"><div class="row between"><span class="sid">${l.line}</span><span class="pill ${l.status === 'approved' ? 'p-ok' : 'p-warn'}">take ${esc(l.status)} in the test</span></div>${ar(l.text)}
-    ${l.takes.map((t, k) => `<div class="stack" style="gap:6px"><div class="row between"><span class="small"><b>${l.takes.length > 1 ? (k ? 'New take after a fix' : 'Earlier take') : 'Draft take'}</b> · ${t.seconds.toFixed(1)} s · ${esc(t.status)}</span><button data-play="${t.id}">▶ Play</button></div>
-      <div class="words">${t.words.map((w, i) => `<button data-w="${t.id}" data-i="${i}" title="${w.est ? 'time estimated' : ''}">${esc(w.w)}</button>`).join('')}</div>
-      ${t.spoken ? `<p class="tiny muted">Sent to the draft voice: <span class="ar" style="display:inline">${esc(t.spoken)}</span></p>` : ''}
-      <p class="tiny muted">Machine transcript (not proof of pronunciation): <span class="ar" style="display:inline">${esc(t.heard)}</span></p></div>`).join('')}
-    ${l.flags.map((f) => `<p class="tiny"><span class="pill p-info">flag from the test</span> «${esc(f.word)}» ${esc(f.kind || '')} · ${esc(f.status.replace(/_/g, ' '))}${f.respell ? ' · respelled ' + esc(f.respell) : ''}</p>`).join('')}
-    <textarea id="vnote-${l.line}" rows="1" placeholder="Note (what you hear, or how it should sound)"></textarea>
-    <div class="row"><button class="save" data-v-ok="${l.line}">Sounds right</button><button class="save" data-v-flag="${l.line}">Flag the picked word</button><span class="tiny muted" id="pick-${l.line}">${PICK[l.line] ? 'Picked: «' + esc(PICK[l.line].w) + '»' : 'No word picked'}</span></div>
+  return `<section class="card"><h2>${t('voiceTitle')}</h2>${saveState()}</section>
+  ${D.voice.map((l) => `<section class="card" id="vo-${l.line}"><div class="row between"><span class="sid">${l.line}</span><span class="pill ${l.status === 'approved' ? 'p-ok' : 'p-warn'}">${esc(st(l.status))}</span></div>
+    ${l.takes.map((tk, k) => `<div class="stack" style="gap:6px"><div class="row between"><span class="small"><b>${l.takes.length > 1 ? (k ? t('after') : t('before')) : t('take')}</b> <span class="mono">${tk.seconds.toFixed(1)}s</span></span><button data-play="${tk.id}">${t('play')}</button></div>
+      <div class="words">${tk.words.map((w, i) => `<button data-w="${tk.id}" data-i="${i}">${esc(w.w)}</button>`).join('')}</div>
+      <details><summary>${t('heard')}</summary><p class="ar small">${esc(tk.heard)}</p></details></div>`).join('')}
+    <textarea id="vnote-${l.line}" rows="1" placeholder="${t('vnotePh')}"></textarea>
+    <div class="row"><button class="save" data-v-ok="${l.line}">${t('soundsRight')}</button><button class="save" data-v-flag="${l.line}">${t('flag')}</button><span class="tiny muted" id="pick-${l.line}">${PICK[l.line] ? t('picked', esc(PICK[l.line].w)) : t('noPick')}</span></div>
     ${savedNote(latest('voice', l.line))}</section>`).join('')}`;
 }
 function artTab() {
-  return `<section class="card"><h2>Art gallery</h2><p class="small">Every concept that was drawn for the four scenes with alternatives, with every version. Concepts marked blocked need licensed photographs and were never invented. Tap an image to enlarge it.</p></section>
-  ${D.gallery.map((g) => `<section class="card"><div class="row between"><h3><span class="sid">${g.scene}</span> <span class="ar" style="display:inline">${esc(g.banner)}</span></h3>${g.approved ? `<span class="pill p-ok">${esc(g.approved.concept)} v${g.approved.version} approved</span>` : '<span class="pill p-warn">nothing approved</span>'}</div>
-    ${g.concepts.map((c) => `<div class="stack" style="gap:6px"><div class="row"><b class="small">${esc(c.name)}</b><span class="pill ${c.support === 'rendered' ? 'p-info' : 'p-bad'}">${esc(c.support)}</span>${c.selected ? '<span class="pill p-info">selected</span>' : ''}</div>
-      ${c.versions.some((x) => x.stills.length) ? `<div class="thumbs">${c.versions.filter((x) => x.stills.length).map((x) => `<figure><img src="${esc(x.stills[0])}" alt="${esc(c.id)} v${x.v}" data-zoom loading="lazy"><figcaption>v${x.v}${x.status ? ' · ' + esc(x.status) : ''}${Object.keys(x.changes).length ? ' · ' + esc(Object.keys(x.changes).join(', ')) : ''}</figcaption></figure>`).join('')}</div>` : `<p class="tiny muted">${esc(c.warnings.join('; ') || 'No image: needs real material')}</p>`}</div>`).join('')}</section>`).join('')}`;
+  return D.gallery.map((g) => `<section class="card"><div class="row between"><h3><span class="sid">${g.scene}</span></h3>${g.approved ? `<span class="pill p-ok">${esc(tech(D.scenes.find((s) => s.id === g.scene)?.technique || ''))} · v${g.approved.version}</span>` : `<span class="pill p-warn">${t('artNone')}</span>`}</div>
+    ${g.concepts.map((c) => `<div class="stack" style="gap:6px"><div class="row"><b class="small">${esc(tech(c.technique))}</b>${c.support !== 'rendered' ? `<span class="pill p-bad">${t('blocked')}</span>` : ''}${c.selected ? `<span class="pill p-info">${t('selected')}</span>` : ''}</div>
+      ${c.versions.some((x) => x.stills.length) ? `<div class="thumbs">${c.versions.filter((x) => x.stills.length).map((x) => `<figure><img src="${esc(x.stills[0])}" alt="${esc(c.id)} v${x.v}" data-zoom loading="lazy"><figcaption>v${x.v}${x.status ? ' · ' + esc(st(x.status)) : ''}</figcaption></figure>`).join('')}</div>` : ''}</div>`).join('')}</section>`).join('');
 }
 function inbox() {
   const mine = DECISIONS.slice().reverse();
-  return `<section class="card"><h2>Your saved review decisions (${mine.length})</h2>${saveState()}
-    ${mine.length ? mine.map((d) => `<div class="saved"><b>${esc(d.kind)} ${esc(d.target)}</b> · ${esc(d.decision.replace(/_/g, ' '))}${d.version ? ' v' + esc(d.version) : ''}${d.changes?.length ? ' · ' + esc(d.changes.map((c) => D.chip_names[c] || c).join(', ')) : ''}${d.word ? ' · «' + esc(d.word) + '»' : ''}${d.note ? ' — ' + esc(d.note) : ''}<br><span class="tiny muted">${esc(d.at.replace('T', ' ').slice(0, 16))}</span></div>`).join('') : '<p class="small muted">None yet. Decisions you save on the Film, Scenes and Voice screens appear here, newest first. Claude reads them when you ask, and applies nothing on its own.</p>'}</section>
-  <section class="card"><h2>Open items in the project (snapshot)</h2><p class="small muted">From the Studio inbox at the end of the frozen test. Read-only here.</p>
-    ${D.inbox.map((g) => `<div class="stack" style="gap:4px"><b class="small">${esc(g.title)}</b>${g.items.map((i) => `<p class="small">${i.wait ? '<span class="pill p-info">waiting</span> ' : '<span class="pill p-warn">to decide</span> '}${esc(i.what)}</p>`).join('')}</div>`).join('')}
-    <div class="stack" style="gap:4px"><b class="small">Scenes nobody reviewed one by one</b><p class="small">${D.scenes.filter((s) => s.unreviewed).map((s) => `<a href="#scenes" data-goto="sc-${s.id}" class="mono">${s.id}</a>`).join(' · ')}</p></div>
-    <div class="stack" style="gap:4px"><b class="small">Final voice gate</b>${D.gate.blockers.map((b) => `<p class="small">${esc(b)}</p>`).join('')}</div></section>`;
+  return `<section class="card"><h2>${t('mine')} (${mine.length})</h2>${saveState()}
+    ${mine.length ? mine.map((d) => `<div class="saved">${esc((LANG === 'ar' ? KIND.ar[d.kind] : d.kind) || d.kind)} <span class="mono">${esc(d.target)}</span> · ${decText(d)}</div>`).join('') : `<p class="small muted">${t('noneYet')}</p>`}</section>
+  <section class="card"><h2>${t('open')}</h2>
+    ${D.inbox.flatMap((g) => g.items).map((i) => `<p class="small"><span class="pill ${i.wait ? 'p-info' : 'p-warn'}">${i.wait ? t('waiting') : t('toDecide')}</span> ${esc(inboxText(i.what))}</p>`).join('')}
+    <p class="small"><span class="pill p-warn">${t('unrevScenes')}</span> ${D.scenes.filter((s) => s.unreviewed).map((s) => `<a href="#scenes" data-goto="sc-${s.id}" class="mono">${s.id}</a>`).join(' · ')}</p></section>`;
 }
 function history() {
-  return `<section class="card"><h2>Progress</h2><div class="row">${D.steps.map((s) => `<span class="pill ${s.state === 'approved' ? 'p-ok' : 'p-warn'}">${esc(s.name)} · ${esc(s.state.replace(/_/g, ' '))}</span>`).join('')}</div></section>
-  <section class="card"><h2>Measured work</h2><div class="tablewrap"><table><tr><th>Task</th><th>Units</th><th>Time</th><th>State</th></tr>${D.runs.map((r) => `<tr><td>${esc(r.task)}</td><td class="mono">${esc(r.units)}</td><td class="mono">${r.elapsed_s != null ? Math.round(r.elapsed_s) + ' s' : ''}</td><td>${esc(r.state)}</td></tr>`).join('')}</table></div></section>
-  <section class="card"><h2>History (${D.history.length} steps, newest first)</h2><div class="tablewrap"><table><tr><th>When (UTC)</th><th>Who</th><th>What</th></tr>${D.history.slice().reverse().map((h) => `<tr><td class="mono tiny">${esc(h.at.slice(5, 16).replace('T', ' '))}</td><td class="tiny">${esc(h.actor)}</td><td class="small">${esc(h.summary)}</td></tr>`).join('')}</table></div></section>`;
+  return `<section class="card"><h2>${t('steps')}</h2><div class="row">${D.steps.map((s) => `<span class="pill ${s.state === 'approved' ? 'p-ok' : 'p-warn'}">${esc((LANG === 'ar' ? STEP.ar[s.id] : null) || s.name)} · ${esc(st(s.state))}</span>`).join('')}</div></section>
+  <details class="card"><summary>${t('work')}</summary><div class="tablewrap" dir="ltr"><table>${D.runs.map((r) => `<tr><td>${esc(r.task)}</td><td class="mono">${esc(r.units)}</td><td class="mono">${r.elapsed_s != null ? Math.round(r.elapsed_s) + 's' : ''}</td><td>${esc(r.state)}</td></tr>`).join('')}</table></div></details>
+  <details class="card"><summary>${t('hist', D.history.length)} · <span class="tiny">${t('histNote')}</span></summary><div class="tablewrap" dir="ltr"><table>${D.history.slice().reverse().map((h) => `<tr><td class="mono tiny">${esc(h.at.slice(5, 16).replace('T', ' '))}</td><td class="small">${esc(h.summary)}</td></tr>`).join('')}</table></div></details>`;
 }
-const PLAN = [
-  ['1', 'Major', 'Historical claim check misses the plainest form of the forbidden claim', 'It does not flag «اخترعت رولكس الساعة المقاومة للماء» or 5 other new paraphrases, and wrongly flags «في أول مرة نزلت فيها الساعة إلى الماء…». Some fixes live in this project\'s research rule only.', 'Add verb forms (invented / made / created + watch + water-resistant) to a shared rule set for every project; handle the «أول مرة» idiom; build a fixed test set of at least 40 sentences (the auditor\'s 23 included); the override reason must name the research claim it relies on. Done when the whole set passes and the auditor\'s 10 new, unseen paraphrases are caught.'],
-  ['2', 'Major', 'Nine scenes use default art nobody reviewed', 'h, l3, l4, l6 (placeholder), l7, l8, l10, l12, l13 went into the film as brief defaults; the storyboard approval covered them as a group.', 'Each scene needs its own decision: approve the version shown, or request changes. The storyboard cannot be approved, and the gate stays blocked, while any scene is undecided. l6 needs a licensed photo of Hans Wilsdorf or a deliberate no-photo design. Done when no scene is "unreviewed" and the reviewer agrees.'],
-  ['3', 'Medium', 'Blank opening frame and a black, silent ending', 'Frame 0 is empty paper (an empty Reels cover); the last ~1.3 s is black and silent after the audio ends.', 'Start the hook card already visible at frame 0; trim the tail to the end card plus a short hold; add reviewer checks for a blank first frame and a silent tail. Done when both checks pass on a new render.'],
-  ['4', 'Medium', 'Unreliable "the fix made no difference" detection', 'It compares the flagged word using whisper\'s estimated position; on the real l9 fix it said "changed" because that estimate moved, while the transcript was wrong both times.', 'Anchor the word window on neighbouring words heard correctly in both takes; when the anchors are missing, say "cannot tell, listen" instead of "changed". The owner\'s ear decides. Done when the auditor\'s l9 case shows "cannot tell" or "no effect".'],
-  ['5', 'Medium', 'Misleading "corrected take" wording', 'The inbox says "Listen to l9 (corrected take)"; some test names say "corrected".', 'Use "new take after a fix" everywhere; nothing is called corrected until the owner approves it by ear. Done when no screen says corrected for an unheard take.'],
-  ['6', 'Medium', 'An answered art note goes back to "waiting for the operator"', 'Found while preparing this copy: when the operator answers a note with a new version, the request is marked as waiting again (l11 and l2 in the finished project).', 'Close the note when the operator\'s own revision answers it; keep it open only when a structured change was drawn and the note is still unanswered. Done when the finished project shows no waiting notes that were answered.'],
-  ['7', 'Low', 'Remaining mobile and usability problems', 'Toast says "needs_authorization" after switching back to an authorized voice; scene previews are taken mid-animation; on-screen disclaimers are too small to read on a phone; the Studio itself has only been tested in an emulated iPhone, never on yours; the renderer can take ~20 s to stop.', 'Fix the toast wording; take previews at a settled moment; set a minimum caption size; collect your notes from this review copy on a real iPhone first; shorten the renderer stop. Done when your iPhone review raises no new layout problem.'],
-];
 function fixes() {
-  return `<section class="card"><h2>Correction plan (not started)</h2><p class="small">Nothing here has been changed yet. The tested version stays frozen until you decide. Order is by risk to the film's truthfulness first, then to what viewers see, then to the owner's workflow.</p></section>
-  ${PLAN.map(([n, sev, t, why, how]) => `<section class="card"><div class="row"><span class="prio">P${n}</span><span class="pill ${sev === 'Major' ? 'p-bad' : sev === 'Medium' ? 'p-warn' : 'p-info'}">${sev}</span></div><h3>${esc(t)}</h3><p class="small"><b>What is wrong.</b> ${esc(why)}</p><p class="small"><b>Proposed fix.</b> ${esc(how)}</p></section>`).join('')}`;
+  return `<section class="card"><h2>${t('planTitle')}</h2></section>
+  ${PLAN[LANG].map(([n, sev, ti, why, how]) => `<section class="card"><div class="row"><span class="prio">P${n}</span><span class="pill ${n <= '2' ? 'p-bad' : n === '7' ? 'p-info' : 'p-warn'}">${esc(sev)}</span><h3>${esc(ti)}</h3></div>
+    <details><summary>${t('what')} · ${t('how')}</summary><div class="stack" style="gap:6px"><p class="small">${esc(why)}</p><p class="small"><b>${t('how')}:</b> ${esc(how)}</p></div></details></section>`).join('')}`;
 }
 function about() {
-  return `<section class="card"><h2>What this copy can and cannot do</h2>
-    <div class="legend"><span class="pill p-info">View only</span><span>Play the film, scenes and takes; tap words; enlarge images; read the inbox, progress, history and fix plan.</span>
-    <span class="pill p-warn">Saves</span><span>Buttons marked <span class="mono">saves</span>: your verdict on the film and hook, approving a scene version, requesting scene changes, "Sounds right" and word flags. They are stored with this page, visible to you, and are not applied to the project until you ask Claude.</span>
-    <span class="pill p-bad">Not possible</span><span>Generating voice, images or video; spending; changing the project, the approved Royal Oak or Diabetes History work, or anything in production. This copy has no keys and no connection to the Studio.</span></div>
-    <p class="small muted">Snapshot of project ${esc(D.project.id)} taken from the frozen test (product version 95a8646). The 1080×1920 master and all evidence stay in the development workspace.</p></section>`;
+  return `<section class="card"><h2>${t('access')}</h2>
+    <div class="legend"><span class="pill p-info">${t('viewOnly')}</span><span>${t('viewOnlyD')}</span><span class="pill p-warn">● ${t('saves')}</span><span>${t('savesD')}</span><span class="pill p-bad">${t('never')}</span><span>${t('neverD')}</span></div>
+    <p class="tiny muted">${t('snapshot')} · <span class="mono">${esc(D.project.snapshot.slice(0, 16).replace('T', ' '))}</span> · <span class="mono">95a8646</span></p></section>`;
 }
 const SCREENS = { film, scenes, voice, art: artTab, inbox, history, fixes, about };
+const KEYS = Object.keys(SCREENS);
 let CUR = (location.hash || '#film').slice(1); if (!SCREENS[CUR]) CUR = 'film';
 function render() {
-  const keep = window.scrollY, notes = {}; $$('textarea').forEach((t) => (notes[t.id] = t.value));
+  document.documentElement.lang = LANG; document.documentElement.dir = LANG === 'ar' ? 'rtl' : 'ltr'; document.body.classList.toggle('rtl', LANG === 'ar');
+  $('#title').textContent = t('title'); $('#lang').textContent = t('lang'); $('#lock').textContent = t('lock');
+  const keep = window.scrollY, notes = {}; $$('textarea').forEach((x) => (notes[x.id] = x.value));
   const chips = $$('[data-chip][aria-pressed="true"]').map((b) => b.dataset.chip + '|' + b.dataset.c);
-  $('#tabs').innerHTML = TABS.map(([k, n]) => `<a href="#${k}" data-tab="${k}" ${k === CUR ? 'aria-current="page"' : ''}>${n}</a>`).join('');
+  const opened = $$('details[open]').map((d) => d.querySelector('summary')?.textContent);
+  $('#tabs').innerHTML = KEYS.map((k, i) => `<a href="#${k}" ${k === CUR ? 'aria-current="page"' : ''}>${t('tabs')[i]}</a>`).join('');
   const oldVid = CUR === 'film' ? $('#film') : null, oldState = $('#filmstate')?.textContent;
   $('#main').innerHTML = `<div class="screen">${SCREENS[CUR]()}</div>`;
-  if (oldVid) { $('#film').replaceWith(oldVid); if (oldState) $('#filmstate').textContent = oldState; } else FILM = null;
-  Object.entries(notes).forEach(([k, v]) => { const t = document.getElementById(k); if (t) t.value = v; });
+  if (oldVid) { $('#film').replaceWith(oldVid); if (FILM && oldState) $('#filmstate').textContent = t('loaded'); } else FILM = null;
+  Object.entries(notes).forEach(([k, v]) => { const x = document.getElementById(k); if (x) x.value = v; });
   chips.forEach((c) => { const [s, k] = c.split('|'); const b = $(`[data-chip="${s}"][data-c="${k}"]`); if (b) b.setAttribute('aria-pressed', 'true'); });
+  $$('details').forEach((d) => { if (opened.includes(d.querySelector('summary')?.textContent)) d.open = true; });
   if (!CANWRITE) $$('button.save').forEach((b) => (b.disabled = true));
   window.scrollTo(0, keep);
 }
 window.addEventListener('hashchange', () => { const k = location.hash.slice(1); if (SCREENS[k]) { CUR = k; render(); window.scrollTo(0, 0); } });
 document.addEventListener('click', async (ev) => {
-  const t = ev.target.closest('button, img[data-zoom], a[data-goto], #lightbox'); if (!t) return;
-  if (t.id === 'lightbox') { t.hidden = true; return; }
-  if (t.matches('img[data-zoom]')) { $('#lbimg').src = t.src; $('#lbimg').alt = t.alt; $('#lightbox').hidden = false; return; }
-  if (t.dataset.goto) { ev.preventDefault(); CUR = 'scenes'; location.hash = '#scenes'; render(); document.getElementById(t.dataset.goto)?.scrollIntoView(); return; }
-  const d = t.dataset;
-  if (t.id === 'loadfilm') { const v = await filmReady(); if (v) { STOP_AT = null; try { await v.play(); } catch (e) {} } return; }
+  const el = ev.target.closest('button, img[data-zoom], a[data-goto], #lightbox'); if (!el) return;
+  if (el.id === 'lightbox') { el.hidden = true; return; }
+  if (el.id === 'lang') { LANG = LANG === 'ar' ? 'en' : 'ar'; try { localStorage.setItem('lang', LANG); } catch (e) {} render(); return; }
+  if (el.matches('img[data-zoom]')) { $('#lbimg').src = el.src; $('#lbimg').alt = el.alt; $('#lightbox').hidden = false; return; }
+  if (el.dataset.goto) { ev.preventDefault(); CUR = 'scenes'; location.hash = '#scenes'; render(); document.getElementById(el.dataset.goto)?.scrollIntoView(); return; }
+  const d = el.dataset;
+  if (el.id === 'loadfilm') { const v = await filmReady(); if (v) { STOP_AT = null; try { await v.play(); } catch (e) {} } return; }
   if (d.scenePlay) { const s = D.scenes.find((x) => x.id === d.scenePlay); if (CUR !== 'film') { CUR = 'film'; location.hash = '#film'; render(); } $('#film').scrollIntoView({ block: 'center' }); playRange(s.start, s.end); return; }
-  if (d.play) { const tk = D.voice.flatMap((l) => l.takes).find((x) => x.id === d.play); playTake(tk); return; }
+  if (d.play) { playTake(D.voice.flatMap((l) => l.takes).find((x) => x.id === d.play)); return; }
   if (d.w) { const l = D.voice.find((x) => x.takes.some((k) => k.id === d.w)); const tk = l.takes.find((k) => k.id === d.w); const w = tk.words[+d.i];
-    PICK[l.line] = { take: tk.id, i: +d.i, w: w.w }; $$('.words button.pick').forEach((b) => b.classList.remove('pick')); t.classList.add('pick');
-    $('#pick-' + l.line).textContent = 'Picked: «' + w.w + '»'; playTake(tk, Math.max(0, w.s - 0.05), w.e + 0.08); return; }
-  if (d.chip) { t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); return; }
+    PICK[l.line] = { take: tk.id, i: +d.i, w: w.w }; $$('.words button.pick').forEach((b) => b.classList.remove('pick')); el.classList.add('pick');
+    $('#pick-' + l.line).textContent = t('picked', w.w); playTake(tk, Math.max(0, w.s - 0.05), w.e + 0.08); return; }
+  if (d.chip) { el.setAttribute('aria-pressed', el.getAttribute('aria-pressed') === 'true' ? 'false' : 'true'); return; }
   if (d.filmDec) { if (await save('film', D.film.id, d.filmDec, { note: $('#filmnote').value.trim() })) $('#filmnote').value = ''; return; }
   if (d.hookDec) { await save('hook', 'hook', d.hookDec, { hook: D.hook.selected }); return; }
   if (d.scApprove) { await save('scene', d.scApprove, 'approve_version', { version: +d.v }); return; }
   if (d.scMod) { const ch = $$(`[data-chip="${d.scMod}"][aria-pressed="true"]`).map((b) => b.dataset.c); const note = $('#note-' + d.scMod).value.trim();
-    if (!ch.length && !note) { toast('Pick a change or write a note first'); return; }
+    if (!ch.length && !note) { toast(t('pickFirst')); return; }
     if (await save('scene', d.scMod, 'request_changes', { changes: ch, note })) { $('#note-' + d.scMod).value = ''; $$(`[data-chip="${d.scMod}"]`).forEach((b) => b.setAttribute('aria-pressed', 'false')); } return; }
   if (d.vOk) { await save('voice', d.vOk, 'sounds_right', { note: $('#vnote-' + d.vOk).value.trim() }); return; }
-  if (d.vFlag) { const p = PICK[d.vFlag]; if (!p) { toast('Tap the word first, then Flag'); return; }
+  if (d.vFlag) { const p = PICK[d.vFlag]; if (!p) { toast(t('noPick')); return; }
     if (await save('voice', d.vFlag, 'flag_word', { word: p.w, word_index: p.i, take: p.take, note: $('#vnote-' + d.vFlag).value.trim() })) { $('#vnote-' + d.vFlag).value = ''; delete PICK[d.vFlag]; } return; }
 });
 render();
