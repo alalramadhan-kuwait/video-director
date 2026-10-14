@@ -18,7 +18,8 @@ from ..events import EventLog
 from . import build as B
 
 DECISIONS = {'approved', 'rejected', 'changes_requested', 'selected', 'concept_selected', 'accepted', 'dismissed',
-             'needs_source', 'article_heard', 'article_missing', 'unsure', 'playback_failed'}
+             'needs_source', 'article_heard', 'article_missing', 'heard_english', 'heard_other', 'unsure', 'playback_failed',
+             'flagged'}
 HTTP = {'recorded': 200, 'duplicate': 200, 'conflict': 409, 'refused': 422, 'failed': 400}
 
 

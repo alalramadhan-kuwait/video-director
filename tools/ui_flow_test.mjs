@@ -126,24 +126,58 @@ for (let i = 0; i < checks.length; i++) {
   const enabled = !(await p.locator('button[data-ans="article_heard"]').isDisabled());
   voice.push({ check: c.id, line: c.line, word: c.written, file: c.audio_file, expected_duration: c.duration, browser_duration: r.duration,
                word_at: [c.word_s, c.word_e], played: r.played, answer_blocked_before_playing: blocked, answer_enabled_after: enabled, gate: r.gate, error: r.error });
-  if (i === 0) { words['Listening check'] = await wc(p); ok('voice: the answer bar is on screen without scrolling', await inView(p, '.actionbar')); ok('phone: no sideways scroll (voice)', await noScroll(p)); await shot(p, 'phone-light-voice'); }
+  if (i === 0) { words['Listening check'] = await wc(p); ok('voice: the first answer is on screen without scrolling', await inView(p, '.answers button')); ok('phone: no sideways scroll (voice)', await noScroll(p)); await shot(p, 'phone-light-voice'); }
 }
 const lines = [...new Set(checks.map((c) => c.line))];
 ok(`voice: all ${checks.length} checks (${lines.length} lines) loaded with the right duration`, voice.every((v) => Math.abs(v.browser_duration - v.expected_duration) <= 0.25), voice.map((v) => v.browser_duration).join(','));
 ok('voice: answers are blocked until the word has played', voice.every((v) => v.answer_blocked_before_playing));
 ok('voice: the flagged word actually played for every check', voice.every((v) => v.answer_enabled_after && v.gate.includes('✓')), voice.filter((v) => !v.answer_enabled_after).map((v) => v.check).join(','));
 // answer the first check through the bar
-await go(p, 'tk~voice~0');
+// the white-gold check: the voice said it in English; that is now an answer
+const wg = checks.findIndex((c) => c.id.includes('white-gold'));
+await go(p, 'tk~voice~' + wg);
+const optTexts = await p.locator('.answers button').allTextContents();
+ok('voice: answers say what you could hear, including the English word', optTexts.some((t) => t.includes('English') && t.includes(checks[wg].sent))
+  && optTexts.some((t) => t.includes(checks[wg].written)) && optTexts.some((t) => t.includes(checks[wg].without_article)) && optTexts.length === 5, optTexts.join(' | '));
 await p.locator('button[data-word]').click();
-await p.waitForFunction((id) => { const a = document.querySelector(`audio[data-audio="${id}"]`); return a && a.played.length && a.paused; }, checks[0].id, { timeout: 15000 });
+await p.waitForFunction((id) => { const a = document.querySelector(`audio[data-audio="${id}"]`); return a && a.played.length && a.paused; }, checks[wg].id, { timeout: 15000 });
 await p.waitForTimeout(200);
-await p.locator('button[data-ans="unsure"]').click(); await p.waitForTimeout(900);
+await shot(p, 'phone-light-voice-answers');
+await p.locator('button[data-ans="heard_english"]').click(); await p.waitForTimeout(900);
 snap = await api();
-const rec = snap.inbox_checks[0].decision;
-ok('voice: the answer is recorded with its playback proof', rec && rec.decision === 'unsure' && rec.event > 0, JSON.stringify(rec));
-ok('voice: moves on to the next check', (await p.evaluate(() => location.hash)) === '#tk~voice~1');
+const rec = snap.inbox_checks[wg].decision;
+ok('voice: "English" is recorded with its playback proof', rec && rec.decision === 'heard_english' && rec.event > 0, JSON.stringify(rec));
+ok('voice: after the answer it asks keep or fix (no jump yet)', (await p.evaluate(() => location.hash)) === '#tk~voice~' + wg && (await p.locator('button[data-verdict]').count()) === 2);
+await shot(p, 'phone-light-voice-keepfix');
+await p.locator('button[data-verdict="fix"]').click(); await p.waitForTimeout(900);
+snap = await api();
+ok('voice: "Fix it" is recorded for that word', (snap.inbox_checks[wg].verdict || {}).decision === 'changes_requested');
+ok('voice: then moves on to the next unfinished check', (await p.evaluate(() => location.hash)) !== '#tk~voice~' + wg);
+await go(p, 'tk~voice~' + wg);
+await p.locator('button[data-reask]').click(); await p.waitForTimeout(200);
+ok('voice: “Change answer” shows the choices again', (await p.locator('.answers button').count()) === 5);
 await go(p, 'tk~review');
-ok('home (Time Keeper): voice progress counts the answer', (await p.locator('li[data-step="voice"] .cnt').textContent()).trim() === `1/${checks.length}`);
+ok('home (Time Keeper): voice progress counts answered and decided checks', (await p.locator('li[data-step="voice"] .cnt').textContent()).trim() === `1/${checks.length}`);
+// hear every line: words light up, tap one to flag it
+await go(p, 'tk~lines');
+ok('lines: all 30 lines with their words', (await p.locator('.vline').count()) === 30);
+await p.locator('.vline[data-line="p2-8"] button[data-lplay]').click();
+await p.waitForFunction(() => !!document.querySelector('.vline[data-line="p2-8"] .wd.now'), null, { timeout: 15000 }).catch(() => {});
+ok('lines: the spoken word lights up while the line plays', (await p.locator('.vline[data-line="p2-8"] .wd.now').count()) === 1);
+await p.evaluate(() => document.querySelectorAll('audio').forEach((a) => a.pause()));
+await shot(p, 'phone-light-lines');
+await p.locator('.vline[data-line="p2-8"] .wd').nth(10).click(); await p.waitForTimeout(250);
+ok('lines: tapping a word opens “what’s wrong?”', (await p.locator('.sheet button[data-fkind]').count()) === 6);
+await p.locator('.sheet button[data-fkind="english"]').click(); await p.locator('#flagNote').fill('should be الذهب الأبيض in Arabic');
+await shot(p, 'phone-light-flag-sheet');
+await p.locator('.sheet button[data-fsave]').click(); await p.waitForTimeout(900);
+snap = await api();
+const fl = snap.flags.timekeeper;
+ok('lines: the flag is recorded with the word, the problem and your note', fl.length === 1 && fl[0].line === 'p2-8' && fl[0].index === 10 && fl[0].type === 'english' && fl[0].note.includes('الذهب'), JSON.stringify(fl));
+ok('lines: the flagged word is marked', await p.locator('.vline[data-line="p2-8"] .wd').nth(10).evaluate((b) => b.classList.contains('flg')));
+ok('tasks: your flags appear as one task', snap.review_tasks.some((t) => t.id === 'flags-timekeeper' && t.flags.length === 1));
+await go(p, 'tk~review');
+ok('home: the flag count shows on “Hear every line”', (await p.locator('#linesLink').textContent()).includes('1'));
 // the server refuses a listening answer with no proof, proof from another file, or a word that was not played
 const post = (body) => p.evaluate(async ([u, bd]) => { const r = await fetch(u + '/api/decision', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(bd) }); return [r.status, (await r.json()).reason]; }, [base, body]);
 const c2 = checks[1];

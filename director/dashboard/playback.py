@@ -11,7 +11,7 @@ A failed load can still be reported (decision 'playback_failed'), but it is neve
 """
 from __future__ import annotations
 
-LISTENING = {'article_heard', 'article_missing', 'unsure'}
+LISTENING = {'article_heard', 'article_missing', 'heard_english', 'heard_other', 'unsure'}
 MIN_COVER = 0.8
 
 

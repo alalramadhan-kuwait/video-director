@@ -12,6 +12,7 @@ from director.voice import gateway
 from tests.fixtures import S, have_ro
 
 ROOT = Path(__file__).resolve().parent.parent
+BASELINE = next((p for p in (ROOT / 'var/dashboard/events.baseline.sqlite', ROOT / 'var/dashboard/events.sqlite') if p.exists()), None)
 READY = have_ro and (ROOT / 'var/review/ep7-final/artistic_report.json').exists() and (ROOT / 'var/pages/voice-royal-oak/data.json').exists() \
     and (ROOT / 'var/pages/directions/data.json').exists() and (ROOT / 'var/dashboard/media/ep7/clips').exists()
 
@@ -63,7 +64,7 @@ class TestEvents(unittest.TestCase):
 class TestDashboard(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); var = Path(self.tmp.name)
-        shutil.copyfile(ROOT / 'var/dashboard/events.sqlite', var / 'events.sqlite')
+        shutil.copyfile(BASELINE, var / 'events.sqlite')          # the log before any owner decision
         (var / 'media').symlink_to(ROOT / 'var/dashboard/media')
         self.p = [mock.patch.object(B, 'VAR', var), mock.patch.object(B, 'MEDIA', var / 'media')]
         for x in self.p: x.start()
@@ -340,6 +341,45 @@ class TestDashboard(unittest.TestCase):
         ev = B.log().rows(kind='review_decided')[-1]
         self.assertEqual((ev['project'], ev['status']), ('timekeeper', 'concept_selected'))
         self.assertEqual(B.snapshot()['looks']['timekeeper'][0]['decision']['decision'], 'concept_selected')
+
+    def test_heard_english_keep_or_fix_and_word_flags(self):
+        """What the owner actually hears (e.g. the English «White Gold») is an answer; keep/fix is separate; any word can be flagged."""
+        s = B.snapshot()
+        wg = next(c for c in s['inbox_checks'] if 'white-gold' in c['id'])
+        self.assertEqual((wg['sent'], wg['written'], wg['without_article']), ('White Gold', 'الذهب الأبيض', 'ذهب أبيض'))
+        code, body = self.req('POST', '/api/decision', {'item': wg['id'], 'decision': 'heard_english'})
+        self.assertEqual(code, 422)                                                       # still needs playback proof
+        self.assertEqual(serve.decide(B.log(), wg['id'], 'heard_english', playback=self.proof(wg))['status'], 'recorded')
+        self.assertEqual(serve.decide(B.log(), 'verdict-' + wg['id'], 'changes_requested', note='fix')['status'], 'recorded')
+        s = B.snapshot(); c = next(c for c in s['inbox_checks'] if c['id'] == wg['id'])
+        self.assertEqual((c['decision']['decision'], c['verdict']['decision']), ('heard_english', 'changes_requested'))
+        v = next(x for x in s['projects']['timekeeper']['videos'][0]['stages'] if x['stage'] == 'voice')
+        self.assertEqual(v['units']['done'], 1)
+        # every line, both projects, with word timings and playable audio
+        self.assertEqual({k: len(v) for k, v in s['voice_lines'].items()}, {'timekeeper': 30, 'diabetes-history': 30})
+        for pk, ls in s['voice_lines'].items():
+            for l in ls:
+                self.assertTrue((B.MEDIA / l['audio'][len('media/'):]).exists(), l['audio'])
+                self.assertTrue(all(w['e'] >= w['s'] >= 0 for w in l['words']))
+        self.assertEqual(next(l for l in s['voice_lines']['diabetes-history'] if l['id'] == 'l4')['scene'], 'a3')
+        # flag a word, then remove the flag
+        self.assertEqual(serve.decide(B.log(), 'flag-tk-p2-8-10', 'flagged', note='english: should be Arabic')['status'], 'recorded')
+        self.assertEqual(serve.decide(B.log(), 'flag-dh-l4-0', 'flagged', note='vowel')['status'], 'recorded')
+        s = B.snapshot()
+        f = s['flags']['timekeeper'][0]
+        self.assertEqual((f['line'], f['index'], f['type'], f['type_label'], f['note']), ('p2-8', 10, 'english', 'Said in English', 'should be Arabic'))
+        self.assertEqual(f['word'], s['voice_lines']['timekeeper'][[l['id'] for l in s['voice_lines']['timekeeper']].index('p2-8')]['words'][10]['w'])
+        self.assertEqual(s['flags']['diabetes-history'][0]['word'], 'فالإنسولين')
+        self.assertTrue(any(t['id'] == 'flags-timekeeper' for t in s['review_tasks']))
+        serve.decide(B.log(), 'flag-tk-p2-8-10', 'dismissed')
+        self.assertEqual(B.snapshot()['flags']['timekeeper'], [])
+
+    def test_repeated_tap_is_a_duplicate_not_a_conflict(self):
+        serve.decide(B.log(), 'art-ep7-a1', 'approved')
+        r = sync.ingest(B.log(), [{'_doc': 'z', 'decision_id': 'z', 'item': 'art-ep7-a1', 'decision': 'approved', 'at': '2026-10-14T05:02:18.500Z'}], 'artifact')
+        self.assertEqual(r['receipts'][0]['status'], 'duplicate')
+        r = sync.ingest(B.log(), [{'_doc': 'y', 'decision_id': 'y', 'item': 'art-ep7-a1', 'decision': 'rejected', 'at': '2026-10-14T06:00:00.000Z'}], 'artifact')
+        self.assertEqual(r['receipts'][0]['status'], 'conflict')                          # a different decision is still refused
 
     def test_history_import_is_idempotent(self):
         n = len(B.log().rows())

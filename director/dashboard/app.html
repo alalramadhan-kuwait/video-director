@@ -197,6 +197,18 @@ th{color:var(--muted);font-weight:500;font-size:.76rem} td.n{text-align:end;font
 .lightbox button{background:#fff;color:#111;border-color:#fff}
 .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:100px;z-index:60;background:var(--ink);color:var(--bg);padding:8px 14px;border-radius:8px;font-size:.88rem;max-width:90vw}
 @media (min-width:761px){.toast{bottom:20px}}
+.answers{display:flex;flex-direction:column;gap:8px} .answers button{min-height:50px;font-size:1rem;text-align:center}
+.answers.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.linkbtn{background:none;border:0;color:var(--accent);text-decoration:underline;min-height:0;padding:4px}
+a.linkrow{flex-direction:row;align-items:center;justify-content:space-between;text-decoration:none;color:var(--ink)}
+.vline .words{display:flex;flex-wrap:wrap;gap:6px;margin:0;font-size:1.25rem;line-height:1.8}
+.wd{min-height:40px;padding:2px 10px;border-radius:10px;font-family:var(--f-ar);font-size:1.15rem;background:var(--raise)}
+.wd.now{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.wd.flg{border-color:var(--bad);color:var(--bad);text-decoration:underline wavy;text-underline-offset:6px}
+.lplay{width:44px;height:44px;border-radius:50%;padding:0;background:var(--accent);color:var(--accent-ink);border:0;font-size:1.1rem}
+.sheet{position:fixed;inset:0;z-index:45;background:rgba(5,6,8,.6);display:flex;align-items:flex-end;justify-content:center}
+.sheetbox{background:var(--panel);border:1px solid var(--line);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;max-height:92vh;overflow:auto}
+body.busy button{pointer-events:none;opacity:.6}
 .empty{color:var(--muted);font-size:.9rem;padding:16px;border:1px dashed var(--line);border-radius:12px;text-align:center}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
 </style>
@@ -223,8 +235,8 @@ const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const P_KEYS = {tk:'timekeeper', dh:'diabetes-history'}, P_SHORT = {'timekeeper':'tk','diabetes-history':'dh'};
 const SHORT_NAME = {'diabetes-history':'Diabetes', 'timekeeper':'Time Keeper'};
-const DEC_LABEL = {approved:'Approved', rejected:'Rejected', changes_requested:'Fixes requested', selected:'Chosen', concept_selected:'Concept selected', accepted:'Fix', dismissed:'Dismissed', needs_source:'Needs a source', article_heard:'Heard «الـ»', article_missing:'«الـ» missing', unsure:'Not sure', playback_failed:'Audio would not play'};
-const LISTEN = ['article_heard','article_missing','unsure'];
+const DEC_LABEL = {approved:'Approved', rejected:'Rejected', changes_requested:'Fixes requested', selected:'Chosen', concept_selected:'Concept selected', accepted:'Fix', dismissed:'Dismissed', needs_source:'Needs a source', article_heard:'Arabic with «الـ»', article_missing:'Arabic without «الـ»', heard_english:'English', heard_other:'Something else', unsure:'Not sure', playback_failed:'Audio would not play', flagged:'Flagged'};
+const LISTEN = ['article_heard','article_missing','heard_english','heard_other','unsure'];
 const TAG = {decide:'Your call', fixable:'Claude fixes', suggestion:'Idea', blocked:'Needs source'};
 const DIM = {'Historical and technical accuracy':'Facts', 'Correct watches, products and people':'Right people & objects', 'Does the image match the narration?':'Matches narration',
   'Composition and visual hierarchy':'Layout', 'Readability of Arabic text':'Arabic text', 'Lighting, colours and character proportions':'Colour & proportions',
@@ -237,7 +249,7 @@ const ICON = {
   more:'<svg class="ic" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>'};
 const SECTIONS = [['review','Review'],['scenes','Scenes'],['art','Art'],['style','Style'],['more','More']];
 const ALIAS = {watch:'review', timeline:'scenes', reviews:'tasks', identity:'style', costs:'more'};
-const FLOWS = ['scene','voice','final'];
+const FLOWS = ['scene','voice','final','lines'];
 
 // ------------------------------------------------------------------ decisions: recorded (event log) + page (waiting for sync)
 const REC = {}, PAGE = {}, RECEIPT = {}, PLAY = {};
@@ -246,6 +258,8 @@ function seed(){
   for(const k in REC) delete REC[k];
   const put = (id,d) => { if(id && d) REC[id] = d; };
   DATA.review_tasks.forEach(t => { put(t.id, t.decision); (t.checks||[]).forEach(c => put(c.id, c.decision)); });
+  DATA.inbox_checks.forEach(c => put('verdict-'+c.id, c.verdict));
+  Object.values(DATA.flags||{}).forEach(fl => fl.forEach(f => put(f.item, f.decision)));
   Object.values(DATA.projects).forEach(p => p.videos.forEach(v => v.scenes.forEach(s => {
     (s.findings||[]).forEach(f => put(f.id, f.decision)); (s.versions||[]).forEach(x => put(x.id, x.decision));
     ((s.concepts||{}).options||[]).forEach(o => put(o.id, o.decision)); })));
@@ -265,8 +279,14 @@ function state(item){
 }
 const uid = () => (crypto.randomUUID ? crypto.randomUUID() : 'd'+Date.now().toString(36)+Math.random().toString(36).slice(2,10));
 function toast(t){ const e=$('toast'); e.textContent=t; e.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>e.hidden=true, 2800); }
+let BUSY = false;
 async function save(item, decision, note=''){
   // one decision; returns true when it was saved (local: recorded; page: stored and waiting to sync)
+  if(BUSY) return false;                                   // a second tap while saving is ignored
+  BUSY = true; document.body.classList.add('busy');
+  try{ return await save1(item, decision, note); } finally { BUSY = false; document.body.classList.remove('busy'); }
+}
+async function save1(item, decision, note){
   const cur = state(item);
   if(cur && cur.locked && decision!=='changes_requested'){ toast('Approved and locked. Use “Fix” to reopen.'); return false; }
   const row = {decision_id:uid(), item, decision, note, at:new Date().toISOString()};
@@ -317,7 +337,12 @@ const first = t => { const m = String(t||'').match(/^.*?[.!?؟](\s|$)/); const s
 function sceneVerdict(s){ return proj==='diabetes-history' ? state('art-ep7-'+s.id) : null; }
 function sceneMark(s){ const v = sceneVerdict(s); if(!v||!v.decision) return {k:'todo'};
   return {k: v.decision==='approved'?'ok':v.decision==='changes_requested'?'fix':'todo', pend: v.sync==='pending'}; }
-const checkDone = c => { const st = state(c.id); return !!st && LISTEN.includes(st.decision); };
+const answered = c => { const st = state(c.id); return !!st && LISTEN.includes(st.decision); };
+const verdictOf = c => { const st = state('verdict-'+c.id); return st && st.decision ? st : null; };
+const checkDone = c => answered(c) && !!verdictOf(c);
+const SHORT = () => P_SHORT[proj];
+const flagState = (lid, i) => { const st = state(`flag-${SHORT()}-${lid}-${i}`); return st && st.decision==='flagged' ? st : null; };
+const flagCount = () => (DATA.voice_lines[proj]||[]).reduce((n,l)=>n+l.words.filter((w,i)=>flagState(l.id,i)).length, 0);
 const sceneStart = id => { const s = V().scenes.find(x=>x.id===id); return s ? s.start : 0; };
 
 // the review path for the current video: what is done, what is next, what waits
@@ -328,7 +353,7 @@ function path(){
     const marks = v.scenes.map(sceneMark), done = marks.filter(m=>m.k!=='todo').length, fixes = marks.filter(m=>m.k==='fix').length;
     const nextScene = v.scenes.find((s,i)=>marks[i].k==='todo');
     const fin = state('final-ep7');
-    out.push({key:'voice', label:'Voice', sub:'Narration', cnt:'30/30', state: st('voice').status==='approved'?'done':'now', href:link('more','voice')});
+    out.push({key:'voice', label:'Voice', sub:'Approved · tap to hear every line', cnt:'30/30', state: st('voice').status==='approved'?'done':'now', href:link('lines')});
     out.push({key:'scenes', label:'Scenes', sub: fixes? fixes+' waiting for fixes':'Look at each scene', cnt:`${done}/${v.scenes.length}`, pct: done/v.scenes.length,
       state: done===v.scenes.length?'done':'now', href: link('scene', (nextScene||v.scenes[0]).id), go: nextScene && {label:`Review scene ${nextScene.id}`, href:link('scene', nextScene.id)}});
     const finalReady = done===v.scenes.length && !fixes;
@@ -374,6 +399,7 @@ function review(){
         <span class="num">${s.state==='done'?'✓':s.state==='blocked'?'!':s.state==='wait'?'🔒':i+1}</span>
         <span><span class="lbl">${esc(s.label)}</span><span class="sub">${esc(s.sub)}</span>${s.pct!=null&&s.state!=='done'?`<span class="bar10"><i style="width:${100*s.pct}%"></i></span>`:''}</span>
         <span class="cnt">${esc(s.cnt)}</span><span class="chev">›</span></a></li>`).join('')}</ol>
+      <a class="panel linkrow" href="${link('lines')}" id="linesLink"><span>🎧 <b>Hear every line</b><br><span class="small muted">Tap any word that sounds wrong</span></span><span class="row">${flagCount()?`<span class="badge">🚩 ${flagCount()}</span>`:''}›</span></a>
       ${others.length?`<a class="small" href="${link('tasks')}">${others.length} other decision${others.length>1?'s':''} ›</a>`:''}
     </div></section>`;
 }
@@ -403,7 +429,7 @@ function scene(){
     <div class="dots" aria-label="Scenes">${v.scenes.map(x=>{ const m = sceneMark(x); return `<a href="${link('scene',x.id)}" class="${m.k} ${m.pend?'pend':''} ${x.id===s.id?'cur':''}" title="${esc(x.id)}" aria-label="${esc(x.id)}"></a>`; }).join('')}</div>
     <div class="scenebox">
       <div class="stack" style="gap:6px">${videoTag(s.clip,`id="sv" controls loop autoplay muted poster="${esc(s.thumb)}"`)}
-        <div class="row between tiny muted"><span>${fmtT(s.start)}–${fmtT(s.end)}</span><a href="${link('art', s.id)}">Other looks ›</a></div></div>
+        <div class="row between tiny muted"><span>${fmtT(s.start)}–${fmtT(s.end)}</span><span class="row"><a href="${link('lines', s.id)}">🎧 Lines</a><a href="${link('art', s.id)}">Other looks ›</a></span></div></div>
       <div class="stack" style="gap:14px">
         <p class="nar ar" dir="auto">${esc(s.narration||'')}</p>
         ${verdict}
@@ -433,26 +459,34 @@ async function sceneFix(id){
 }
 
 // ------------------------------------------------------------------ VOICE (one check at a time)
+let OTHER = null;            // check id whose "something else" box is open
+const REASK = new Set();     // checks the owner wants to answer again
 function voice(){
   const cs = DATA.inbox_checks; if(proj!=='timekeeper' || !cs.length) return more();
-  const i = Math.min(Math.max(0, +arg||0), cs.length-1), c = cs[i], ev = PLAY[c.id], st = state(c.id);
+  const i = Math.min(Math.max(0, +arg||0), cs.length-1), c = cs[i], ev = PLAY[c.id], st = state(c.id), vd = verdictOf(c);
+  const played = ev && ev.ok, has = answered(c) && !REASK.has(c.id) && OTHER!==c.id;
   const gate = !c.available ? '<span class="no">Audio file missing</span>' : ev&&ev.error ? `<span class="no">Audio would not play</span>`
-    : ev&&ev.ok ? `<span class="yes">✓ Played</span>` : '<span class="muted">Play the word first</span>';
-  const bare = c.written.replace(/^(?:بال|ال)/,'');
+    : played ? `<span class="yes">✓ Played</span>` : '<span class="muted">Play the word first</span>';
+  const ar = t => `<bdi dir="rtl" class="ar">«${esc(t)}»</bdi>`;     // keep Arabic in its own direction inside English labels
+  const opts = [['heard_english', `English · <bdi dir="ltr">«${esc(c.sent)}»</bdi>`], ['article_heard', `Arabic with «الـ» · ${ar(c.written)}`],
+    ['article_missing', `Arabic without «الـ» · ${ar(c.without_article)}`], ['heard_other', 'Something else'], ['unsure', 'Not sure']];
+  const answers = `<p style="text-align:center;font-weight:600">What did you hear?</p><div class="answers">${opts.map(([d,l]) =>
+      `<button type="button" ${d==='heard_other'?'data-other':'data-ans'}="${d}" data-dec="${d}" data-item="${esc(c.id)}" ${played?'':'disabled'} aria-pressed="${!!st&&st.decision===d}"><span dir="ltr">${l}</span></button>`).join('')}</div>
+    ${OTHER===c.id?`<div class="stack" style="gap:6px"><textarea id="otherNote" rows="2" placeholder="What did you hear? (optional)" dir="auto"></textarea><button type="button" class="primary" data-ans="heard_other" data-item="${esc(c.id)}" data-dec="heard_other" ${played?'':'disabled'}>Save</button></div>`:''}`;
   return `${flowHead(link('review'), 'Listen', i, cs.length, cs[i-1]&&link('voice',i-1), cs[i+1]&&link('voice',i+1))}
     <div class="dots" aria-label="Checks">${cs.map((x,j)=>{ const s2 = state(x.id); return `<a href="${link('voice',j)}" class="${checkDone(x)?'ok':''} ${s2&&s2.sync==='pending'?'pend':''} ${j===i?'cur':''}" aria-label="Check ${j+1}"></a>`; }).join('')}</div>
-    <div class="panel check" data-check="${esc(c.id)}" style="gap:16px;align-items:stretch;max-width:520px;width:100%;margin-inline:auto">
-      <p class="tiny muted" style="text-align:center">Line ${esc(c.line)}</p>
+    <div class="panel check" data-check="${esc(c.id)}" style="gap:14px;align-items:stretch;max-width:560px;width:100%;margin-inline:auto">
+      <p class="tiny muted" style="text-align:center">Line ${esc(c.line)} · <a href="${link('lines', c.line)}">whole line ›</a></p>
       <p class="word"><span class="ar" dir="rtl">«${esc(c.written)}»</span></p>
-      <p class="muted" style="text-align:center">Do you hear «الـ» at the start? <span class="tiny">(${esc(c.sent)})</span></p>
       <button type="button" class="playbig" data-word="${esc(c.id)}" ${c.available?'':'disabled'}><b>▶</b>Play word</button>
       <p class="gate" data-gate="${esc(c.id)}">${gate}</p>
       <audio controls preload="metadata" src="${esc(c.audio)}" data-audio="${esc(c.id)}"></audio>
-      ${st&&st.decision?`<p class="verdict yes" style="text-align:center">${esc(DEC_LABEL[st.decision]||st.decision)} <span class="sync ${st.sync}">· ${esc(st.text)}</span></p>`:''}
+      ${has ? `<p class="verdict" style="text-align:center">You heard: <b dir="auto">${esc(DEC_LABEL[st.decision]||st.decision)}${st.note?' · '+esc(st.note):''}</b> <span class="sync ${st.sync}">· ${esc(st.text)}</span><br><button type="button" class="linkbtn" data-reask="${esc(c.id)}">Change answer</button></p>` : answers}
       ${ev&&ev.error?`<button type="button" data-dec="playback_failed" data-item="${esc(c.id)}">Report: audio would not play</button>`:''}
     </div>
-    <div class="actionbar">${[['article_heard','Heard «الـ»'],['article_missing','Only «'+bare+'»'],['unsure','Not sure']].map(([d,l]) =>
-      `<button type="button" data-ans="${d}" data-dec="${d}" data-item="${esc(c.id)}" ${ev&&ev.ok?'':'disabled'} aria-pressed="${!!st&&st.decision===d}" class="${d==='article_heard'?'primary':''}">${esc(l)}</button>`).join('')}</div>`;
+    ${has ? `<div class="actionbar">${vd?`<span class="small" style="flex:1">${vd.decision==='approved'?'✓ Keep':'✎ Fix'} <span class="sync ${vd.sync}">· ${esc(vd.text)}</span></span>`:'<span class="small" style="flex:0 0 auto">Keep it?</span>'}
+        <button type="button" data-verdict="keep" data-item="${esc(c.id)}" class="${vd?'':'primary'}" aria-pressed="${!!vd&&vd.decision==='approved'}">✓ Keep</button>
+        <button type="button" data-verdict="fix" data-item="${esc(c.id)}" aria-pressed="${!!vd&&vd.decision==='changes_requested'}">✎ Fix it</button></div>` : ''}`;
 }
 function bindAudio(){
   document.querySelectorAll('audio[data-audio]').forEach(a => {
@@ -479,9 +513,61 @@ function playWord(id){
   if(a.readyState>=1) go(); else { a.addEventListener('loadedmetadata', go, {once:true}); a.load(); }
 }
 async function answer(id, d){
+  const note = d==='heard_other' && $('otherNote') ? $('otherNote').value.trim() : '';
+  if(await save(id, d, note)){ OTHER = null; REASK.delete(id); await refresh(); toast('Saved · keep it or fix it?'); render(); }
+}
+async function verdict(id, v){
   const cs = DATA.inbox_checks, i = cs.findIndex(c=>c.id===id);
-  if(await save(id, d)){ await refresh(); toast(MODE==='local'?'Saved':'Saved · waiting to sync');
+  if(await save('verdict-'+id, v==='keep'?'approved':'changes_requested', v)){ await refresh(); toast(v==='keep'?'Kept':'Marked to fix');
     const nx = [...cs.slice(i+1), ...cs.slice(0,i)].find(c=>!checkDone(c)); location.hash = nx ? link('voice', cs.indexOf(nx)) : link('review'); render(); }
+}
+
+// ------------------------------------------------------------------ LINES: hear every line, tap a word to flag it
+let SHEET = null;   // {line, i, kind} while the flag sheet is open
+function lines(){
+  const L = DATA.voice_lines[proj]||[], only = arg ? L.filter(l => l.scene===arg || l.id===arg) : L;
+  const shown = only.length ? only : L, n = flagCount();
+  return `${flowHead(link('review'), proj==='timekeeper'?'Every line · Royal Oak':'Every line · episode 7')}
+    <p class="small muted">▶ Play a line. Words light up as they are spoken. <b>Tap any word that sounds wrong.</b>${n?` · 🚩 ${n} flagged`:''}</p>
+    ${arg&&only.length?`<p class="small"><a href="${link('lines')}">Show all ${L.length} lines</a></p>`:''}
+    <div class="stack" style="gap:10px">${shown.map(l=>{ const fl = l.words.filter((w,i)=>flagState(l.id,i)).length;
+      return `<div class="panel vline" data-line="${esc(l.id)}">
+        <div class="row between"><span class="row"><button type="button" class="lplay" data-lplay="${esc(l.id)}" aria-label="Play line ${esc(l.id)}">▶</button><b class="mono">${esc(l.id)}</b>${l.scene?`<span class="tiny muted">scene ${esc(l.scene)}</span>`:''}</span>${fl?`<span class="badge">🚩 ${fl}</span>`:''}</div>
+        <p class="words ar" dir="rtl">${l.words.map((w,i)=>`<button type="button" class="wd ${flagState(l.id,i)?'flg':''}" data-wl="${esc(l.id)}" data-wi="${i}">${esc(w.w)}</button>`).join(' ')}</p>
+        <audio preload="none" src="${esc(l.audio)}" data-laudio="${esc(l.id)}"></audio></div>`; }).join('')}</div>
+    ${SHEET?flagSheet():''}`;
+}
+function flagSheet(){
+  const l = DATA.voice_lines[proj].find(x=>x.id===SHEET.line), w = l.words[SHEET.i], cur = flagState(l.id, SHEET.i);
+  const kind = SHEET.kind || (cur ? (cur.note||'').split(':')[0].trim() : '');
+  return `<div class="sheet" role="dialog" aria-label="Flag a word"><div class="sheetbox stack" style="gap:12px">
+    <p class="tiny muted">Line ${esc(l.id)}${l.scene?' · scene '+esc(l.scene):''}</p>
+    <p class="word" style="font-size:2.2rem"><span class="ar" dir="rtl">${esc(w.w)}</span></p>
+    <button type="button" data-wplay="1">▶ Hear this word</button>
+    <p style="font-weight:600">What's wrong?</p>
+    <div class="answers two">${Object.entries(DATA.flag_types).map(([k,lbl])=>`<button type="button" data-fkind="${k}" aria-pressed="${kind===k}">${esc(lbl)}</button>`).join('')}</div>
+    <textarea id="flagNote" rows="2" placeholder="How should it sound? (optional)" dir="auto">${esc(cur?(cur.note||'').split(':').slice(1).join(':').trim():'')}</textarea>
+    <div class="row"><button type="button" class="primary" data-fsave="1" ${kind?'':'disabled'} style="flex:1">🚩 Save flag</button>
+      ${cur?'<button type="button" data-funflag="1">Remove flag</button>':''}<button type="button" data-fclose="1">Cancel</button></div></div></div>`;
+}
+function playLine(lid, from=0, to=null){
+  document.querySelectorAll('audio[data-laudio]').forEach(a=>{ if(a.dataset.laudio!==lid) a.pause(); });
+  const l = DATA.voice_lines[proj].find(x=>x.id===lid);
+  const a = document.querySelector(`audio[data-laudio="${CSS.escape(lid)}"]`);
+  if(!a) return;
+  const tick = () => { const t = a.currentTime; document.querySelectorAll(`.vline[data-line="${CSS.escape(lid)}"] .wd`).forEach((b,i)=>b.classList.toggle('now', t>=l.words[i].s && t<l.words[i].e));
+    if(to!=null && t>=to) a.pause();
+    if(!a.paused) requestAnimationFrame(tick); else document.querySelectorAll('.wd.now').forEach(b=>b.classList.remove('now')); };
+  const go = () => { a.currentTime = from; a.play().then(()=>requestAnimationFrame(tick)).catch(()=>toast('Audio would not play')); };
+  if(a.readyState>=1) go(); else { a.preload='auto'; a.addEventListener('loadedmetadata', go, {once:true}); a.load(); }
+}
+async function saveFlag(){
+  const cur = flagState(SHEET.line, SHEET.i), k = SHEET.kind || (cur ? (cur.note||'').split(':')[0].trim() : ''); if(!k) return;
+  const note = ($('flagNote')||{value:''}).value.trim();
+  if(await save(`flag-${SHORT()}-${SHEET.line}-${SHEET.i}`, 'flagged', k + (note?': '+note:''))){ SHEET = null; await refresh(); toast('🚩 Flagged'); render(); }
+}
+async function unflag(){
+  if(await save(`flag-${SHORT()}-${SHEET.line}-${SHEET.i}`, 'dismissed')){ SHEET = null; await refresh(); toast('Flag removed'); render(); }
 }
 
 // ------------------------------------------------------------------ FINAL
@@ -592,6 +678,9 @@ function taskCard(t, status){
   } else if(t.checks){
     const i = DATA.inbox_checks.findIndex(c=>c.line===t.checks[0].line);
     act = `<button type="button" class="primary" data-goproj="tk~voice~${i}">Listen ›</button>`;
+  } else if(t.flags){
+    body = `<div class="stack" style="gap:4px">${t.flags.map(f=>`<p class="fline"><span>🚩</span><span><b dir="auto">${esc(f.word)}</b> · ${esc(f.type_label)}${f.note?' · '+esc(f.note):''} <span class="tiny muted">${esc(f.line)}</span></span></p>`).join('')}</div>`;
+    act = `<button type="button" class="primary" data-goproj="${P_SHORT[t.project]}~lines">Open lines ›</button>`;
   } else if(t.type==='final'){
     act = `<button type="button" data-goproj="dh~final">Open ›</button>`;
   } else if(t.status!=='blocked'){
@@ -656,7 +745,7 @@ function runsTable(){
 // ------------------------------------------------------------------ render + events
 function render(){
   chrome();
-  const fn = {review, scenes, scene, voice, final, art, style, more, tasks}[view] || review;
+  const fn = {review, scenes, scene, voice, final, lines, art, style, more, tasks}[view] || review;
   $('view').innerHTML = fn();
   if(view==='scenes') bindScenes();
   if(view==='voice') bindAudio();
@@ -666,7 +755,17 @@ function render(){
 document.addEventListener('click', e => {
   const b = e.target.closest('button,img[data-full]'); if(!b) return; const d = b.dataset;
   if(d.proj){ proj=d.proj; arg=null; location.hash = link(FLOWS.includes(view)||view==='tasks'?'review':view); }
+  else if(d.other!=null && d.ans==null){ OTHER = d.item; render(); }
   else if(d.ans){ answer(d.item, d.ans); }
+  else if(d.reask){ REASK.add(d.reask); render(); }
+  else if(d.verdict){ verdict(d.item, d.verdict); }
+  else if(d.lplay){ playLine(d.lplay); }
+  else if(d.wl){ SHEET = {line:d.wl, i:+d.wi, kind:null}; render(); }
+  else if(d.fkind){ SHEET.kind = d.fkind; render(); }
+  else if(d.fsave){ saveFlag(); }
+  else if(d.funflag){ unflag(); }
+  else if(d.fclose){ SHEET = null; render(); }
+  else if(d.wplay){ const l = DATA.voice_lines[proj].find(x=>x.id===SHEET.line), w = l.words[SHEET.i]; playLine(l.id, Math.max(0, w.s-0.35), w.e+0.35); }
   else if(d.dec){ decide(d.item, d.dec); }
   else if(d.sceneok){ sceneOk(d.sceneok); }
   else if(d.scenefix){ sceneFix(d.scenefix); }

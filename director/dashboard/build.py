@@ -44,6 +44,8 @@ def prepare():
         samples.ep7_preview(L, S, MEDIA)
     if not (MEDIA / 'timekeeper/logo.png').exists():
         samples.tk_board(S, MEDIA)
+    if not (MEDIA / 'ep7/vo/l30.mp3').exists():
+        samples.dh_voice(L, S, MEDIA)
     if not (MEDIA / 'looks/dark_keynote.jpg').exists():
         samples.looks(L, MEDIA)
     return L
@@ -58,6 +60,9 @@ def snapshot(extra_decisions=None) -> dict:
 
 def locate(item: str):
     """project, video, scene for a review item id (used to file the decision event)."""
+    if item.startswith('verdict-voice-'): return 'timekeeper', 'royal-oak', item.split('-')[2] + '-' + item.split('-')[3]
+    if item.startswith('flag-tk-'): return 'timekeeper', 'royal-oak', None          # flag-tk-<line>-<word index>
+    if item.startswith('flag-dh-'): return 'diabetes-history', 'ep7', None
     if item.startswith('voice-dh-'): return 'diabetes-history', 'ep6', None
     if item.startswith('voice-'): return 'timekeeper', 'royal-oak', item.split('-')[1] + '-' + item.split('-')[2]
     if item.startswith('art-ep7-'): return 'diabetes-history', 'ep7', item.split('-', 2)[2]

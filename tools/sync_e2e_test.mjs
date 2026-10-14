@@ -86,9 +86,10 @@ ok('page: listening answer blocked before playing', await p.locator('button[data
 await p.locator('button[data-word]').click();
 await p.waitForFunction((id) => { const a = document.querySelector(`audio[data-audio="${id}"]`); return a && a.played.length && a.paused; }, I.check, { timeout: 15000 });
 await p.waitForTimeout(300); await p.locator('button[data-ans="unsure"]').click(); await p.waitForTimeout(600);
+await p.locator('button[data-verdict="keep"]').click(); await p.waitForTimeout(600);
 await go('tk~review');
 const chip0 = await p.locator('#syncchip').textContent();
-ok('page: the header shows how many decisions wait for the local app', (await p.locator('#syncchip').isVisible()) && chip0.includes('7 to sync'), chip0);
+ok('page: the header shows how many decisions wait for the local app', (await p.locator('#syncchip').isVisible()) && chip0.includes('8 to sync'), chip0);
 ok('page: progress already counts the answer, marked as waiting', (await p.locator('li[data-step="voice"] .cnt').textContent()).trim().startsWith('1/'));
 await shot('sync-1-pending');
 
@@ -136,7 +137,7 @@ ok('ingest: unreadable export file → failed (reported, not skipped)', by['corr
 ok('ingest: every decision has exactly one outcome', r1.receipts.length === Object.keys(store.decisions).length + 1, JSON.stringify(r1.summary));
 const after1 = JSON.parse(py('events'));
 const newRows = after1.slice(before.length);
-ok('event log: one decision added per recorded outcome, each with origin artifact', newRows.filter((e) => e.kind === 'review_decided').length === r1.summary.recorded && r1.summary.recorded === 5 && newRows.filter((e) => e.kind === 'review_decided').every((e) => e.origin === 'artifact'));
+ok('event log: one decision added per recorded outcome, each with origin artifact', newRows.filter((e) => e.kind === 'review_decided').length === r1.summary.recorded && r1.summary.recorded === 6 && newRows.filter((e) => e.kind === 'review_decided').every((e) => e.origin === 'artifact'));
 ok('event log: every non-recorded outcome logged as a sync event', newRows.filter((e) => e.kind === 'sync').length === 6, JSON.stringify(newRows.filter((e) => e.kind === 'sync').map((e) => e.status)));
 
 // 6. receipts back to the page

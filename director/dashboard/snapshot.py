@@ -278,7 +278,59 @@ def royal_oak(log, S: Path, decisions: dict, voice_data: dict):
 
 
 def _confirmed(d):
-    return bool(d) and d['decision'] in ('article_heard', 'article_missing', 'unsure')
+    return bool(d) and d['decision'] in ('article_heard', 'article_missing', 'heard_english', 'heard_other', 'unsure')
+
+
+def _bare(written: str) -> str:
+    """The phrase without the Arabic article: «الذهب الأبيض» -> «ذهب أبيض», «بالكوارتز» -> «كوارتز»."""
+    out = []
+    for w in written.split():
+        for pre in ('بال', 'فال', 'وال', 'ال'):
+            if w.startswith(pre) and len(w) > len(pre) + 1:
+                w = w[len(pre):]; break
+        out.append(w)
+    return ' '.join(out)
+
+
+FLAG_TYPES = {'wrong': 'Wrong pronunciation', 'english': 'Said in English', 'article': 'Missing «الـ»',
+              'vowel': 'Wrong vowel or stress', 'unclear': 'Unclear or swallowed', 'other': 'Something else'}
+
+
+def voice_lines(voice_data, ro, S: Path, decisions):
+    """Every narration line with its audio and word timings, for listening and flagging words."""
+    out = {'timekeeper': [], 'diabetes-history': []}
+    scene_of = {s['voice_line']: s['id'] for s in ro['scenes'] if s.get('voice_line')}
+    for l in voice_data['lines']:
+        out['timekeeper'].append({'id': l['id'], 'scene': scene_of.get(l['id']), 'text': l['approved_text'],
+                                  'audio': f"media/royal-oak/audio/{l['id']}.mp3",
+                                  'words': [{'w': w['w'], 's': w['s'], 'e': w['e']} for w in l['takes'][0]['words']]})
+    for part in ('p1', 'p2', 'p3'):
+        tl = json.loads((S / f'ep7/{part}/timeline.json').read_text(encoding='utf-8'))
+        proj = json.loads((S / f'ep7/{part}/project.json').read_text(encoding='utf-8'))
+        scene_of = {lid: sc['id'] for sc in proj['scenes'] for lid in sc.get('lines', [])}
+        for v in tl['vo']:
+            out['diabetes-history'].append({'id': v['id'], 'scene': scene_of.get(v['id']), 'text': v['text'],
+                                            'audio': f"media/ep7/vo/{v['id']}.mp3",
+                                            'words': [{'w': w.get('w') or w.get('text'), 's': round(w['s'] - v['start'], 3),
+                                                       'e': round(w['e'] - v['start'], 3)} for w in v['words']]})
+    return out
+
+
+def flags(lines, decisions):
+    """Words the owner flagged while listening (latest decision 'flagged'; 'dismissed' removes a flag)."""
+    out = {}
+    for pk, short in (('timekeeper', 'tk'), ('diabetes-history', 'dh')):
+        out[pk] = []
+        for l in lines[pk]:
+            for i, w in enumerate(l['words']):
+                d = decisions.get(f"flag-{short}-{l['id']}-{i}")
+                if d and d['decision'] == 'flagged':
+                    kind, _, note = (d.get('note') or 'other').partition(':')
+                    out[pk].append({'item': f"flag-{short}-{l['id']}-{i}", 'line': l['id'], 'scene': l['scene'], 'index': i,
+                                    'word': w['w'], 's': w['s'], 'e': w['e'], 'type': kind.strip(),
+                                    'type_label': FLAG_TYPES.get(kind.strip(), kind.strip()), 'note': note.strip(), 'at': d['at'],
+                                    'decision': d})
+    return out
 
 
 # ---------------------------------------------------------------------------------------------------- review tasks
@@ -292,6 +344,7 @@ def listening_checks(voice_data, media: Path, decisions):
             f = media / 'royal-oak/audio' / f"{l['id']}.mp3"
             ws = take['words'][q['words'][0]]['s']; we = take['words'][q['words'][-1]]['e']
             out.append({'id': f"voice-{q['key']}", 'line': l['id'], 'written': q['written'], 'sent': q['sent'],
+                        'without_article': _bare(q['written']), 'verdict': decisions.get(f"verdict-voice-{q['key']}"),
                         'audio': f"media/royal-oak/audio/{l['id']}.mp3", 'audio_file': f"{l['id']}.mp3",
                         'available': f.exists(), 'sha256': _sha(f) if f.exists() else None,
                         'duration': take['duration'], 'word_s': ws, 'word_e': we,
@@ -496,7 +549,15 @@ def build(log: EventLog, S: Path, voice_data: dict, directions_data: dict, media
     ep7 = diabetes_ep7(log, S, decisions, registry, profs['diabetes-history'])
     ro = royal_oak(log, S, decisions, voice_data)
     checks = listening_checks(voice_data, media, decisions)
+    lines = voice_lines(voice_data, ro, S, decisions)
+    flagged = flags(lines, decisions)
     tasks = review_tasks(ep7, ro, checks, decisions, directions_data)
+    for pk, fl in flagged.items():                      # the owner's own flags: one task per project
+        if fl:
+            tasks.append({'id': f'flags-{pk}', 'type': 'voice', 'project': pk, 'video': 'royal-oak' if pk == 'timekeeper' else 'ep7',
+                          'scene': None, 'title': f'{len(fl)} word{"s" if len(fl) > 1 else ""} you flagged while listening',
+                          'status': 'needs_decision', 'priority': 'listening', 'flags': fl,
+                          'why': ', '.join(f"«{f['word']}» ({f['type_label']})" for f in fl[:6]), 'decision': None})
     for v in (ep7, ro):
         v['next_action'] = next_action(tasks, v['project'])
         v['blockers'] = ([{'what': s['label'], 'why': s['why']} for s in v['stages'] if s['status'] in ('blocked', 'failed')] +
@@ -511,6 +572,7 @@ def build(log: EventLog, S: Path, voice_data: dict, directions_data: dict, media
                       'recent': [r for r in runs if r['state'] == 'finished'][-10:]},
             'review_tasks': tasks, 'inbox_checks': checks, 'bucket_labels': BUCKET_LABEL,
             'looks': {pk: brand_looks(pk, profs[pk], registry, decisions) for pk in profs},
+            'voice_lines': lines, 'flags': flagged, 'flag_types': FLAG_TYPES,
             'costs': costs(registry, voice_data, Ledger(ROOT / 'var/dashboard/ledger.sqlite'), S),
             'identity': identity(profs, S),
             'counts': {'tasks_open': len(open_tasks),

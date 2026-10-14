@@ -97,10 +97,10 @@ def _one(log: EventLog, d: dict, source: str, targets: dict) -> dict:
             return out('refused', 'not a confirmed listening result: ' + why)
     hist = [r for r in prior if r['data'].get('item') == item]
     last = hist[-1] if hist else None
-    if last and last['status'] == 'approved' and decision != 'changes_requested':
-        return out('conflict', f'item is approved and locked (event #{last["seq"]}); request changes instead')
     if last and last['status'] == decision and (last['data'].get('note') or '') == (d.get('note') or ''):
         return out('duplicate', f'same decision already recorded as event #{last["seq"]}', last['seq'])
+    if last and last['status'] == 'approved' and decision != 'changes_requested':
+        return out('conflict', f'item is approved and locked (event #{last["seq"]}); request changes instead')
     page_t = _ts(d.get('at'))
     last_t = (_ts(last['data'].get('page_at')) or _ts(last['at'])) if last else None   # when it was decided, not when it was filed
     if last and page_t is None:

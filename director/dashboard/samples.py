@@ -188,3 +188,13 @@ def looks(log: EventLog, media: Path, seconds=3.0, fps=24):
                 last = sorted(frames.glob('f_*.png'))[-1]
                 _ff('-i', last, '-vf', 'scale=360:-2', '-q:v', '3', out / f'{tid}.jpg')
                 t.unit(what=tid)
+
+
+def dh_voice(log: EventLog, S: Path, media: Path):
+    """Episode 7 narration lines (approved, read-only) as small MP3s for the 'hear every line' screen."""
+    out = media / 'ep7/vo'; out.mkdir(parents=True, exist_ok=True)
+    wavs = sorted((S / 'ep7').glob('p[123]/vo/l*.wav'))
+    with log.task('diabetes-history', 'narration lines for listening (copies)', len(wavs), stage='dashboard') as t:
+        for w in wavs:
+            _ff('-i', w, '-ac', '1', '-c:a', 'libmp3lame', '-b:a', '64k', out / (w.stem + '.mp3'))
+            t.unit(what=w.stem)
