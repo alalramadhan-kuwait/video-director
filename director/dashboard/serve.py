@@ -8,10 +8,15 @@ Routes:
   GET  /media/<path>      dashboard media, with byte ranges (iPhone Safari will not play audio or video without them)
   POST /api/decision      one decision; the ONLY write. Same rules as the Artifact sync (sync._one), so a decision
                           made here and one carried over from the page are judged identically.
+  GET  /studio            the Studio: new video projects (director/studio)
+  GET  /api/studio[/<id>]  studio projects / one project's state and progress
+  GET  /files/<id>/<path>  a studio project's files (read-only blobs), with byte ranges
+  POST /api/studio        one studio action (director/studio/api.handle); long work runs as tracked jobs
 Anything else is 404/405. No route reaches the paid gateway or any provider; this module does not import them.
 """
 from __future__ import annotations
-import argparse, json, mimetypes, re, uuid
+import argparse, json, mimetypes, os, re, uuid
+from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 from ..events import EventLog
@@ -20,6 +25,7 @@ from . import build as B
 DECISIONS = {'approved', 'rejected', 'changes_requested', 'selected', 'concept_selected', 'accepted', 'dismissed',
              'needs_source', 'article_heard', 'article_missing', 'heard_english', 'heard_other', 'unsure', 'playback_failed',
              'flagged'}
+STUDIO_PAGE = Path(__file__).resolve().parents[1] / 'studio' / 'studio.html'
 HTTP = {'recorded': 200, 'duplicate': 200, 'conflict': 409, 'refused': 422, 'failed': 400}
 
 
@@ -59,6 +65,26 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, B.render_app(B.snapshot(), mode='local').encode(), 'text/html; charset=utf-8')
         if path == '/api/snapshot':
             return self._json(200, B.snapshot())
+        if path == '/studio':
+            return self._send(200, STUDIO_PAGE.read_bytes(), 'text/html; charset=utf-8')
+        if path == '/api/studio':
+            from ..studio import api as SA
+            return self._json(200, {'projects': SA.studio(B.VAR).projects()})
+        if path.startswith('/api/studio/'):
+            from ..studio import api as SA
+            from ..studio.store import Refused
+            try:
+                return self._json(200, SA.view(B.VAR, path.split('/')[3]))
+            except Refused as e:
+                return self._json(404, {'error': str(e)})
+        if path.startswith('/files/'):
+            parts = path.split('/', 3)
+            if len(parts) < 4: return self._json(404, {'error': 'not found'})
+            root = (B.VAR / 'studio' / parts[2] / 'blobs').resolve()
+            f = (B.VAR / 'studio' / parts[2] / parts[3]).resolve()
+            if root not in f.parents or not f.is_file():
+                return self._json(404, {'error': 'not found'})
+            return self._media(f)
         if path.startswith('/media/'):
             root = B.MEDIA.resolve()
             f = (root / path[len('/media/'):]).resolve()
@@ -82,6 +108,20 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(206, data[start:end + 1], ctype, {'Content-Range': f'bytes {start}-{end}/{n}', 'Accept-Ranges': 'bytes'})
 
     def do_POST(self):
+        if self.path in ('/api/studio', '/api/studio/_test'):
+            from ..studio import api as SA, jobs as SJ
+            try:
+                body = json.loads(self.rfile.read(int(self.headers.get('Content-Length') or 0)) or b'{}')
+            except json.JSONDecodeError as e:
+                return self._json(400, {'status': 'failed', 'reason': str(e)})
+            if self.path == '/api/studio/_test':                # failure injection, only when the test flag is set
+                if os.environ.get('VD_STUDIO_TEST') != '1': return self._json(403, {'error': 'test hooks are off'})
+                SJ.FAIL_NEXT.update(body.get('fail_next') or {}); return self._json(200, {'ok': True, 'fail_next': SJ.FAIL_NEXT})
+            try:
+                code, r = SA.handle(B.VAR, body)
+            except Exception as e:
+                return self._json(500, {'status': 'failed', 'reason': f'not recorded ({type(e).__name__}: {e})'})
+            return self._json(code, r)
         if self.path != '/api/decision':
             return self._json(405, {'error': 'the dashboard only records decisions'})
         try:

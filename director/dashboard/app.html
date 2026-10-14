@@ -217,6 +217,7 @@ body.busy button{pointer-events:none;opacity:.6}
   <div class="toprow">
     <div class="brand"><span class="mk" aria-hidden="true"></span><h1>Video Director</h1></div>
     <a id="syncchip" class="syncchip" hidden></a>
+    <a id="studioLink" href="/studio" class="syncchip" style="background:var(--accent-soft);color:var(--accent)">＋ New video</a>
     <div class="proj" role="group" aria-label="Project" id="proj"></div>
   </div>
 </header>
@@ -231,6 +232,7 @@ body.busy button{pointer-events:none;opacity:.6}
 <script>
 let DATA = __DATA__;
 const MODE = '__MODE__';
+document.getElementById('studioLink').hidden = MODE !== 'local';      // the Studio needs the local server
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const P_KEYS = {tk:'timekeeper', dh:'diabetes-history'}, P_SHORT = {'timekeeper':'tk','diabetes-history':'dh'};

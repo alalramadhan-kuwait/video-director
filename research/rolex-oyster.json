@@ -1,0 +1,212 @@
+{
+ "topic": "The story of the Rolex Oyster and the development of the first waterproof wristwatch",
+ "researched_by": "Claude (agent), web research 2026-10-14; the app stores and enforces these claims but does not research by itself",
+ "verdict": "Rolex did NOT invent the first waterproof (water-resistant) wristwatch. Earlier sealed wristwatches existed (Borgel cases from 1911, the Tavannes 'Submarine' sold by Brook & Son in 1915, Depollier in 1917-18, Rolex's own 1922 'Submarine'). What Rolex did in 1926 was patent and market a practical sealed case with a screw-down crown that could be worn and wound every day, under the name Oyster, and prove it in public with Mercedes Gleitze in 1927. 'World's first waterproof wristwatch' is Rolex's own claim and may only be quoted as Rolex's claim.",
+ "claims": [
+  {
+   "id": "c1",
+   "status": "verified",
+   "text": "Paul Perregaux and Georges Perret (La Chaux-de-Fonds) applied on 30 October 1925 for a Swiss patent on a winding crown that screws down onto the case; granted as CH 114948 on 17 May 1926.",
+   "sources": [
+    "https://vintagewatchstraps.com/blogoyster.php",
+    "https://perezcope.com/2024/09/30/review-of-the-authorized-rolex-submariner-book-and-why-the-1926-oyster-was-not-the-first-waterproof-watch/"
+   ]
+  },
+  {
+   "id": "c2",
+   "status": "verified",
+   "text": "The patent reached Hans Wilsdorf via the case maker C. R. Spillmann on 24 July 1926; Wilsdorf registered the name 'Oyster' on 29 July 1926.",
+   "sources": [
+    "https://vintagewatchstraps.com/blogoyster.php",
+    "https://beckertime.com/?p=203447"
+   ]
+  },
+  {
+   "id": "c3",
+   "status": "verified",
+   "text": "The Oyster case sealed the watch by screwing down the bezel, the case back and the winding crown against the middle case. The original crown design had a flaw (no clutch); Rolex/Aegler added a clutch in a follow-up design (British patent 260554, applied 1 Sept 1926).",
+   "sources": [
+    "https://vintagewatchstraps.com/blogoyster.php",
+    "https://www.rolex.com/about-rolex/behind-the-crown/mastering-waterproofness"
+   ]
+  },
+  {
+   "id": "c4",
+   "status": "verified",
+   "text": "Water-resistant wristwatches existed before the Oyster: François Borgel's screw cases (work since 1891, three-piece case patent 1903, wristwatch cases by 1911); the Tavannes 'Submarine' sold by Brook & Son, Edinburgh, from late 1915 and advertised as 'the first waterproof wrist watch made'; Depollier's 'Field & Marine' for the US Army (1917-1918).",
+   "sources": [
+    "https://perezcope.com/2024/09/30/review-of-the-authorized-rolex-submariner-book-and-why-the-1926-oyster-was-not-the-first-waterproof-watch/",
+    "https://vintagewatchstraps.com/blogoyster.php",
+    "https://waltham.ch/blogs/journal/the-waltham-depollier-waterproof-field-marine-watch"
+   ]
+  },
+  {
+   "id": "c5",
+   "status": "verified",
+   "text": "Rolex's own earlier attempt, the 'Submarine' (1922), put the watch inside a second case with a screw-down bezel; to wind or set it, the outer case had to be opened.",
+   "sources": [
+    "https://www.rolex.com/about-rolex/behind-the-crown/mastering-waterproofness"
+   ]
+  },
+  {
+   "id": "c6",
+   "status": "avoid",
+   "text": "Rolex invented the first waterproof watch / the Oyster was the world's first waterproof wristwatch.",
+   "why": "Contradicted by c4 (and David Boettcher: 'The Oyster was not the first waterproof watch, or even the first waterproof wristwatch'). Only allowed as an attributed claim: 'Rolex presented it as ...'.",
+   "patterns": [
+    "أول ساعة مقاومة للماء",
+    "أول ساعة يد مقاومة للماء",
+    "اخترعت أول ساعة",
+    "أول ساعة مضادة للماء",
+    "أول ساعة لا يدخلها الماء"
+   ],
+   "allowed_with": [
+    "يقولون",
+    "يقال",
+    "يُقال",
+    "قيل",
+    "شاع",
+    "قدّمتها رولكس",
+    "قدمتها رولكس",
+    "وصفتها رولكس",
+    "أعلنت رولكس",
+    "بحسب رولكس",
+    "تقول رولكس",
+    "تقديم رولكس"
+   ],
+   "rule": {
+    "all_of": [
+     [
+      "أول",
+      "الأولى",
+      "الأول",
+      "سبق",
+      "يسبق",
+      "أسبق",
+      "الأسبق",
+      "first"
+     ],
+     [
+      "ساعة",
+      "ساعات",
+      "watch"
+     ],
+     [
+      "مقاوم",
+      "مضاد",
+      "للماء",
+      "الماء",
+      "الماء",
+      "waterproof",
+      "محكمة"
+     ]
+    ],
+    "negation": [
+     "لم",
+     "ليست",
+     "ليس",
+     "لا",
+     "ما",
+     "لن"
+    ],
+    "negation_affirms": [
+     "سبق",
+     "يسبق",
+     "أسبق",
+     "الأسبق"
+    ]
+   }
+  },
+  {
+   "id": "c7",
+   "status": "verified",
+   "text": "Mercedes Gleitze (British, born Brighton 1900) swam the English Channel on 7 October 1927 in about 15 h 15 min: the first British woman to do so.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Mercedes_Gleitze",
+    "https://www.brightonandhovenews.org/?p=217812"
+   ]
+  },
+  {
+   "id": "c8",
+   "status": "verified",
+   "text": "A hoax claim (Dorothy Cochrane Logan) cast doubt on her swim; on 21 October 1927 she made a 'vindication swim' wearing a Rolex Oyster and was taken out after more than ten hours (about 10 h 24 min) in cold water, without finishing. The watch was still keeping time.",
+   "sources": [
+    "https://en.wikipedia.org/wiki/Mercedes_Gleitze",
+    "https://www.brightonandhovenews.org/?p=217812",
+    "https://www.forbes.com.au/life/watches/the-historic-mercedes-gleitze-rolex-oyster-could-fetch-2-million/"
+   ],
+   "careful": "She wore the Oyster on the vindication swim (21 Oct), which she did not complete, not on the successful crossing (7 Oct)."
+  },
+  {
+   "id": "c9",
+   "status": "attributed",
+   "text": "On 24 November 1927 Rolex ran a front-page advertisement in the Daily Mail built around Gleitze's swim.",
+   "sources": [
+    "https://www.forbes.com.au/life/watches/the-historic-mercedes-gleitze-rolex-oyster-could-fetch-2-million/",
+    "https://bobswatches.com/rolex-blog/?p=47950",
+    "https://www.rolex.com/en-in/oyster-story/visionary-undertaking"
+   ],
+   "careful": "Date and placement agree across secondary sources; the exact headline wording is not verified against a scan, so the film does not quote it."
+  },
+  {
+   "id": "c10",
+   "status": "verified",
+   "text": "Rolex calls Gleitze its first 'Testimonee'.",
+   "sources": [
+    "https://www.forbes.com.au/life/watches/the-historic-mercedes-gleitze-rolex-oyster-could-fetch-2-million/"
+   ]
+  }
+ ],
+ "terms": [
+  {
+   "term": "Rolex",
+   "ar": "رولكس",
+   "note": "ElevenLabs receives Latin 'Rolex'; draft voice reads Arabic",
+   "final": "latin"
+  },
+  {
+   "term": "Oyster",
+   "ar": "أويستر",
+   "note": "means oyster (المحار); say the name, explain once",
+   "final": "latin"
+  },
+  {
+   "term": "screw-down crown",
+   "ar": "التاج اللولبي",
+   "note": "crown that screws onto the case",
+   "final": "arabic"
+  },
+  {
+   "term": "Hans Wilsdorf",
+   "ar": "هانس فيلسدورف",
+   "note": "German W = ف",
+   "final": "latin"
+  },
+  {
+   "term": "Mercedes Gleitze",
+   "ar": "مرسيدس غلايتسه",
+   "note": "German ei = اي, tz = تس",
+   "final": "latin"
+  },
+  {
+   "term": "Perregaux",
+   "ar": "بيريغو",
+   "final": "latin"
+  },
+  {
+   "term": "Perret",
+   "ar": "بيريه",
+   "final": "latin"
+  },
+  {
+   "term": "English Channel",
+   "ar": "بحر المانش",
+   "final": "arabic"
+  },
+  {
+   "term": "Daily Mail",
+   "ar": "ديلي ميل",
+   "final": "latin"
+  }
+ ]
+}

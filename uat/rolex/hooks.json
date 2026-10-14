@@ -1,0 +1,19 @@
+{
+ "_note": "Hooks written by Claude from references/hooks.md (types 8, 4, 11, 3). Each is true to the research file.",
+ "options": [
+  {"id": "H1", "type": "Myth-buster", "spoken": "يقولون إن رولكس صنعت أول ساعة يدٍ مقاومةٍ للماء… والحقيقة أذكى من ذلك.",
+   "on_screen": "أول ساعة مقاومة للماء؟", "visual": "Frame 1: the question in big type drops onto paper; a red stamp «ليس تمامًا» slams down at 1.2 s.",
+   "pays_off": "l2 (earlier watches) and l13 (Rolex did not invent it; it made the world trust it)", "cost_s": 4.5},
+  {"id": "H2", "type": "Cold open", "spoken": "أكتوبر، عام سبعةٍ وعشرين. سبّاحةٌ في بحرٍ بارد… وعلى معصمها ساعة رولكس.",
+   "on_screen": "عشر ساعات في بحرٍ بارد", "visual": "Frame 1: layered paper waves already moving under a cold moon, camera pushing in.",
+   "pays_off": "l9-l11 (the vindication swim)", "cost_s": 5.0},
+  {"id": "H3", "type": "Secret detail", "spoken": "انظر إلى التاج في جانب الساعة… هذا الجزء الصغير غيّر قصة رولكس.",
+   "on_screen": "السرّ في التاج", "visual": "Frame 1: a pencil section of a crown on its tube, the crown already moving in.",
+   "pays_off": "l3-l7 (the crown problem and the screw-down crown)", "cost_s": 4.5},
+  {"id": "H4", "type": "Shock number", "spoken": "أكثر من عشر ساعات في ماء البحر… وساعة رولكس لم تتوقف.",
+   "on_screen": "أكثر من 10 ساعات في البحر", "visual": "Frame 1: a stopwatch sweeping over paper waves.",
+   "pays_off": "l10-l11", "cost_s": 4.0}
+ ],
+ "recommended": "H1",
+ "reasons": "It names the icon (Rolex) in the first second, it corrects a belief many viewers hold, and it is true: the research says earlier water-resistant wristwatches existed (claim c4) and the hook only reports the belief («يقولون»). The film pays it off twice (l2, l13). For a watch dealer, correcting a myth builds trust. H2 is more cinematic but does not say what the film is about until l5; H4 risks implying the watch was underwater for ten hours by design."
+}

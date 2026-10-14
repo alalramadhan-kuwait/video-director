@@ -28,3 +28,23 @@ stores live under `var/` (git-ignored).
 
 ## Run
     ./run_tests.sh            # 55 tests, network blocked, no credentials read
+
+## Studio (M7): a new video from an idea — development only
+Open `http://127.0.0.1:<port>/studio` on the local dashboard server (the review dashboard links to it: "＋ New video").
+Steps: Research → Script → Hook → Draft voice → Art → Storyboard → Draft video → Review → Final voice plan, with a
+project home (latest playable draft, scene strip, measured times, blockers) and one Inbox for every open decision.
+
+| Path | What it does |
+|---|---|
+| `director/studio/store.py` | Event-sourced project state (append-only `studio` events + read-only content-addressed files); every rule (brand isolation, select ≠ approve, final approvals, one-word corrections, duplicates) |
+| `director/studio/checks.py` | Script checks: spelling near-misses, unsupported claims from the research file, digits/Latin in narration, names to listen for |
+| `director/studio/voice.py` | Free draft voice (gTTS, labelled DRAFT), whisper word timings aligned to the script, waveform, one-line re-takes after a pronunciation rule |
+| `director/studio/art.py` | Technique builders for the Time Keeper paper engine; concepts, revisions, support matrix; never fabricates photos |
+| `director/studio/storyboard.py` | Storyboard from approved items, draft render (vendor/paper-story, 1080×1920, -14 LUFS, WebM preview, TK end card) |
+| `director/studio/review.py` | Independent review of a render (technical pass, layout, A/V sync by cross-correlation, history, readability, style) |
+| `director/studio/gate.py` | Final ElevenLabs plan with blockers; never imports the paid gateway |
+| `director/studio/api.py`, `studio.html` | HTTP actions/jobs and the page |
+| `vendor/paper-story/` | Read-only copy of Time Keeper's renderer + end card (hashes in PROVENANCE.sha256) |
+
+UAT: `tools/uat_full.sh` (fresh copy, whole journey through the UI, server killed mid-task, defect copy);
+`tools/uat_defects.py` (planted defects); `tools/uat_report.py` (report). Unit tests: `tests/test_studio.py`.

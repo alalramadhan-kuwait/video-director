@@ -1,0 +1,653 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Video Director Studio</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Studio: a new video from an idea to a draft film and a checked final-voice plan. One step at a time, one main
+   button per screen, state shown by colour + icon + one word. Same tokens as the review dashboard. */
+:root{
+  --bg:#0f1114; --panel:#16191e; --raise:#1c2026; --sunk:#0b0d10; --ink:#e8eaed; --muted:#9aa1ab; --line:#2a2f37;
+  --accent:#8fb4e3; --accent-ink:#0f1114; --accent-soft:#1d2a3a;
+  --ok:#6cc79a; --ok-soft:#14301f; --wait:#e8b65a; --wait-soft:#362a10; --bad:#f08c80; --bad-soft:#3a1c19;
+  --proc:#7fb2ea; --proc-soft:#17283b; --unk:#9aa1ab; --unk-soft:#22272e;
+  --f-body:"IBM Plex Sans","IBM Plex Sans Arabic",system-ui,sans-serif; --f-ar:"IBM Plex Sans Arabic","IBM Plex Sans",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace; color-scheme:dark;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){
+  --bg:#f2f3f5; --panel:#ffffff; --raise:#f7f8fa; --sunk:#e6e9ed; --ink:#14171b; --muted:#59616c; --line:#d6dae0;
+  --accent:#2b5b87; --accent-ink:#ffffff; --accent-soft:#e2ebf4;
+  --ok:#1d7a4e; --ok-soft:#dff1e7; --wait:#8a5a00; --wait-soft:#fbefd6; --bad:#b0362b; --bad-soft:#f8e1de;
+  --proc:#2463a6; --proc-soft:#e1ecf8; --unk:#5f6873; --unk-soft:#eceef1; color-scheme:light}}
+:root[data-theme="light"]{
+  --bg:#f2f3f5; --panel:#ffffff; --raise:#f7f8fa; --sunk:#e6e9ed; --ink:#14171b; --muted:#59616c; --line:#d6dae0;
+  --accent:#2b5b87; --accent-ink:#ffffff; --accent-soft:#e2ebf4;
+  --ok:#1d7a4e; --ok-soft:#dff1e7; --wait:#8a5a00; --wait-soft:#fbefd6; --bad:#b0362b; --bad-soft:#f8e1de;
+  --proc:#2463a6; --proc-soft:#e1ecf8; --unk:#5f6873; --unk-soft:#eceef1; color-scheme:light}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--f-body);margin:0;overflow-wrap:break-word}
+main,.panel{max-width:100%} .mono,code{overflow-wrap:anywhere;word-break:break-word} .tablewrap{overflow-x:auto;max-width:100%}
+.ar{font-family:var(--f-ar)} a{color:var(--accent)}
+button,select,input,textarea{font:inherit;color:var(--ink)}
+button{background:var(--raise);border:1px solid var(--line);border-radius:10px;padding:6px 12px;min-height:42px;cursor:pointer}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+button.big{min-height:52px;font-size:1.02rem;width:100%}
+button.ok{border-color:var(--ok);color:var(--ok)} button.bad{border-color:var(--bad);color:var(--bad)}
+button:disabled{opacity:.4;cursor:not-allowed}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+input,textarea,select{background:var(--sunk);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+textarea{min-height:88px;resize:vertical}
+body.busy button{pointer-events:none;opacity:.6}
+h1{font-size:1rem;margin:0} h2{font-size:1.3rem;margin:0} h3{font-size:1rem;margin:0} p{margin:0}
+.muted{color:var(--muted)} .small{font-size:.86rem} .tiny{font-size:.76rem} .mono{font-family:var(--f-mono);font-size:.85em}
+.row{display:flex;gap:8px 10px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:10px;min-width:0}
+header.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;align-items:center;gap:10px}
+header.top a.home{display:flex;align-items:center;gap:8px;color:var(--ink);text-decoration:none;font-weight:600;margin-inline-end:auto}
+.mk{width:20px;height:20px;border-radius:5px;border:2px solid var(--ink);position:relative;flex:none}
+.mk::after{content:"";position:absolute;inset:4px 3px 4px 6px;background:var(--ink);clip-path:polygon(0 0,100% 50%,0 100%)}
+main{padding:16px 16px 110px;max-width:1080px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.74rem;font-weight:600;border-radius:99px;padding:1px 9px;white-space:nowrap;max-width:100%}
+.pill:where([class*="s-"],[class*="v-"]){white-space:normal;overflow-wrap:anywhere;border-radius:12px}
+.s-ok{background:var(--ok-soft);color:var(--ok)} .s-wait{background:var(--wait-soft);color:var(--wait)} .s-bad{background:var(--bad-soft);color:var(--bad)}
+.s-unk{background:var(--unk-soft);color:var(--unk)} .s-proc{background:var(--proc-soft);color:var(--proc)}
+.v-critical{background:var(--bad-soft);color:var(--bad)} .v-major{background:var(--wait-soft);color:var(--wait)} .v-minor{background:var(--proc-soft);color:var(--proc)} .v-info{background:var(--unk-soft);color:var(--unk)}
+.banner-draft{background:var(--wait-soft);color:var(--wait);border-radius:10px;padding:8px 12px;font-weight:600;font-size:.88rem}
+.banner-lock{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:8px 12px;font-weight:600;font-size:.88rem}
+/* steps */
+ol.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+ol.steps a{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;background:var(--panel);border:1px solid var(--line);color:var(--ink);text-decoration:none}
+ol.steps .n{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;background:var(--unk-soft);color:var(--unk);flex:none}
+ol.steps .l{font-weight:600;font-size:.92rem;line-height:1.2} ol.steps .st{display:block;font-size:.74rem;color:var(--muted);font-weight:400}
+ol.steps li.approved .n{background:var(--ok-soft);color:var(--ok)} ol.steps li.now a{border-color:var(--accent);background:var(--accent-soft)}
+ol.steps li.now .n{background:var(--accent);color:var(--accent-ink)} ol.steps li.blocked .n,ol.steps li.failed .n,ol.steps li.interrupted .n{background:var(--bad-soft);color:var(--bad)}
+ol.steps li.processing .n{background:var(--proc-soft);color:var(--proc)}
+.flowhead{display:flex;align-items:center;gap:10px} .flowhead a.back{font-size:1.4rem;text-decoration:none;color:var(--ink);padding:0 8px 0 0}
+.flowhead .t{font-weight:700;font-size:1.15rem} .flowhead .nx{margin-inline-start:auto}
+/* script */
+.line{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 10px;align-items:start;padding:10px 0;border-bottom:1px solid var(--line)}
+.line:last-child{border-bottom:0}
+.lid{font-family:var(--f-mono);font-size:.8rem;color:var(--muted);padding-top:8px}
+.words{display:flex;flex-wrap:wrap;gap:0 1px;direction:rtl;font-family:var(--f-ar);font-size:1.12rem;line-height:1.5}
+.wd{min-height:34px;padding:1px 4px;border-radius:7px;border:1px solid transparent;background:transparent}
+.wd:hover{border-color:var(--line)} .wd.issue-critical{background:var(--bad-soft);color:var(--bad)} .wd.issue-major{background:var(--wait-soft);color:var(--wait)}
+.wd.issue-info{text-decoration:underline dotted var(--muted)} .wd.flagged{outline:2px solid var(--bad);outline-offset:-2px}
+.wd.now{background:var(--accent);color:var(--accent-ink)} .wd.changed{background:var(--ok-soft);color:var(--ok)}
+.vtabs{display:flex;gap:6px;flex-wrap:wrap}
+.vtabs a{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:6px 10px;text-decoration:none;color:var(--ink);background:var(--raise);font-size:.88rem}
+.vtabs a[aria-current="page"]{border-color:var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600}
+.issue{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--line)} .issue:last-child{border-bottom:0}
+.diff del{background:var(--bad-soft);color:var(--bad);text-decoration:line-through} .diff ins{background:var(--ok-soft);color:var(--ok);text-decoration:none}
+/* sheets */
+.sheet{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}
+.sheetbox{background:var(--panel);border-radius:18px 18px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));width:100%;max-width:560px;display:flex;flex-direction:column;gap:12px;max-height:88vh;overflow:auto}
+@media (min-width:761px){.sheet{align-items:center}.sheetbox{border-radius:18px}}
+.chips{display:flex;flex-wrap:wrap;gap:6px} .chips button{min-height:38px}
+/* cards, media */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(136px,1fr));gap:8px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}
+.card.rec{border-color:var(--accent)} .card .body{padding:12px;display:flex;flex-direction:column;gap:8px}
+.card img.still{width:100%;aspect-ratio:9/16;object-fit:cover;background:#000;display:block;cursor:zoom-in}
+.thumbs{display:flex;gap:4px;padding:6px 6px 0} .thumbs img{width:56px;aspect-ratio:9/16;object-fit:cover;border-radius:6px;cursor:zoom-in}
+video.film{width:100%;max-width:360px;aspect-ratio:9/16;background:#000;border-radius:14px;display:block}
+.viewer{position:fixed;inset:0;z-index:60;background:#000;display:flex;flex-direction:column}
+.viewer img{flex:1;min-height:0;object-fit:contain;width:100%}
+.viewer .vbar{display:flex;gap:8px;padding:10px;justify-content:space-between;align-items:center;color:#fff}
+.viewer button{background:#222;color:#fff;border-color:#444}
+/* voice */
+.take{display:flex;flex-direction:column;gap:8px}
+svg.wave{width:100%;height:56px;display:block;background:var(--sunk);border-radius:8px;cursor:pointer}
+svg.wave rect{fill:var(--muted)} svg.wave .ph{stroke:var(--accent);stroke-width:2} svg.wave .wb{stroke:var(--line);stroke-width:1}
+svg.wave .flg{fill:var(--bad-soft)}
+.ab{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ab .side{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
+.ab .side.new{border-color:var(--accent)}
+table.t{width:100%;border-collapse:collapse;font-size:.88rem} table.t th,table.t td{text-align:start;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t td.ar{direction:rtl;text-align:right}
+.bar{height:6px;border-radius:99px;background:var(--sunk);overflow:hidden} .bar i{display:block;height:100%;background:var(--proc)}
+.swatch{width:26px;height:26px;border-radius:6px;border:1px solid var(--line);display:inline-block}
+.actionbar{position:fixed;inset-inline:0;bottom:0;z-index:30;background:var(--panel);border-top:1px solid var(--line);padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));display:flex;gap:8px;justify-content:center}
+.actionbar>*{flex:1;max-width:280px}
+.scenes{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.scenes a{display:flex;flex-direction:column;gap:3px;padding:7px 8px;border:1px solid var(--line);border-radius:10px;background:var(--raise);text-decoration:none;color:var(--ink);font-size:.74rem}
+.scenes b{font-family:var(--f-mono);font-size:.8rem}.scenes .dots{display:flex;gap:4px}.scenes .d{width:10px;height:10px;border-radius:50%;background:var(--unk-soft);border:1px solid var(--line)}
+.d.ok{background:var(--ok)}.d.wait{background:var(--wait)}.d.bad{background:var(--bad)}.d.sel{background:var(--proc)}
+.inbox h3{display:flex;justify-content:space-between;align-items:center} .inbox a.item{display:flex;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:.9rem}
+.inbox a.item:last-child{border-bottom:0} .inbox a.item::after{content:"›";margin-inline-start:auto;color:var(--muted)}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:8px}.cmp figure{margin:0;display:flex;flex-direction:column;gap:4px}.cmp img{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:10px;cursor:zoom-in}
+.livechip{position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:40}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;z-index:70;font-weight:600;max-width:90vw}
+.toast.err{background:var(--bad);color:#fff}
+.hist li{padding:4px 0;border-bottom:1px solid var(--line);font-size:.86rem} .hist{list-style:none;margin:0;padding:0}
+.choice{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.choice button{min-height:96px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:4px;text-align:start}
+@media (max-width:520px){.ab{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header class="top"><a class="home" href="#/"><span class="mk" aria-hidden="true"></span><span>Studio</span></a>
+  <a href="/" class="small">Review dashboard</a></header>
+<main id="main" aria-live="polite"></main>
+<div id="sheet" class="sheet" hidden><div class="sheetbox" id="sheetbox" role="dialog" aria-modal="true"></div></div>
+<div id="viewer" class="viewer" hidden><div class="vbar"><span id="vcap" class="small"></span><button data-vclose>Close ✕</button></div><img id="vimg" alt=""><div class="vbar"><button data-vprev>‹</button><span id="vpos" class="small"></span><button data-vnext>›</button></div></div>
+<div id="toast" class="toast" hidden></div>
+<script>
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ar = (t) => `<bdi dir="rtl" class="ar">${esc(t)}</bdi>`;
+const F = (pid, rel) => `/files/${pid}/${rel}`;
+const uid = () => 'r-' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+const WORD = /[ء-يً-ْٰـ]+|[A-Za-z][A-Za-z'’-]*|\d+/g;
+const words = (t) => t.match(WORD) || [];
+const STATE = { approved: ['s-ok', '✓', 'Done'], waiting_review: ['s-wait', '●', 'Your turn'], processing: ['s-proc', '◌', 'Working'],
+  not_started: ['s-unk', '○', 'Not started'], failed: ['s-bad', '!', 'Failed'], interrupted: ['s-bad', '!', 'Interrupted'], blocked: ['s-bad', '■', 'Blocked'] };
+let P = null, PID = null, BUSY = false, POLL = null, CUR = { v: null };
+const play = { audio: new Audio(), stopAt: null, raf: null, proof: {} };
+
+function toast(msg, err) { const t = $('#toast'); t.textContent = msg; t.className = 'toast' + (err ? ' err' : ''); t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), err ? 5200 : 2600); }
+async function api(action, args = {}, extra = {}) {
+  if (BUSY) return null; BUSY = true; document.body.classList.add('busy');
+  try {
+    const r = await fetch('/api/studio', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ project: PID, action, args, request_id: extra.rid || uid() }) });
+    const j = await r.json();
+    if (r.status >= 400) { toast(j.reason || j.error || 'Not saved', true); return null; }
+    return j;
+  } catch (e) { toast('Not saved: ' + e.message, true); return null; }
+  finally { BUSY = false; document.body.classList.remove('busy'); }
+}
+async function load(pid) { const r = await fetch('/api/studio/' + pid); if (!r.ok) return null; return r.json(); }
+async function refresh() { if (PID) { P = await load(PID); } render(); }
+function pollWhileRunning() {
+  clearTimeout(POLL);
+  if (P && (P.jobs.some((j) => j.state === 'running'))) POLL = setTimeout(async () => { P = await load(PID); render(); pollWhileRunning(); }, 1500);
+}
+const route = () => (location.hash.replace(/^#\/?/, '') || '').split('/');
+window.addEventListener('hashchange', () => { closeSheet(); go(); });
+async function go() {
+  const r = route();
+  if (r[0] === 'p' && r[1]) { PID = r[1]; P = await load(PID); } else { PID = null; P = null; }   // always fresh: others (writer, jobs) change it too
+  render(); pollWhileRunning(); window.scrollTo(0, 0);
+}
+function render() {
+  const r = route(), m = $('#main');
+  if (r[0] === 'new') return (m.innerHTML = newProject());
+  if (r[0] !== 'p' || !P) return home();
+  const step = r[2] || 'overview';
+  const fn = { overview, research, script, hook, voice, art, storyboard, draft, review, gate, history, inbox }[step] || overview;
+  m.innerHTML = fn(r);
+  afterRender(step);
+  pollWhileRunning();
+}
+function filmTag(r) {
+  return `<video class="film" controls playsinline preload="metadata" poster="${F(PID, r.poster)}" data-film="${esc(r.id)}">${r.preview ? `<source src="${F(PID, r.preview)}" type="video/webm">` : ''}<source src="${F(PID, r.file)}" type="video/mp4"></video>`;
+}
+// ------------------------------------------------------------------ home + new
+async function home() {
+  const m = $('#main');
+  const j = await (await fetch('/api/studio')).json();
+  m.innerHTML = `<div class="row between"><h2>Your videos</h2><a href="#/new"><button class="primary" id="newBtn">＋ New video</button></a></div>
+  ${j.projects.length ? `<div class="stack">${j.projects.map((p) => `<a class="panel" style="text-decoration:none;color:inherit" href="#/p/${esc(p.id)}" data-project="${esc(p.id)}">
+     <div class="row between"><h3>${esc(p.title)}</h3><span class="pill s-unk">${esc(p.brand === 'timekeeper' ? 'Time Keeper' : 'Diabetes History')}</span></div>
+     <span class="small muted">Now: ${esc(p.stage)} · updated ${esc((p.updated || '').replace('T', ' ').replace('Z', ''))}</span></a>`).join('')}</div>`
+    : `<div class="panel"><p>No videos yet.</p><p class="muted small">Start with an idea. The studio walks you through research, script, hook, draft voice, art, storyboard, draft film, review and the final-voice plan.</p></div>`}`;
+}
+function newProject() {
+  return `<div class="flowhead"><a class="back" href="#/" aria-label="Back">‹</a><span class="t">New video</span></div>
+  <div class="panel"><label class="stack"><span class="small muted">Your idea</span><textarea id="idea" placeholder="What is the video about?"></textarea></label>
+  <label class="stack"><span class="small muted">Short title</span><input id="title" placeholder="e.g. Rolex Oyster"></label>
+  <span class="small muted">Brand</span>
+  <div class="choice"><button data-brand="timekeeper" aria-pressed="false"><b>Time Keeper</b><span class="small muted">Watches · paper documentary · ElevenLabs final voice</span></button>
+  <button data-brand="diabetes-history" aria-pressed="false"><b>Diabetes History</b><span class="small muted">Science history · paper-cut series</span></button></div>
+  <button class="primary big" id="createBtn">Create project</button></div>`;
+}
+// ------------------------------------------------------------------ project overview (progress dashboard)
+const pill = (s) => { const [c, i, l] = STATE[s] || STATE.not_started; return `<span class="pill ${c}">${i} ${l}</span>`; };
+function steps() {
+  return `<ol class="steps" aria-label="Steps">${P.steps.map((s, i) => `<li class="${s.state} ${s.id === P.stage ? 'now' : ''}" data-step="${s.id}"><a href="#/p/${PID}/${s.id}">
+    <span class="n">${s.state === 'approved' ? '✓' : i + 1}</span><span class="l">${esc(s.name)}<span class="st">${(STATE[s.state] || STATE.not_started)[2]}</span></span></a></li>`).join('')}</ol>`;
+}
+function fmtS(s) { if (s == null) return '—'; s = Math.round(s); return s >= 60 ? `${Math.floor(s / 60)} min ${s % 60} s` : `${s} s`; }
+function runRow(r) {
+  const pct = r.units_total ? Math.round(100 * r.units_done / r.units_total) : 0;
+  return `<div class="stack" style="gap:4px"><div class="row between small"><span>${esc(r.task)}</span><span class="muted">${r.units_done}/${r.units_total} · ${fmtS(r.elapsed_s)}${r.state === 'running' ? (r.eta_s != null ? ` · about ${fmtS(r.eta_s)} left` : ` · no estimate (${esc(r.eta_reason)})`) : ''}</span></div>
+    <div class="bar"><i style="width:${pct}%"></i></div></div>`;
+}
+function overview() {
+  const next = P.steps.find((s) => s.id === P.stage);
+  const id = P.identity, vp = P.voice_profile;
+  return `<div class="row between"><div class="stack" style="gap:2px"><h2 id="ptitle">${esc(P.title)}</h2><span class="small muted">${esc(id.brand_name)} · ${esc(P.idea)}</span></div></div>
+  ${P.latest_render ? `<div class="panel" id="homefilm"><div class="row between"><h3>Latest draft · ${esc(P.latest_render.id)}</h3><span class="pill s-wait">DRAFT</span></div>
+    ${filmTag(P.latest_render)}<span class="small muted">${fmtS(P.latest_render.seconds)} · storyboard v${P.latest_render.storyboard_v} · ${P.latest_render.decision ? esc(P.latest_render.decision) : '<a href="#/p/' + PID + '/draft">not decided yet ›</a>'}</span></div>` : ''}
+  ${steps()}
+  <a href="#/p/${PID}/${P.stage}"><button class="primary big" id="nextBtn">Next: ${esc(next.name)} ›</button></a>
+  <a href="#/p/${PID}/inbox" class="panel" id="inboxCard" style="text-decoration:none;color:inherit"><div class="row between"><h3>Inbox</h3><span class="pill ${P.inbox_groups.length ? 's-wait' : 's-ok'}">${P.inbox_groups.reduce((n, g) => n + g.items.filter((i) => !i.wait).length, 0)} to decide</span></div>
+    <span class="small muted">${P.inbox_groups.map((g) => `${esc(g.title)} ${g.items.length}`).join(' · ') || 'Nothing waiting'}</span></a>
+  ${P.scene_status.length ? `<div class="panel" id="scenes"><div class="row between"><h3>Scenes</h3><span class="tiny muted">● voice ● art ● findings</span></div><div class="scenes">${P.scene_status.map((x) => `<a href="#/p/${PID}/voice/${esc(x.id)}" data-scenechip="${esc(x.id)}" title="${esc(x.text)}"><b>${esc(x.id)}</b>
+      <span class="dots"><i class="d ${x.voice === 'approved' ? 'ok' : x.voice === 'candidate' ? 'wait' : x.voice === 'rejected' ? 'bad' : ''}" title="voice ${esc(x.voice)}"></i><i class="d ${x.art === 'approved' ? 'ok' : x.art === 'selected' ? 'sel' : x.art === 'concepts' ? 'wait' : ''}" title="art ${esc(x.art)}"></i><i class="d ${x.findings ? 'bad' : ''}" title="${x.findings} open findings"></i></span>
+      <span class="muted">${x.start != null ? x.start.toFixed(0) + 's · ' + x.dur.toFixed(1) + 's' : esc(x.voice)}</span></a>`).join('')}</div></div>` : ''}
+  ${P.running.length ? `<div class="panel" id="running"><h3>Working now</h3>${P.running.map(runRow).join('')}</div>` : ''}
+  ${P.blockers.length ? `<div class="panel" id="blockers"><h3>Blocked</h3>${P.blockers.map((b) => `<div class="issue"><span class="pill s-bad">■</span><div class="stack" style="gap:2px"><span>${esc(b.what)}</span><span class="small muted">${esc(b.why || '')}</span>${b.job ? `<button data-resume="${esc(b.job)}">Resume</button>` : ''}</div></div>`).join('')}</div>` : ''}
+  <div class="row small muted" id="inbox">Flags ${P.inbox.script_flags + P.inbox.voice_flags} · Findings ${P.inbox.findings_open} · Fix tasks ${P.inbox.fix_tasks_open} · Pending approvals ${P.pending.length}</div>
+  <div class="panel" id="identity"><h3>Identity (this brand only)</h3>
+    <div class="row">${Object.entries(id.palette || {}).map(([k, c]) => `<span class="swatch" title="${esc(k)}" style="background:${esc(c)}"></span>`).join('')}</div>
+    <span class="small">Profile <span class="mono">${esc(id.profile)}</span> v${esc(id.profile_version)} (${esc(id.profile_status)}) · end card ${esc(id.endcard || 'none')}</span>
+    <span class="small">Draft voice: ${esc(id.draft_voice?.provider || '—')} <span class="muted">(${esc(id.draft_voice?.purpose || '')})</span></span>
+    <div class="row small" id="voicechoice">Final voice: ${vp ? `<b>${esc(vp.name)}</b> ${vp.provider} · ${vp.model || ''} <span class="pill ${vp.status === 'usable' ? 's-ok' : 's-bad'}">${esc(vp.status)}</span> <span class="muted">${esc(vp.why)}</span>` : '<span class="muted">not chosen</span>'}</div>
+    <div class="row">${Object.entries(id.voices || {}).map(([k, v]) => `<button data-voice="${esc(k)}" aria-pressed="${vp && vp.name === k}">${esc(k)} <span class="tiny muted">${esc(v.provider)} · ${v.approved_for ? 'approved for ' + esc(v.approved_for.join(', ')) : esc(v.status)}</span></button>`).join('')}</div></div>
+  <div class="panel"><div class="row between"><h3>Recent</h3><a href="#/p/${PID}/history" class="small">All history ›</a></div>
+    <ul class="hist">${P.history.slice(-6).reverse().map((h) => `<li><span class="muted tiny">${esc(h.at.slice(11, 19))}</span> ${esc(h.summary)}</li>`).join('')}</ul></div>
+  ${timings()}`;
+}
+function timings() {
+  const done = P.runs.filter((r) => r.state !== 'running');
+  if (!done.length) return '';
+  return `<div class="panel tablewrap" id="timings"><h3>Measured times</h3><table class="t"><tr><th>Task</th><th>Units</th><th>Time</th><th>State</th></tr>
+  ${done.slice(-10).reverse().map((r) => `<tr><td>${esc(r.task)}</td><td>${r.units_done}/${r.units_total}</td><td>${fmtS(r.elapsed_s)}</td><td>${esc(r.state)}${r.error ? ' · ' + esc(r.error.slice(0, 80)) : ''}</td></tr>`).join('')}</table></div>`;
+}
+const head = (title, step) => { const i = P.steps.findIndex((s) => s.id === step); const nx = P.steps[i + 1];
+  return `<div class="flowhead"><a class="back" href="#/p/${PID}" aria-label="Back">‹</a><span class="t">${esc(title)}</span> ${pill(P.steps[i].state)}
+  ${nx ? `<a class="nx small" href="#/p/${PID}/${nx.id}">${esc(nx.name)} ›</a>` : ''}</div>`; };
+// ------------------------------------------------------------------ research
+function research() {
+  const R = P.research, d = P.research_data;
+  if (!R) return head('Research', 'research') + `<div class="panel"><p>No research saved yet.</p></div>`;
+  const cls = { verified: 's-ok', attributed: 's-wait', avoid: 's-bad', disputed: 's-bad' };
+  return head('Research', 'research') + `<div class="panel"><p class="small">${esc(d.verdict)}</p><span class="tiny muted">${esc(d.researched_by)}</span></div>
+  <div class="panel" id="claims">${d.claims.map((c) => `<div class="issue"><span class="pill ${cls[c.status] || 's-unk'}">${esc(c.status)}</span><div class="stack" style="gap:3px">
+    <span class="small">${esc(c.text)}</span>${c.careful ? `<span class="tiny muted">Careful: ${esc(c.careful)}</span>` : ''}${c.why ? `<span class="tiny muted">${esc(c.why)}</span>` : ''}
+    <span class="tiny">${(c.sources || []).map((s) => `<a href="${esc(s)}" target="_blank" rel="noopener">${esc(new URL(s).hostname)}</a>`).join(' · ')}</span></div></div>`).join('')}</div>
+  ${R.status === 'waiting' ? `<div class="actionbar"><button class="bad" data-research="changes_requested">Needs changes</button><button class="primary" data-research="approved">Approve research</button></div>` : `<div class="panel small">Research ${esc(R.status)}.</div>`}`;
+}
+// ------------------------------------------------------------------ script
+function issuesByWord(sv) { const m = {}; for (const c of sv.checks) if (c.wi != null) (m[c.line + ':' + c.wi] ||= []).push(c); return m; }
+function script(r) {
+  if (!P.scripts.length) return head('Script', 'script') + `<div class="panel"><p>No script yet.</p></div>`;
+  const v = +(r[3] || P.scripts[P.scripts.length - 1].v); CUR.v = v;
+  const sv = P.scripts.find((s) => s.v === v), lines = P.script_versions[v], im = issuesByWord(sv);
+  const fl = P.flags.filter((f) => f.v === v && f.status === 'open');
+  const changed = new Set((sv.diff || []).map((d) => d.line + ':' + d.at));
+  const sevCls = { critical: 's-bad', major: 's-wait', minor: 's-proc', info: 's-unk' };
+  const crit = sv.checks.filter((c) => c.severity !== 'info');
+  return head('Script', 'script') + `<nav class="vtabs" aria-label="Versions">${P.scripts.map((s) => `<a href="#/p/${PID}/script/${s.v}" ${s.v === v ? 'aria-current="page"' : ''} data-v="${s.v}">v${s.v} ${`<span class="pill ${({ draft: 's-wait', approved: 's-ok', rejected: 's-bad', superseded: 's-unk' })[s.status]}">${esc(s.status)}</span>`}</a>`).join('')}</nav>
+  <div class="panel small"><span>${esc(sv.note || '')}</span><span class="muted tiny">by ${esc(sv.author)} · ${esc(sv.at.replace('T', ' ').slice(0, 16))}${sv.parent ? ` · from v${sv.parent}` : ''}</span>
+   ${sv.diff && sv.diff.length ? `<div class="diff" id="diff">${sv.diff.map((d) => `<div><span class="mono tiny">${esc(d.line)}</span> ${d.old ? `<del>${ar(d.old)}</del>` : ''} ${d.new ? `<ins>${ar(d.new)}</ins>` : ''}</div>`).join('')}</div>` : ''}</div>
+  <div class="panel" id="lines"><span class="tiny muted">Tap any word to flag it.</span>${lines.map((l) => `<div class="line" data-line="${esc(l.id)}"><span class="lid">${esc(l.id)}${l.role === 'hook' ? '<br>hook' : ''}</span>
+    <div class="words">${words(l.text).map((w, i) => { const iss = im[l.id + ':' + i] || []; const top = iss.find((c) => c.severity === 'critical') || iss.find((c) => c.severity === 'major') || iss[0];
+      const f = fl.find((x) => x.line === l.id && x.wi === i);
+      return `<button class="wd ${top ? 'issue-' + (top.severity === 'minor' ? 'info' : top.severity) : ''} ${f ? 'flagged' : ''}" data-sw="${esc(l.id)}" data-wi="${i}" title="${esc(top ? top.detail : '')}">${esc(w)}</button>`; }).join('')}</div></div>`).join('')}</div>
+  <div class="panel" id="checks"><div class="row between"><h3>Automatic checks</h3><span class="pill ${crit.length ? 's-wait' : 's-ok'}">${crit.length} to look at</span></div>
+    ${sv.checks.filter((c) => c.severity !== 'info').map((c) => `<div class="issue" data-code="${esc(c.code)}"><span class="pill ${sevCls[c.severity]}">${esc(c.severity)}</span><div class="stack" style="gap:2px"><span class="small"><span class="mono">${esc(c.line)}</span> ${esc(c.detail)}</span>
+      ${c.code === 'SPELLING' && c.wi != null && sv.status === 'draft' && !fl.find((x) => x.line === c.line && x.wi === c.wi) ? `<button data-sw="${esc(c.line)}" data-wi="${c.wi}" data-suggest="${esc(c.suggestion || '')}">Highlight and fix ›</button>` : ''}</div></div>`).join('') || '<span class="small muted">No problems found.</span>'}
+    <details><summary class="small muted">${sv.checks.filter((c) => c.severity === 'info').length} names to listen for</summary><div class="small">${[...new Set(sv.checks.filter((c) => c.severity === 'info').map((c) => c.word))].map(ar).join(' · ')}</div></details></div>
+  ${P.flags.filter((f) => f.v <= v).length ? `<div class="panel" id="flags"><h3>Correction requests</h3>${P.flags.filter((f) => f.v <= v).map((f) => `<div class="issue" data-flag="${esc(f.flag)}"><span class="pill ${f.status === 'open' ? 's-wait' : f.status === 'applied' ? 's-ok' : 's-unk'}">${esc(f.status)}</span>
+    <div class="stack" style="gap:3px"><span class="small"><span class="mono">${esc(f.line)}</span> ${ar(f.word)} · ${esc(P.flag_kinds[f.kind])}${f.note ? ' — ' + esc(f.note) : ''}</span>
+    ${f.status === 'open' ? `<div class="row"><input data-repl="${esc(f.flag)}" class="ar" dir="rtl" value="${esc(f.replacement || '')}" placeholder="corrected word" style="max-width:220px"><button class="primary" data-apply="${esc(f.flag)}">Apply → new version</button><button data-dismiss="${esc(f.flag)}">Dismiss</button></div>`
+      : f.status === 'applied' ? `<span class="small">→ ${ar(f.replacement)} in <a href="#/p/${PID}/script/${f.applied_in}">v${f.applied_in}</a></span>` : ''}</div></div>`).join('')}</div>` : ''}
+  ${P.scripts.length > 1 ? `<div class="panel" id="compare"><h3>Compare versions</h3><div class="row"><select id="cmpA">${P.scripts.map((s) => `<option ${s.v === Math.max(1, v - 1) ? 'selected' : ''}>${s.v}</option>`).join('')}</select><select id="cmpB">${P.scripts.map((s) => `<option ${s.v === v ? 'selected' : ''}>${s.v}</option>`).join('')}</select><button data-compare>Compare</button></div><div id="cmpOut" class="diff small"></div></div>` : ''}
+  ${sv.status === 'draft' ? `<div class="actionbar"><button class="bad" data-sdec="rejected">Reject</button><button class="primary" data-sdec="approved" id="approveScript">Approve v${v}</button></div>` : `<div class="panel small">v${v} is ${esc(sv.status)}${sv.note_decision ? ': ' + esc(sv.note_decision) : ''}.</div>`}`;
+}
+function wordDiff(a, b) {
+  const out = [];
+  const ids = [...new Set([...a.map((l) => l.id), ...b.map((l) => l.id)])];
+  for (const id of ids) { const x = a.find((l) => l.id === id), y = b.find((l) => l.id === id);
+    if (!x) { out.push(`<div><span class="mono tiny">${esc(id)}</span> <ins>${ar(y.text)}</ins></div>`); continue; }
+    if (!y) { out.push(`<div><span class="mono tiny">${esc(id)}</span> <del>${ar(x.text)}</del></div>`); continue; }
+    if (x.text === y.text) continue;
+    const wa = x.text.split(/\s+/), wb = y.text.split(/\s+/); let i = 0; while (i < wa.length && wa[i] === wb[i]) i++;
+    let j = 0; while (j < wa.length - i && wa[wa.length - 1 - j] === wb[wb.length - 1 - j]) j++;
+    out.push(`<div><span class="mono tiny">${esc(id)}</span> <del>${ar(wa.slice(i, wa.length - j).join(' '))}</del> <ins>${ar(wb.slice(i, wb.length - j).join(' '))}</ins></div>`); }
+  return out.join('') || '<span class="muted">Same text.</span>';
+}
+function flagSheet(lid, wi, suggest) {
+  const v = CUR.v, l = P.script_versions[v].find((x) => x.id === lid), w = words(l.text)[wi];
+  if (!suggest) suggest = (P.scripts.find((s) => s.v === v).checks.find((c) => c.line === lid && c.wi === wi && c.suggestion) || {}).suggestion;
+  openSheet(`<h3>Flag ${ar(w)} <span class="mono tiny muted">${esc(lid)} · v${v}</span></h3>
+   <p class="small">${ar(l.text)}</p>
+   <div class="chips" id="fkinds">${Object.entries(P.flag_kinds).map(([k, n]) => `<button data-fk="${k}" aria-pressed="${suggest && k === 'spelling'}">${esc(n)}</button>`).join('')}</div>
+   <textarea id="fnote" placeholder="What is wrong? (optional)"></textarea>
+   <input id="frepl" class="ar" dir="rtl" placeholder="Correct word (optional)" value="${esc(suggest || '')}">
+   <div class="row"><button data-close>Cancel</button><button class="primary" id="fsave" data-fsave="${esc(lid)}:${wi}">🚩 Request correction</button></div>`);
+}
+// ------------------------------------------------------------------ hooks
+function hook() {
+  const H = P.hooks;
+  if (!H.options.length) return head('Hook', 'hook') + `<div class="panel"><p>No hooks yet.</p></div>`;
+  const sel = H.selected, appr = P.scripts.filter((s) => s.status === 'approved').pop();
+  const lines = appr ? P.script_versions[appr.v] : [];
+  const kw = (t) => new Set(words(t).map((w) => w.replace(/[ً-ْ]/g, '').replace(/^(و|ف)?(ال)?/, '')).filter((w) => w.length > 2));
+  const pay = sel ? (() => { const hk = kw(H.options.find((o) => o.id === sel).spoken); let best = null;
+    for (const l of lines.filter((l) => l.role !== 'hook')) { const n = [...kw(l.text)].filter((w) => hk.has(w)).length; if (!best || n > best.n) best = { l, n }; } return best; })() : null;
+  return head('Hook', 'hook') + `<div class="panel small"><b>Recommended: ${esc(H.recommended)}</b><span>${esc(H.reasons)}</span></div>
+  ${Object.keys(H.stills).length < H.options.length ? `<button id="hookStills" data-run="run_hook_stills">Draw the opening frames</button>` : ''}
+  <div class="cards" id="hooks">${H.options.map((o) => `<div class="card ${o.id === H.recommended ? 'rec' : ''}" data-hook="${esc(o.id)}">
+    ${H.stills[o.id] ? `<div class="thumbs">${H.stills[o.id].map((s, i) => `<img src="${F(PID, s)}" alt="${esc(o.id)} frame ${['0.0', '0.5', '2.0'][i]} s" data-full="${esc(s)}" data-group="hook-${esc(o.id)}">`).join('')}</div>` : ''}
+    <div class="body"><div class="row between"><b>${esc(o.id)} · ${esc(o.type)}</b>${o.id === H.recommended ? '<span class="pill s-ok">recommended</span>' : ''}${o.id === sel ? '<span class="pill s-wait">selected</span>' : ''}</div>
+    <span class="tiny muted">Spoken</span><p>${ar(o.spoken)}</p><span class="tiny muted">On screen</span><p><b>${ar(o.on_screen)}</b></p>
+    <span class="tiny muted">Opening</span><p class="small">${esc(o.visual)}</p>
+    ${o.checks.length ? o.checks.map((c) => `<span class="pill ${c.severity === 'critical' ? 's-bad' : 's-wait'}">${esc(c.detail)}</span>`).join('') : '<span class="pill s-ok">✓ checks</span>'}
+    <button ${o.id === sel ? 'disabled' : ''} data-hsel="${esc(o.id)}">${o.id === sel ? 'Chosen' : 'Choose ' + esc(o.id)}</button></div></div>`).join('')}</div>
+  ${sel ? `<div class="panel" id="payoff"><h3>Does the film deliver on ${esc(sel)}?</h3>
+    ${H.delivery ? `<span class="pill ${H.delivery.decision === 'delivered' ? 's-ok' : 's-bad'}">${esc(H.delivery.decision)}${H.delivery.line ? ' · ' + esc(H.delivery.line) : ''}</span>` :
+      `<p class="small">Read the script and choose the line that answers the hook. <span class="muted">(Lines sharing the hook's words are marked ●; that is only a hint — a line can share words and still repeat the myth.)</span></p>
+      <div class="stack" id="payofflines" style="gap:4px">${lines.filter((l) => l.role !== 'hook').map((l) => { const n = [...kw(l.text)].filter((w) => kw(H.options.find((o) => o.id === sel).spoken).has(w)).length;
+        return `<label class="row" style="align-items:flex-start;flex-wrap:nowrap;gap:8px"><input type="radio" name="payoff" value="${esc(l.id)}" style="width:auto;margin-top:6px"><span class="small"><span class="mono">${esc(l.id)}</span>${n ? ' ●' : ''} ${ar(l.text)}</span></label>`; }).join('')}</div>
+      <div class="row"><button class="bad" data-deliver="not_delivered">Not delivered</button><button class="primary" data-deliver="delivered">Delivered by the chosen line</button></div>`}
+    ${P.scripts[P.scripts.length - 1].status === 'draft' ? `<a href="#/p/${PID}/script"><button>Approve the script with this hook ›</button></a>` : ''}</div>` : ''}`;
+}
+// ------------------------------------------------------------------ voice
+function wave(t) {
+  const n = t.peaks.length, W = 800, Hh = 56;
+  return `<svg class="wave" viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" data-wave="${esc(t.id)}">
+   ${t.words.map((w, i) => P.voice.flags.some((f) => f.take === t.id && f.wi === i) ? `<rect class="flg" x="${w.s / t.seconds * W}" y="0" width="${(w.e - w.s) / t.seconds * W}" height="${Hh}"/>` : '').join('')}
+   ${t.peaks.map((p, i) => `<rect x="${i * W / n}" y="${(1 - p) * Hh / 2}" width="${W / n * 0.7}" height="${Math.max(1, p * Hh)}"/>`).join('')}
+   ${t.words.map((w) => `<line class="wb" x1="${w.s / t.seconds * W}" x2="${w.s / t.seconds * W}" y1="0" y2="${Hh}"/>`).join('')}
+   <line class="ph" x1="0" x2="0" y1="0" y2="${Hh}"/></svg>`;
+}
+function takeBlock(t, label, cls = '') {
+  const fl = P.voice.flags.filter((f) => f.take === t.id);
+  const pr = play.proof[t.id] || {};
+  const st = t.status === 'approved' ? 's-ok' : t.status === 'rejected' ? 's-bad' : 's-wait';
+  return `<div class="take ${cls}" data-take="${esc(t.id)}"><div class="row between"><span class="small"><b>${esc(label)}</b> · ${t.seconds.toFixed(1)} s ${t.reason && t.reason !== 'draft read' ? `· <span class="muted">${esc(t.reason)}</span>` : ''}</span><span class="pill ${st}">${esc(t.status)}</span></div>
+   <div class="row"><button class="primary" data-tplay="${esc(t.id)}">▶ Play</button><span class="tiny muted" data-heard="${esc(t.id)}">${pr.listened_s ? `heard ${pr.listened_s.toFixed(1)} s of ${t.seconds.toFixed(1)} s` : 'not played yet'}</span></div>
+   ${wave(t)}
+   <div class="words">${t.words.map((w, i) => `<button class="wd ${fl.some((f) => f.wi === i) ? 'flagged' : ''}" data-vw="${esc(t.id)}" data-wi="${i}" title="${w.est ? 'time estimated' : ''}">${esc(w.w)}</button>`).join('')}</div>
+   ${t.spoken !== t.text ? `<span class="tiny muted">Sent to the draft voice: ${ar(t.spoken)}</span>` : ''}
+   <span class="tiny muted">Machine heard: ${ar(t.heard || '—')}</span>
+   ${t.status === 'candidate' ? `<div class="row"><button class="bad" data-tdec="rejected" data-t="${esc(t.id)}">Reject take</button><button class="ok" data-tdec="approved" data-t="${esc(t.id)}">Approve take</button></div>` : ''}</div>`;
+}
+function voice(r) {
+  const nar = P.narration, tk = P.voice.takes;
+  const top = `<div class="banner-draft">DRAFT VOICE — Google gTTS (free). For wording, timing and pronunciation flags only. It does not prove how the final ElevenLabs voice will say any word.</div>`;
+  if (!nar) return head('Draft voice', 'voice') + top + `<div class="panel"><p>Approve the script first: the voice reads the approved version only.</p></div>`;
+  const VL = P.voice.lines || {};
+  const missing = nar.lines.filter((l) => ['missing', 'stale', undefined].includes((VL[l.id] || {}).status));
+  const only = r[3];
+  return head('Draft voice', 'voice') + top + `<div class="panel small">Reads script v${nar.script_v} · ${nar.lines.length} lines · library ${esc(nar.library_version)}</div>
+  ${missing.length ? `<button class="primary big" data-run="run_voice" id="makeVoice">${Object.keys(tk).length ? 'Record the changed lines' : 'Make draft read'} (${missing.length} line${missing.length > 1 ? 's' : ''})</button>` : ''}
+  ${P.running.filter((x) => x.stage === 'voice').map(runRow).join('')}
+  ${P.voice.flags.filter((f) => ['open', 'fix_no_effect'].includes(f.status)).length ? `<div class="panel" id="vflags"><h3>Pronunciation flags</h3>${P.voice.flags.filter((f) => ['open', 'fix_no_effect'].includes(f.status)).map((f) => `<div class="issue"><span class="pill ${f.status === 'open' ? 's-wait' : 's-bad'}">${f.status === 'open' ? 'open' : 'no effect'}</span><div class="stack" style="gap:4px">
+    <span class="small"><span class="mono">${esc(f.line)}</span> ${ar(f.word)} · ${esc(P.vflag_kinds[f.kind])}${f.note ? ' — ' + esc(f.note) : ''}</span>
+    ${f.status === 'fix_no_effect' ? `<span class="small" style="color:var(--bad)">The draft voice ignored «${esc(f.respell)}»: the new take is the same audio. Try a different spelling.</span>` : ''}
+    <div class="row"><input data-respell="${esc(f.vflag)}" class="ar" dir="rtl" value="${esc(f.respell || '')}" placeholder="how the draft voice should read it" style="max-width:240px"><button class="primary" data-vfix="${esc(f.vflag)}">Apply fix · re-record ${esc(f.line)} only</button></div></div></div>`).join('')}</div>` : ''}
+  <div class="stack" id="vlines">${nar.lines.filter((l) => !only || l.id === only).map((l) => { const x = VL[l.id] || {}; const ids = (P.voice.by_line[l.id] || []).filter((i) => tk[i].text === l.text);
+    const cur = x.take ? tk[x.take] : null; const pi = cur ? ids.indexOf(cur.id) : -1; const prev = pi > 0 ? tk[ids[pi - 1]] : null; const stale = x.status === 'stale' ? tk[x.stale_take] : null;
+    const afterLabel = cur && cur.same_audio_as ? 'After — IDENTICAL audio: the respelling had no effect' : 'After (corrected)';
+    return `<div class="panel" data-vline="${esc(l.id)}"><div class="row between"><span class="mono small">${esc(l.id)}</span>${cur ? `<span class="tiny muted">${ids.length} take${ids.length > 1 ? 's' : ''}</span>` : stale ? '<span class="pill s-bad">script changed · re-record</span>' : '<span class="pill s-unk">no take</span>'}</div>
+     <p>${ar(l.text)}</p>
+     ${stale ? `<div class="banner-lock" data-stale="${esc(l.id)}">The approved take was recorded for older text: «${esc(stale.text)}». It no longer counts.</div>` : ''}
+     ${cur ? (prev ? `<div class="ab" data-compare="${esc(l.id)}"><div class="side">${takeBlock(prev, 'Before')}</div><div class="side new">${takeBlock(cur, afterLabel)}</div></div>` : takeBlock(cur, 'Draft take')) : ''}</div>`; }).join('')}</div>`;
+}
+function vflagSheet(tid, wi) {
+  const t = P.voice.takes[tid], w = t.words[wi];
+  openSheet(`<h3>${ar(w.w)} <span class="mono tiny muted">${esc(t.line)} · ${w.s.toFixed(2)}–${w.e.toFixed(2)} s${w.est ? ' (estimated)' : ''}</span></h3>
+   <button data-wplay="${esc(tid)}:${wi}">▶ Hear this word</button><span class="tiny muted" id="wheard">Play it before flagging.</span>
+   <div class="chips">${Object.entries(P.vflag_kinds).map(([k, n]) => `<button data-vk="${k}" aria-pressed="false">${esc(n)}</button>`).join('')}</div>
+   <textarea id="vnote" placeholder="What did you hear?"></textarea>
+   <input id="vrespell" class="ar" dir="rtl" placeholder="Suggested reading, e.g. with vowels (optional)">
+   <div class="row"><button data-close>Cancel</button><button class="primary" id="vsave" data-vsave="${esc(tid)}:${wi}" disabled>🚩 Flag word</button></div>`);
+}
+// ------------------------------------------------------------------ art
+function art() {
+  const A = P.art, sm = P.support;
+  const lvl = { 'supported': 's-ok', 'supported (needs real material)': 's-wait', 'prototype': 's-proc', 'paid tool': 's-bad', 'needs implementation': 's-unk', 'forbidden by the brand': 's-bad' };
+  const scenes = P.brief ? Object.entries(P.brief.scenes).filter(([k, s]) => Object.keys(s.concepts).length > 1) : [];
+  return head('Art', 'art') + `<details class="panel" id="support"><summary><b>What the studio can draw</b> <span class="small muted">(${sm.filter((s) => s.level.startsWith('supported')).length} supported · ${sm.filter((s) => s.level === 'paid tool').length} paid · ${sm.filter((s) => s.level === 'needs implementation').length} to build)</span></summary>
+    <table class="t">${sm.map((s) => `<tr><td>${esc(s.name)}</td><td><span class="pill ${lvl[s.level] || 's-unk'}">${esc(s.level)}</span></td><td class="tiny muted">${s.in_profile ? 'in brand profile' : 'not in profile'} · ${esc(s.cost)}</td></tr>`).join('')}</table></details>
+  ${scenes.map(([sid, s]) => { const cs = (A.by_scene[sid] || []).map((id) => A.concepts[id]); const appr = A.approved[sid], sel = A.selected[sid];
+    cs.sort((a, b) => (a.support !== 'rendered') - (b.support !== 'rendered') || a.rank - b.rank);
+    return `<div class="panel" data-scene="${esc(sid)}"><div class="row between"><h3><span class="mono">${esc(sid)}</span> ${esc(s.banner || '')}</h3>${appr ? `<span class="pill s-ok">✓ ${esc(appr.concept)} v${appr.version} approved</span>` : sel ? `<span class="pill s-wait">selected · not approved</span>` : ''}</div>
+     ${!cs.length ? `<button class="primary" data-run="run_concepts" data-scene-run="${esc(sid)}">Make concepts for ${esc(sid)}</button>` : ''}
+     <div class="cards">${cs.map((c) => { const v = c.versions[c.versions.length - 1]; const req = A.requests.find((q) => q.concept === c.id && q.status === 'open');
+       return `<div class="card ${sel === c.id ? 'rec' : ''}" data-concept="${esc(c.id)}">${v.stills.length ? `<img class="still" src="${F(PID, v.stills[0])}" alt="${esc(c.name)} v${v.v}" data-full="${esc(v.stills[0])}" data-group="scene-${esc(c.scene)}">` : ''}
+       <div class="body"><div class="row between"><b>${esc(c.name)}</b><span class="tiny muted">#${c.rank} · v${v.v}</span></div>
+       <span class="pill ${c.support === 'rendered' ? 's-ok' : 's-bad'}">${esc(c.support)}</span>
+       ${c.reasons.length ? `<span class="tiny">${esc(c.reasons.join('; '))}</span>` : ''}${c.warnings.length ? `<span class="tiny" style="color:var(--wait)">${esc(c.warnings.join('; '))}</span>` : ''}
+       ${v.changes && Object.keys(v.changes).length ? `<span class="tiny muted">Changes: ${esc(JSON.stringify(v.changes))}${v.note ? ' · ' + esc(v.note) : ''}</span>` : ''}
+       ${c.versions.length > 1 ? `<div class="cmp" data-cmp="${esc(c.id)}">${c.versions.slice(-2).map((x) => `<figure><img src="${F(PID, x.stills[x.stills.length - 1])}" alt="v${x.v}" data-full="${esc(x.stills[x.stills.length - 1])}" data-group="scene-${esc(c.scene)}"><figcaption class="tiny">v${x.v}${x.status ? ' · ' + esc(x.status) : ''}</figcaption></figure>`).join('')}</div>` : ''}
+       ${c.versions.length > 1 ? `<div class="row tiny">${c.versions.map((x) => `<a href="#" data-full="${esc(x.stills[0])}" data-group="${esc(c.id)}">v${x.v}${x.status ? ' ' + esc(x.status) : ''}</a>`).join(' · ')}</div>` : ''}
+       ${req ? `<span class="pill s-proc">revision in progress</span>` : ''}
+       ${A.requests.filter((q) => q.concept === c.id && q.status === 'waiting_operator').map(() => '<span class="pill s-wait">note sent to the art operator · no new version yet</span>').join('')}
+       ${v.no_visible_change ? '<span class="pill s-bad">v' + v.v + ': no visible change from v' + v.from + '</span>' : ''}
+       ${v.status === 'rejected' || v.status === 'withdrawn' ? `<span class="pill s-bad">${esc(v.status)}</span>` : ''}
+       ${c.support === 'rendered' && !appr && !['rejected', 'withdrawn'].includes(v.status) ? `<div class="row"><button ${sel === c.id ? 'disabled' : ''} data-asel="${esc(c.id)}">${sel === c.id ? 'Selected' : 'Select'}</button>
+          <button data-amod="${esc(c.id)}" ${req ? 'disabled' : ''}>Request changes</button>
+          ${sel === c.id ? `<button class="ok" data-aok="${esc(c.id)}" data-av="${v.v}">Approve v${v.v}</button>` : ''}
+          ${v.status !== 'rejected' ? `<button class="bad" data-arej="${esc(c.id)}" data-av="${v.v}">Reject</button>` : ''}</div>` : ''}
+       ${c.support === 'rendered' && appr && appr.concept !== c.id && !['rejected', 'withdrawn'].includes(v.status) ? `<div class="row"><button data-amod="${esc(c.id)}" ${req || A.requests.some((q) => q.concept === c.id && q.status === 'waiting_operator') ? 'disabled' : ''}>Request changes</button></div>
+          <span class="tiny muted">This scene uses ${esc(appr.concept)} v${appr.version}. To switch, withdraw that approval first.</span>` : ''}
+       ${appr && appr.concept === c.id ? `<div class="row"><button data-amod="${esc(c.id)}" ${req || A.requests.some((q) => q.concept === c.id && q.status === 'waiting_operator') ? 'disabled' : ''}>Request changes</button>
+          ${v.v > appr.version && !v.status ? `<button class="ok" data-aok="${esc(c.id)}" data-av="${v.v}">Approve v${v.v} (replaces v${appr.version})</button><button class="bad" data-arej="${esc(c.id)}" data-av="${v.v}">Reject v${v.v}</button>` : ''}
+          <button class="bad" data-awd="${esc(c.id)}" data-av="${appr.version}">Withdraw approval</button></div>
+          ${v.v > appr.version && !v.status ? `<span class="tiny muted">v${appr.version} stays in the film until you approve v${v.v}.</span>` : ''}` : ''}</div></div>`; }).join('')}</div>
+     ${(P.art_excluded || []).length ? '' : ''}</div>`; }).join('')}`;
+}
+function modSheet(cid) {
+  const c = P.art.concepts[cid];
+  openSheet(`<h3>Changes to ${esc(c.name)}</h3><div class="chips" id="mods">
+    <button data-mod="theme:tk-ink" aria-pressed="false">Darker paper</button><button data-mod="theme:tk-bone" aria-pressed="false">Lighter paper</button>
+    <button data-mod="text_size:1.2" aria-pressed="false">Bigger text</button><button data-mod="zoom:1.18" aria-pressed="false">Push in closer</button><button data-mod="slower:1.4" aria-pressed="false">Slower</button></div>
+    <textarea id="mnote" placeholder="Anything else for the artist"></textarea>
+    <div class="row"><button data-close>Cancel</button><button class="primary" data-msave="${esc(cid)}">Request this revision</button></div>`);
+}
+// ------------------------------------------------------------------ storyboard
+function storyboard() {
+  const sb = P.storyboard, rec = P.storyboards[P.storyboards.length - 1];
+  return head('Storyboard', 'storyboard') + `<button class="primary big" data-build>Build storyboard from the approved script</button>
+  ${sb ? `<div class="panel small">v${rec.v} · script v${rec.script_v} · hook ${esc(rec.hook || '—')} · <b>${fmtS(rec.seconds)}</b> with the Time Keeper end card (draft voice)${rec.est_final_seconds ? ` · about <b>${fmtS(rec.est_final_seconds)}</b> with the final narrator <span class="tiny muted">(${rec.words} words at ${rec.pace.words_per_s} words/s: ${esc(rec.pace.source)})</span>` : ''}
+    ${rec.warnings.length ? `<div class="stack" style="gap:2px" id="sbwarn"><b class="small" style="color:var(--wait)">${rec.warnings.length} not individually approved — check them below</b>${rec.warnings.map((w) => `<div class="tiny">${esc(w)}</div>`).join('')}</div>` : '<span class="pill s-ok">every scene\'s voice and art approved</span>'}
+    ${rec.decision ? `<span class="pill ${rec.decision === 'approved' ? 's-ok' : 's-wait'}">storyboard ${esc(rec.decision)}</span>` : `<div class="row"><button class="bad" data-sbdec="changes_requested" data-sbv="${rec.v}">Needs changes</button><button class="primary" data-sbdec="approved" data-sbv="${rec.v}">Approve storyboard v${rec.v} as shown</button></div>`}</div>
+  <div class="panel tablewrap" id="sbtable"><table class="t"><tr><th>Scene</th><th>Time</th><th>Visual</th><th>Status</th></tr>
+  ${sb.scenes.map((s) => { const c = s.concept && P.art.concepts[s.concept]; const v = c && c.versions.find((x) => x.v === s.art_version);
+    return `<tr data-sbscene="${esc(s.id)}"><td><span class="mono">${esc(s.id)}</span><br><span class="small">${ar(s.banner || '')}</span></td><td class="mono tiny">${s.start.toFixed(1)}–${(s.start + s.dur).toFixed(1)} s<br>${esc(s.transition)}</td>
+    <td>${v ? `<img src="${F(PID, v.stills[0])}" style="width:54px;border-radius:6px" alt="" data-full="${esc(v.stills[0])}" data-group="sb">` : ''}<span class="tiny">${esc(s.technique)}</span></td>
+    <td><span class="pill ${s.status.voice === 'approved' ? 's-ok' : 's-wait'}">voice ${esc(s.status.voice)}</span> <span class="pill ${s.status.art === 'approved' ? 's-ok' : 's-unk'}">art ${esc(s.status.art)}</span></td></tr>`; }).join('')}
+  <tr><td><span class="mono">end</span></td><td class="mono tiny">+5.8 s</td><td class="tiny">Time Keeper end card</td><td></td></tr></table></div>` : ''}`;
+}
+// ------------------------------------------------------------------ draft
+function draft() {
+  const rs = P.renders, r = [...rs].reverse().find((x) => x.state === 'ok'), last = rs[rs.length - 1];
+  const pr = r ? (play.proof['film-' + r.id] || {}) : {};
+  return head('Draft video', 'draft') + `<div class="banner-draft">DRAFT — draft voice and unapproved items. Not for publishing.</div>
+  <button class="primary big" data-run="run_render" id="renderBtn" ${P.storyboards.length ? '' : 'disabled'}>${r ? 'Render again' : 'Render the draft film'}</button>
+  ${P.running.filter((x) => x.stage === 'draft').map(runRow).join('')}
+  ${last && last.state === 'failed' ? `<div class="panel" id="renderFail"><span class="pill s-bad">render failed</span><span class="small">${esc(last.error)}</span><span class="small muted">Nothing approved was changed. Fix the cause and render again.</span></div>` : ''}
+  ${r ? `<div class="panel" id="film">${filmTag(r)}
+    <a class="small" href="${F(PID, r.file)}" download>Download the MP4 (1080×1920)</a>
+    <span class="small">${esc(r.id)} · ${fmtS(r.seconds)} · ${r.size_mb} MB · rendered in ${fmtS(r.render_s)} · storyboard v${r.storyboard_v}</span>
+    <span class="tiny muted" data-heard="film-${esc(r.id)}">${pr.listened_s ? `watched ${pr.listened_s.toFixed(0)} s of ${r.seconds.toFixed(0)} s` : 'not watched yet'}</span>
+    ${r.decision ? `<span class="pill ${r.decision === 'approved_as_draft' ? 's-ok' : 's-wait'}">${esc(r.decision)}</span>` : `<div class="row"><button class="bad" data-rdec="changes_requested" data-r="${esc(r.id)}">Needs changes</button><button class="ok" data-rdec="approved_as_draft" data-r="${esc(r.id)}">Approve as draft</button></div>`}</div>` : ''}`;
+}
+// ------------------------------------------------------------------ review
+function review() {
+  const fs = Object.values(P.review.findings), rs = P.review.runs;
+  const order = { critical: 0, major: 1, minor: 2, info: 3 };
+  const r = [...P.renders].reverse().find((x) => x.state === 'ok');
+  return head('Review', 'review') + `<button class="primary big" data-run="run_review" ${r ? '' : 'disabled'}>Run the independent review on ${esc(r ? r.id : 'the draft')}</button>
+  ${P.running.filter((x) => x.stage === 'review').map(runRow).join('')}
+  ${rs.map((x) => `<div class="panel small"><b>${esc(x.id)}</b> · ${x.scenes} scenes · <span class="pill v-critical">${x.counts.critical} critical</span> <span class="pill v-major">${x.counts.major} major</span> <span class="pill v-minor">${x.counts.minor} minor</span>
+     <img src="${F(PID, x.contact)}" style="width:100%;border-radius:8px" alt="contact sheet" data-full="${esc(x.contact)}" data-group="contact"></div>`).join('')}
+  <div class="stack" id="findings">${fs.sort((a, b) => order[a.severity] - order[b.severity]).map((f) => `<div class="panel" data-finding="${esc(f.id)}"><div class="row between"><span class="pill v-${f.severity}">${esc(f.severity)}</span><span class="mono tiny">${esc(f.code)} · ${esc(f.scene || '—')} · ${f.t != null ? f.t.toFixed(2) + ' s' : '—'}</span></div>
+     <div class="row" style="align-items:flex-start;flex-wrap:nowrap"><img src="${F(PID, f.evidence)}" style="width:90px;border-radius:8px" alt="evidence" data-full="${esc(f.evidence)}" data-group="ev">
+     <div class="stack" style="gap:4px"><span class="small">${esc(f.detail)}</span><span class="small muted">Fix: ${esc(f.recommendation)}</span><span class="tiny muted">${esc(f.perspective)} · ${esc(f.run)}</span></div></div>
+     ${f.decision ? `<span class="pill ${f.decision === 'accepted' ? 's-wait' : 's-unk'}">${esc(f.decision)}${f.decision_note ? ': ' + esc(f.decision_note) : ''}</span>` : `<div class="row"><input data-fnote="${esc(f.id)}" placeholder="Why dismiss? (required to dismiss)" style="max-width:260px"><button data-fdec="dismissed" data-f="${esc(f.id)}">Dismiss</button><button class="primary" data-fdec="accepted" data-f="${esc(f.id)}">Accept → fix task</button></div>`}</div>`).join('')}</div>
+  ${P.fix_tasks.length ? `<div class="panel" id="fixtasks"><h3>Correction tasks</h3>${P.fix_tasks.map((t) => `<div class="issue"><span class="pill ${t.status === 'open' ? 's-wait' : 's-ok'}">${esc(t.status)}</span><div class="stack" style="gap:2px"><span class="small"><span class="mono">${esc(t.scene || '')}</span> ${esc(t.what)}</span><span class="tiny muted">${esc(t.stage)} · from ${esc(t.finding)}</span>${t.status === 'open' ? `<button data-fixdone="${esc(t.id)}">Mark done</button>` : ''}</div></div>`).join('')}</div>` : ''}`;
+}
+// ------------------------------------------------------------------ gate
+function gate() {
+  const g = P.gate.plan;
+  return head('Final voice plan', 'gate') + `<div class="banner-lock">Paid generation is locked in this workspace. This screen shows exactly what a final ElevenLabs run would do. It cannot start one.</div>
+  ${P.latest_render ? `<div class="panel" id="gatefilm"><div class="row between"><h3>The draft this plan would voice</h3><span class="pill ${P.latest_render.decision === 'approved_as_draft' ? 's-ok' : 's-wait'}">${esc(P.latest_render.decision || 'not decided')}</span></div>${filmTag(P.latest_render)}
+    <span class="small muted">${esc(P.latest_render.id)} · ${fmtS(P.latest_render.seconds)} · watch it again before authorizing paid narration.</span></div>` : '<div class="panel"><span class="small">No draft film yet: the paid narration cannot be authorized without one.</span></div>'}
+  <div class="panel" id="gowner"><h3>Your decisions before paid narration</h3>
+    <div class="stack" style="gap:6px"><b class="small">1. Final voice for this film</b>
+      ${P.voice_profile ? (P.voice_profile.status === 'usable' ? `<span class="pill s-ok">${esc(P.voice_profile.name)} · usable — ${esc(P.voice_profile.why || 'approved')}</span>` :
+        `<span class="small">${esc(P.voice_profile.name)}: ${esc(P.voice_profile.why)}</span><div class="row"><input id="gvnote" placeholder="who authorizes it, and why" style="max-width:280px"><button data-gvoice>Authorize ${esc(P.voice_profile.name)} for this film</button></div>`) : '<span class="small muted">Choose it on the project home.</span>'}</div>
+    <div class="stack" style="gap:6px"><b class="small">2. How the final voice receives each name</b>
+      <div class="tablewrap"><table class="t">${(P.research_terms || []).map((t) => `<tr><td class="ar">${esc(t.ar)}</td><td class="mono">${esc(t.term)}</td><td>${t.decision ? `<span class="pill s-ok">${t.decision === 'latin' ? 'Latin' : 'Arabic as written'}</span>` :
+        `<div class="row"><button data-term="${esc(t.ar)}" data-tdecision="latin">Latin</button><button data-term="${esc(t.ar)}" data-tdecision="arabic">Arabic</button></div>`}</td></tr>`).join('')}</table></div>
+      <span class="tiny muted">Latin is how Time Keeper sends names to ElevenLabs; keep a word Arabic when its «الـ» must be heard. Neither choice is verified until the paid voice is heard.</span></div>
+    <div class="stack" style="gap:6px"><b class="small">3. Budget</b>
+      ${P.gate.budget ? `<span class="pill s-ok">${P.gate.budget} characters</span>` : ''}<div class="row"><input id="gbudget" inputmode="numeric" placeholder="characters" style="max-width:160px"><button data-gbudget>Set budget</button></div></div></div>
+  ${P.gate.plan_stale ? '<div class="banner-lock" id="gstale">Something changed after this plan was built. Rebuild it before deciding.</div>' : ''}
+  <button class="primary big" data-gplan>${g ? 'Rebuild the plan' : 'Build the final-voice plan'}</button>
+  ${g && g.no_paid ? `<div class="panel" id="gplan"><h3>No paid text-to-speech for ${esc(g.voice.name)}</h3><span class="small">${esc(g.blockers[0])}</span></div>` : ''}
+  ${g && !g.no_paid ? `<div class="panel" id="gplan"><div class="row between"><h3>Plan <span class="mono tiny">${esc(g.hash.slice(0, 12))}</span></h3><span class="pill s-wait">${g.chars_total} billable characters</span></div>
+    <span class="small">Voice <b>${esc(g.voice.name)}</b> · ${esc(g.voice.provider)} · <span class="mono">${esc(g.voice.model)}</span> · voice id <span class="mono">${esc(g.voice.voice_id)}</span> · settings <span class="mono">${esc(JSON.stringify(g.voice.settings))}</span> · seed ${esc(g.voice.seed)}</span>
+    <span class="small">Script v${g.script_v} · library ${esc(g.library_version)} · new ${g.totals.new} · reuse ${g.totals.reuse} · review ${g.totals.review} · blocked ${g.totals.blocked} · budget ${g.budget_remaining == null ? 'not set' : g.budget_remaining}</span>
+    <div class="tablewrap"><table class="t"><tr><th>Line</th><th>Sent to ElevenLabs (exact)</th><th>Chars</th><th>Action</th></tr>${g.items.map((i) => `<tr><td class="mono">${esc(i.line)}</td><td class="ar">${esc(i.provider_input)}</td><td class="mono">${i.chars}</td><td>${esc(i.action)}</td></tr>`).join('')}</table></div>
+    ${g.proposed_terms.length ? `<span class="small">Names the final voice would get in Latin letters once approved: ${g.proposed_terms.map((t) => `${ar(t.surface)} → <span class="mono">${esc(t.rule.spoken || 'as written')}</span>`).join(' · ')}</span>` : ''}</div>
+  <div class="panel" id="gblock"><h3>Blockers (${g.blockers.length})</h3>${g.blockers.map((b) => `<div class="issue"><span class="pill s-bad">■</span><span class="small">${esc(b)}</span></div>`).join('')}</div>
+  <div class="panel" id="gauth"><h3>Owner authorization</h3><span class="small muted">Type the number of billable characters to authorize this exact plan once.</span>
+    <div class="row"><input id="gconfirm" inputmode="numeric" placeholder="${g.chars_total}" style="max-width:160px"><button class="primary" data-gauth="${esc(g.hash)}">Authorize this plan</button></div>
+    <button class="bad" data-gen>Generate final voice now</button>
+    ${P.gate.attempts.length ? `<details><summary class="small muted">${P.gate.attempts.length} refused attempt(s)</summary>${P.gate.attempts.map((a) => `<div class="tiny">${esc(a.at)} · ${esc(a.action)} · ${esc(a.reason)}</div>`).join('')}</details>` : ''}</div>` : ''}`;
+}
+function inbox() {
+  const n = P.inbox_groups.reduce((k, g) => k + g.items.filter((i) => !i.wait).length, 0);
+  return `<div class="flowhead"><a class="back" href="#/p/${PID}" aria-label="Back">‹</a><span class="t">Inbox</span><span class="pill ${n ? 's-wait' : 's-ok'}">${n}</span></div>
+  ${P.inbox_groups.length ? P.inbox_groups.map((g) => `<div class="panel inbox" data-group="${esc(g.key)}"><h3>${esc(g.title)} <span class="pill ${g.key === 'gate' ? 's-bad' : 's-wait'}">${g.items.length}</span></h3>
+    ${g.items.map((i) => `<a class="item" href="#/p/${PID}/${esc(i.href)}">${i.blocker ? '<span class="pill s-bad">■</span>' : i.wait ? '<span class="pill s-proc">◌</span>' : i.severity ? `<span class="pill v-${esc(i.severity)}">${esc(i.severity[0])}</span>` : '<span class="pill s-wait">●</span>'}<span>${esc(i.what)}</span></a>`).join('')}</div>`).join('')
+    : '<div class="panel"><p>Nothing is waiting for you.</p></div>'}`;
+}
+function history() {
+  return `<div class="flowhead"><a class="back" href="#/p/${PID}" aria-label="Back">‹</a><span class="t">History</span></div>
+  <div class="panel"><span class="small muted">Every change is a new event. Nothing is overwritten.</span><ul class="hist" id="hist">${[...P.history].reverse().map((h) => `<li><span class="mono tiny">#${h.seq} ${esc(h.at.replace('T', ' ').slice(0, 19))}</span> <span class="tiny muted">${esc(h.actor)}</span> ${esc(h.summary)}</li>`).join('')}</ul></div>`;
+}
+// ------------------------------------------------------------------ sheets, viewer, playback
+function openSheet(html) { $('#sheetbox').innerHTML = html; $('#sheet').hidden = false; }
+function closeSheet() { $('#sheet').hidden = true; $('#sheetbox').innerHTML = ''; }
+let VIEW = { list: [], i: 0 };
+function openViewer(rel, group) {
+  const imgs = $$(`[data-group="${CSS.escape(group)}"]`).map((e) => e.dataset.full);
+  VIEW = { list: [...new Set(imgs)], i: Math.max(0, [...new Set(imgs)].indexOf(rel)) }; showView(); $('#viewer').hidden = false;
+}
+function showView() { $('#vimg').src = F(PID, VIEW.list[VIEW.i]); $('#vpos').textContent = `${VIEW.i + 1} / ${VIEW.list.length}`; $('#vcap').textContent = VIEW.list[VIEW.i].split('/').pop(); }
+function stopPlay() { play.audio.pause(); play.stopAt = null; cancelAnimationFrame(play.raf); $$('.wd.now').forEach((e) => e.classList.remove('now')); }
+function playTake(tid, from = 0, to = null) {
+  stopPlay();
+  const t = P.voice.takes[tid], a = play.audio;
+  a.dataset.take = tid; play.stopAt = to; play.from = from;
+  const tick = () => {
+    const ct = a.currentTime;
+    const svg = $(`[data-wave="${CSS.escape(tid)}"]`);
+    if (svg) { const x = ct / t.seconds * 800; const ph = svg.querySelector('.ph'); ph.setAttribute('x1', x); ph.setAttribute('x2', x); }
+    $$(`[data-vw="${CSS.escape(tid)}"]`).forEach((b) => { const w = t.words[+b.dataset.wi]; b.classList.toggle('now', ct >= w.s && ct < w.e); });
+    if (play.stopAt != null && ct >= play.stopAt) { a.pause(); proofMark(tid, ct - play.from, false, true); return; }
+    if (!a.paused) play.raf = requestAnimationFrame(tick);
+  };
+  const start = () => { a.currentTime = from; a.play().then(() => { play.raf = requestAnimationFrame(tick); }).catch((e) => toast('Could not play: ' + e.message, true)); };
+  if (!a.src.endsWith(t.audio)) { a.src = F(PID, t.audio); a.addEventListener('loadedmetadata', start, { once: true }); a.load(); }
+  else start();
+}
+let LASTT = { id: null, t: 0 };
+function heardTick(id, el) {               // count only continuous playback at up to 2x; a jump (seek) counts nothing
+  const p = play.proof[id] ||= { played_s: 0, listened_s: 0, ended: false };
+  const t = el.currentTime; if (LASTT.id === id && !el.paused && el.playbackRate <= 2.01) { const dt = t - LASTT.t; if (dt > 0 && dt < 0.6) p.listened_s += dt; }
+  LASTT = { id, t }; return p;
+}
+play.audio.addEventListener('timeupdate', () => { const tid = play.audio.dataset.take; if (!tid) return; heardTick(tid, play.audio); if (play.stopAt == null) proofMark(tid, play.audio.currentTime, false); });
+play.audio.addEventListener('seeking', () => { LASTT = { id: null, t: 0 }; });
+play.audio.addEventListener('ended', () => { const tid = play.audio.dataset.take; if (tid) proofMark(tid, play.audio.duration, true); $$('.wd.now').forEach((e) => e.classList.remove('now')); });
+function proofMark(id, s, ended, word) {
+  const p = play.proof[id] ||= { played_s: 0, ended: false };
+  if (!word) p.played_s = Math.max(p.played_s, s || 0);
+  p.ended = p.ended || ended; if (word) p.word = true;
+  const T = P && P.voice.takes[id]; const full = T && p.listened_s >= 0.8 * T.seconds;
+  const el = $(`[data-heard="${CSS.escape(id)}"]`); if (el) el.textContent = full ? `✓ heard (${(p.listened_s || 0).toFixed(1)} s)` : `heard ${(p.listened_s || 0).toFixed(1)} s of ${T ? T.seconds.toFixed(1) : '?'} s`;
+  const wh = $('#wheard'); if (wh && word) { wh.textContent = '✓ played'; const b = $('#vsave'); if (b && $('[data-vk][aria-pressed="true"]')) b.disabled = false; }
+}
+function afterRender(step) {
+  for (const v of $$('video[data-film]')) { { const id = 'film-' + v.dataset.film;
+    v.addEventListener('timeupdate', () => { const p = heardTick(id, v); const el = $(`[data-heard="${id}"]`); if (el) el.textContent = `watched ${p.listened_s.toFixed(0)} s of ${(v.duration || 0).toFixed(0)} s`; });
+    v.addEventListener('seeking', () => { LASTT = { id: null, t: 0 }; }); } }
+}
+// ------------------------------------------------------------------ clicks
+document.addEventListener('click', async (ev) => {
+  const t = ev.target.closest('button, a, img, svg.wave'); if (!t) return;
+  const d = t.dataset;
+  if (d.full) { ev.preventDefault(); return openViewer(d.full, d.group || 'x'); }
+  if ('vclose' in d) return ($('#viewer').hidden = true);
+  if ('vprev' in d) { VIEW.i = (VIEW.i - 1 + VIEW.list.length) % VIEW.list.length; return showView(); }
+  if ('vnext' in d) { VIEW.i = (VIEW.i + 1) % VIEW.list.length; return showView(); }
+  if ('close' in d) return closeSheet();
+  if (d.brand) { $$('[data-brand]').forEach((b) => b.setAttribute('aria-pressed', b === t)); return; }
+  if (t.id === 'createBtn') {
+    const brand = $('[data-brand][aria-pressed="true"]')?.dataset.brand;
+    PID = null; const j = await api('create_project', { title: $('#title').value, idea: $('#idea').value, brand });
+    if (j) { toast('Project created'); location.hash = `#/p/${j.project}`; } return;
+  }
+  if (d.voice) { const j = await api('set_voice', { voice: d.voice }); if (j) { toast(`Final voice: ${j.result.voice.status}`); refresh(); } return; }
+  if (d.resume) { const j = await api('resume', { job: d.resume }); if (j) { toast('Resumed'); refresh(); } return; }
+  if (d.research) { const j = await api('research_decision', { decision: d.research, note: d.research === 'changes_requested' ? prompt('What should change?') || '' : '' }); if (j) refresh(); return; }
+  if (d.sw != null && d.wi != null && t.classList.contains('wd') || d.suggest != null) { const sv = P.scripts.find((s) => s.v === CUR.v); if (sv.status !== 'draft') return toast('This version is ' + sv.status + '. Flag words on the latest draft.', true); return flagSheet(d.sw, +d.wi, d.suggest); }
+  if (d.fk) { $$('[data-fk]').forEach((b) => b.setAttribute('aria-pressed', b === t)); return; }
+  if (d.fsave) { const [lid, wi] = d.fsave.split(':'); const kind = $('[data-fk][aria-pressed="true"]')?.dataset.fk; if (!kind) return toast('Choose what is wrong', true);
+    const j = await api('flag_word', { v: CUR.v, line: lid, wi: +wi, kind, note: $('#fnote').value, replacement: $('#frepl').value.trim() }); if (j) { closeSheet(); toast('Correction requested'); refresh(); } return; }
+  if (d.apply) { const repl = $(`[data-repl="${CSS.escape(d.apply)}"]`).value.trim(); const j = await api('apply_correction', { flag: d.apply, replacement: repl }); if (j) { toast(`New version v${j.result.v}`); location.hash = `#/p/${PID}/script/${j.result.v}`; await refresh(); } return; }
+  if (d.dismiss) { const j = await api('dismiss_flag', { flag: d.dismiss, note: prompt('Why dismiss?') || '' }); if (j) refresh(); return; }
+  if ('compare' in d && t.tagName === 'BUTTON') { const a = +$('#cmpA').value, b = +$('#cmpB').value; $('#cmpOut').innerHTML = wordDiff(P.script_versions[a], P.script_versions[b]); return; }
+  if (d.sdec) { const note = d.sdec === 'rejected' ? (prompt('Why reject? (kept with the version)') || '') : ''; if (d.sdec === 'rejected' && !note) return toast('Say why', true);
+    const sv = P.scripts.find((x) => x.v === CUR.v); const crit = sv.checks.filter((c) => c.severity === 'critical');
+    if (d.sdec === 'approved' && crit.length) {
+      const why = prompt(`v${CUR.v} has ${crit.length} critical finding(s):\n${crit.map((c) => '• ' + c.detail).join('\n').slice(0, 600)}\n\nTo approve anyway, write why the check is wrong here (kept with the version). Cancel to go back.`);
+      if (!why) return toast('Not approved: fix the line or explain why the check is wrong', true);
+      const j = await api('script_decision', { v: CUR.v, decision: 'approved', override: true, note: why }); if (j) { toast(`v${CUR.v} approved over the finding (reason kept)`); refresh(); } return; }
+    const j = await api('script_decision', { v: CUR.v, decision: d.sdec, note }); if (j) { toast(`v${CUR.v} ${d.sdec}`); refresh(); } return; }
+  if (d.run) { const args = d.sceneRun ? { scene: d.sceneRun } : {}; const j = await api(d.run, args); if (j) { toast('Started'); refresh(); } return; }
+  if (d.hsel) { const j = await api('hook_select', { hook: d.hsel }); if (j) { toast(`Hook ${d.hsel} chosen` + (j.result.script ? ` → script v${j.result.script.v} to approve` : '')); refresh(); } return; }
+  if (d.deliver) { const line = $('input[name="payoff"]:checked')?.value || null; if (d.deliver === 'delivered' && !line) return toast('Choose the line that pays it off', true);
+    const j = await api('hook_delivery', { decision: d.deliver, line }); if (j) refresh(); return; }
+  if (d.tplay) return playTake(d.tplay);
+  if (d.vw) { const tk = P.voice.takes[d.vw], w = tk.words[+d.wi]; playTake(d.vw, Math.max(0, w.s - 0.04), w.e + 0.06); return vflagSheet(d.vw, +d.wi); }
+  if (d.wplay) { const [tid, wi] = d.wplay.split(':'); const w = P.voice.takes[tid].words[+wi]; return playTake(tid, Math.max(0, w.s - 0.04), w.e + 0.06); }
+  if (d.vk) { $$('[data-vk]').forEach((b) => b.setAttribute('aria-pressed', b === t)); const tid = $('#vsave').dataset.vsave.split(':')[0]; if (play.proof[tid]?.word) $('#vsave').disabled = false; return; }
+  if (d.vsave) { const [tid, wi] = d.vsave.split(':'); const kind = $('[data-vk][aria-pressed="true"]')?.dataset.vk;
+    const j = await api('voice_flag', { take: tid, wi: +wi, kind, note: $('#vnote').value, respell: $('#vrespell').value.trim(), played: !!play.proof[tid]?.word }); if (j) { closeSheet(); toast('Word flagged'); refresh(); } return; }
+  if (d.vfix) { const r = $(`[data-respell="${CSS.escape(d.vfix)}"]`).value.trim(); const j = await api('voice_fix', { vflag: d.vfix, respell: r }); if (j) { toast('Re-recording that line only'); refresh(); } return; }
+  if (d.tdec) { const pr = play.proof[d.t] || {}; const j = await api('take_decision', { take: d.t, decision: d.tdec, playback: { listened_s: +(pr.listened_s || 0).toFixed(2) } }); if (j) { toast(`Take ${d.tdec}`); refresh(); } return; }
+  if (d.asel) { const j = await api('art_select', { concept: d.asel }); if (j) { toast('Selected — not approved yet'); refresh(); } return; }
+  if (d.amod) return modSheet(d.amod);
+  if (d.mod) { t.setAttribute('aria-pressed', t.getAttribute('aria-pressed') !== 'true'); return; }
+  if (d.msave) { const ch = {}; $$('[data-mod][aria-pressed="true"]').forEach((b) => { const [k, v] = b.dataset.mod.split(':'); ch[k] = v; });
+    const j = await api('art_modify', { concept: d.msave, changes: ch, note: $('#mnote').value }); if (j) { closeSheet(); toast(Object.keys(ch).length ? 'Revision requested: drawing v' + (P.art.concepts[d.msave].versions.length + 1) : 'Note sent to the art operator (no automatic change for a free-text note)'); refresh(); } return; }
+  if (d.aok) { const j = await api('art_decision', { concept: d.aok, version: +d.av, decision: 'approved' }); if (j) { toast(`Approved v${d.av}`); refresh(); } return; }
+  if (d.arej) { const j = await api('art_decision', { concept: d.arej, version: +d.av, decision: 'rejected', note: prompt('Why reject? (optional)') || '' }); if (j) { toast('Rejected'); refresh(); } return; }
+  if (d.awd) { const note = prompt('Why withdraw the approval? (kept in history)') || ''; if (!note) return toast('Say why', true);
+    const j = await api('art_decision', { concept: d.awd, version: +d.av, decision: 'withdrawn', note }); if (j) { toast('Approval withdrawn'); refresh(); } return; }
+  if (d.sbdec) { const note = d.sbdec === 'changes_requested' ? (prompt('What should change?') || '') : '';
+    const j = await api('storyboard_decision', { v: +d.sbv, decision: d.sbdec, note }); if (j) { toast('Storyboard ' + d.sbdec); refresh(); } return; }
+  if ('build' in d) { const j = await api('build_storyboard'); if (j) { toast(`Storyboard v${j.result.v}`); refresh(); } return; }
+  if (d.rdec) { const pr = play.proof['film-' + d.r] || {}; const j = await api('render_decision', { render: d.r, decision: d.rdec, note: d.rdec === 'changes_requested' ? prompt('What should change?') || '' : '', playback: { listened_s: +(pr.listened_s || 0).toFixed(2) } }); if (j) refresh(); return; }
+  if (d.fdec) { const note = $(`[data-fnote="${CSS.escape(d.f)}"]`).value; const j = await api('finding_decision', { finding: d.f, decision: d.fdec, note }); if (j) { toast(d.fdec === 'accepted' ? 'Correction task created' : 'Dismissed (kept in history)'); refresh(); } return; }
+  if (d.fixdone) { const j = await api('fix_done', { task: d.fixdone, note: 'done' }); if (j) refresh(); return; }
+  if ('gvoice' in d) { const j = await api('authorize_voice', { note: $('#gvnote').value }); if (j) { toast('Voice authorized for this film'); refresh(); } return; }
+  if (d.term) { const j = await api('term_decision', { surface: d.term, decision: d.tdecision }); if (j) refresh(); return; }
+  if ('gbudget' in d) { const j = await api('set_budget', { characters: parseInt($('#gbudget').value, 10) }); if (j) { toast('Budget set'); refresh(); } return; }
+  if ('gplan' in d) { const j = await api('run_gate_plan'); if (j) { toast('Plan built'); refresh(); } return; }
+  if (d.gauth) { const j = await api('gate_authorize', { plan: d.gauth, confirm_text: $('#gconfirm').value }); if (j) { toast('Authorized'); } refresh(); return; }
+  if ('gen' in d) { await api('final_generate'); refresh(); return; }
+  if (t.closest('svg.wave')) { const svg = t.closest('svg.wave'); const tid = svg.dataset.wave; const r = svg.getBoundingClientRect(); playTake(tid, (ev.clientX - r.left) / r.width * P.voice.takes[tid].seconds); }
+});
+// live sync: another session (phone, desktop, a job) changed the project -> refresh when idle, else offer it
+let LAST_INPUT = 0; ['pointerdown', 'keydown'].forEach((e) => document.addEventListener(e, () => (LAST_INPUT = Date.now()), true));
+async function liveSync() {
+  if (!PID || !P || BUSY || Date.now() - LAST_INPUT < 4000) return;
+  try { const j = await (await fetch('/api/studio')).json(); const me = j.projects.find((x) => x.id === PID);
+    if (!me || me.updated === P.updated) return;
+    const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName);
+    const playing = $$('video').some((v) => !v.paused) || !play.audio.paused;
+    if (typing || !$('#sheet').hidden || playing) { if (!$('#livechip')) document.body.insertAdjacentHTML('beforeend', '<button id="livechip" class="livechip primary" data-livesync>New changes · refresh</button>'); return; }
+    const y = scrollY; P = await load(PID); render(); scrollTo(0, y);
+  } catch (e) {}
+}
+setInterval(liveSync, 6000); window.addEventListener('focus', liveSync);
+document.addEventListener('click', async (ev) => { if (ev.target.closest('[data-livesync]')) { $('#livechip')?.remove(); const y = scrollY; P = await load(PID); render(); scrollTo(0, y); } });
+go();
+</script>
+</body>
+</html>
