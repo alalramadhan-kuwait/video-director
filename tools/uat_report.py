@@ -93,12 +93,13 @@ pre{white-space:pre-wrap;background:var(--panel);border:1px solid var(--line);bo
 .miss{color:var(--bad)}
 """
 passed = sum(r['pass'] for r in R); NRUN = len(R)
+N_FIXED = sum(1 for x in FIXED if not x.startswith('[harness')); N_OPEN = len(CLS.get('unresolved', []))
 counts = {}
 for c in CLS['features']: counts[c['verdict']] = counts.get(c['verdict'], 0) + 1
 H = [f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rolex Oyster UAT</title><style>{CSS}</style></head><body><main>']
 H.append(f'<h1>Rolex Oyster — user acceptance test of Video Director</h1><p class="muted">Development workspace only · free/local rendering · paid providers mocked or locked · {E(V["updated"])} · project <code>{E(PID)}</code></p>')
 H.append('<div class="kpi">' + ''.join(f'<div><b>{n}</b><span class="v {VERDICT[k]}">{k}</span></div>' for k, n in sorted(counts.items())) +
-         f'<div><b>{passed}/{NRUN}</b>UI checks passed in the final full run</div><div><b>{sum(1 for x in FIXED if not x.startswith('[harness'))}</b>product defects found and fixed</div><div><b>{len(CLS.get('unresolved', []))}</b>product defects still open</div>' +
+         f'<div><b>{passed}/{NRUN}</b>UI checks passed in the final full run</div><div><b>{N_FIXED}</b>product defects found and fixed</div><div><b>{N_OPEN}</b>product defects still open</div>' +
          (f'<div><b>{DEF["detected"]}/{DEF["planted"]}</b>planted defects found by the reviewer</div>' if DEF else '') + '</div>')
 H.append(f'<div class="card"><b>Verdict.</b> {E(CLS["verdict"])}</div>')
 fails = [r for r in R if not r['pass']]
