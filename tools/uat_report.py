@@ -27,7 +27,7 @@ SH_D4 = ROOT / 'var/uat-d4/shots'
 NOTES = json.loads((UAT / 'harness_notes.json').read_text(encoding='utf-8')) if (UAT / 'harness_notes.json').exists() else {}
 for r in R:
     if not r['pass'] and r['name'] in NOTES: r['note'] = NOTES[r['name']]
-PRIOR = {n: json.loads((UAT / f'results-{n}.json').read_text(encoding='utf-8')) for n in ('run1', 'run2', 'run3', 'run4') if (UAT / f'results-{n}.json').exists()}
+PRIOR = {n: json.loads((UAT / f'results-{n}.json').read_text(encoding='utf-8')) for n in ('run1', 'run2', 'run3', 'run4', 'final-attempt1') if (UAT / f'results-{n}.json').exists()}
 DEF = json.loads((UAT / 'defects/defects.json').read_text(encoding='utf-8')) if (UAT / 'defects/defects.json').exists() else None
 CLS = json.loads((ROOT / 'uat/classification.json').read_text(encoding='utf-8'))
 AUDIT = (ROOT / 'var/audit/AUDIT_REPORT.md').read_text(encoding='utf-8') if (ROOT / 'var/audit/AUDIT_REPORT.md').exists() else '(not yet)'
@@ -98,7 +98,7 @@ for c in CLS['features']: counts[c['verdict']] = counts.get(c['verdict'], 0) + 1
 H = [f'<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Rolex Oyster UAT</title><style>{CSS}</style></head><body><main>']
 H.append(f'<h1>Rolex Oyster — user acceptance test of Video Director</h1><p class="muted">Development workspace only · free/local rendering · paid providers mocked or locked · {E(V["updated"])} · project <code>{E(PID)}</code></p>')
 H.append('<div class="kpi">' + ''.join(f'<div><b>{n}</b><span class="v {VERDICT[k]}">{k}</span></div>' for k, n in sorted(counts.items())) +
-         f'<div><b>{passed}/{NRUN}</b>UI checks passed in the final full run</div><div><b>{len(FIXED)}</b>defects found and fixed</div>' +
+         f'<div><b>{passed}/{NRUN}</b>UI checks passed in the final full run</div><div><b>{sum(1 for x in FIXED if not x.startswith('[harness'))}</b>product defects found and fixed</div><div><b>{len(CLS.get('unresolved', []))}</b>product defects still open</div>' +
          (f'<div><b>{DEF["detected"]}/{DEF["planted"]}</b>planted defects found by the reviewer</div>' if DEF else '') + '</div>')
 H.append(f'<div class="card"><b>Verdict.</b> {E(CLS["verdict"])}</div>')
 fails = [r for r in R if not r['pass']]
@@ -119,7 +119,7 @@ W = [('A', 'Create the project', [('A1-studio-home', 'Studio home'), ('A2-new-pr
      ('H', 'Independent review', [('H1-review-findings', 'Findings with scene, time, evidence still, fix'), ('H3-findings-decided', 'Accepted → correction task; dismissed with reasons')]),
      ('I', 'Progress dashboard', [('I1-overview-phone', 'Overview on a phone: latest film, steps, inbox, scenes, timings'), ('I2-overview-desktop', 'Overview on desktop'), ('I3-inbox', 'One inbox, grouped')]),
      ('J', 'Final gate', [('J1-final-plan', 'Exact text, voice, model, characters, blockers, the draft to approve'), ('J1b-gate-after-owner-decisions', "After the owner's decisions only the workspace lock remains"), ('J2-gate-refused', 'Authorization and generation refused')]),
-     ('K/L', 'Correction loop and final state', [('K1-correction-closed', 'Accepted finding fixed, re-rendered, re-reviewed, task closed'), ('K2-gate-after-correction', 'Gate after the correction'), ('L1-gate-final', 'Final gate on the clean draft'), ('L2-overview-final', 'Project home at the end')])]
+     ('K/L', 'Correction loop and final state', [('K1-correction-closed', 'Accepted finding fixed, re-rendered, re-reviewed, task closed'), ('K2-gate-after-correction', 'Gate after the correction'), ('Z1-gate-finished', 'Final voice screen on the finished project: only the workspace lock remains')])]
 H.append('<h2>2. Walkthrough (phone screenshots unless noted)</h2>')
 for st, title, shots in W:
     H.append(f'<h3>{st}. {E(title)}</h3><div class="shots">' + ''.join(img(n, 260, c) for n, c in shots) + '</div>')
@@ -150,10 +150,16 @@ if DEF:
 # automated tests
 H.append('<h2>7. Automated tests</h2>' + ''.join(f'<p>{E(x)}</p>' for x in CLS['automated']))
 # independent review
-H.append('<h2>8. Independent review (second agent)</h2><pre>' + E(AUDIT) + '</pre>')
+H.append('<h2>8. Independent review (second agent), three rounds</h2>')
+for n, f in (('Round 3 — frozen code 95a8646', 'var/audit/AUDIT_REPORT.md'), ('Round 2 — 98918fe', 'var/audit/AUDIT_REPORT_round2.md'), ('Round 1 — before the fixes', 'var/audit/AUDIT_REPORT_round1.md')):
+    if (ROOT / f).exists():
+        H.append(f'<details{" open" if n.startswith("Round 3") else ""}><summary><b>{E(n)}</b></summary><pre>' + E((ROOT / f).read_text(encoding='utf-8')) + '</pre></details>')
 if CLS.get('disagreements'):
     H.append('<h3>Where the two testers disagree, and what was done</h3><ul>' + ''.join(f'<li>{E(x)}</li>' for x in CLS['disagreements']) + '</ul>')
-H.append('<h2>9. Remaining limitations, blockers and integration risks</h2><ul>' + ''.join(f'<li>{E(x)}</li>' for x in CLS['limitations']) + '</ul>')
+H.append('<h2>9. Defects, separated</h2><h3>Real product defects that are still open</h3><ul>' + ''.join(f'<li>{E(x)}</li>' for x in CLS.get('unresolved', [])) + '</ul>'
+         '<h3>Real product defects found and fixed</h3><ul>' + ''.join(f'<li>{E(x)}</li>' for x in FIXED if not x.startswith('[harness')) + '</ul>'
+         '<h3>Test-harness mistakes (not product defects), corrected and re-run</h3><ul>' + ''.join(f'<li>{E(x)}</li>' for x in CLS.get('harness_mistakes', [])) + '</ul>')
+H.append('<h2>10. Remaining limitations, blockers and integration risks</h2><ul>' + ''.join(f'<li>{E(x)}</li>' for x in CLS['limitations']) + '</ul>')
 H.append('</main></body></html>')
 (OUT / 'rolex-oyster-uat-report.html').write_text(''.join(H), encoding='utf-8')
 print(json.dumps(deliver), (OUT / 'rolex-oyster-uat-report.html').stat().st_size)

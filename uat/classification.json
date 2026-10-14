@@ -1,56 +1,349 @@
 {
- "verdict": "PLACEHOLDER",
+ "verdict": "PARTIAL. The whole journey from a new idea to an approved, playable draft film works through the actual interface on the frozen code (final clean run 135/135, disposable-copy listening tests 5/5, planted reviewer defects 14/14, independent auditor reproduced the critical journeys). Paid narration is locked and was never called; budget, single-use authorization and take reuse are proven only with a mock (NOT TESTED). It is not ready to approve as finished: the automatic claim check misses the plainest form of the forbidden claim (FAIL), the \"no effect\" check for pronunciation fixes is only partly reliable, archival and product photographs are BLOCKED, there is no sign-in, and the draft film has visible draft-quality issues. Nothing should go to production or paid generation until the owner has reviewed the app and the film.",
  "features": [
-  {"stage": "A", "feature": "Create a Time Keeper project from an idea (form)", "verdict": "PASS", "why": "Created through the Studio form on an iPhone-sized screen; listed and reopened in a fresh desktop session (A1–A4)."},
-  {"stage": "A", "feature": "Time Keeper identity only; Diabetes History refused", "verdict": "PASS", "why": "Palette, themes, end card and voices come from the Time Keeper profile only; a Diabetes History profile and the DH voice are refused (UI check + unit tests)."},
-  {"stage": "A", "feature": "ElevenLabs final-voice profile selection", "verdict": "PASS", "why": "abdullah selected and recorded as needs_authorization: it is approved for Royal Oak only, so it cannot be used for this film without the owner. Nothing was generated."},
-  {"stage": "A", "feature": "Saving, reopening, version history", "verdict": "PASS", "why": "Every change is an append-only event; reopening replays them; History lists every step; reopen after server restart tested."},
-  {"stage": "B", "feature": "Historical research with reliable sources", "verdict": "PARTIAL", "why": "Done by Claude with web sources (10 claims, 8 verified, 1 attributed, 1 avoid). The Studio stores, shows and ENFORCES the claims but cannot research by itself. rolex.com refused direct fetch (403); its text came through search summaries. The Daily Mail headline wording is unverified, so the film does not quote it."},
-  {"stage": "B", "feature": "Arabic script writing", "verdict": "PARTIAL", "why": "Written by Claude acting as the writer and posted through the API; the Studio has no writer. Versions, checks and decisions are the Studio's."},
-  {"stage": "B", "feature": "Historical-claim check on the script", "verdict": "PASS", "why": "v1's 'Rolex made the world's first waterproof wristwatch' was caught as CLAIM_UNSUPPORTED and approval was refused; attributed wording («يقولون…») is allowed."},
-  {"stage": "B", "feature": "Grammar and dialect review", "verdict": "PARTIAL", "why": "No automatic grammar or dialect checker. A person can flag a word as Grammar or Dialect; nothing checks it by machine."},
-  {"stage": "B", "feature": "Planted spelling mistake detected; highlight, explain, request correction", "verdict": "PASS", "why": "«فيلسدروف» flagged as SPELLING with the suggestion «فيلسدورف»; tapping the highlighted word opens the sheet pre-filled; the request is recorded with kind and note."},
-  {"stage": "B", "feature": "Correction changes only that word; earlier versions kept", "verdict": "PASS", "why": "v4 differs from v3 by exactly that word (word diff); v1–v3 unchanged, read-only, still viewable; compare view shows the one change."},
-  {"stage": "C", "feature": "3–4 hooks with spoken line, on-screen text, opening visual", "verdict": "PASS", "why": "4 hooks (written by Claude) each shown with the engine-rendered first frames at 0.0/0.5/2.0 s."},
-  {"stage": "C", "feature": "Recommendation with reasons; selection recorded; payoff", "verdict": "PASS", "why": "Recommendation and reasons are the writer's (not computed). Selection made script v5 (still needing approval); the system proposed l13 as the payoff and the owner confirmed it."},
-  {"stage": "D", "feature": "Narration-ready text + pronunciation dictionary", "verdict": "PASS", "why": "The approved script goes through the project's pronunciation library for the draft provider; the script itself is never edited."},
-  {"stage": "D", "feature": "Free draft audio (clearly labelled)", "verdict": "PASS", "why": "gTTS (Time Keeper's draft provider), labelled DRAFT on every screen. Needs internet access to translate.google.com."},
-  {"stage": "D", "feature": "Waveform, transcript, word timings", "verdict": "PASS", "why": "Per line: waveform, timed words (whisper word timestamps aligned to the script; unmatched words estimated and marked), machine transcript shown."},
-  {"stage": "D", "feature": "Tap a word → hear it", "verdict": "PASS", "why": "Measured in the page: the tapped word (and its immediate neighbours at the edges) lights up and plays; the sheet confirms 'played'. Fixed during the test (it used to play from the start of the line)."},
-  {"stage": "D", "feature": "Flag a mispronounced word → correction → new take for that line only → compare → decide", "verdict": "PASS", "why": "«غلايتسه» flagged with a suggested reading; rule recorded; only l9 re-recorded (12 other takes' ids and audio hashes unchanged); before/after side by side; approving without listening refused; old rejected, new approved; decisions survive reopening."},
-  {"stage": "D", "feature": "Whether the corrected draft pronunciation actually sounds right", "verdict": "NOT TESTED", "why": "Needs a human ear. Claude cannot listen; the machine transcript is shown but is not proof."},
-  {"stage": "D", "feature": "ElevenLabs final pronunciation", "verdict": "NOT TESTED", "why": "By design: paid generation locked. A draft voice never certifies the final voice."},
-  {"stage": "E", "feature": "Genuinely different concepts as real images", "verdict": "PASS", "why": "4 scenes × 3–4 techniques rendered by the local engine (timeline, kinetic type, technical drawing, paper-cut, 2.5D parallax, map, keynote)."},
-  {"stage": "E", "feature": "Historical archival photographs", "verdict": "BLOCKED", "why": "No licensed archival photos (Gleitze 1927, Borgel, Tavannes, Daily Mail page) are in the project: the concepts show REAL PHOTO NEEDED and cannot be selected. Nothing was invented."},
-  {"stage": "E", "feature": "Product macro with verified Rolex imagery", "verdict": "BLOCKED", "why": "No licensed Rolex photographs available. Shown as blocked; no watch is drawn and labelled Rolex."},
-  {"stage": "E", "feature": "Paper-cut, technical illustration, timeline, 2.5D", "verdict": "PASS", "why": "Rendered; technical drawings carry 'simplified principle — not the maker's engineering drawing' and only draw case, tube, threads, crown, bezel and case back."},
-  {"stage": "E", "feature": "Supported / needs implementation / paid", "verdict": "PASS", "why": "Support matrix on the Art screen: supported, needs real material, prototype, paid tool (AI illustration), needs implementation (e.g. verified 3D, live footage)."},
-  {"stage": "F", "feature": "Compare, full screen, select ≠ approve, request revision, review revision, approve a version, appears in storyboard", "verdict": "PASS", "why": "All through the UI; v1 and v2 side by side; approved l9 map v2 is the visual of storyboard scene l9; rejected and withdrawn approvals keep their history."},
-  {"stage": "F", "feature": "Free-text revision requests", "verdict": "PARTIAL", "why": "Structured changes (darker/lighter paper, bigger text, closer, slower) are applied by the system; a free-text note is carried to the art operator but nothing executes it automatically."},
-  {"stage": "G", "feature": "Storyboard from the approved script, durations from narration, transitions", "verdict": "PASS", "why": "13 scenes + Time Keeper end card; each scene's length = its approved take + fixed lead/tail; status of voice/art per scene."},
-  {"stage": "G", "feature": "Free/local draft render, playable in the dashboard", "verdict": "PASS", "why": "1080×1920 MP4 rendered locally with the Time Keeper engine; WebM preview plays in the page (project home, Draft, Final gate)."},
-  {"stage": "G", "feature": "Captions, sync, motion, end card, moving hook on Reels", "verdict": "PASS", "why": "Captions follow the take's word times; the reviewer's cross-correlation found every voice clip at its intended offset; frame 1 moves (no STATIC_OPENING); the Time Keeper end card closes the film."},
-  {"stage": "G", "feature": "A professional video", "verdict": "PARTIAL", "why": "Consistent, clean and on-brand, but a draft: robotic free voice that is ~20% slower than the brand narrator, no music bed, several typographic scenes, no real photographs, crude 1:10M map coastlines."},
-  {"stage": "H", "feature": "Independent reviewer finds planted defects with scene, time, evidence, severity, fix", "verdict": "PASS", "why": "14/14 planted defects found in the disposable copy (after two reviewer fixes made during the test); clean draft: one genuine finding."},
-  {"stage": "H", "feature": "Subjective art judgement (composition, clarity)", "verdict": "PARTIAL", "why": "The reviewer's composition/clarity checks are rules (overlap, cut, captions, banner length, palette, holds). Aesthetic judgement came from Claude's own frame-by-frame review and the second agent, not from the tool."},
-  {"stage": "H", "feature": "Accept → correction task; dismiss keeps history; no automatic change to approved art", "verdict": "PASS", "why": "Accepted finding became a task; the fix was made, re-rendered, re-reviewed (finding gone) and the task closed; approved work fingerprint unchanged by review and decisions."},
-  {"stage": "I", "feature": "Progress dashboard: stage, scenes, timings, ETA rule, blockers, inbox, latest film", "verdict": "PASS", "why": "After fixes found in this test (stale blockers, dead run shown as running with an ETA, no inbox, no film on home)."},
-  {"stage": "I", "feature": "Nothing approved just because a file exists", "verdict": "PASS", "why": "Files dropped into the project during the UAT changed no status; unit test too."},
-  {"stage": "J", "feature": "Final plan: exact text, voice, model, billable characters, blockers, the approved draft beside it", "verdict": "PASS", "why": "Plan lists the exact provider input per line, voice id, model, settings, seed, characters, and every blocker."},
-  {"stage": "J", "feature": "Owner authorization required; unauthorized generation refused; zero paid calls", "verdict": "PASS", "why": "Authorization and 'Generate now' refused in the UI and by API; refusals logged; no key in the environment; the Studio cannot import the gateway."},
-  {"stage": "J", "feature": "Budget, single-use approval, reuse of approved takes", "verdict": "PASS (MOCK)", "why": "Proved with a MOCK provider in unit tests on this project's real plan: disabled → refused; no/too-small budget → refused; tampered plan → refused; one run (13 mock calls); second run with the same approval refused. Not a test of ElevenLabs."},
-  {"stage": "R", "feature": "Failure recovery: rejected script, wrong pronunciation, rejected take, rejected/withdrawn art, revision, failed render, refresh, duplicate, interrupted task, reopen after restart, missing media, unauthorized paid call", "verdict": "PASS", "why": "Each exercised (UI, or unit test where marked); no approved work lost."},
-  {"stage": "R", "feature": "Approval synchronisation across sessions", "verdict": "PASS", "why": "A change on the phone appears in an open desktop inbox without reload; a conflicting second decision is refused."},
-  {"stage": "—", "feature": "Studio projects inside the main review dashboard", "verdict": "PARTIAL", "why": "The review dashboard links to the Studio ('＋ New video'), but Studio projects are not listed in its project switcher or its Artifact (phone) copy."}
+  {
+   "stage": "A",
+   "feature": "Create a Time Keeper project from an idea (form), list it, reopen it",
+   "verdict": "PASS",
+   "why": "Final run A: created on an iPhone-sized screen, reopened in a fresh desktop session, survived a server restart."
+  },
+  {
+   "stage": "A",
+   "feature": "Time Keeper identity only; Diabetes History refused",
+   "verdict": "PASS",
+   "why": "Final run A: only Time Keeper palette, themes, end card and voices load; a Diabetes History profile is refused (422)."
+  },
+  {
+   "stage": "A",
+   "feature": "ElevenLabs final-voice profile selected; needs the owner for this film",
+   "verdict": "PASS",
+   "why": "abdullah is recorded as \"approved for royal-oak only\"; the owner authorizes it for this film on the Final voice screen (J). Nothing generated."
+  },
+  {
+   "stage": "A",
+   "feature": "Saving, reopening, version history",
+   "verdict": "PASS",
+   "why": "Append-only events; History lists every step; reopen after restart and after a killed server tested (D2)."
+  },
+  {
+   "stage": "B",
+   "feature": "Historical research with reliable sources",
+   "verdict": "PARTIAL",
+   "why": "Operator input written by Claude (10 claims: 8 verified, 1 attributed, 1 marked avoid: \"Rolex made the first waterproof watch\"). The Studio stores, shows and enforces it; it cannot research by itself."
+  },
+  {
+   "stage": "B",
+   "feature": "Arabic script writing in several versions",
+   "verdict": "PARTIAL",
+   "why": "Versions, checks, diffs and decisions are the Studio's (v1–v7 in the final run); the text itself was written by Claude as operator input."
+  },
+  {
+   "stage": "B",
+   "feature": "Automatic check that stops an unsupported \"first waterproof watch\" claim",
+   "verdict": "FAIL",
+   "why": "It stopped the planted claim in v1 and catches 12 of the 13 round-2 paraphrases, but the independent auditor's round 3 found it misses 6 of 10 new paraphrases, including the plainest form «اخترعت رولكس الساعة المقاومة للماء» (reproduced), and wrongly flags «في أول مرة نزلت فيها الساعة إلى الماء…». Several earlier fixes live in this project's research rule, so another project only gets what its own rule says. A word-rule check is not a reliable guard on its own; a person must read the script."
+  },
+  {
+   "stage": "B",
+   "feature": "The approved script and film make no unsupported claim",
+   "verdict": "PASS",
+   "why": "Checked by reading (Claude) and by the independent auditor: dates and facts on screen match the research; the \"first waterproof watch\" belief is attributed («يقولون…») in narration and on the hook card. Minor: the on-screen «تعمل بدقة» states as fact what the narration attributes."
+  },
+  {
+   "stage": "B",
+   "feature": "Planted typo detected, highlighted, explained, correction requested",
+   "verdict": "PASS",
+   "why": "«فيلسدروف» flagged with suggestion «فيلسدورف»; tapping the word opens the sheet pre-filled; request recorded (final run B)."
+  },
+  {
+   "stage": "B",
+   "feature": "Correction changes only that word; earlier versions kept",
+   "verdict": "PASS",
+   "why": "Word diff shows exactly one word; earlier versions read-only and superseded, not approvable (final run B)."
+  },
+  {
+   "stage": "B",
+   "feature": "Spelling of ordinary words; grammar and dialect",
+   "verdict": "PARTIAL",
+   "why": "Only names, research terms and words from approved versions are spell-checked; no grammar or dialect checker. A person can flag a word as Grammar or Dialect."
+  },
+  {
+   "stage": "C",
+   "feature": "3–4 hooks with spoken line, on-screen text, rendered opening frames; recommendation",
+   "verdict": "PASS",
+   "why": "4 hooks, each with its engine-rendered opening frames (final run C); hooks and recommendation are operator input."
+  },
+  {
+   "stage": "C",
+   "feature": "Selection recorded; owner confirms which line pays the hook off",
+   "verdict": "PASS",
+   "why": "H1 made v5 (still needing approval); \"Delivered\" without choosing a line is refused; owner chose l13 (final run C)."
+  },
+  {
+   "stage": "C",
+   "feature": "Changing the hook after voicing",
+   "verdict": "PASS",
+   "why": "Final run D3: the old hook take is marked stale everywhere; only that line re-recorded; switching back restores the approved take."
+  },
+  {
+   "stage": "C",
+   "feature": "The opening visual follows the selected hook",
+   "verdict": "PASS",
+   "why": "Fixed after audit round 2 (N-1). The auditor rendered an H2 film on the frozen code: it opens on H2's own paper waves, moon and «عشر ساعات في بحرٍ بارد», with no H1 card. (The final run itself returns to H1.)"
+  },
+  {
+   "stage": "D",
+   "feature": "Narration-ready text with the pronunciation dictionary; free draft voice clearly labelled",
+   "verdict": "PASS",
+   "why": "gTTS (needs internet), labelled DRAFT on every voice screen; script itself never edited (final run D)."
+  },
+  {
+   "stage": "D",
+   "feature": "Waveform, transcript, word timings; tap a word to hear it",
+   "verdict": "PASS",
+   "why": "Measured in the page: the tapped word plays and lights up (final run D/DW)."
+  },
+  {
+   "stage": "D",
+   "feature": "Flag a word → fix → new take for that line only → compare → decide",
+   "verdict": "PASS",
+   "why": "Final run D: only l9 re-recorded (other 12 takes unchanged by id and audio hash); before/after side by side; decisions survive reopening."
+  },
+  {
+   "stage": "D",
+   "feature": "A fix that did not change the flagged word is not called corrected",
+   "verdict": "PARTIAL",
+   "why": "The page never says \"corrected\" and a respelling that changes nothing shows \"no effect\" (auditor round 3). But the check depends on whisper's estimated position of the mispronounced word: on the real l9 fix it said \"changed\" because that estimate moved, while the transcript was wrong both times. The inbox still says \"Listen to l9 (corrected take)\"."
+  },
+  {
+   "stage": "D",
+   "feature": "Listening before deciding (takes and film)",
+   "verdict": "PASS",
+   "why": "Final run: seek-to-end, waveform click, the opening quarter four times, and the whole film muted are all refused; audible play-through accepted; a re-take needs the fixed word heard."
+  },
+  {
+   "stage": "D",
+   "feature": "Whether a corrected draft pronunciation sounds right",
+   "verdict": "NOT TESTED",
+   "why": "Needs a human ear; the machine transcript is not proof (it heard «غلايتسه» as «بلايتسا»)."
+  },
+  {
+   "stage": "D",
+   "feature": "ElevenLabs final pronunciation",
+   "verdict": "NOT TESTED",
+   "why": "By design: paid generation is locked."
+  },
+  {
+   "stage": "E",
+   "feature": "Genuinely different art concepts as real images",
+   "verdict": "PASS",
+   "why": "15 concepts over 4 scenes rendered locally (timeline, kinetic type, technical drawing, paper-cut, 2.5D, map, keynote)."
+  },
+  {
+   "stage": "E",
+   "feature": "Archival historical photographs",
+   "verdict": "BLOCKED",
+   "why": "No licensed photos in the project: shown as REAL PHOTO NEEDED; cannot be selected or approved; nothing invented."
+  },
+  {
+   "stage": "E",
+   "feature": "Rolex product macro with verified imagery",
+   "verdict": "BLOCKED",
+   "why": "No licensed Rolex photographs; no drawn watch is labelled Rolex."
+  },
+  {
+   "stage": "E",
+   "feature": "Supported / needs real material / paid / needs implementation",
+   "verdict": "PASS",
+   "why": "Support matrix on the Art screen."
+  },
+  {
+   "stage": "F",
+   "feature": "Compare, full screen, select ≠ approve, approve a specific version, see it in the storyboard",
+   "verdict": "PASS",
+   "why": "Final run E/F/G: approved l9 map v3 is the visual of storyboard scene l9."
+  },
+  {
+   "stage": "F",
+   "feature": "Revisions that really change the drawing",
+   "verdict": "PASS",
+   "why": "Only changes that alter the drawing are offered or accepted; every revision in the final run differs from all earlier versions (map push-in, bigger text)."
+  },
+  {
+   "stage": "F",
+   "feature": "Revising approved art",
+   "verdict": "PASS",
+   "why": "Approved version stays in the film until the owner approves the new one, which replaces it in one step; the pending version is in the inbox (final run F2)."
+  },
+  {
+   "stage": "F",
+   "feature": "Free-text art notes",
+   "verdict": "PARTIAL",
+   "why": "A note (alone or with a change) waits for the art operator and makes no fake version; the operator's answer becomes a real new version. Nothing executes free text automatically."
+  },
+  {
+   "stage": "G",
+   "feature": "Storyboard from the approved script, durations from the takes, a preview frame per scene, owner approval",
+   "verdict": "PASS",
+   "why": "Final run G: built from v7, 13 scenes + end card, unreviewed and placeholder scenes stated, not Done until approved."
+  },
+  {
+   "stage": "G",
+   "feature": "Free/local draft render, playable in the dashboard",
+   "verdict": "PASS",
+   "why": "r2: 1080×1920, 157.1 s, H.264 + WebM preview, decodes with 0 errors, −14.2 LUFS / −1.5 dBTP; plays on the project home, Draft and Final voice screens."
+  },
+  {
+   "stage": "G",
+   "feature": "Captions, sync, motion, Time Keeper end card, moving hook",
+   "verdict": "PARTIAL",
+   "why": "Sync verified (median offset ≈0 s), the opening moves from frame 1, no banner carry-over, end card clean. But frame 0 is blank paper (an empty Reels cover) and the last ~1.3 s is black and silent after the audio ends."
+  },
+  {
+   "stage": "G",
+   "feature": "A professional video",
+   "verdict": "PARTIAL",
+   "why": "Clean and on-brand, but a draft: free robotic voice ~20% slower than the narrator, no music, typographic and drawn scenes, a labelled placeholder for Hans Wilsdorf, each drawn scene opens on empty paper for ~0.3–0.5 s. The auditor adds: 9 of 13 scenes are on default art nobody reviewed one by one (including a weak three-rectangle bezel/case-back/crown diagram), and the disclaimers are too small to read on a phone. Two art notes still wait for the operator in the finished project."
+  },
+  {
+   "stage": "H",
+   "feature": "Reviewer finds defects with scene, time, evidence, severity, fix",
+   "verdict": "PARTIAL",
+   "why": "14/14 planted defects in the disposable copy, and on the real film it found the unattributed hook claim and the placeholder. But it is rule-based and the defects were planted by the same tester who wrote the rules; it is not a general judge."
+  },
+  {
+   "stage": "H",
+   "feature": "Accept → correction task; dismiss keeps history; approved work untouched",
+   "verdict": "PASS",
+   "why": "Final run H/K: accepted finding → task → fix → re-render → re-review (gone) → task closed; approved work fingerprint unchanged."
+  },
+  {
+   "stage": "H",
+   "feature": "Subjective art judgement",
+   "verdict": "PARTIAL",
+   "why": "From Claude's own frame review and the independent auditor, not from the tool."
+  },
+  {
+   "stage": "I",
+   "feature": "Progress dashboard: stage, scenes, measured times, ETA rule, blockers, inbox, latest film",
+   "verdict": "PASS",
+   "why": "Final run I; a stale plan shows \"rebuild\", not old blockers."
+  },
+  {
+   "stage": "I",
+   "feature": "Nothing approved just because a file exists",
+   "verdict": "PASS",
+   "why": "Files dropped into the project changed no status (final run I + unit test)."
+  },
+  {
+   "stage": "I",
+   "feature": "iPhone layout",
+   "verdict": "PASS",
+   "why": "Every screen checked against the phone's screen width, reloaded, before and after long owner notes (final run I, J, K)."
+  },
+  {
+   "stage": "J",
+   "feature": "Final plan: exact text, voice, model, billable characters, blockers, the approved draft beside it",
+   "verdict": "PASS",
+   "why": "Final run J + Z: after the owner's decisions and the correction, only the workspace lock remains."
+  },
+  {
+   "stage": "J",
+   "feature": "Owner authorization required; generation refused; zero paid calls",
+   "verdict": "PASS",
+   "why": "Refused in the UI and by API, including with actor \"system\"; every attempt logged; ledgers show 0 spend and 0 paid approvals; no key in the environment (confirmed again by the auditor in round 3)."
+  },
+  {
+   "stage": "J",
+   "feature": "Budget, single-use approval, reuse of approved takes",
+   "verdict": "NOT TESTED",
+   "why": "Only a mock provider in unit tests proves these rules; no real provider was called."
+  },
+  {
+   "stage": "R",
+   "feature": "Failure recovery",
+   "verdict": "PASS",
+   "why": "Final run R: rejected script/take/art, failed render, refresh, duplicate request, killed server mid-task, missing media, unauthorized paid call; no approved work lost."
+  },
+  {
+   "stage": "R",
+   "feature": "Approval sync between sessions",
+   "verdict": "PASS",
+   "why": "A phone decision appears in an open desktop inbox without reload; conflicting second decisions refused (final run R)."
+  },
+  {
+   "stage": "R",
+   "feature": "Stopping the server mid-render",
+   "verdict": "PASS",
+   "why": "Renders run in their own process group and stop with the server (measured: 9 browser processes → 0). The auditor measured a short tail: everything is gone within about 20 s."
+  },
+  {
+   "stage": "—",
+   "feature": "Sign-in / who made a decision",
+   "verdict": "NOT TESTED",
+   "why": "No authentication: the local server trusts the actor the page sends. Needed before any shared deployment."
+  },
+  {
+   "stage": "—",
+   "feature": "Studio projects inside the main review dashboard",
+   "verdict": "PARTIAL",
+   "why": "Linked from the review dashboard (\"＋ New video\") but not listed in its project switcher or its phone (Artifact) copy."
+  }
  ],
  "separation": [
-  "Tested for real through the interface: every owner action in stages A–J and the recovery cases (iPhone 13 size, plus desktop checks).",
-  "Real but machine-only: word timings and transcripts (faster-whisper), A/V sync by cross-correlation, layout checks. They inform; a person decides.",
-  "Done by Claude outside the app (labelled operator input): research, script text, hooks, art brief, revision of free-text notes.",
-  "Mocked: the paid provider (ElevenLabs) in unit tests only. No real paid call was made; the gateway stays disabled.",
-  "Missing / blocked: licensed photographs (archival, Rolex product); an automatic grammar/dialect checker; Studio projects inside the review dashboard and its phone (Artifact) copy; human listening of the draft corrections."
+  "Tested for real through the interface (iPhone 13 size, plus desktop checks), on the frozen code: every owner action in stages A–J and the recovery cases.",
+  "Real, machine-only: word timings and transcripts (faster-whisper), the flagged-word audio comparison, A/V sync by cross-correlation, layout checks, the claim check. They inform; the owner decides.",
+  "Done by Claude outside the app and recorded as operator input: research, script text, hooks, the art brief, and answers to free-text art notes.",
+  "Mocked: the paid provider (ElevenLabs), in unit tests only. No real paid call was made; the gateway is disabled in this workspace and the Studio cannot import it.",
+  "Missing or blocked: licensed photographs (archival, Rolex product); a grammar/dialect checker; a spell checker for ordinary words; sign-in (the server trusts the actor the page sends); Studio projects inside the review dashboard and its phone (Artifact) copy; a human listening to the draft corrections."
  ],
- "automated": [],
- "disagreements": [],
- "limitations": []
+ "automated": [
+  "Final clean UI acceptance run on the frozen code (product commit 95a8646, harness 32f4187), started from an empty project, 12:41–13:35 UTC: 135 of 135 checks passed; seek/listening checks on a disposable copy 5 of 5; planted-defect copy 14 of 14 found. No code was changed during the run (product files hash-checked before and after).",
+  "Earlier full runs, kept as evidence: run 1 and 2 (before the first audit), run 3 (stopped after it found 4 problems), run 4 (129 passed, 2 failed: one harness assertion, one real defect), final attempt 1 (stopped at G by a harness timing mistake; A–F2 80 of 80).",
+  "Unit tests: 159 passed (1 expected failure documenting the Royal Oak article drops), network blocked, no credentials.",
+  "Review dashboard regression on the same code: UI flow 74 of 74, decision sync end-to-end 33 of 33.",
+  "Integrity after the final run: approved snapshot 194/194 files unchanged; Royal Oak approved set 30/30 unchanged; vendored engine provenance OK; all ledgers 0 spend and 0 paid approvals; no paid key in the environment; the production repository has no changes."
+ ],
+ "disagreements": [
+  "Round 1 (19 defects D-01..D-19, 2 critical): the auditor showed my earlier PASS claims were not supported for the claim check, stale takes after a script change, identical \"corrected\" audio, bypassable listening, banner carry-over, and phone layout. All 19 were fixed and re-verified: 13 fixed in round 2, the rest fixed or narrowed in round 3.",
+  "Round 2 (on 98918fe): found N-1 (the opening visual ignored the selected hook, major) and partly-fixed D-02/D-03/D-04/D-05/D-18, plus N-2..N-6. All addressed in 95a8646; the auditor confirmed 9 of 10 fixed in round 3.",
+  "Round 3 (on frozen 95a8646): the claim check is still partly fixed, with a major miss of the plain claim; I agree and now classify it FAIL (it was PARTIAL). The \"no effect\" row should be PARTIAL, not PASS; I agree and changed it. The film shows a blank frame 0 and a black, silent end; I changed that row to PARTIAL.",
+  "Round 3: my first freeze file also hashed the harness and this classification, which changed after the freeze (harness commit 32f4187, disclosed; classification written after the run). The product-only hash (var/uat/FROZEN_PRODUCT_95a8646.sha256, 118 files) still matches.",
+  "Agreed with the auditor: J budget/single-use/reuse is NOT TESTED (mock only); a self-planted 14/14 is not proof of general reviewer quality (H row is PARTIAL); stopping the server is PASS with a ~20 s tail."
+ ],
+ "limitations": [
+  "Licensed photographs are not in the project: archival (Gleitze 1927, Borgel, Tavannes, Daily Mail page) and Rolex product concepts are BLOCKED and cannot be selected. The film uses drawn and typographic scenes and a clearly labelled placeholder for Hans Wilsdorf (l6).",
+  "Research, script and hooks were written by Claude acting as the writer and posted as operator input; the Studio stores, checks and enforces them but does not write them.",
+  "The claim check is a word-rule check: 12 of the auditor's 13 false-claim variants are caught, with no false positives in the tested set. An implicit claim such as «قبل أويستر، لم تكن هناك ساعة يد تصمد في الماء» is not caught. The owner can approve over a critical finding with a written reason; the gate lists it.",
+  "Spelling: names, research terms and long words from approved versions only; a fresh typo of an ordinary word is not caught. No grammar or dialect checker.",
+  "The draft voice is gTTS (free, needs internet). Harness approvals are not pronunciation verdicts: the machine transcript heard the corrected «غلايتسه» as «بلايتسا». The owner must listen.",
+  "ElevenLabs: NOT TESTED by design. The final plan, budget, single-use authorization and take reuse are proven only with a mock provider in unit tests.",
+  "No sign-in: the local server trusts the actor the page sends (an owner decision could be spoofed by anyone who can reach the server). The server listens on 127.0.0.1 only. Needs real authentication before any shared deployment.",
+  "Studio projects are not in the review dashboard's project switcher or its phone (Artifact) copy; the review dashboard only links to the Studio.",
+  "A render that is interrupted restarts from 0 % when resumed.",
+  "Draft length is about 157 s with the slower draft voice; about 134 s estimated at the brand narrator's measured pace (1.74 words/s).",
+  "The dashboard runs only inside this development container (local server). There is no public link: publishing or deploying was not allowed in this test.",
+  "Mac backup: still pending (not touched)."
+ ],
+ "product_defects_fixed": [
+  "See section 6 (defects.log entries without the [harness] tag): defects found by my own runs and by the three audit rounds, each fixed in the development workspace and re-tested; the critical ones are D-01 (stale audio after a script change) and D-02 (claim check), plus N-1 (the opening ignored the selected hook)."
+ ],
+ "harness_mistakes": [
+  "Always-true checks in early runs (3), replaced by real ones.",
+  "Run 3: a decision test tried to decide on an already-approved take (no buttons) → moved to a disposable copy with a real candidate and a positive control.",
+  "Run 3: the iPhone sideways-scroll check compared with innerWidth, which a phone widens with the overflow → compares with the screen width, reloads each screen.",
+  "Run 3/4: G expected script v5 / map v2 after the new hook-switch test → reads them from the state.",
+  "Run 4: J expected only the workspace lock while a legitimately open correction task still blocked → assertion corrected and re-run in a full run.",
+  "Round 2 (auditor): art checks passed even when a revision changed nothing; the inbox check missed pending revisions and stale plans; the listening check only tried a seek → all strengthened.",
+  "Final attempt 1: a fixed 1.2 s wait after Build → waits until the page is no longer busy; the whole final run was re-done from an empty project."
+ ],
+ "unresolved": [
+  "MAJOR – Claim check misses «اخترعت رولكس الساعة المقاومة للماء» and 5 other new paraphrases; false positive on «في أول مرة نزلت فيها الساعة إلى الماء…»; fixes partly live in this project's research rule; any generic sentence is accepted as an override reason.",
+  "MEDIUM – \"No effect\" check for pronunciation fixes depends on whisper's estimated word position; the inbox still says \"Listen to l9 (corrected take)\".",
+  "MEDIUM – Draft film: frame 0 is blank paper (empty Reels cover); the last ~1.3 s is black and silent; 9 of 13 scenes on unreviewed default art; Wilsdorf placeholder; small disclaimers.",
+  "LOW – Switching back to an authorized voice shows the toast \"needs_authorization\" although the page says usable.",
+  "LOW – Preview stills are taken mid-animation, so some changes look like layout changes.",
+  "LOW – Renderer processes take up to ~20 s to disappear after a server stop.",
+  "LOW – Test names still say \"corrected take\" in places."
+ ]
 }
