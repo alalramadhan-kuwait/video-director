@@ -308,6 +308,7 @@ function project(force) {
   document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => {
     const restore = () => { const k = keep[m.id]; if (k && k[0] === m.currentSrc) m.currentTime = k[1]; };
     if (m.readyState >= 1) restore(); else m.addEventListener('loadedmetadata', restore, { once: true }); });
+  $('#main').dataset.view = location.hash;        // which screen is on display (tests and assistive tools can wait for it)
 }
 function topHtml(v) {
   const n = v.top.next;

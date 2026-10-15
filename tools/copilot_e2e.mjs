@@ -38,7 +38,11 @@ async function waitView(pred, label, mins = 20) {
   log('TIMEOUT', label); return v;
 }
 async function shot(name) { await page.screenshot({ path: `${OUT}/${name}.png` }); }
-async function go(panel) { await page.goto(`${BASE}/studio#/p/${encodeURIComponent(PID)}/${panel}`); await page.waitForTimeout(1200); }
+async function go(panel) {                            // wait until the page shows THIS screen, not the one before it
+  await page.goto(`${BASE}/studio#/p/${encodeURIComponent(PID)}/${panel}`);
+  await page.waitForFunction(() => document.querySelector('#main') && document.querySelector('#main').dataset.view === location.hash, null, { timeout: 30e3 });
+  await page.waitForTimeout(300);
+}
 async function overflow() { return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth); }
 async function toastText() { const t = page.locator('#toast'); await page.waitForTimeout(400); return (await t.isVisible()) ? (await t.textContent()) : ''; }
 async function playToEnd(sel, rate, maxS) {          // wait for THIS player's 'ended' (the page may redraw the panel after it stops)
