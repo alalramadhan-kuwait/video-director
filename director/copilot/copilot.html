@@ -68,7 +68,7 @@ main{padding:12px 16px 120px;max-width:620px;margin:0 auto;display:flex;flex-dir
 .lockline{font-size:.8rem;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .timeline{display:flex;gap:3px;width:100%}
-.timeline button{flex:1 1 0;min-width:0;min-height:30px;padding:0;border-radius:6px;font-size:.66rem;border-width:2px}
+.timeline button{flex:1 1 0;min-width:0;min-height:30px;padding:0;border-radius:6px;font-size:.6rem;border-width:2px;white-space:nowrap;overflow:hidden;direction:ltr}
 .timeline button.on{outline:2px solid var(--ink)}
 .tl-ai_reviewed{background:var(--ai-soft);border-color:var(--ai);color:var(--ai)} .tl-needs_owner{background:var(--wait-soft);border-color:var(--wait);color:var(--wait)}
 .tl-outdated{background:repeating-linear-gradient(45deg,var(--unk-soft) 0 5px,transparent 5px 10px);border-color:var(--unk)} .tl-not_started{border-style:dashed}
@@ -349,8 +349,8 @@ function decisionButtons(g, opts) {
   opts = opts || {};
   return `<div class="stack"><textarea id="note-${g}" placeholder="${t('note')}"></textarea>
     <button class="primary big" data-gate="${g}" data-d="approved" ${opts.disabled ? 'disabled' : ''}>${t('approve')}</button>
-    <div class="row"><button class="grow" data-gate="${g}" data-d="changes_requested">${t('changes')}</button>
-    ${opts.noReject ? '' : `<button class="bad" data-gate="${g}" data-d="rejected">${t('reject')}</button>`}</div></div>`;
+    ${opts.approveOnly ? '' : `<div class="row"><button class="grow" data-gate="${g}" data-d="changes_requested">${t('changes')}</button>
+    ${opts.noReject ? '' : `<button class="bad" data-gate="${g}" data-d="rejected">${t('reject')}</button>`}</div>`}</div>`;
 }
 const pill = (cls, txt) => `<span class="pill ${cls}">${esc(txt)}</span>`;
 function gateState(v, g) { const s = v.stages.find(x => x.gate === g); return s ? pill('st-' + s.state, STN(s)) + (s.why ? ` <span class="tiny muted">${esc(s.why)}</span>` : '') : ''; }
@@ -401,7 +401,7 @@ function g2(v) {
   const hk = d.hooks;
   const lines = d.lines.map(l => { const c = ck[l.id] || { severity: 'none', why: [], verdict: '' }; const ed = S.editing === l.id;
     return `<div class="line ${ed ? 'sel' : ''}" id="ln-${l.id}"><div class="row between"><span class="tiny muted">${esc(l.id)}${l.role === 'hook' ? ' · ' + t('hooks') : ''}</span>
-      <span>${c.verdict ? pill('sev-' + c.severity, c.verdict) : ''}</span></div>
+      <span>${c.verdict ? pill('sev-' + c.severity, AR() ? ({ supported: 'مدعوم بمصدر', attributed: 'منسوب', uncertain: 'غير مؤكد', unsupported: 'بلا مصدر', contradicted: 'يخالف البحث', disputed: 'الفحوص مختلفة' })[c.verdict] || c.verdict : c.verdict) : ''}</span></div>
       ${ed ? `<textarea id="ed-${l.id}">${esc(l.text)}</textarea><div class="row"><button class="primary" data-saveline="${l.id}">${t('save')}</button><button data-canceledit="1">${t('cancel')}</button></div>`
            : `<div class="txt">${esc(l.text)}</div>`}
       ${c.why && c.why.length ? `<div class="tiny">${c.why.map(w => `• ${esc(w)}`).join('<br>')}</div>` : ''}
@@ -453,14 +453,15 @@ function g3(v) {
       <button class="link" data-closeword="1">${t('cancel')}</button></div>` : ''}
   <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة للاستماع إليها أو تصحيحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
   <div class="card"><h3>${t('pron')}</h3>${d.pron.length ? d.pron.map(p => `<div class="row small"><span class="grow">«${esc(p.word)}» → «${esc(p.respell)}» <span class="tiny muted">${esc(p.why || '')}</span></span>
-      ${pill(p.status === 'approved' ? 'st-owner_approved' : 'st-ai_review', (p.source === 'ai' ? 'AI · ' : '') + t(p.status))}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
+      ${pill(p.status === 'approved' ? 'st-owner_approved' : 'st-ai_review', (p.source === 'ai' ? 'AI · ' : '') + t(p.status))}
+      ${p.status === 'proposed' ? `<button data-pronrej="${p.id}">${t('reject')}</button>` : ''}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
     <h3>${t('qa')}</h3>${(() => { const open = d.qa.flags.filter(f => f.status === 'open');
       const at = f => { const sg = mix && mix.segments.find(x => x.line === f.line); return sg && f.s != null ? (sg.start + f.s) : (sg ? sg.start : 0); };
       return d.qa.flags.length ? `<div class="chips">${d.qa.flags.map(f => `<button data-seekmix="${at(f).toFixed(2)}" title="${esc(f.detail)}">${esc(f.line)} · ${esc(f.word || f.code)}${f.status !== 'open' ? ' ✓' : ''}</button>`).join('')}</div>
         <p class="tiny muted">${AR() ? 'كلمات لم يتعرّف عليها النسخ الآلي بوضوح: اضغط لتسمعها. الآلة لا تحكم على النطق؛ أنت تحكم.' : 'Words the transcription could not place: tap to hear them. The machine does not judge pronunciation; you do.'}</p>
         ${open.length ? `<label class="row small"><input type="checkbox" id="ackqa"> ${AR() ? 'استمعتُ إلى هذه الكلمات' : 'I listened to these words'} (${open.length})</label>` : ''}`
         : `<p class="muted small">${t('none')}</p>`; })()}</div>
-  <div class="card">${v.validity.G3.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('listen_need')}</p>` + decisionButtons('G3', { noReject: true, disabled: !d.mix_current })}</div>`;
+  <div class="card">${v.validity.G3.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('listen_need')}</p>` + `<p class="tiny muted">${d.pron.some(p => p.status === 'proposed') ? (AR() ? 'الموافقة على الصوت تعتمد أيضًا تهجئات الذكاء المقترحة أعلاه (لأنك سمعتها). ارفض أيًّا منها قبل الموافقة إن لم تعجبك.' : 'Approving the voice also approves the AI spellings above (you heard them). Reject one before approving if you do not want it.') : ''}</p>` + decisionButtons('G3', { approveOnly: true, disabled: !d.mix_current })}</div>`;
 }
 
 // ---------------------------------------------------------------- G4
@@ -657,6 +658,7 @@ function wire(v, panel) {
     if (pw) pw.onclick = () => { const w = S.sel.word; const m = $('#mix'); m.currentTime = Math.max(0, w.s - 0.08); stopAt = w.e + 0.08; m.play(); };
   }
   const cw = document.querySelector('[data-closeword]'); if (cw) cw.onclick = () => { S.sel.word = null; S.sig = ''; project(true); };
+  document.querySelectorAll('[data-pronrej]').forEach(b => b.onclick = () => act('cp_pron', { op: 'decide', id: b.dataset.pronrej, decision: 'rejected' }));
   const pr = document.querySelector('[data-pron]'); if (pr) pr.onclick = () => act('cp_pron', { word: S.sel.word.word, respell: $('#respell').value, lines: [S.sel.word.line] });
   const ad = document.querySelector('[data-adjust]'); if (ad) ad.onclick = () => act('cp_voice_adjust', { line: S.sel.word.line, speed: +$('#sp').value, pause_before: +$('#pb').value, pause_after: +$('#pa').value });
   // film

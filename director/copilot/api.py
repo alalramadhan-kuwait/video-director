@@ -101,7 +101,7 @@ def projects(var):
     return out
 
 
-def _timing(st, now):
+def _timing(st, now, waiting=()):
     cp = st['copilot']
     proc, by_stage = 0.0, {}
     for j in st['jobs']:
@@ -121,7 +121,7 @@ def _timing(st, now):
             t1 = _ts(nxt['at']) if nxt else None
             if t1 is None:
                 cur = A.current(st)[g]
-                if cur and cp['ready'].get(g, {}).get('content_hash') == cur['hash'] and not A.validity(st)[g]['valid']:
+                if cur and cp['ready'].get(g, {}).get('content_hash') == cur['hash'] and g in waiting:     # includes a replacement waiting for review
                     t1 = now; waiting_now = waiting_now or {'gate': g, 'since': rd['at']}
                 else:
                     continue
@@ -201,7 +201,7 @@ def view(var, pid) -> dict:
            'gates': {g: [{k: r.get(k) for k in ('decision', 'ref', 'note', 'at', 'by', 'content_hash')} for r in cp['gates'][g]] for g in A.GATES},
            'exceptions': [{k: x.get(k) for k in ('id', 'kind', 'scene', 'title', 'detail', 'detail_ar', 'options', 'status', 'decision', 'decision_note', 'at', 'asset')}
                           | {'evidence': [_url(pid, e) for e in x.get('evidence') or []]} for x in cp['exceptions']],
-           'timing': _timing(st, now), 'classic_url': f'/studio/classic#{pid}'}
+           'timing': _timing(st, now, p['waiting']), 'classic_url': f'/studio/classic#{pid}'}
     out['ai'] = {'worker': cp['settings'].get('worker', 'mock'), 'label': ai.MOCK_LABEL if cp['settings'].get('worker', 'mock') == 'mock' else ai.CLAUDE_LABEL,
                  'budget_usd': cp['ai']['budget_usd'], 'spent_usd': cp['ai']['spent_usd'], 'real_enabled': os.environ.get('VD_AI_REAL_ENABLED') == '1',
                  'calls': [{k: c.get(k) for k in ('kind', 'role', 'worker', 'ok', 'cost_usd', 'duration_s', 'at', 'error', 'model')} for c in cp['ai']['calls'][-40:]],

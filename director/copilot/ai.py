@@ -124,11 +124,16 @@ def call(studio, pid, kind, payload, actor='copilot') -> dict:
         if left <= 0:
             raise AIRefused(f'AI usage budget for this project is ${cp["ai"]["budget_usd"]:.2f} with ${max(left, 0):.2f} left: '
                             'the owner must authorize a budget before a real AI call')
+        cap = round(min(left, PER_CALL_CAP), 4)
+        # reserve the whole cap before the CLI starts: a call cut short by a restart is still counted
+        studio.act(pid, 'cp_ai_call', {'id': cid, 'kind': kind, 'role': ROLE[kind], 'worker': 'claude-code', 'label': CLAUDE_LABEL,
+                                       'state': 'started', 'ok': None, 'cost_usd': None, 'reserved_usd': cap}, actor='system')
         try:
-            out, meta = ClaudeCodeWorker(model=cp['settings'].get('model')).run(kind, payload, min(left, PER_CALL_CAP))
+            out, meta = ClaudeCodeWorker(model=cp['settings'].get('model')).run(kind, payload, cap)
         except AIFailed as e:
-            _record(studio, pid, cid, kind, {**e.meta, 'worker': 'claude-code', 'label': CLAUDE_LABEL}, None, str(e), t0, actor)
+            _record(studio, pid, cid, kind, {**e.meta, 'worker': 'claude-code', 'label': CLAUDE_LABEL, 'reserved_usd': cap}, None, str(e), t0, actor)
             raise
+        meta['reserved_usd'] = cap
     else:
         raise AIRefused(f'unknown worker {worker}')
     _record(studio, pid, cid, kind, meta, out, None, t0, actor)
@@ -136,8 +141,11 @@ def call(studio, pid, kind, payload, actor='copilot') -> dict:
 
 
 def _record(studio, pid, cid, kind, meta, out, error, t0, actor):
-    rec = {'id': cid, 'kind': kind, 'role': ROLE[kind], 'worker': meta['worker'], 'label': meta['label'], 'ok': error is None,
-           'cost_usd': round(float(meta.get('cost_usd') or 0), 6), 'tokens': meta.get('tokens'), 'model': meta.get('model'),
+    cost = meta.get('cost_usd')
+    rec = {'id': cid, 'kind': kind, 'role': ROLE[kind], 'worker': meta['worker'], 'label': meta['label'], 'ok': error is None, 'state': 'done',
+           'cost_usd': None if cost is None else round(max(0.0, float(cost)), 6),     # unknown cost: the reserved cap is counted instead
+           'reserved_usd': meta.get('reserved_usd'), 'over_cap': bool(cost and meta.get('reserved_usd') and cost > meta['reserved_usd']),
+           'tokens': meta.get('tokens'), 'model': meta.get('model'),
            'duration_s': round(time.monotonic() - t0, 2), 'error': error,
            'output': studio.put(pid, json.dumps(out, ensure_ascii=False).encode(), 'json') if out is not None else None}
     studio.act(pid, 'cp_ai_call', rec, actor='system')

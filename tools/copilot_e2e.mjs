@@ -32,10 +32,11 @@ async function waitView(pred, label, mins = 20) {
   const t0 = Date.now(); let v;
   while (Date.now() - t0 < mins * 60e3) {
     try { v = await view(); if (pred(v)) { log('reached', label, Math.round((Date.now() - t0) / 1000) + 's'); return v; }
-      if (v.blocked && v.blocked.length) { log('BLOCKED', JSON.stringify(v.blocked).slice(0, 300)); return v; } } catch (e) {}
+      if (v.blocked && v.blocked.length) { log('BLOCKED', JSON.stringify(v.blocked).slice(0, 300)); ok('run', `blocked while waiting for: ${label}`, false, v.blocked);
+        throw new Error('stopped: a step is blocked (' + v.blocked[0].what + ')'); } } catch (e) { if (String(e).includes('stopped:')) throw e; }
     await page.waitForTimeout(3000);
   }
-  log('TIMEOUT', label); return v;
+  log('TIMEOUT', label); ok('run', `timed out waiting for: ${label}`, false); throw new Error('stopped: timeout ' + label);
 }
 async function shot(name) { await page.screenshot({ path: `${OUT}/${name}.png` }); }
 async function go(panel) {                            // wait until the page shows THIS screen, not the one before it
@@ -73,7 +74,8 @@ try {
   PID = decodeURIComponent(await page.evaluate(() => location.hash.split('/')[2]));
   let v = await waitView(v => v.waiting.includes('G1'), 'G1', 10);
   ok('S1', 'Co-Pilot did the research and waits at Gate 1 by itself', v.waiting.includes('G1'), { claims: v.g1 && v.g1.claims.length, mock: v.g1 && v.g1.mock });
-  ok('S1', 'AI output is labelled MOCK', !!(v.g1 && v.g1.mock) && (await page.locator('.label-ai').first().textContent()).length > 0);
+  await go('g1');
+  ok('S1', 'AI output is labelled MOCK on the screen', !!(v.g1 && v.g1.mock) && /(MOCK|تجريبي)/.test(await page.locator('.label-ai').first().textContent()));
   await go('g1'); await shot('02-g1');
   await gateBtn('G1', 'approved').click(); await page.waitForTimeout(1000);
   // ============================================================ S2 rejected script
@@ -93,18 +95,24 @@ try {
   // ============================================================ voice
   v = await waitView(v => v.waiting.includes('G3') && v.g3 && v.g3.mix_current, 'G3', 25);
   await go('g3'); await shot('04-g3');
-  ok('S1', 'draft voice is labelled as free draft, not ElevenLabs', /ElevenLabs/.test(await page.locator('.label-draft').first().textContent()));
+  const dl = await page.locator('.label-draft').first().textContent();
+  ok('S1', 'draft voice is labelled as free draft, not ElevenLabs', /(ليس|not)/i.test(dl) && /ElevenLabs/.test(dl) && /(تجريبي|draft|free|مجاني)/i.test(dl), dl);
   await page.locator('[data-gate="G3"][data-d="approved"]').click(); await page.waitForTimeout(800);
   ok('S1', 'Gate 3 refuses before the narration is heard', /(listen|استمع)/i.test(await toastText()));
   await playToEnd('#mix', 2, 300);
   await page.locator('.w').nth(3).click(); await page.waitForTimeout(800); await shot('05-g3-word');
   ok('S1', 'tapping a word opens its pronunciation / speed / compare sheet', await page.locator('.sheet').isVisible());
-  await page.locator('[data-closeword]').click(); await page.waitForTimeout(600);
+  const word = await page.locator('.sheet b').first().textContent();
+  await page.fill('#respell', (word || '').replace(/[«»]/g, '') + 'ْ'); await page.locator('[data-pron]').click(); await page.waitForTimeout(1500);
+  v = await waitView(v => v.g3 && v.g3.mix_current && v.g3.pending.length > 0, 'new takes after the pronunciation correction', 10);
+  ok('S1', 'a pronunciation correction records the affected lines again (approved takes stay until heard)', v.g3.pending.length > 0, v.g3.pending);
+  await go('g3');
+  await playToEnd('#mix', 2, 300);                     // the narration changed: nothing is approved yet, so hear it all again
   v = await view();
   const nq = v.g3.qa.flags.filter(f => f.status === 'open').length;
   if (nq) {
     await page.locator('[data-seekmix]').first().click(); await page.waitForTimeout(2000);       // hear one of them as an owner would
-    await gateBtn('G3', 'approved').click(); await page.waitForTimeout(800);
+      await gateBtn('G3', 'approved').click(); await page.waitForTimeout(800);
     ok('S1', 'uncertain words must be confirmed before the voice is approved', /(uncertain|غير)/i.test(await toastText()), nq);
     await page.check('#ackqa');
   }
@@ -114,8 +122,9 @@ try {
   // ============================================================ style
   v = await waitView(v => v.waiting.includes('G4'), 'G4', 10);
   await go('g4'); await shot('06-g4');
-  const boards = await page.locator('.board img').count();
-  ok('S1', 'at least 3 styles with real boards', boards >= 3, { boards, recommended: v.g4.recommended });
+  const boards = await page.evaluate(() => [...document.querySelectorAll('.board img')].map(i => ({ w: i.naturalWidth, src: i.src })));
+  ok('S1', 'at least 3 styles with real, different boards that load', boards.length >= 3 && boards.every(b => b.w > 0) && new Set(boards.map(b => b.src)).size === boards.length,
+     { boards: boards.length, recommended: v.g4.recommended });
   await gateBtn('G4', 'approved').click(); await page.waitForTimeout(1200);
   // ============================================================ scenes and film
   v = await waitView(v => v.scenes.length && v.task && v.task.stage === 'scenes', 'scenes running', 10);
@@ -123,8 +132,12 @@ try {
   ok('S1', 'scene progress and the current task are shown while the Co-Pilot works', !!v.task, v.task && v.task.what);
   v = await waitView(v => v.waiting.includes('G5'), 'G5 (film v1)', 50);
   ok('S1', 'a reviewed draft film waits at Gate 5 without any per-scene owner pause', v.waiting.includes('G5') && v.scenes.every(s => s.state === 'ai_reviewed'), v.scenes.map(s => [s.id, s.state]));
-  ok('S1', 'AI-reviewed scenes are not labelled owner-approved', v.scenes.every(s => s.state !== 'owner_approved'));
+  await go('g5');
+  ok('S1', 'scenes show as AI reviewed and the film as waiting for you, never as approved by you', (await page.locator('.timeline .tl-ai_reviewed').count()) >= 13
+     && v.stages.find(s => s.id === 'film').state === 'needs_owner' && !v.validity.G5.valid, v.stages.find(s => s.id === 'film'));
   const f1 = filmScenes(v);
+  ok('Reg', 'no critical finding in the happy-path film (the hook card question is not a claim)', !v.g5.findings.some(f => f.severity === 'critical'),
+     v.g5.findings.filter(f => f.severity === 'critical').map(f => [f.code, f.scene, f.detail.slice(0, 80)]));
   ok('Reg', 'opening frame is not blank and the tail is not silent black', !v.g5.findings.some(f => ['OPENING_BLANK', 'SILENT_TAIL'].includes(f.code)), v.g5.findings.map(f => f.code));
   ok('Reg', 'the film opens with the approved hook', !v.g5.findings.some(f => f.code === 'HOOK_MISMATCH'));
   ok('Reg', 'no banner carried over between scenes', !v.g5.findings.some(f => f.code === 'BANNER_CARRIED_OVER'));
@@ -165,13 +178,16 @@ try {
   await page.locator('[data-style="technical"]').click(); await page.waitForTimeout(500);
   await gateBtn('G4', 'approved').click(); await page.waitForTimeout(1500);
   v = await view();
-  ok('S4', 'style changed: the film is outdated, the earlier approval kept', !v.validity.G5.valid || !v.validity.G5.why || true, v.validity);
-  ok('S9', 'an upstream change outdates what depends on it (scenes outdated)', v.scenes.some(s => s.state === 'outdated'), v.scenes.map(s => s.state));
+  ok('S9', 'a style change outdates every scene drawn in the old style (and nothing is approved over it)',
+     v.scenes.filter(s => s.state === 'outdated').length >= 12 && v.validity.G4.valid, v.scenes.map(s => s.state));
+  const l7before = (v.scenes.find(s => s.id === 'l7').versions || []).length;
   v = await waitView(v => v.exceptions.some(x => x.scene === 'l7' && x.status === 'open'), 'l7 exception', 30);
   const ex = v.exceptions.find(x => x.scene === 'l7' && x.status === 'open');
   ok('S5', 'a scene still wrong after two correction rounds stops and asks you', !!ex && /retry_limit|unfixable/.test(ex.kind) && v.run === 'paused', ex);
   const l7 = v.scenes.find(s => s.id === 'l7');
-  ok('S5', 'every version and its evidence is kept (at most 3 attempts)', l7.versions.length >= 2 && l7.versions.filter(x => x.round >= 0).length <= 3 + 1, l7.versions.map(x => [x.n, x.round, x.score]));
+  const tries = l7.versions.length - l7before;
+  ok('S5', 'every version and its evidence is kept: at most 3 drawings (2 correction rounds) before asking you', tries >= 2 && tries <= 3 && l7.pick.rounds <= 2,
+     { tries, rounds: l7.pick.rounds, versions: l7.versions.map(x => [x.n, x.round, x.score]) });
   await go('ex/' + ex.id); await shot('10-exception');
   await ctx.request.post(`${BASE}/api/copilot/_test`, { data: { inject: {} } });
   await page.fill('#exnote', 'مقبول كما هو في المسودة'); await page.locator('[data-exd="accept_best"]').click(); await page.waitForTimeout(1500);
@@ -183,7 +199,9 @@ try {
   await page.waitForTimeout(3000);
   server('restart');
   v = await view();
-  ok('S8', 'after the restart the interrupted render is shown and resumed by itself', v.runner_alive || (v.task && v.task.stage === 'film'), { task: v.task, interrupted: v.interrupted });
+  const resumed = v.runner_alive && v.task && v.task.stage === 'film';
+  ok('S8', 'after the restart the interrupted render is recorded as interrupted and the film is started again by itself',
+     resumed && (await (await ctx.request.get(`${BASE}/api/copilot/${PID}`)).json()).history.some(h => /interrupted|assemble/.test(h.summary)), { task: v.task, interrupted: v.interrupted });
   v = await waitView(v => v.g5 && v.waiting.includes('G5') && v.g5.films.some(f => f.state === 'ok' && f.n > 3), 'film after restart', 40);
   const dup = v.scenes.flatMap(s => s.versions.map(x => x.inputs).filter((h, i, a) => a.indexOf(h) !== i).map(h => s.id + ':' + h));
   ok('S8', 'the film completed after the interruption, nothing generated twice', v.waiting.includes('G5') && dup.length === 0, { films: v.g5.films, dup });
@@ -217,7 +235,8 @@ try {
   ok('S12', 'no sideways scrolling on the film screen', (await overflow()) === 0);
   v = await view();
   for (const f of v.g5.findings.filter(f => !f.decision && (f.severity === 'critical' || f.severity === 'major'))) {
-    await page.fill(`[data-fexp="${f.id}"]`, f.severity === 'critical' ? 'c4 and c6: the frame is a question answered «not quite»' : 'acceptable in this draft: reviewed by the owner');
+    if (f.severity === 'critical') ok('S12', 'no critical finding left at final review', false, [f.code, f.detail]);
+    await page.fill(`[data-fexp="${f.id}"]`, f.severity === 'critical' ? 'TEST HARNESS: c8 records the swim; overruled only so the run can finish' : 'acceptable in this draft: reviewed by the owner on the phone');
     await page.locator(`[data-fdis="${f.id}"]`).click(); await page.waitForTimeout(1500);
   }
   await go('g5');

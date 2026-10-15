@@ -36,7 +36,7 @@ def _todo_lines(S, st, a):
 def handle(var, body: dict) -> tuple[int, dict]:
     S = studio(var)
     pid, action, args = body.get('project'), body.get('action', ''), body.get('args') or {}
-    rid, actor = body.get('request_id'), body.get('actor', 'owner')
+    rid, actor = body.get('request_id'), 'owner'     # whoever calls this route is the owner: a page cannot claim to be the system
     try:
         if action in JOBS:
             # a repeated request (double tap, refresh) must not start the job twice
@@ -88,6 +88,8 @@ def handle(var, body: dict) -> tuple[int, dict]:
             if j['kind'] == 'hookstills': back = 'run_hook_stills'
             if not back: raise Refused('this job cannot be resumed; start it again from its step')
             return handle(var, {'project': pid, 'action': back, 'args': j.get('args') or {}, 'actor': actor})
+        if action.startswith('cp_'):
+            raise Refused('Co-Pilot actions go through /api/copilot (owner actions only)')
         if action.startswith('run_') or action in ('job', 'voice_take', 'art_concepts', 'art_revision', 'storyboard', 'render', 'review',
                                                     'gate_plan', 'hook_still'):
             raise Refused(f'{action} is recorded by the system, not sent from the page')

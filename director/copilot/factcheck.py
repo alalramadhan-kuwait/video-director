@@ -98,6 +98,7 @@ def subject_hits(clause: str, research: dict) -> list[str]:
 
 
 SEV = {'critical': 3, 'major': 2, 'minor': 1, 'info': 0}
+IDIOM = re.compile(r'الصفحة الأولى|الصفحه الاولى|للمرة الأولى في حياتها|front page')     # set phrases, not priority claims
 
 
 def merge(lines: list[dict], research: dict, keyword: list[dict], ai: dict) -> dict:
@@ -126,7 +127,12 @@ def merge(lines: list[dict], research: dict, keyword: list[dict], ai: dict) -> d
             worse('major', 'the research rule flags this line but the fact checker does not: read it and decide')
         elif kw:
             why.append('research rule: ' + kw[0]['detail'][:160])
-        if a['verdict'] == 'uncertain' and not strong:
+        prio = [x for x in ass if x['kind'] != 'first_time' and not IDIOM.search(x['clause'])]
+        backed = any(by.get(c, {}).get('status') in ('verified', 'attributed') for c in a.get('claims', []))
+        if prio and not strong and not backed:
+            verdict = 'unsupported'
+            worse('critical', f"asserts «{prio[0]['phrase']}» (a first / invention / priority claim) with no verified source behind it")
+        elif a['verdict'] == 'uncertain' and not strong:
             worse('major', 'uncertain: ' + (a.get('note') or 'no source found'))
         elif ass and a['verdict'] in ('supported',) and not any(by.get(c, {}).get('status') == 'verified' for c in a.get('claims', [])):
             verdict = 'uncertain'
@@ -141,6 +147,14 @@ def merge(lines: list[dict], research: dict, keyword: list[dict], ai: dict) -> d
 
 
 def override_ok(note: str, research: dict) -> bool:
-    """An override must point at evidence: a research claim id (c4) or a source URL, not just a sentence."""
+    """An override must point at evidence (a verified/attributed research claim id like c4, or a source link) AND say in
+    a sentence why the check is wrong here (at least 12 characters and 3 words besides the citation). Whether the cited
+    evidence really fits is the owner's judgement: overrides are recorded, shown again at Gate 5 and on the paid plan."""
+    note = note or ''
     ids = {c['id'] for c in (research or {}).get('claims', []) if c.get('status') in ('verified', 'attributed')}
-    return bool(re.search(r'https?://\S+\.\S+', note or '')) or any(re.search(r'(^|\W)' + re.escape(i) + r'(\W|$)', note or '') for i in ids)
+    cites = re.findall(r'https?://[^\s]+\.[^\s]+', note) + [i for i in ids if re.search(r'(^|\W)' + re.escape(i) + r'(\W|$)', note)]
+    if not cites: return False
+    rest = note
+    for c in cites: rest = rest.replace(c, ' ')
+    words = [w for w in re.findall(r'\w+', rest) if len(w) >= 2]
+    return len(rest.strip()) >= 12 and len(words) >= 3 and len(set(''.join(words))) >= 5

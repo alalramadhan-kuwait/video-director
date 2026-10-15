@@ -21,9 +21,9 @@ RESEARCH = json.loads((ROOT / 'research/rolex-oyster.json').read_text(encoding='
 IDEA = 'How the Rolex Oyster (1926) made a waterproof watch people trusted'
 
 
-def run_step(S, pid, key_prefix=None):
+def run_step(S, pid, key_prefix=None, first=True):
     p = O.plan(S, pid)
-    s = p['step']
+    s = p['step'] if first else next((x for x in p['steps'] if x.key.startswith(key_prefix)), None)
     assert s is not None, p
     if key_prefix: assert s.key.startswith(key_prefix), (s.key, key_prefix)
     jobs.start(S, pid, 'copilot', s.stage, s.what, s.units, s.fn, {'key': s.key, **s.args}, sync=True)
@@ -144,7 +144,6 @@ class TestApprovals(Env):
         self.gate('G3', playback={'covered': [[seg['start'], seg['end']]]})                                 # only l5 needs listening
         st = self.S.state(self.pid)
         self.assertNotEqual(st['voice']['lines']['l5']['take'], approved_l5)
-        # a script change (stale voice approval regression): the changed line has no approved voice until heard
         self.assertTrue(A.validity(st)['G3']['valid'])
 
 
@@ -216,8 +215,22 @@ class TestFactCheck(unittest.TestCase):
     def test_override_must_cite_evidence(self):
         self.assertFalse(FC.override_ok('the check is wrong here', RESEARCH))
         self.assertFalse(FC.override_ok('ok ok ok ok ok ok', RESEARCH))
-        self.assertTrue(FC.override_ok('c8 says she wore it', RESEARCH))
-        self.assertTrue(FC.override_ok('see https://example.org/source', RESEARCH))
+        self.assertTrue(FC.override_ok('c8 says she wore it on the second swim', RESEARCH))
+        self.assertTrue(FC.override_ok('the archive page shows the swim: https://example.org/source', RESEARCH))
+        self.assertFalse(FC.override_ok('c1', RESEARCH))                       # a bare token is not an explanation (audit D4)
+        self.assertFalse(FC.override_ok('see c1 ok', RESEARCH))
+        self.assertFalse(FC.override_ok('https://example.org/x', RESEARCH))
+
+    def test_unsourced_priority_claims_are_critical_and_set_phrases_are_not(self):
+        self.assertEqual(self.check('كانت أويستر أول ساعة يد يمكن الغوص بها في المحيط.')['severity'], 'critical')
+        self.assertEqual(self.check('Rolex invented the waterproof watch.')['severity'], 'critical')
+        self.assertNotEqual(self.check('نشرت رولكس القصة على الصفحة الأولى لصحيفة ديلي ميل.', ['c9'])['severity'], 'critical')
+
+    def test_a_question_on_screen_is_not_a_claim(self):
+        from director.studio import checks
+        c = next(x for x in RESEARCH['claims'] if x['status'] == 'avoid')
+        self.assertEqual(checks._claim_hits('أول ساعة مقاومة للماء؟ ليس تمامًا', c), [])
+        self.assertTrue(checks._claim_hits('صنعت رولكس أول ساعة مقاومة للماء.', c))
 
 
 class TestAIWorker(Env):
@@ -290,6 +303,48 @@ class TestOwnerOnly(Env):
             self.S.act(self.pid, 'cp_gate', {'gate': 'G1', 'decision': 'approved', 'content_hash': A.current(st)['G1']['hash']}, actor='copilot')
 
 
+class TestAuditRegressions(Env):
+    def test_classic_route_cannot_act_as_the_copilot_or_forge_costs(self):          # audit D1, D2
+        from director.studio import api as SA
+        for action, args in (('cp_check', {'target': 'script', 'ref': 1, 'kind': 'merged', 'lines': {}}),
+                             ('cp_ai_call', {'id': 'x', 'kind': 'fact_check', 'role': 'r', 'worker': 'mock', 'label': 'x', 'cost_usd': -10}),
+                             ('cp_gate', {'gate': 'G1'})):
+            code, r = SA.handle(self.var, {'project': self.pid, 'action': action, 'actor': 'reviewer', 'args': args})
+            self.assertEqual(code, 422, (action, r))
+        with self.assertRaises(Refused):
+            self.S.act(self.pid, 'cp_ai_call', {'id': 'y', 'kind': 'fact_check', 'role': 'r', 'worker': 'mock', 'label': 'x', 'cost_usd': -10}, actor='system')
+        self.assertEqual(self.S.state(self.pid)['copilot']['ai']['spent_usd'], 0.0)
+
+    def test_an_owner_edited_line_gets_no_borrowed_sources(self):                  # audit D3
+        self.to_g2()
+        self.owner('cp_line_edit', {'line': 'l3', 'text': 'باعت رولكس مليون ساعة أويستر في عامها الأول، وغاصت أويستر إلى عمق ألف متر.'})
+        run_step(self.S, self.pid, 'script_check:3')
+        x = O.merged_check(self.S.state(self.pid)['copilot'], 3)['lines']['l3']
+        self.assertEqual(x['claims'], []); self.assertEqual(x['sources'], [])
+        self.assertIn(x['severity'], ('critical', 'major'))
+        with self.assertRaises(Refused): self.gate('G2', overrides={'l3': 'c1'})
+
+    def test_voice_reject_points_to_the_word_tools_and_style_feedback_reaches_a_person(self):   # audit D6
+        self.to_g3()
+        with self.assertRaises(Refused): self.gate('G3', decision='rejected', note='the names sound wrong')
+        st = self.S.state(self.pid)
+        self.S.act(self.pid, 'cp_style', {'n': 1, 'brief': st['art'].get('brief'), 'registry': 1, 'file': 'x', 'recommended': 'paper-story', 'reasons': {},
+                                          'directions': [{'id': 'paper-story', 'version': 1, 'name': 'P', 'ready': True, 'board': None, 'params_hash': 'h'}]}, actor='copilot')
+        self.gate('G4', decision='changes_requested', note='warmer colours please')
+        k = run_step(self.S, self.pid, 'feedback:', first=False)
+        ex = self.S.state(self.pid)['copilot']['exceptions'][-1]
+        self.assertEqual((ex['kind'], ex['status']), ('owner_feedback', 'open'))
+
+    def test_approved_in_manual_can_be_confirmed_at_gate_2(self):                   # audit D7
+        self.to_g2()
+        self.owner('cp_mode', {'mode': 'manual'})
+        v = self.S.state(self.pid)['scripts'][-1]['v']
+        self.S.act(self.pid, 'script_decision', {'v': v, 'decision': 'approved'})
+        self.owner('cp_mode', {'mode': 'copilot'})
+        self.gate('G2')
+        self.assertTrue(A.validity(self.S.state(self.pid))['G2']['valid'])
+
+
 class TestExceptionsAndControls(Env):
     def test_exception_pauses_and_the_decision_resumes_but_an_owner_pause_stays(self):
         self.S.act(self.pid, 'cp_exception', {'id': 'ex-1', 'kind': 'unfixable', 'scene': 'l5', 'title': 't', 'options': ['accept_best', 'manual'], 'pause': True}, actor='copilot')
@@ -347,8 +402,14 @@ class TestVoiceAndAssets(Env):
         e = st['copilot']['pron'][-1]
         self.assertEqual((e['source'], e['status']), ('owner', 'approved'))
         self.assertTrue(any(r['id'] == e['rule']['id'] for r in st['voice']['rules']))
-        self.assertIn('l6', [l for l, x in st['voice']['lines'].items() if x['status'] in ('stale', 'missing')] +
-                      [l for l in st['voice']['lines'] if O.plan(self.S, self.pid)['step'] and True])
+        old = st['voice']['lines']['l6']['take']
+        k = run_step(self.S, self.pid, 'respell:')                              # the correction is recorded again (audit D5)
+        st = self.S.state(self.pid)
+        new = [t for t in st['voice']['by_line']['l6'] if t != old]
+        self.assertTrue(new and 'أُويْسْتَر' in st['voice']['takes'][new[-1]]['spoken'], k)
+        self.assertEqual(st['voice']['lines']['l5']['take'], st['voice']['lines']['l5']['take'])
+        others = {l: x['take'] for l, x in st['voice']['lines'].items() if l != 'l6'}
+        self.assertTrue(all(len(st['voice']['by_line'][l]) == 1 for l in others if 'أويستر' not in st['voice']['lines'][l]['text']))
 
     def test_a_picture_is_never_used_without_licence_evidence(self):
         png = (ROOT / 'vendor/paper-story/tk-logo-512.png').read_bytes()

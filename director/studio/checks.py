@@ -79,7 +79,11 @@ def _claim_hits(text: str, claim: dict) -> list[str]:
     """Clauses of `text` that make the claim without being attributed or denied before it."""
     rule = claim.get('rule')
     hits = []
-    for clause in CLAUSE.split(' ' + text + ' '):
+    parts = re.split('(' + CLAUSE.pattern + ')', ' ' + text + ' ')
+    for k in range(0, len(parts), 2):
+        clause, delim = parts[k], (parts[k + 1] if k + 1 < len(parts) else '')
+        if '?' in delim or '؟' in delim:
+            continue                                            # a question asks; it does not state the claim («أول ساعة مقاومة للماء؟»)
         flat = bare(clause)
         toks = [stem(w) for w in words(clause)]
         found = [p for p in claim.get('patterns', []) if bare(p) in flat]

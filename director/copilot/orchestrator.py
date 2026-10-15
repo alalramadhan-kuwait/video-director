@@ -156,6 +156,12 @@ def plan(studio, pid, st=None) -> dict:
                 offer(Step(f'voice:{av}:{len(st["voice"]["takes"])}', 'voice', f'draft voice for {len(todo)} line(s) (free)', s_voice, {}, len(todo)))
             else:
                 takes = voicekit.effective_takes(st)
+                nar = {l['id']: l['spoken'] for l in V.narration(studio, pid, st)['lines']}
+                tk = st['voice']['takes']
+                respell = sorted(l for l, t in takes.items() if t and l in nar and tk[t].get('spoken') != nar[l])
+                if respell:                                     # a pronunciation entry changed how a line is read: record it again
+                    offer(Step(f'respell:{A.h(sorted((l, nar[l]) for l in respell))}', 'voice',
+                               f'new draft takes after a pronunciation change: {", ".join(respell)} (free)', s_respell, {'lines': respell}, len(respell)))
                 mix = cp['voice_mix']
                 if not mix or mix['takes'] != takes:
                     offer(Step(f'mix:{A.h(takes)}', 'voice', 'play-all narration and voice checks', s_mix, {}, len(takes)))
@@ -187,6 +193,14 @@ def plan(studio, pid, st=None) -> dict:
         x = next((e for e in cp['exceptions'] if e['id'] == f'ex-rights-{a["id"]}' and e['status'] == 'open'), None)
         if x and a['status'] == 'verified':
             offer(Step(f'rights_ok:{a["id"]}', 'assets', 'licence evidence received', s_rights_ok, {'asset': a['id']}))
+    # ---------------------------------------------------------------- owner feedback the Co-Pilot cannot act on by itself
+    for g in ('G4', 'G5'):
+        last = A.last(cp, g)
+        if last and last['decision'] != 'approved' and cur[g] and last['content_hash'] == cur[g]['hash']:
+            xid = f'ex-fb-{g}-{last["content_hash"][:8]}'
+            if not any(x['id'] == xid for x in cp['exceptions']):
+                offer(Step(f'feedback:{xid}', 'style' if g == 'G4' else 'film', 'your request → who can do it', s_feedback,
+                           {'gate': g, 'note': last.get('note', ''), 'xid': xid}))
     # ---------------------------------------------------------------- comments → tasks
     for t in cp['tasks']:
         if t['status'] == 'open' and t.get('source', '').startswith('comment'):
@@ -228,6 +242,7 @@ def plan(studio, pid, st=None) -> dict:
             wait('G6')
     out['step'] = cands[0] if cands else None
     out['candidates'] = [c.key for c in cands]
+    out['steps'] = cands
     return out
 
 
@@ -281,20 +296,23 @@ def s_script_write(studio, pid, task, key, direction_v):
     v = r['result']['v']
     claims = {l['id']: l.get('claims', []) for l in out['lines']}
     claims['h'] = []
-    studio.act(pid, 'cp_script_meta', {'v': v, 'direction_v': direction_v, 'claims': claims, 'round': 0, 'author': 'ai', 'label': out.get('label'),
+    studio.act(pid, 'cp_script_meta', {'v': v, 'direction_v': direction_v, 'claims': claims, 'texts': {l['id']: l['text'] for l in lines},
+                                       'round': 0, 'author': 'ai', 'label': out.get('label'),
                                        'hooks': {o['id']: o.get('pays_off_line') for o in hooks['options']}}, actor='copilot')
     task.unit(what='script')
     return {'v': v}
 
 
 def _claims_for(cp, v, lines):
-    """Claim ids per line: from the version's own notes, else carried from the parent version for unchanged lines."""
-    meta = cp['script_meta'].get(str(v))
-    if meta: return meta.get('claims', {})
-    best = {}
+    """Claim ids per line, only where the sentence is exactly the one those claims were given for. A line the owner
+    rewrote carries no claim ids: the fact checker has to find support for it from scratch."""
+    known = {}
     for m in sorted(cp['script_meta'].values(), key=lambda m: m['v']):
-        best.update(m.get('claims', {}))
-    return best
+        if m['v'] > v: continue
+        for lid, ids in (m.get('claims') or {}).items():
+            t = (m.get('texts') or {}).get(lid)
+            if t is not None: known[lid] = (t, ids)
+    return {l['id']: known[l['id']][1] for l in lines if l['id'] in known and known[l['id']][0] == l['text']}
 
 
 def s_script_check(studio, pid, task, key, v):
@@ -352,7 +370,9 @@ def s_script_revise(studio, pid, task, key, v, owner=False, note='', targets=Non
     r = studio.act(pid, 'script_version', {'lines': new, 'note': ('revision you asked for: ' if owner else 'self-revision: ') + out.get('why', ''),
                                            'author': 'copilot', 'parent': v}, actor='copilot')
     nv = r['result']['v']
-    studio.act(pid, 'cp_script_meta', {'v': nv, 'direction_v': meta.get('direction_v'), 'claims': meta.get('claims', {}), 'hooks': meta.get('hooks', {}),
+    cl = {**_claims_for(cp, v, lines), **{k: (out.get('claims') or {}).get(k, (meta.get('claims') or {}).get(k, [])) for k in ch}}
+    studio.act(pid, 'cp_script_meta', {'v': nv, 'direction_v': meta.get('direction_v'), 'claims': cl, 'texts': {l['id']: l['text'] for l in new},
+                                       'hooks': meta.get('hooks', {}),
                                        'round': (meta.get('round', 0) + (0 if owner else 1)), 'author': 'ai', 'owner_revision': owner,
                                        'why': out.get('why', ''), 'label': out.get('label'), 'changed': sorted(ch)}, actor='copilot')
     _done(studio, pid, key, 'script', result=f'v{nv}')
@@ -377,6 +397,12 @@ def s_pron(studio, pid, task, key, v):
 
 def s_voice(studio, pid, task, key):
     return V.generate(studio, pid, task)
+
+
+def s_respell(studio, pid, task, key, lines):
+    out = V.generate(studio, pid, task, lines=lines, reason='pronunciation dictionary change')
+    _done(studio, pid, key, 'voice', made=out['made'], reused=out['reused'])
+    return out
 
 
 def s_mix(studio, pid, task, key):
@@ -483,6 +509,19 @@ def s_task(studio, pid, task, key, task_id):
                                          'options': ['manual', 'dismiss_comment'], 'pause': False}, actor='copilot')
     task.unit(what='comment')
     return {'changes': ch}
+
+
+def s_feedback(studio, pid, task, key, gate, note, xid):
+    """A rejected style set or film with a free-text note. The Co-Pilot makes only safe parameter changes; a new style
+    or a new direction for the film needs a person, so it says so instead of pretending to work on it."""
+    what = {'G4': ('A different style needs a person (the style registry): the Co-Pilot can only draw the styles it has',
+                   'أسلوب مختلف يحتاج شخصًا (سجل الأساليب): المساعد يرسم الأساليب الموجودة فقط'),
+            'G5': ('Your note on the film needs a person. For a change the Co-Pilot can make, add a comment at the moment in the film',
+                   'ملاحظتك على الفيلم تحتاج شخصًا. لتعديل يقدر عليه المساعد، أضف تعليقًا عند لحظة معيّنة في الفيلم')}[gate]
+    studio.act(pid, 'cp_exception', {'id': xid, 'kind': 'owner_feedback', 'scene': None, 'gate': gate, 'title': what[0] + f' — «{note[:80]}»',
+                                     'detail': note, 'detail_ar': what[1], 'options': ['manual', 'dismiss_comment'], 'pause': False}, actor='copilot')
+    task.unit(what='feedback')
+    return {}
 
 
 def s_scene(studio, pid, task, key, scene):

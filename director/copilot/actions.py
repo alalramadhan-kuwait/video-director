@@ -98,6 +98,9 @@ class CopilotActions:
 
     def a_cp_ai_call(self, pid, a, actor):
         _system(actor)
+        for k in ('cost_usd', 'reserved_usd'):
+            if a.get(k) is not None and (not isinstance(a[k], (int, float)) or a[k] < 0):
+                raise _refused(f'{k} must be a positive number')
         return 'copilot', a
 
     # ------------------------------------------------------------------ records written by the Co-Pilot
@@ -229,7 +232,11 @@ class CopilotActions:
             if kind == 'owner_owned':
                 if not a.get('declare'): raise _refused('confirm that you own this picture or its rights')
                 ev = ev or 'owner declaration'
-            elif not (re.search(r'https?://\S+\.\S+', ev) or a.get('evidence_file')):
+            elif a.get('evidence_file'):
+                f = a['evidence_file']
+                if not (isinstance(f, str) and f.startswith('blobs/') and self.path(pid, f).is_file()):
+                    raise _refused('the licence document must be a file uploaded to this project')
+            elif not re.search(r'https?://[^\s/]+\.[a-z]{2,}(/\S*)?', ev):
                 raise _refused('licence evidence needed: the page that states the licence (link) or the licence document')
             return 'assets', {'op': op, 'id': x['id'], 'licence': kind, 'evidence': ev, 'evidence_file': a.get('evidence_file'),
                               'holder': a.get('holder', ''), 'restrictions': a.get('restrictions', '')}
@@ -268,7 +275,7 @@ class CopilotActions:
         if not isinstance(t, (int, float)) or not 0 <= t <= f['seconds']: raise _refused('time code out of range')
         text = (a.get('text') or '').strip()
         if len(text) < 3: raise _refused('write the comment')
-        sc = next((s for s in f['timeline'] if s['start'] <= t < s['end']), None)
+        sc = next((s for s in f['timeline'] if s['start'] <= t < s['end'] and s['id'] != 'endcard'), None)   # the end card is not a scene
         n = len(st['copilot']['comments']) + 1
         return 'copilot', {'id': f'cm{n}', 'film': f['n'], 't': round(t, 2), 'scene': sc['id'] if sc else 'endcard', 'text': text,
                            'task': {'id': f'tk{len(st["copilot"]["tasks"]) + 1}', 'scene': sc['id'] if sc else None, 'source': f'comment cm{n}', 'what': text}}
@@ -329,7 +336,9 @@ class CopilotActions:
     def _gate_G2(self, pid, st, cp, a, cur, d, actor, rid):
         from .factcheck import override_ok
         sv = st['scripts'][-1]
-        if sv['status'] != 'draft': raise _refused(f'script v{sv["v"]} is already {sv["status"]}')
+        approved_already = sv['status'] == 'approved'                      # e.g. approved in Manual mode: confirm it here
+        if sv['status'] not in ('draft', 'approved') or (approved_already and d != 'approved'):
+            raise _refused(f'script v{sv["v"]} is already {sv["status"]}')
         rev = next((c for c in reversed(cp['checks']) if c['target'] == 'script' and c['ref'] == sv['v'] and c['kind'] == 'merged'), None)
         out = {}
         if d == 'approved':
@@ -350,7 +359,8 @@ class CopilotActions:
             note = 'Gate 2 approved by the owner' + ''.join(f'; {l}: {ov[l]}' for l in crit)
             if kw and not crit:
                 note += '; the research rule flagged ' + ', '.join(sorted({c['line'] for c in kw})) + ' and the owner read it: ' + (a.get('note') or 'checks disagree; fact checker found no contradiction')
-            self.act(pid, 'script_decision', {'v': sv['v'], 'decision': 'approved', 'override': bool(kw), 'note': note}, actor, rid + '-sd')
+            if not approved_already:
+                self.act(pid, 'script_decision', {'v': sv['v'], 'decision': 'approved', 'override': bool(kw), 'note': note}, actor, rid + '-sd')
             st2 = self.state(pid)
             if not st2['hooks']['delivery']:
                 meta = cp['script_meta'].get(str(sv['v'])) or {}
@@ -364,7 +374,7 @@ class CopilotActions:
 
     def _gate_G3(self, pid, st, cp, a, cur, d, actor, rid):
         if d != 'approved':
-            return {}
+            raise _refused('to change the voice, tap the word or line and correct it (spelling, tashkeel, speed, pauses); then approve')
         mix = cp['voice_mix']
         if not mix or mix['takes'] != cur['takes']:
             raise _refused('the play-all narration is being rebuilt for the latest takes: play it again')
@@ -465,8 +475,11 @@ def fold(st: dict, e: dict):
     elif act == 'cp_ai_budget':
         cp['ai']['budget_usd'] = r['usd']; cp['ai']['budget_history'].append({**r, 'at': at})
     elif act == 'cp_ai_call':
-        cp['ai']['calls'].append({**r, 'at': at})
-        cp['ai']['spent_usd'] = round(cp['ai']['spent_usd'] + (r.get('cost_usd') or 0), 6)
+        # a call is first recorded as 'started' with its whole cap reserved (a restart mid-call still counts it), then
+        # replaced by its result; a failed call whose cost the CLI did not report keeps the reserved cap as its cost
+        cp['ai']['calls'] = [c for c in cp['ai']['calls'] if c['id'] != r['id']] + [{**r, 'at': at}]
+        cp['ai']['spent_usd'] = round(sum(max(0.0, float(c.get('cost_usd') if c.get('cost_usd') is not None else c.get('reserved_usd') or 0))
+                                          for c in cp['ai']['calls']), 6)
     elif act == 'cp_direction':
         cp['directions'].append({**r, 'at': at})
     elif act == 'cp_check':
