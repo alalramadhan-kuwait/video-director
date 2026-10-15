@@ -632,6 +632,20 @@ class Studio(CopilotActions):
 
     # ================================================================== state
     def state(self, pid) -> dict:
+        """The project rebuilt from its events. Cached until a new event, a new refusal or a change in the live jobs: a page
+        refresh, the Co-Pilot's planning and a media request then share one replay instead of each doing its own."""
+        import copy
+        rf = self.root / pid / 'refusals.jsonl'
+        key = (self.log.last_seq(kind='studio', project=pid), rf.stat().st_size if rf.exists() else 0, tuple(sorted(self.jobs)))
+        cache = self.__dict__.setdefault('_state_cache', {})
+        hit = cache.get(pid)
+        if hit and hit[0] == key:
+            return copy.deepcopy(hit[1])
+        st = self._state(pid)
+        cache[pid] = (key, copy.deepcopy(st))
+        return st
+
+    def _state(self, pid) -> dict:
         evs = self.events(pid)
         if not any(e['status'] == 'create_project' for e in evs):
             raise Refused(f'no project {pid!r}')

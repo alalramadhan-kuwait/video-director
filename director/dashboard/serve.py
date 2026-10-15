@@ -116,16 +116,20 @@ class Handler(BaseHTTPRequestHandler):
     do_HEAD = do_GET
 
     def _media(self, f):
-        data, ctype = f.read_bytes(), mimetypes.guess_type(f.name)[0] or 'application/octet-stream'
+        """Byte ranges read from disk (only the part asked for: a film is tens of MB and a player asks many small ranges)."""
+        ctype = mimetypes.guess_type(f.name)[0] or 'application/octet-stream'
+        n = f.stat().st_size
         rng = re.fullmatch(r'bytes=(\d*)-(\d*)', (self.headers.get('Range') or '').strip())
         if not rng:
-            return self._send(200, data, ctype, {'Accept-Ranges': 'bytes'})
-        a, b = rng.groups(); n = len(data)
+            return self._send(200, f.read_bytes(), ctype, {'Accept-Ranges': 'bytes'})
+        a, b = rng.groups()
         start, end = (int(a), int(b) if b else n - 1) if a else (max(0, n - int(b or 0)), n - 1)
         if start >= n or start > end:
             return self._send(416, b'', ctype, {'Content-Range': f'bytes */{n}', 'Accept-Ranges': 'bytes'})
-        end = min(end, n - 1)
-        return self._send(206, data[start:end + 1], ctype, {'Content-Range': f'bytes {start}-{end}/{n}', 'Accept-Ranges': 'bytes'})
+        end = min(end, n - 1, start + 8 * 1024 * 1024 - 1)                  # at most 8 MB per answer; the player asks again
+        with open(f, 'rb') as fh:
+            fh.seek(start); data = fh.read(end - start + 1)
+        return self._send(206, data, ctype, {'Content-Range': f'bytes {start}-{end}/{n}', 'Accept-Ranges': 'bytes'})
 
     def do_POST(self):
         if self.path == '/api/copilot/_test':                    # failure injection for the browser scenarios, test mode only

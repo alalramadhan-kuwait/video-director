@@ -59,6 +59,13 @@ class EventLog:
             db.commit()
             return cur.lastrowid
 
+    def last_seq(self, **where) -> int:
+        q, args = 'SELECT COALESCE(MAX(seq), 0) FROM events', []
+        if where:
+            q += ' WHERE ' + ' AND '.join(f'{k} = ?' for k in where); args = list(where.values())
+        with self._db() as db:
+            return db.execute(q, args).fetchone()[0]
+
     def rows(self, **where):
         q, args = 'SELECT * FROM events', []
         if where:
@@ -93,11 +100,16 @@ class EventLog:
         return summarize(evs)
 
     def runs(self, project=None):
-        ids = []
+        """Every tracked run of a project, summarized. One read of the log, grouped by run (a run's events all carry
+        its project), instead of one full read per run."""
+        by, ids = {}, []
         for r in self.rows(**({'project': project} if project else {})):
-            if r['kind'] == 'task_started' and r['data'].get('run') not in ids:
-                ids.append(r['data']['run'])
-        return [self.task_summary(i) for i in ids]
+            rid = r['data'].get('run')
+            if not rid: continue
+            by.setdefault(rid, []).append(r)
+            if r['kind'] == 'task_started' and rid not in ids:
+                ids.append(rid)
+        return [summarize(by[i]) for i in ids]
 
 
 class _Run:
