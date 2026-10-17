@@ -56,6 +56,10 @@ async function playRange(sel, a, b2, rate = 1) {
   await page.waitForFunction(({ sel, b2 }) => { const m = document.querySelector(sel); return m.currentTime >= b2 || m.ended; }, { sel, b2 }, { timeout: 180e3, polling: 200 });
   await page.evaluate(sel => document.querySelector(sel).pause(), sel);
 }
+async function refreshPage() {                           // what an owner does before deciding: look at the latest version
+  await page.evaluate(async () => { S.v = await get('/api/copilot/' + encodeURIComponent(S.pid)); S.sig = ''; project(true); });
+  await page.waitForTimeout(400);
+}
 const gateBtn = (g, d) => page.locator(`[data-gate="${g}"][data-d="${d}"]`);
 const filmScenes = v => (v.g5 && v.g5.scenes) || {};
 const diff = (a, c) => Object.keys(c).filter(k => a[k] !== c[k]);
@@ -102,15 +106,19 @@ try {
   await playToEnd('#mix', 2, 300);
   await page.locator('.w').nth(3).click(); await page.waitForTimeout(800); await shot('05-g3-word');
   ok('S1', 'tapping a word opens its pronunciation / speed / compare sheet', await page.locator('.sheet').isVisible());
-  const word = await page.locator('.sheet b').first().textContent();
-  await page.fill('#respell', (word || '').replace(/[«»]/g, '') + 'ْ'); await page.locator('[data-pron]').click(); await page.waitForTimeout(1500);
-  v = await waitView(v => v.g3 && v.g3.mix_current && v.g3.pending.length > 0, 'new takes after the pronunciation correction', 10);
-  ok('S1', 'a pronunciation correction records the affected lines again (approved takes stay until heard)', v.g3.pending.length > 0, v.g3.pending);
+  const word = (await page.locator('.sheet b').first().textContent() || '').replace(/[«»]/g, '');
+  const wline = (await page.locator('.sheet .tiny.muted').first().textContent() || '').trim();
+  const nBefore = Object.fromEntries((await view()).g3.lines.map(l => [l.line, l.takes.length]));
+  await page.fill('#respell', word + 'ْ'); await page.locator('[data-pron]').click(); await page.waitForTimeout(1500);
+  v = await waitView(v => v.g3 && v.g3.mix_current && v.g3.lines.some(l => l.takes.length > nBefore[l.line]), 'new take after the pronunciation correction', 10);
+  const reTaken = v.g3.lines.filter(l => l.takes.length > nBefore[l.line]).map(l => l.line);
+  ok('S1', 'a pronunciation correction records only the corrected line again', JSON.stringify(reTaken) === JSON.stringify([wline]), { word, line: wline, reTaken });
   await go('g3');
   await playToEnd('#mix', 2, 300);                     // the narration changed: nothing is approved yet, so hear it all again
   v = await view();
   const nq = v.g3.qa.flags.filter(f => f.status === 'open').length;
   if (nq) {
+    await refreshPage();
     await page.locator('[data-seekmix]').first().click(); await page.waitForTimeout(2000);       // hear one of them as an owner would
       await gateBtn('G3', 'approved').click(); await page.waitForTimeout(800);
     ok('S1', 'uncertain words must be confirmed before the voice is approved', /(uncertain|غير)/i.test(await toastText()), nq);
@@ -231,6 +239,7 @@ try {
   await go('g3');
   const seg = v.g3.mix.segments.find(s => s.line === 'h');
   await playRange('#mix', seg.start, seg.end + 0.1, 1);
+  await refreshPage();
   if (await page.locator('#ackqa').count()) await page.check('#ackqa');
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
   v = await view();
@@ -260,6 +269,7 @@ try {
   await playRange('#film', l5s.start + 0.3, l5s.start + 1.3, 1);
   ok('S12', 'the scene timeline follows the film', (await page.locator('#ftl button.on').getAttribute('data-sid').catch(() => null)) === 'l5');
   await playToEnd('#film', 2, 600);
+  await refreshPage();
   if (await page.locator('#ackminor').count()) await page.check('#ackminor');
   await gateBtn('G5', 'approved').click(); await page.waitForTimeout(2000);
   v = await view();
