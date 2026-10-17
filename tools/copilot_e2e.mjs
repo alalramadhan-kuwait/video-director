@@ -44,7 +44,15 @@ async function go(panel) {                            // wait until the page sho
   await page.waitForFunction(() => document.querySelector('#main') && document.querySelector('#main').dataset.view === location.hash, null, { timeout: 30e3 });
   await page.waitForTimeout(300);
 }
-async function overflow() { return page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth); }
+async function overflow() {                          // page-level AND element-level: anything cut off at the screen edge counts
+  return page.evaluate(() => {
+    const W = document.documentElement.clientWidth;
+    const scrolls = e => { for (let p = e.parentElement; p; p = p.parentElement) { const o = getComputedStyle(p).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return true; } return false; };
+    const bad = [...document.querySelectorAll('#main *')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (r.right > W + 1 || r.left < -1) && !scrolls(e); });
+    const page = document.documentElement.scrollWidth - W;
+    return page > 0 || bad.length ? { page, cut: bad.slice(0, 5).map(e => e.tagName + '.' + e.className + ' ' + (e.textContent || '').slice(0, 30)) , n: bad.length } : 0;
+  });
+}
 async function toastText() { const t = page.locator('#toast'); await page.waitForTimeout(400); return (await t.isVisible()) ? (await t.textContent()) : ''; }
 async function playToEnd(sel, rate, maxS) {          // wait for THIS player's 'ended' (the page may redraw the panel after it stops)
   await page.evaluate(({ sel, rate }) => { const m = document.querySelector(sel); window.__ended = false; m.addEventListener('ended', () => { window.__ended = true; }, { once: true });
@@ -56,9 +64,34 @@ async function playRange(sel, a, b2, rate = 1) {
   await page.waitForFunction(({ sel, b2 }) => { const m = document.querySelector(sel); return m.currentTime >= b2 || m.ended; }, { sel, b2 }, { timeout: 180e3, polling: 200 });
   await page.evaluate(sel => document.querySelector(sel).pause(), sel);
 }
-async function refreshPage() {                           // what an owner does before deciding: look at the latest version
-  await page.evaluate(async () => { S.v = await get('/api/copilot/' + encodeURIComponent(S.pid)); S.sig = ''; project(true); });
-  await page.waitForTimeout(400);
+// The latest version is opened BEFORE listening or watching (go() loads it fresh); nothing is refreshed after playing.
+// If the play-all changed while it played, the server refuses the decision (the listening was of another file) and the
+// harness listens again, as an owner would; each replay is recorded in the results.
+async function idleVoice() { return waitView(v => v.g3 && v.g3.mix_current && !(v.task && v.task.stage === 'voice'), 'voice idle, play-all current', 15); }
+async function approveG3(play, label) {
+  for (let i = 0; i < 3; i++) {
+    let v = await view();
+    if (v.validity.G3.valid) return v;
+    if (i > 0) { const t = await toastText(); ok('run', `Gate 3 replay ${i} (${label}): the decision was refused, listening again`, true, t); }
+    v = await idleVoice(); await go('g3'); await play(v);
+    if (await page.locator('#ackqa').count()) await page.check('#ackqa');
+    await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
+  }
+  const v = await view(); ok(label, 'Gate 3 approved', v.validity.G3.valid, v.validity.G3); return v;
+}
+async function approveG5(sc) {
+  let v = await view();
+  for (const f of v.g5.findings.filter(f => !f.decision && (f.severity === 'critical' || f.severity === 'major'))) {
+    if (f.severity === 'critical') ok(sc, 'no critical finding left at final review', false, [f.code, f.detail]);
+    await go('g5');
+    await page.fill(`[data-fexp="${f.id}"]`, f.severity === 'critical' ? 'TEST HARNESS: c8 records the swim; overruled only so the run can finish' : 'acceptable in this draft: reviewed by the owner on the phone');
+    await page.locator(`[data-fdis="${f.id}"]`).click(); await page.waitForTimeout(1500);
+  }
+  await go('g5');
+  await playToEnd('#film', 2, 600);
+  if (await page.locator('#ackminor').count()) await page.check('#ackminor');
+  await gateBtn('G5', 'approved').click(); await page.waitForTimeout(2000);
+  return view();
 }
 const gateBtn = (g, d) => page.locator(`[data-gate="${g}"][data-d="${d}"]`);
 const filmScenes = v => (v.g5 && v.g5.scenes) || {};
@@ -113,19 +146,18 @@ try {
   v = await waitView(v => v.g3 && v.g3.mix_current && v.g3.lines.some(l => l.takes.length > nBefore[l.line]), 'new take after the pronunciation correction', 10);
   const reTaken = v.g3.lines.filter(l => l.takes.length > nBefore[l.line]).map(l => l.line);
   ok('S1', 'a pronunciation correction records only the corrected line again', JSON.stringify(reTaken) === JSON.stringify([wline]), { word, line: wline, reTaken });
-  await go('g3');
+  await idleVoice(); await go('g3');
   await playToEnd('#mix', 2, 300);                     // the narration changed: nothing is approved yet, so hear it all again
   v = await view();
   const nq = v.g3.qa.flags.filter(f => f.status === 'open').length;
   if (nq) {
-    await refreshPage();
     await page.locator('[data-seekmix]').first().click(); await page.waitForTimeout(2000);       // hear one of them as an owner would
       await gateBtn('G3', 'approved').click(); await page.waitForTimeout(800);
     ok('S1', 'uncertain words must be confirmed before the voice is approved', /(uncertain|غير)/i.test(await toastText()), nq);
     await page.check('#ackqa');
   }
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
-  v = await view();
+  v = await approveG3(async () => playToEnd('#mix', 2, 300), 'S1');
   ok('S1', 'voice approved after play-all: every line approved', v.validity.G3.valid, v.validity.G3);
   // ============================================================ style
   v = await waitView(v => v.waiting.includes('G4'), 'G4', 10);
@@ -211,6 +243,7 @@ try {
   v = await waitView(v => v.task && /assemble|film/.test(v.task.what) && v.task.stage === 'film', 'film render running', 75);
   await page.waitForTimeout(20000);
   const before = await view();
+  const cutN = Math.max(0, ...((before.g5 && before.g5.films) || []).map(f => f.n));
   killServer(); log('server killed during', before.task && before.task.what);
   await page.waitForTimeout(3000);
   server('restart');
@@ -218,17 +251,24 @@ try {
   const resumed = v.runner_alive && v.task && v.task.stage === 'film';
   ok('S8', 'after the restart the interrupted render is recorded as interrupted and the film is started again by itself',
      resumed && (await (await ctx.request.get(`${BASE}/api/copilot/${PID}`)).json()).history.some(h => /interrupted|assemble/.test(h.summary)), { task: v.task, interrupted: v.interrupted });
-  v = await waitView(v => v.g5 && v.waiting.includes('G5') && v.g5.films.some(f => f.state === 'ok' && f.n > 3), 'film after restart', 60);
+  ok('S8', 'the cut-off render is listed as interrupted (a film job, not just any history line)', (v.interrupted || []).some(j => /assemble|film/.test(j.what)), v.interrupted);
+  v = await waitView(v => v.g5 && v.waiting.includes('G5') && v.g5.films.some(f => f.state === 'ok' && f.n > cutN), 'film after restart', 60);
   const dup = v.scenes.flatMap(s => s.versions.map(x => x.inputs).filter((h, i, a) => a.indexOf(h) !== i).map(h => s.id + ':' + h));
-  ok('S8', 'the film completed after the interruption, nothing generated twice', v.waiting.includes('G5') && dup.length === 0, { films: v.g5.films, dup });
+  ok('S8', 'a NEW film completed after the interruption, nothing generated twice', v.waiting.includes('G5') && dup.length === 0
+     && v.g5.films.some(f => f.state === 'ok' && f.n > cutN), { cutN, films: v.g5.films, dup });
+  ok('S8', 'no film is left "running" after the restart', !v.g5.films.some(f => f.state === 'running'), v.g5.films);
   ok('S4', 'after the style change every scene was redrawn in the new style', diff(f3, filmScenes(v)).length === 13, diff(f3, filmScenes(v)));
   const f4 = filmScenes(v);
+  // ============================================================ S9 (part 2): approve this film first, so the hook change below can outdate a REAL approval
+  v = await approveG5('S9');
+  ok('S9', 'Gate 5 approved before the hook change', v.validity.G5.valid && v.validity.G2.valid, { G2: v.validity.G2, G5: v.validity.G5 });
   // ============================================================ S3 hook changed after narration
   const takesBefore = Object.fromEntries((await view()).g3.lines.map(l => [l.line, l.take]));
   await go('g2');
   await page.locator('[data-hook="H3"]').click(); await page.waitForTimeout(1500);
   v = await view();
-  ok('S9', 'changing the hook outdates the script approval and the film', !v.validity.G2.valid && !v.validity.G5.valid, { G2: v.validity.G2, G5: v.validity.G5 });
+  ok('S9', 'changing the hook outdates the script approval and the APPROVED film (and keeps the style approval)',
+     !v.validity.G2.valid && !v.validity.G5.valid && v.validity.G4.valid && !!v.validity.G5.approved, { G2: v.validity.G2, G4: v.validity.G4, G5: v.validity.G5 });
   v = await waitView(v => v.waiting.includes('G2'), 'G2 for the new hook', 10);
   await go('g2');
   for (const c of await page.locator('[data-ack]').all()) await c.check();
@@ -236,13 +276,12 @@ try {
   v = await waitView(v => v.waiting.includes('G3') && v.g3.mix_current, 'G3 after the hook', 15);
   const changedTakes = v.g3.lines.filter(l => l.take !== takesBefore[l.line]).map(l => l.line);
   ok('S3', 'only the hook line was voiced again; the other approved takes are untouched', JSON.stringify(changedTakes) === '["h"]', changedTakes);
-  await go('g3');
-  const seg = v.g3.mix.segments.find(s => s.line === 'h');
-  await playRange('#mix', seg.start, seg.end + 0.1, 1);
-  await refreshPage();
+  const hookPlay = async v => { const seg = v.g3.mix.segments.find(s => s.line === 'h'); await playRange('#mix', seg.start, seg.end + 0.1, 1); };
+  await idleVoice(); await go('g3');
+  await hookPlay(await view());
   if (await page.locator('#ackqa').count()) await page.check('#ackqa');
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
-  v = await view();
+  v = await approveG3(hookPlay, 'S3');
   ok('S3', 'Gate 3 needed only the changed line', v.validity.G3.valid, v.validity.G3);
   // H3 opens on a drawing that draws itself in: its first frame is an empty page, which the Co-Pilot cannot fix by itself
   v = await waitView(v => (v.g5 && v.waiting.includes('G5') && diff(f4, filmScenes(v)).length > 0) || v.exceptions.some(x => x.scene === 'h' && x.status === 'open'), 'film or opening-scene question', 45);
@@ -259,20 +298,10 @@ try {
   await go('g5'); await shot('11-g5-final');
   ok('S12', 'no sideways scrolling on the film screen', (await overflow()) === 0);
   v = await view();
-  for (const f of v.g5.findings.filter(f => !f.decision && (f.severity === 'critical' || f.severity === 'major'))) {
-    if (f.severity === 'critical') ok('S12', 'no critical finding left at final review', false, [f.code, f.detail]);
-    await page.fill(`[data-fexp="${f.id}"]`, f.severity === 'critical' ? 'TEST HARNESS: c8 records the swim; overruled only so the run can finish' : 'acceptable in this draft: reviewed by the owner on the phone');
-    await page.locator(`[data-fdis="${f.id}"]`).click(); await page.waitForTimeout(1500);
-  }
-  await go('g5');
   const l5s = v.g5.timeline.find(s => s.id === 'l5');
   await playRange('#film', l5s.start + 0.3, l5s.start + 1.3, 1);
   ok('S12', 'the scene timeline follows the film', (await page.locator('#ftl button.on').getAttribute('data-sid').catch(() => null)) === 'l5');
-  await playToEnd('#film', 2, 600);
-  await refreshPage();
-  if (await page.locator('#ackminor').count()) await page.check('#ackminor');
-  await gateBtn('G5', 'approved').click(); await page.waitForTimeout(2000);
-  v = await view();
+  v = await approveG5('S12');
   ok('S1', 'Gate 5: you approved the complete draft', v.validity.G5.valid, v.validity.G5);
   // ============================================================ S11 paid calls
   v = await waitView(v => v.g6 && v.g6.plan, 'paid plan', 10);
@@ -287,6 +316,14 @@ try {
   await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'cp_settings', args: { worker: 'claude-code' } } });
   v = await view();
   ok('S11', 'the real AI worker has a $0 budget until you authorize one', v.ai.budget_usd === 0, v.ai);
+  // a real attempt through the server's own AI call (not a reading of the screen): it must be refused before anything runs
+  const ledger = () => { try { return fs.readFileSync(`${VAR}/copilot-ai-usage.jsonl`, 'utf8').split('\n').filter(Boolean).map(JSON.parse); } catch { return []; } };
+  const n0 = ledger().length, calls0 = v.ai.n_calls;
+  const pr = await (await ctx.request.post(`${BASE}/api/copilot/_test`, { data: { ai_probe: { project: PID, kind: 'fact_check' } } })).json();
+  v = await view();
+  ok('S11', 'an AI call with the real worker selected is refused by the server, nothing is run or spent',
+     !!pr.refused && ledger().length === n0 && v.ai.n_calls === calls0 && !ledger().some(x => x.worker === 'claude-code') && v.ai.spent_usd === 0,
+     { refused: pr.refused, ledger: ledger().length - n0, spent: v.ai.spent_usd });
   await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'cp_settings', args: { worker: 'mock' } } });
   // ============================================================ S10 switch to Manual
   await go('');

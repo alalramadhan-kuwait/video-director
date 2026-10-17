@@ -137,6 +137,14 @@ class Handler(BaseHTTPRequestHandler):
             from ..copilot import ai as CAI
             from ..studio import jobs as SJ
             body = json.loads(self.rfile.read(int(self.headers.get('Content-Length') or 0)) or b'{}')
+            if body.get('ai_probe'):                              # try one AI call through the real locks (refused or not)
+                from ..copilot import api as CA
+                pr = body['ai_probe']
+                try:
+                    CAI.call(CA.studio(B.VAR), pr['project'], pr.get('kind', 'fact_check'), {'lines': [], 'research': {'claims': []}})
+                    return self._json(200, {'ok': True, 'refused': None})
+                except (CAI.AIRefused, CAI.AIFailed) as e:
+                    return self._json(200, {'ok': True, 'refused': str(e)})
             CAI.MOCK_INJECT.clear(); CAI.MOCK_INJECT.update(body.get('inject') or {})
             SJ.FAIL_NEXT.update(body.get('fail_next') or {})
             return self._json(200, {'ok': True, 'inject': CAI.MOCK_INJECT})

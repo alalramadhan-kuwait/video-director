@@ -489,6 +489,7 @@ class TestVoiceAndAssets(Env):
 
     def test_owner_pronunciation_correction_is_a_rule_for_the_draft_voice(self):
         self.to_g3()
+        before = {l: x['take'] for l, x in self.S.state(self.pid)['voice']['lines'].items()}
         self.owner('cp_pron', {'word': 'أويستر', 'respell': 'أُويْسْتَر', 'lines': ['l6']})
         st = self.S.state(self.pid)
         e = st['copilot']['pron'][-1]
@@ -499,7 +500,7 @@ class TestVoiceAndAssets(Env):
         st = self.S.state(self.pid)
         new = [t for t in st['voice']['by_line']['l6'] if t != old]
         self.assertTrue(new and 'أُويْسْتَر' in st['voice']['takes'][new[-1]]['spoken'], k)
-        self.assertEqual(st['voice']['lines']['l5']['take'], st['voice']['lines']['l5']['take'])
+        self.assertEqual({l: t for l, t in O.voicekit.effective_takes(st).items() if l != 'l6'}, {l: t for l, t in before.items() if l != 'l6'})
         others = {l: x['take'] for l, x in st['voice']['lines'].items() if l != 'l6'}
         self.assertTrue(all(len(st['voice']['by_line'][l]) == 1 for l in others if 'أويستر' not in st['voice']['lines'][l]['text']))
 
