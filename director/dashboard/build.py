@@ -25,10 +25,16 @@ def log() -> EventLog:
     return EventLog(VAR / 'events.sqlite')
 
 
+def has_archive() -> bool:
+    return (ROOT / 'var/review/ep7-final/pack.json').exists() and (ROOT / 'var/pages').exists()
+
+
 def prepare():
     """Import reconstructed history (idempotent) and make the media once (tracked tasks)."""
-    S, ro_audio = _scratch()
     L = log()
+    if not has_archive():                                            # a new computer has no archive: the Studio works without it
+        return L
+    S, ro_audio = _scratch()
     history.import_ep7(L, S); history.import_royal_oak(L, S)
     if not (MEDIA / 'ep7/clips').exists():
         media.ep7_media(L, S, ROOT / 'var/review/ep7-final', MEDIA)

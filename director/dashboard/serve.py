@@ -124,6 +124,10 @@ class Handler(BaseHTTPRequestHandler):
             return self._send(200, LOGIN_PAGE.replace('{msg}', '').encode(), 'text/html; charset=utf-8')
         if path == '/':
             return self._send(302, b'', 'text/plain', {'Location': '/studio'})
+        if path in ('/dashboard', '/api/snapshot') and not B.has_archive():        # a new computer: the archive is not there
+            if path == '/api/snapshot': return self._json(404, {'error': 'no archive on this computer'})
+            return self._send(200, LOGIN_PAGE.replace('<form method="post" action="/login"><b>مخرج الفيديو</b><label>رمز الدخول<input name="code" type="password" autocomplete="current-password" required autofocus></label>\n<button>ادخل</button>{msg}</form>',
+                              '<form><b>لوحة التقارير</b><p>الأرشيف (الحلقات القديمة) غير موجود على هذا الجهاز. الاستوديو يعمل بدونه.</p><a href="/studio">افتح الاستوديو</a></form>').encode(), 'text/html; charset=utf-8')
         if path == '/dashboard':
             return self._send(200, B.render_app(B.snapshot(), mode='local').encode(), 'text/html; charset=utf-8')
         if path == '/api/snapshot':
