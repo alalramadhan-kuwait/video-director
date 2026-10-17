@@ -12,4 +12,6 @@ $PY -m venv "$D/.venv"
 "$D/.venv/bin/pip" install --quiet numpy pyyaml gTTS faster-whisper imageio-ffmpeg
 npm install --silent --prefix "$HOME/.cache/paper-story" playwright-core
 (cd "$HOME/.cache/paper-story" && npx --yes playwright-core install chromium)
+"$D/.venv/bin/python" "$D/vendor/paper-story/scripts/make-sfx.py"          # the paper sounds are made locally, not downloaded
+[ -f "$D/vendor/paper-story/tk-logo-512.png" ] || echo "note: vendor/paper-story/tk-logo-512.png (Time Keeper logo) is not in the repo: copy it from the bundle"
 echo "Ready. Start it with: tools/run_mac.sh   (or tools/run_mac.sh --lan for your iPhone)"
