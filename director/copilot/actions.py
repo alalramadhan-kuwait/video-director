@@ -288,11 +288,17 @@ class CopilotActions:
         if f is None or f['decision']: raise _refused('no open finding with that id')
         note = (a.get('note') or '').strip()
         if f['severity'] == 'critical':
-            from .factcheck import override_ok
+            from .factcheck import override_ok, connected_claims
             if f['code'] not in ('CLAIM_ON_SCREEN', 'YEAR_NOT_IN_RESEARCH'):
                 raise _refused('a critical finding cannot be dismissed: it must be fixed')
-            if not override_ok(note, self.research(pid)):
-                raise _refused('a factual finding can only be overruled by citing the research claim id (for example c4) or the source link')
+            ap = [x for x in st['scripts'] if x['status'] == 'approved']
+            v = str(ap[-1]['v']) if ap else ''
+            mc = next((c for c in reversed(st['copilot']['checks']) if c['target'] == 'script' and str(c['ref']) == v and c['kind'] == 'merged'), None)
+            sc = f.get('scene')
+            conn = connected_claims((mc or {}).get('lines', {}).get(sc), ((st['copilot']['script_meta'].get(v) or {}).get('claims') or {}).get(sc))
+            if not override_ok(note, self.research(pid), conn):
+                raise _refused('a factual finding can only be overruled with evidence for this scene and a sentence saying why: '
+                               + (f'cite {", ".join(conn)} or a source link' if conn else 'no research claim is linked to it, so cite a source link'))
         if len(note) < 8: raise _refused('say why it can stay (kept in the review history)')
         self.act(pid, 'finding_decision', {'finding': f['id'], 'decision': 'dismissed', 'note': 'owner (Gate 5): ' + note}, actor, a.get('_rid', 'x') + '-fd')
         return 'review', {'finding': f['id'], 'note': note}
@@ -350,9 +356,13 @@ class CopilotActions:
             ov, ack = a.get('overrides') or {}, set(a.get('ack') or [])
             crit = [l for l, x in rev['lines'].items() if x['severity'] == 'critical']
             major = [l for l, x in rev['lines'].items() if x['severity'] == 'major']
-            missing = [l for l in crit if not override_ok(ov.get(l, ''), self.research(pid))]
+            from .factcheck import connected_claims
+            wc = ((cp['script_meta'].get(str(sv['v'])) or {}).get('claims') or {})
+            conn = {l: connected_claims(rev['lines'][l], wc.get(l)) for l in crit}
+            missing = [l for l in crit if not override_ok(ov.get(l, ''), self.research(pid), conn[l])]
             if missing:
-                raise _refused(f'critical fact-check result on {", ".join(missing)}: fix the line, or override it by citing the research claim id (for example c4) or the source link')
+                hint = '; '.join(f'{l}: cite {", ".join(conn[l])} or a source link' if conn[l] else f'{l}: no research claim is linked to it, so cite a source link' for l in missing)
+                raise _refused(f'critical fact-check result on {", ".join(missing)}: fix the line, or override it with evidence for THIS line and a sentence saying why ({hint})')
             if set(major) - ack:
                 raise _refused(f'confirm you have read the warnings on {", ".join(sorted(set(major) - ack))}')
             kw = [c for c in sv['checks'] if c['severity'] == 'critical']

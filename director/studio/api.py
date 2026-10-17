@@ -38,6 +38,9 @@ def handle(var, body: dict) -> tuple[int, dict]:
     pid, action, args = body.get('project'), body.get('action', ''), body.get('args') or {}
     rid, actor = body.get('request_id'), 'owner'     # whoever calls this route is the owner: a page cannot claim to be the system
     try:
+        if pid and action != 'create_project' and (S.root / pid).exists() and S.state(pid)['copilot']['mode'] == 'copilot':
+            # the Co-Pilot's gates own every decision on this project; the classic screens are for Manual mode
+            raise Refused('this project is run by the Co-Pilot: decide in the Studio, or switch to Manual first')
         if action in JOBS:
             # a repeated request (double tap, refresh) must not start the job twice
             if rid and any(e['data'].get('request_id') == rid for e in S.events(pid)):

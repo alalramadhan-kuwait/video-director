@@ -371,7 +371,9 @@ def s_script_revise(studio, pid, task, key, v, owner=False, note='', targets=Non
     r = studio.act(pid, 'script_version', {'lines': new, 'note': ('revision you asked for: ' if owner else 'self-revision: ') + out.get('why', ''),
                                            'author': 'copilot', 'parent': v}, actor='copilot')
     nv = r['result']['v']
-    cl = {**_claims_for(cp, v, lines), **{k: (out.get('claims') or {}).get(k, (meta.get('claims') or {}).get(k, [])) for k in ch}}
+    # a rewritten sentence never borrows the claim ids of the one it replaced (re-audit N3): only ids the writer gives
+    # for the NEW sentence, and the fact check then judges them against the research like any other line
+    cl = {**_claims_for(cp, v, lines), **{k: list((out.get('claims') or {}).get(k) or []) for k in ch}}
     studio.act(pid, 'cp_script_meta', {'v': nv, 'direction_v': meta.get('direction_v'), 'claims': cl, 'texts': {l['id']: l['text'] for l in new},
                                        'hooks': meta.get('hooks', {}),
                                        'round': (meta.get('round', 0) + (0 if owner else 1)), 'author': 'ai', 'owner_revision': owner,

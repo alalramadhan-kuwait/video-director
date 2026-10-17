@@ -60,7 +60,8 @@ SCHEMA = {
                               'hooks': {'type': 'object', 'required': ['options', 'recommended', 'reasons']}}},
     'fact_check': {'type': 'object', 'required': ['lines'], 'properties': {'lines': {'type': 'object'}}},
     'quality_review': {'type': 'object', 'required': ['lines'], 'properties': {'lines': {'type': 'object'}}},
-    'revise_script': {'type': 'object', 'required': ['lines', 'why'], 'properties': {'lines': {'type': 'object'}, 'why': {'type': 'string'}}},
+    'revise_script': {'type': 'object', 'required': ['lines', 'claims', 'why'], 'properties': {'lines': {'type': 'object'}, 'claims': {'type': 'object'},
+                                                                                              'why': {'type': 'string'}}},
     'pronunciation': {'type': 'object', 'required': ['entries'], 'properties': {'entries': {'type': 'array'}}},
     'art_brief': {'type': 'object', 'required': ['scenes'], 'properties': {'scenes': _OBJ, 'hook_visuals': _OBJ}},
     'style_eval': {'type': 'object', 'required': ['recommended', 'reasons'], 'properties': {'recommended': {'type': 'string'}, 'reasons': _OBJ}},
@@ -84,8 +85,9 @@ SYSTEM = {
                   'what the sentence asserts. When unsure say uncertain.',
     'quality_review': 'You are an independent Arabic editor: grammar, terminology, clarity for listening, speculation presented as '
                       'fact. Per line, a list of notes {code, severity: critical|major|minor|info, detail}.',
-    'revise_script': 'Revise only the lines named in the findings or the owner note. Return {lines: {id: new text}, why}. Do not '
-                     'touch other lines.',
+    'revise_script': 'Revise only the lines named in the findings or the owner note. Return {lines: {id: new text}, claims: {id: '
+                     '[research claim ids that support the NEW sentence]}, why}. A rewritten sentence does not keep the old one\'s '
+                     'claim ids: cite only what the new wording states, or none. Do not touch other lines.',
     'pronunciation': 'Propose draft-voice spellings (tashkeel or respelling) for names and foreign terms a machine voice may misread.',
     'art_brief': 'For each script line, the beat, a short on-screen banner (6 words or fewer), and parameters for the techniques '
                  'the engine can draw. Never invent a historical photograph.',
@@ -302,10 +304,13 @@ class MockWorker:
             revs = fx.get('owner_revisions', [])
             if n >= len(revs):
                 return {'lines': {}, 'why': 'MOCK AI: no further prepared revision. Edit the sentence yourself, or use the real AI worker.'}
-            return {'lines': {k: v for k, v in revs[n]['lines'].items() if k in cur}, 'why': revs[n]['why']}
+            got = {k: v for k, v in revs[n]['lines'].items() if k in cur}
+            return {'lines': got, 'claims': {k: fx['claim_map'].get(k, []) for k in got}, 'why': revs[n]['why']}
         ch = self._script_fixture()['v2_changes']
         targets = set(p.get('targets') or [])
-        return {'lines': {k: v for k, v in ch.items() if k in cur and k in targets and cur[k] != v},
+        got = {k: v for k, v in ch.items() if k in cur and k in targets and cur[k] != v}
+        # the prepared revisions restate the same researched facts, so the fixture cites the same claims for them
+        return {'lines': got, 'claims': {k: fx['claim_map'].get(k, []) for k in got},
                 'why': 'MOCK AI: answered the fact check and the editor (prepared revision)'}
 
     # ---------------------------------------------------------------- voice, art, assets

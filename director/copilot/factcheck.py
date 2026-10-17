@@ -21,19 +21,42 @@ import re
 from ..studio import checks
 
 ATTRIB = ['يقولون', 'يقال', 'يُقال', 'قيل', 'شاع', 'بحسب', 'حسب', 'وفق', 'وفقًا', 'تقول', 'يقول', 'قالت', 'قال', 'زعم', 'زعمت', 'ادعت', 'ادّعت',
-          'وصفتها', 'قدّمتها', 'قدمتها', 'أعلنت', 'روت', 'شهادتها', 'رواية', 'يعتقد', 'يظن', 'say', 'claimed', 'according']
+          'وصفتها', 'قدّمتها', 'قدمتها', 'أعلنت', 'روت', 'شهادتها', 'رواية', 'يعتقد', 'يظن', 'يزعم', 'تزعم', 'زعموا', 'يشاع', 'يدعي', 'تدعي',
+          'يروى', 'يروج', 'تروج', 'say', 'says', 'claimed', 'claims', 'according', 'allegedly', 'supposedly']
 NEG = ['لم', 'لا', 'ما', 'ليس', 'ليست', 'لن', 'not', 'never', 'no']
+# a universal word: «لم تسبق رولكسَ أيُّ شركة», «قبل رولكس كانت كل الساعات…», "nobody … before"
+UNIVERSAL = re.compile(r'(?:^|\s)(?:[وفبل]?(?:اي|ايّ|احد|كل|جميع|شيء)|ما\s+من|لا\s+شيء)(?:\s|$)|\b(?:nobody|no\s+one|none|nothing|no\s+other|all|every|any)\b', re.I)
+# every pattern runs on checks.bare(text): no tashkeel, every hamza-alef written ا
 KINDS = [
-    ('first_time', re.compile(r'(?:^|\s)(?:[وفبل]?(?:ال)?)?(?:أول|أوّل|اول)\s+مر[ةه]')),
-    ('first', re.compile(r'(?:^|\s)[وفبلك]?(?:ال)?(?:أول|أوّل|اول|أولى|الأولى|الاولى)(?:\s|$)')),
-    ('invent', re.compile(r'(?<!براءة\s)(?<!براءات\s)(?:اخترع|ابتكر|مخترع|مبتكر)')),
-    ('pioneer', re.compile(r'(?:رائد|رائدة|رواد|سبّاق|سباق|السبّاقة|السباقة)')),
-    ('era', re.compile(r'(?:بدأ|بداية|بدأت)\s+(?:عصر|زمن|عهد)')),
+    ('first_time', re.compile(r'(?:^|\s)(?:[وفبل]?(?:ال)?)?اول\s+مر[ةه]')),
+    ('first', re.compile(r'(?:^|\s)[وفبلك]?(?:ال)?(?:اول|اولى|الاولى)(?:\s|$)')),
+    ('invent', re.compile(r'(?<!براءة\s)(?<!براءات\s)(?:اخترع|اختراع|ابتكر|ابتكار|مخترع|مبتكر|ابتدع|مبتدع|اوجد|من\s+العدم)')),
+    ('pioneer', re.compile(r'(?:رائد|رائدة|رواد|ريادة|سباقا|سباقة|سباقين|السباقة|سباق\s+الى|السباق\s+الى|الاسبق|اسبق|صاحب(?:ة)?\s+السبق|السبق\s+في|باكورة)')),
+    ('origin', re.compile(r'(?:(?:ولد|ولدت|نشا|نشات|ظهر|ظهرت|خرج|خرجت)\s+(?:\S+\s+){0,2}?على\s+يد|(?:يرجع|يعود|ترجع|تعود)\s+اصل|اصلها\s+الى|(?:ام|اب|ابو)\s+(?:هذا|هذه)\s+(?:الصنف|النوع|الفكرة)|مهد\s+(?:الساعات|الفكرة)|(?:بدا|بدات)\s+(?:بها|به|معها|معه)\s+(?:تاريخ|قصة))')),
+    ('credit', re.compile(r'(?:صاحب(?:ة)?\s+الفضل|الفضل\s+في|يعود\s+الفضل|بفضل\s+\S+\s+صارت)')),
+    ('era', re.compile(r'(?:بدا|بداية|بدات|دشن|دشنت|دشّن|دشّنت|افتتح|افتتحت|اطلق|اطلقت|فتح|فتحت)\s+(?:\S+\s+){0,2}?(?:عصر|زمن|عهد|حقبة)')),
     ('only', re.compile(r'(?:^|\s)[وفبل]?(?:ال)?(?:وحيد|وحيدة|وحدها|وحده)(?:\s|$)')),
-    ('oldest', re.compile(r'(?:أقدم|الأقدم|اقدم)')),
-    ('nothing_before', re.compile(r'قبل')),
-    ('en', re.compile(r'\b(?:first|invented|inventor|pioneer|only|oldest)\b', re.I)),
+    ('oldest', re.compile(r'(?:اقدم|الاقدم)')),
+    ('nothing_before', re.compile(r'(?:قبل|سبق|يسبق|تسبق|سبقت|حتى\s+(?:جاء|جاءت|ظهر|ظهرت|صنع|صنعت|قدم|قدمت)|الى\s+ان\s+(?:جاء|جاءت|ظهر|ظهرت))')),
+    ('en', re.compile(r'\b(?:first(?:-ever)?(?!\s+(?:part|year|time|page|half|chapter|episode|step|day|week|month|minute|second|section|scene|look|thing)s?\b)|invent(?:ed|or|ion)?|pioneer(?:ed|ing|s)?|came\s+up\s+with|originated|oldest|(?:father|mother|birth)\s+of|(?:no\s*one|nobody)\s+else|owe\s+.+\s+to)\b', re.I)),
+    ('en_only', re.compile(r'\bthe\s+only\b(?!\s+(?:difference|change|thing|part|reason|way)\b)', re.I)),
+    ('en_before', re.compile(r'\b(?:before|until|till)\b', re.I)),
 ]
+SENTENCE_KINDS = ('nothing_before', 'en_before')
+COPULA = {'كان', 'كانت', 'هي', 'هو', 'تكون', 'يكون', 'اصبح', 'اصبحت', 'صار', 'صارت', 'تعد', 'يعد', 'تعتبر', 'يعتبر', 'ظلت', 'بقيت'}
+SUPERLATIVE_TAIL = re.compile(r'^\s*(?:في\s+(?:العالم|التاريخ)|من\s+نوع|عالميا|على\s+الاطلاق|التي|الذي|اللتي|اللذي|بين)')
+
+
+def _ordinal(flat: str, m) -> bool:
+    """«في عامها الأول», «الحرب العالمية الأولى», «الجزء الأول»: a definite «الأول/الأولى» right after a noun is an
+    ordinal (which year, which part), not a priority claim, unless a copula comes before it («كانت الأولى») or a
+    superlative tail follows («الأولى في العالم», «الأولى التي…»)."""
+    tok = m.group(0).strip()
+    if not re.match(r'^[وفبلك]?ال', tok): return False
+    prev = flat[:m.start()].split()
+    if not prev or prev[-1] in COPULA or prev[-1] in NEG: return False
+    if SUPERLATIVE_TAIL.search(flat[m.end():]): return False
+    return True
 
 
 def key(w: str) -> str:
@@ -56,7 +79,8 @@ def _subject(claim: dict) -> set[str]:
 
 def _clauses(text: str, sentences=False) -> list[str]:
     """Clauses (or sentences) that assert something: a question («أول ساعة مقاومة للماء؟») asks, it does not claim."""
-    rx = re.compile(r'([.!?؟…]+)') if sentences else re.compile(r'([،,.؛;!?؟…]+|\s(?:لكن|لكنّ|بل|والحقيقة|الحقيقة)\s)')
+    rx = (re.compile(r'([.!?؟…](?:\s*[.!?؟…])*)') if sentences else
+          re.compile(r'([،,.؛;!?؟…](?:\s*[،,.؛;!?؟…])*|\s(?:لكن|لكنّ|بل|والحقيقة|الحقيقة)\s)'))
     bits = rx.split(' ' + text + ' ')
     out = []
     for i in range(0, len(bits), 2):
@@ -73,20 +97,26 @@ def assertions(text: str) -> list[dict]:
     parts = [(c, False) for c in _clauses(text)] + [(s, True) for s in _clauses(text, sentences=True)]
     for clause, sentence in parts:
         if not clause.strip(): continue
-        flat = ' ' + clause.strip() + ' '
-        ws = [checks.bare(w) for w in checks.words(clause)]
+        flat = ' ' + checks.bare(clause.strip()) + ' '
+        ws = flat.split()
         for kind, rx in KINDS:
-            if (kind == 'nothing_before') != sentence: continue
+            if (kind in SENTENCE_KINDS) != sentence: continue
             m = rx.search(flat)
             if not m: continue
-            if kind == 'first' and (KINDS[0][1].search(flat) or re.search(r'(?:أول|اول)\s+ما(?:\s|$)', flat)):
+            if kind == 'first' and (KINDS[0][1].search(flat) or re.search(r'اول\s+ما(?:\s|$)', flat) or _ordinal(flat, m)):
                 continue                                        # «أول مرة» is its own kind; «أول ما» = 'the first thing that'
-            neg = any(w in NEG for w in ws)
-            if kind == 'nothing_before' and not neg:
+            if kind == 'only' and _ordinal(flat, m):
+                continue                                        # «الفرق الوحيد بين النموذجين»: which difference, not a claim
+            if kind == 'first_time' and re.search(r'(?:للعالم|في\s+العالم|في\s+التاريخ|للبشرية)', flat):
+                kind = 'first'                                  # «قدّمت للعالم لأول مرة …» is a priority claim
+            neg = any(w in NEG for w in ws) or bool(re.search(r"\b(?:never|no|not|nobody|none)\b|n't", flat, re.I))
+            if kind in SENTENCE_KINDS and not (neg or UNIVERSAL.search(flat)):
                 continue                                        # «قبل أويستر كانت هناك…» asserts nothing about priority
-            before = checks.bare(flat[:m.start()])
-            attributed = any(re.search(r'(^|\s)[وفبل]?' + re.escape(checks.bare(a)) + r'(\s|$)', before) for a in ATTRIB)
-            negated = kind != 'nothing_before' and any(re.search(r'(^|\s)' + n + r'(\s|$)', ' '.join(before.split()[-2:])) for n in NEG)
+            if kind == 'nothing_before' and re.search(r'(?:^|\s)(?:[وف]?ل[مان]|ليس|ليست)\s+(?:تكن|يكن|تكون|يكون)?\s*(?:الاسبق|اول|السباقة)', flat):
+                continue                                        # «لم تكن الأسبق» denies priority (the 'first' kinds see it as negated)
+            before = flat[:m.start()]
+            attributed = any(re.search(r'(^|\s)[وفبل]?' + re.escape(checks.bare(a)) + r'(\s|$)', before, re.I) for a in ATTRIB)
+            negated = kind not in SENTENCE_KINDS and any(re.search(r'(^|\s)' + n + r'(\s|$)', ' '.join(before.split()[-4:])) for n in NEG)
             out.append({'kind': kind, 'phrase': m.group(0).strip(), 'clause': clause.strip(), 'attributed': attributed, 'negated': negated})
     return out
 
@@ -146,15 +176,35 @@ def merge(lines: list[dict], research: dict, keyword: list[dict], ai: dict) -> d
     return out
 
 
-def override_ok(note: str, research: dict) -> bool:
-    """An override must point at evidence (a verified/attributed research claim id like c4, or a source link) AND say in
-    a sentence why the check is wrong here (at least 12 characters and 3 words besides the citation). Whether the cited
-    evidence really fits is the owner's judgement: overrides are recorded, shown again at Gate 5 and on the paid plan."""
+URL = re.compile(r'https?://([^\s/]+)[^\s]*')
+
+
+def _real_host(h: str) -> bool:
+    """A link to a real-looking site: a name of 3+ letters and a 2+ letter ending (not «a.bc», an IP or localhost)."""
+    parts = h.lower().split(':')[0].split('.')
+    return len(parts) >= 2 and re.fullmatch(r'[a-z]{2,}', parts[-1]) is not None and any(len(x) >= 3 and re.search('[a-z]', x) for x in parts[:-1])
+
+
+def override_ok(note: str, research: dict, connected=None) -> bool:
+    """An override must point at evidence AND say in a sentence why the check is wrong here (at least 12 characters and
+    3 words besides the citation). Evidence is either a verified/attributed research claim that is connected to THIS
+    line (`connected`: the claims the writer or the fact checker gave for it; any claim of the file when not known), or
+    a link to a real-looking site (recorded as the owner's source, shown again at Gate 5 and on the paid plan).
+    Whether the cited claim really says what the line says is still the owner's judgement: the machine cannot read
+    the English claim against the Arabic sentence. That needs the real AI fact checker."""
     note = note or ''
     ids = {c['id'] for c in (research or {}).get('claims', []) if c.get('status') in ('verified', 'attributed')}
-    cites = re.findall(r'https?://[^\s]+\.[^\s]+', note) + [i for i in ids if re.search(r'(^|\W)' + re.escape(i) + r'(\W|$)', note)]
+    if connected is not None: ids &= set(connected)
+    urls = [m.group(0) for m in URL.finditer(note) if _real_host(m.group(1))]
+    cites = urls + [i for i in ids if re.search(r'(^|\W)' + re.escape(i) + r'(\W|$)', note)]
     if not cites: return False
-    rest = note
+    rest = URL.sub(' ', note)
     for c in cites: rest = rest.replace(c, ' ')
+    rest = re.sub(r'(^|\W)c\d+(\W|$)', ' ', rest)                    # other claim ids are not words of a reason
     words = [w for w in re.findall(r'\w+', rest) if len(w) >= 2]
     return len(rest.strip()) >= 12 and len(words) >= 3 and len(set(''.join(words))) >= 5
+
+
+def connected_claims(cp_line_check: dict | None, writer_claims) -> list[str]:
+    """The research claims linked to one line: what the writer cited for it and what the fact checker matched."""
+    return sorted(set((cp_line_check or {}).get('claims') or []) | set(writer_claims or []))

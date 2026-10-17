@@ -204,7 +204,10 @@ class TestScriptGate(Env):
         self.assertEqual(mc['lines']['l13']['severity'], 'critical')    # the plainest paraphrase the keyword rule missed
         with self.assertRaises(Refused): self.gate('G2')
         with self.assertRaises(Refused): self.gate('G2', overrides={'l13': 'the check is wrong here'})   # a sentence is not evidence
-        self.gate('G2', overrides={'l13': 'c4 contradicts it — kept on purpose for the test'})
+        with self.assertRaises(Refused):                                # re-audit D4: c4 is not linked to this edited line
+            self.gate('G2', overrides={'l13': 'c4 contradicts it — kept on purpose for the test'})
+        with self.assertRaises(Refused): self.gate('G2', overrides={'l13': 'https://a.bc nothing to see here really'})
+        self.gate('G2', overrides={'l13': 'https://www.example-archive.org/oyster-1926 the 1926 advert says so; kept on purpose for the test'})
         st = self.S.state(self.pid)
         self.assertEqual(st['scripts'][-1]['status'], 'approved')
 
@@ -361,6 +364,31 @@ class TestAuditRegressions(Env):
         with self.assertRaises(Refused):
             self.S.act(self.pid, 'cp_ai_call', {'id': 'y', 'kind': 'fact_check', 'role': 'r', 'worker': 'mock', 'label': 'x', 'cost_usd': -10}, actor='system')
         self.assertEqual(self.S.state(self.pid)['copilot']['ai']['spent_usd'], 0.0)
+        # re-audit N2: on a Co-Pilot project the classic screens make no decisions (the gates own them)
+        for action, args in (('take_decision', {'take': 'x', 'decision': 'approved'}), ('finding_decision', {'finding': 'f', 'decision': 'dismissed', 'note': 'x'}),
+                             ('script_decision', {'v': 1, 'decision': 'approved'}), ('run_voice', {})):
+            code, r = SA.handle(self.var, {'project': self.pid, 'action': action, 'args': args})
+            self.assertEqual(code, 422, (action, r)); self.assertIn('Co-Pilot', r['reason'])
+        self.owner('cp_mode', {'mode': 'manual'})
+        code, r = SA.handle(self.var, {'project': self.pid, 'action': 'take_decision', 'args': {'take': 'x', 'decision': 'approved'}})
+        self.assertEqual((code, r['reason']), (422, 'unknown take'))                  # Manual: the classic rules apply again
+
+    def test_an_ai_revised_line_gets_no_borrowed_sources(self):                    # re-audit N3
+        run_step(self.S, self.pid, 'direction:1'); run_step(self.S, self.pid, 'direction_check')
+        self.gate('G1')
+        run_step(self.S, self.pid, 'script:'); run_step(self.S, self.pid, 'script_check:1')
+        invented = 'باعت رولكس مليون ساعة أويستر في عامها الأول، وغاصت أويستر إلى عمق ألف متر.'
+        orig = ai.MockWorker.k_revise_script
+        ai.MockWorker.k_revise_script = lambda self, p: {'lines': {'l3': invented}, 'why': 'MOCK AI: invented a sentence, cited nothing'}
+        try:
+            run_step(self.S, self.pid, 'script_revise:1:auto')
+        finally:
+            ai.MockWorker.k_revise_script = orig
+        run_step(self.S, self.pid, 'script_check:2')
+        cp = self.S.state(self.pid)['copilot']
+        self.assertEqual(O.script_meta(cp, 2)['claims']['l3'], [])
+        x = O.merged_check(cp, 2)['lines']['l3']
+        self.assertNotEqual(x['verdict'], 'supported'); self.assertIn(x['severity'], ('critical', 'major'))
 
     def test_an_owner_edited_line_gets_no_borrowed_sources(self):                  # audit D3
         self.to_g2()

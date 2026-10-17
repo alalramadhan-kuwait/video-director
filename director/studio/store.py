@@ -596,6 +596,9 @@ class Studio(CopilotActions):
             raise Refused(f'this finding is already {f["decision"]}')
         if a['decision'] == 'dismissed' and not (a.get('note') or '').strip():
             raise Refused('say why the finding is dismissed (kept in the review history)')
+        note = (a.get('note') or '').strip()
+        if a['decision'] == 'dismissed' and f['severity'] == 'critical' and (len(note) < 12 or len(note.split()) < 3):
+            raise Refused('a critical finding is dismissed only with a real explanation (a sentence, kept in the review history)')
         out = {'finding': f['id'], 'decision': a['decision'], 'note': a.get('note', '')}
         if a['decision'] == 'accepted':
             out['task'] = {'id': 'fix-' + f['id'], 'scene': f.get('scene'), 'what': f['recommendation'], 'stage': f.get('fix_stage', 'art')}
