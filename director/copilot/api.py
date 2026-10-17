@@ -265,7 +265,7 @@ def _g3(S, pid, st, cp):
         lines.append({'line': lid, 'text': x['text'], 'status': x['status'], 'take': x['take'], 'takes': takes})
     tk = st['voice']['takes']
     segs = [dict(x, status=tk[x['take']]['status']) for x in mix['segments']] if mix else []     # decisions made after the mix was built
-    return {'mix': mix and {**{k: mix[k] for k in ('seconds', 'takes', 'label')}, 'segments': segs, 'url': _url(pid, mix['file'])},
+    return {'mix': mix and {**{k: mix[k] for k in ('seconds', 'takes', 'label', 'file')}, 'segments': segs, 'url': _url(pid, mix['file'])},
             'mix_current': bool(mix) and mix['takes'] == effective_takes(st),
             'pending': [k for k, x in effective_takes(st).items() if x and st['voice']['takes'][x]['status'] != 'approved'],
             'lines': lines, 'pron': cp['pron'], 'qa': cp['voice_qa'], 'adjust': cp['adjust'],

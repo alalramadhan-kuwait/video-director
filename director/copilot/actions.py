@@ -378,6 +378,8 @@ class CopilotActions:
         mix = cp['voice_mix']
         if not mix or mix['takes'] != cur['takes']:
             raise _refused('the play-all narration is being rebuilt for the latest takes: play it again')
+        if (a.get('playback') or {}).get('of') != mix['file']:          # the listening belongs to the play-all that was heard
+            raise _refused('the play-all narration changed after you listened: play it again')
         cov = (a.get('playback') or {}).get('covered') or []
         vl = st['voice']['lines']
         todo, short = [], []
@@ -412,6 +414,8 @@ class CopilotActions:
         if d != 'approved':
             return {}
         pb = a.get('playback') or {}
+        if pb.get('of') != f['n']:
+            raise _refused(f'the watching you did was of another draft: watch film v{f["n"]}')
         from ..studio.store import _heard
         if _heard(pb, f['seconds']) < 0.8 * f['seconds']:
             raise _refused(f'watch the whole draft before approving: {_heard(pb, f["seconds"]):.0f} s of {f["seconds"]:.0f} s watched')
@@ -501,14 +505,20 @@ def fold(st: dict, e: dict):
         pass
     elif act == 'cp_pron':
         if r['op'] == 'add':
+            # a new spelling for the same word on the same lines replaces the earlier one (two rules would compete)
+            same = lambda x: x.get('surface') == r['rule']['surface'] and (not x.get('lines') or not r['lines'] or set(x['lines']) & set(r['lines']))
+            if r['status'] == 'approved':
+                for p in cp['pron']:
+                    if p['status'] in ('approved', 'proposed') and same(p['rule']): p['status'] = 'superseded'
+                st['voice']['rules'] = [x for x in st['voice']['rules'] if not same(x)]
             cp['pron'].append({**r, 'at': at})
             st['voice']['rules'] = [x for x in st['voice']['rules'] if x['id'] != r['rule']['id']] + [r['rule']]
         else:
             for p in cp['pron']:
                 if p['id'] == r['id']:
                     p['status'] = r['decision']
-                    if r['decision'] == 'rejected':
-                        st['voice']['rules'] = [x for x in st['voice']['rules'] if x['id'] != p['rule']['id']]
+                    st['voice']['rules'] = [x for x in st['voice']['rules'] if x['id'] != p['rule']['id']]
+                    if r['decision'] == 'approved': st['voice']['rules'].append(p['rule'])
     elif act == 'cp_voice_adjust':
         cp['adjust'].append({**r, 'at': at})
     elif act == 'cp_voice_mix':

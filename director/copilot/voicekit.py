@@ -18,20 +18,32 @@ GAP = 0.35
 LABEL_ADJ = 'DRAFT VOICE (gTTS, free) — speed/pauses processed locally (ffmpeg, free) — not the final voice'
 
 
+def spoken_now(st) -> dict:
+    """line -> what the draft voice should say for it under the pronunciation dictionary as it stands now."""
+    lib = V.library_for(None, st['id'], st)
+    return {lid: lib.prepare(x['text'], V.PROVIDER, line=lid)[0] for lid, x in (st['voice'].get('lines') or {}).items()}
+
+
 def effective_takes(st) -> dict:
-    """line -> the take to review now: a newer undecided take of the same text (a re-take, a speed change) replaces the
-    approved one in the play-all, so the owner hears the replacement; until it is approved the approved take stays in use."""
+    """line -> the take to review now. Only takes made for the line's current text AND its current spelling count (a
+    correction that was withdrawn no longer has a say). Among them, a newer undecided take (a re-take, a speed change)
+    replaces the approved one in the play-all, so the owner hears the replacement; until it is approved the approved
+    take stays in use. No take for the current spelling yet: the line's current take, until the new one is recorded."""
     vl = st['voice'].get('lines') or {}
     tk = st['voice']['takes']
+    sp = spoken_now(st)
     out = {}
     for lid, x in vl.items():
-        ids = [i for i in st['voice']['by_line'].get(lid, []) if tk[i]['text'] == x['text']]
-        cur = x['take']
-        if cur and tk[cur]['status'] == 'approved':
-            after = ids[ids.index(cur) + 1:] if cur in ids else []
-            pend = [i for i in after if tk[i]['status'] == 'candidate']
-            if pend: cur = pend[-1]
-        out[lid] = cur
+        ok = [i for i in st['voice']['by_line'].get(lid, []) if tk[i]['text'] == x['text'] and tk[i].get('spoken', x['text']) == sp[lid]]
+        if not ok:
+            out[lid] = x['take']
+            continue
+        base = next((i for i in reversed(ok) if tk[i]['status'] == 'approved'), None)
+        if base:
+            pend = [i for i in ok[ok.index(base) + 1:] if tk[i]['status'] == 'candidate']
+            out[lid] = pend[-1] if pend else base
+        else:
+            out[lid] = ok[-1]
     return out
 
 

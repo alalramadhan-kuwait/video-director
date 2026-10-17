@@ -159,8 +159,9 @@ def plan(studio, pid, st=None) -> dict:
                 nar = {l['id']: l['spoken'] for l in V.narration(studio, pid, st)['lines']}
                 tk = st['voice']['takes']
                 respell = sorted(l for l, t in takes.items() if t and l in nar and tk[t].get('spoken') != nar[l])
-                if respell:                                     # a pronunciation entry changed how a line is read: record it again
-                    offer(Step(f'respell:{A.h(sorted((l, nar[l]) for l in respell))}', 'voice',
+                rk = f'respell:{A.h(sorted((l, nar[l]) for l in respell))}'
+                if respell and rk not in done:                  # a pronunciation entry changed how a line is read: record it again
+                    offer(Step(rk, 'voice',
                                f'new draft takes after a pronunciation change: {", ".join(respell)} (free)', s_respell, {'lines': respell}, len(respell)))
                 mix = cp['voice_mix']
                 if not mix or mix['takes'] != takes:

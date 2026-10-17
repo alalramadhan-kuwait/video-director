@@ -136,7 +136,7 @@ const T = {
     script:'النص', hooks:'الافتتاحيات', usehook:'استخدم هذه', recommended:'مُوصى بها', chosen:'المختارة', edit:'تعديل', save:'حفظ', cancel:'إلغاء',
     whyline:'لماذا', override:'تجاوز بدليل (رقم ادعاء مثل c4 أو رابط)', ack:'قرأت التحذير', versions:'النسخ', playall:'تشغيل الكل',
     heard:'سمعت', of:'من', listen_need:'استمع إلى الأسطر المتغيرة كاملة قبل الموافقة', fixword:'صحّح النطق', respell:'كيف تُقرأ (بالتشكيل)',
-    speed:'السرعة', pbefore:'وقفة قبل', pafter:'وقفة بعد', compare:'قارن النسخ', apply:'طبّق', pron:'قاموس النطق', proposed:'مقترح', approved:'معتمد', rejected:'مرفوض',
+    speed:'السرعة', pbefore:'وقفة قبل', pafter:'وقفة بعد', compare:'قارن النسخ', apply:'طبّق', pron:'قاموس النطق', proposed:'مقترح', approved:'معتمد', rejected:'مرفوض', superseded:'استُبدل بتهجئة أحدث', withdraw:'اسحب التصحيح',
     qa:'فحوص الصوت', style:'الأسلوب', choose:'اختر هذا', notready:'غير جاهز', pictures:'الصور', upload:'رفع صورة', slot:'لأي مشهد / عنصر',
     use_ev:'صورة حقيقية (دليل)', use_il:'رسم توضيحي', licence:'الترخيص', evidence:'رابط دليل الترخيص', declare:'أملك هذه الصورة أو حقوقها',
     own:'ملكي', licensed:'مرخّصة', pd:'ملكية عامة', cc:'Creative Commons', addlic:'أضف الترخيص', missing:'غير موجودة', film:'الفيلم', comment:'تعليق عند',
@@ -157,7 +157,7 @@ const T = {
     script:'Script', hooks:'Hooks', usehook:'Use this one', recommended:'recommended', chosen:'chosen', edit:'Edit', save:'Save', cancel:'Cancel',
     whyline:'Why', override:'Override with evidence (a claim id like c4, or a link)', ack:'I read the warning', versions:'Versions', playall:'Play all',
     heard:'heard', of:'of', listen_need:'Listen to every changed line before approving', fixword:'Fix the pronunciation', respell:'How it should be read (with tashkeel)',
-    speed:'Speed', pbefore:'Pause before', pafter:'Pause after', compare:'Compare versions', apply:'Apply', pron:'Pronunciation dictionary', proposed:'proposed', approved:'approved', rejected:'rejected',
+    speed:'Speed', pbefore:'Pause before', pafter:'Pause after', compare:'Compare versions', apply:'Apply', pron:'Pronunciation dictionary', proposed:'proposed', approved:'approved', rejected:'rejected', superseded:'replaced by a newer spelling', withdraw:'Withdraw',
     qa:'Voice checks', style:'Style', choose:'Choose this', notready:'not ready', pictures:'Pictures', upload:'Upload a picture', slot:'For which scene / item',
     use_ev:'Genuine record (evidence)', use_il:'Illustration', licence:'Licence', evidence:'Link to the licence evidence', declare:'I own this picture or its rights',
     own:'mine', licensed:'licensed', pd:'public domain', cc:'Creative Commons', addlic:'Add licence', missing:'missing', film:'Film', comment:'Comment at',
@@ -428,7 +428,7 @@ function g3(v) {
   const d = v.g3;
   if (!d) return `<div class="card"><h2>${AR() ? 'الصوت' : 'Voice'}</h2>${working(v, 'voice') || `<p class="muted">—</p>`}</div>`;
   const mix = d.mix;
-  const id = mix ? 'mix-' + JSON.stringify(mix.takes).length + '-' + mix.seconds : 'mix';
+  const id = mix ? 'mix-' + mix.file : 'mix';         // the play-all's own file: a re-take is a new file, never the old coverage
   S.mixId = id;
   const segs = mix ? mix.segments.map(s => { const need = s.status !== 'approved'; const h = heardIn(id, s.start, s.end), L = s.end - s.start;
     return `<div class="seg ${need ? 'need' : 'ok'}" data-seg="${s.line}"><div class="row between tiny"><span class="muted">${esc(s.line)}</span>
@@ -454,7 +454,7 @@ function g3(v) {
   <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة للاستماع إليها أو تصحيحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
   <div class="card"><h3>${t('pron')}</h3>${d.pron.length ? d.pron.map(p => `<div class="row small"><span class="grow">«${esc(p.word)}» → «${esc(p.respell)}» <span class="tiny muted">${esc(p.why || '')}</span></span>
       ${pill(p.status === 'approved' ? 'st-owner_approved' : 'st-ai_review', (p.source === 'ai' ? 'AI · ' : '') + t(p.status))}
-      ${p.status === 'proposed' ? `<button data-pronrej="${p.id}">${t('reject')}</button>` : ''}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
+      ${p.status === 'proposed' ? `<button data-pronrej="${p.id}">${t('reject')}</button>` : p.status === 'approved' ? `<button data-pronrej="${p.id}">${t('withdraw')}</button>` : ''}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
     <h3>${t('qa')}</h3>${(() => { const open = d.qa.flags.filter(f => f.status === 'open');
       const at = f => { const sg = mix && mix.segments.find(x => x.line === f.line); return sg && f.s != null ? (sg.start + f.s) : (sg ? sg.start : 0); };
       return d.qa.flags.length ? `<div class="chips">${d.qa.flags.map(f => `<button data-seekmix="${at(f).toFixed(2)}" title="${esc(f.detail)}">${esc(f.line)} · ${esc(f.word || f.code)}${f.status !== 'open' ? ' ✓' : ''}</button>`).join('')}</div>
@@ -530,7 +530,7 @@ function sceneSheet(v, sid) {
 function g5(v) {
   const d = v.g5;
   if (!d || !d.n) return `<div class="card"><h2>${t('film')}</h2>${working(v, 'film') || working(v, 'scenes') || `<p class="muted">—</p>`}</div>`;
-  const id = 'film-' + d.n; S.filmId = id;
+  const id = 'film-' + d.n; S.filmId = id; S.filmN = d.n;
   const open = d.findings.filter(f => !f.decision);
   const big = open.filter(f => f.severity === 'critical' || f.severity === 'major');
   const minor = open.filter(f => f.severity === 'minor');
@@ -609,9 +609,9 @@ function gateArgs(v, g, d) {
   const a = { gate: g, decision: d, content_hash: v.current[g] && v.current[g].hash, note: ($('#note-' + g) || {}).value || '' };
   if (g === 'G2') { a.ack = [...document.querySelectorAll('[data-ack]:checked')].map(e => e.dataset.ack);
     a.overrides = Object.fromEntries([...document.querySelectorAll('[data-ov]')].filter(e => e.value.trim()).map(e => [e.dataset.ov, e.value.trim()])); }
-  if (g === 'G3') { a.playback = { covered: covered(S.mixId) }; a.ack = ($('#ackqa') || {}).checked ? v.g3.qa.flags.filter(f => f.status === 'open').map(f => f.id) : []; }
+  if (g === 'G3') { a.playback = { covered: covered(S.mixId), of: v.g3.mix && v.g3.mix.file }; a.ack = ($('#ackqa') || {}).checked ? v.g3.qa.flags.filter(f => f.status === 'open').map(f => f.id) : []; }
   if (g === 'G4') a.choice = S.sel.style;
-  if (g === 'G5') { a.playback = { covered: covered(S.filmId) }; a.ack = ($('#ackminor') || {}).checked ? v.g5.findings.filter(f => !f.decision && f.severity === 'minor').map(f => f.id) : []; }
+  if (g === 'G5') { a.playback = { covered: covered(S.filmId), of: S.filmN }; a.ack = ($('#ackminor') || {}).checked ? v.g5.findings.filter(f => !f.decision && f.severity === 'minor').map(f => f.id) : []; }
   return a;
 }
 async function act(action, args) { const j = await post(action, args); if (j) { toast('✓'); S.sig = ''; await render(true); } return j; }

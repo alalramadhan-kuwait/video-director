@@ -53,6 +53,8 @@ class Env(unittest.TestCase):
 
     def gate(self, g, decision='approved', **kw):
         st = self.S.state(self.pid)
+        if 'playback' in kw and 'of' not in kw['playback']:            # what the page sends: the media that was played
+            kw['playback'] = {**kw['playback'], 'of': st['copilot']['voice_mix']['file'] if g == 'G3' else A.current(st)['G5']['ref']}
         return self.owner('cp_gate', {'gate': g, 'decision': decision, 'content_hash': A.current(st)[g]['hash'], **kw})
 
     def to_g2(self):
@@ -132,6 +134,7 @@ class TestApprovals(Env):
         self.assertTrue(all(x['status'] == 'approved' for x in st['voice']['lines'].values()))
         # a speed change on one line makes a new take: only that line goes back to the owner; the approved take stays in use
         approved_l5 = st['voice']['lines']['l5']['take']
+        old_mix = st['copilot']['voice_mix']['file']
         self.owner('cp_voice_adjust', {'line': 'l5', 'speed': 0.9})
         run_step(self.S, self.pid, 'adjust:'); run_step(self.S, self.pid, 'mix:')
         st = self.S.state(self.pid)
@@ -141,11 +144,55 @@ class TestApprovals(Env):
         mix = st['copilot']['voice_mix']
         seg = next(x for x in mix['segments'] if x['line'] == 'l5')
         with self.assertRaises(Refused): self.gate('G3', playback={'covered': [[0, seg['start']]]})     # l5 not heard
+        with self.assertRaises(Refused):                                                                    # re-audit N4: heard an older play-all
+            self.gate('G3', playback={'covered': [[0, mix['seconds']]], 'of': old_mix})
         self.gate('G3', playback={'covered': [[seg['start'], seg['end']]]})                                 # only l5 needs listening
         st = self.S.state(self.pid)
         self.assertNotEqual(st['voice']['lines']['l5']['take'], approved_l5)
         self.assertTrue(A.validity(st)['G3']['valid'])
 
+
+    def test_withdrawing_a_correction_returns_to_the_approved_take_without_looping(self):
+        """Re-audit N1: correct a word, withdraw the correction (and B → C → B): the plan settles, Gate 3 stays decidable."""
+        self.to_g3()
+        mix = self.S.state(self.pid)['copilot']['voice_mix']
+        self.gate('G3', playback={'covered': [[0, mix['seconds']]]})
+        st = self.S.state(self.pid)
+        approved = {l: x['take'] for l, x in st['voice']['lines'].items()}
+        line = next(l for l, x in st['voice']['lines'].items() if 'أويستر' in x['text'])
+        self.owner('cp_pron', {'word': 'أويستر', 'respell': 'أُويْسْتَر', 'lines': [line]})
+        run_step(self.S, self.pid, 'respell:'); run_step(self.S, self.pid, 'mix:')
+        st = self.S.state(self.pid)
+        self.assertEqual(A.current(st)['G3']['pending'], [line])
+        pr = st['copilot']['pron'][-1]['id']
+        self.owner('cp_pron', {'op': 'decide', 'id': pr, 'decision': 'rejected'})          # withdraw it
+        st = self.S.state(self.pid)
+        self.assertEqual(O.voicekit.effective_takes(st), approved)                         # the approved takes again
+        p = O.plan(self.S, self.pid)
+        self.assertFalse([s.key for s in p['steps'] if s.key.startswith('respell:')], p)
+        self.assertTrue(A.validity(st)['G3']['valid'])                                    # nothing new to decide
+        for _ in range(5):                                                                # whatever is offered finishes
+            p = O.plan(self.S, self.pid)
+            if not p['step'] or p['step'].stage != 'voice': break
+            run_step(self.S, self.pid)
+        self.assertFalse(any(s.key.startswith(('respell:', 'mix:')) for s in O.plan(self.S, self.pid)['steps']))
+        # B → C → B: the dictionary returns to a spelling that already has a take
+        self.owner('cp_pron', {'word': 'أويستر', 'respell': 'أُويْسْتَر', 'lines': [line]})
+        st = self.S.state(self.pid)
+        b = O.voicekit.effective_takes(st)[line]
+        self.assertNotEqual(b, approved[line])                                             # B's take exists already: no respell
+        self.assertFalse([s.key for s in O.plan(self.S, self.pid)['steps'] if s.key.startswith('respell:')])
+        self.owner('cp_pron', {'word': 'أويستر', 'respell': 'أوِيسْتَر', 'lines': [line]})
+        run_step(self.S, self.pid, 'respell:', first=False)
+        self.owner('cp_pron', {'word': 'أويستر', 'respell': 'أُويْسْتَر', 'lines': [line]})
+        st = self.S.state(self.pid)
+        self.assertEqual(O.voicekit.effective_takes(st)[line], b)
+        self.assertFalse([s.key for s in O.plan(self.S, self.pid)['steps'] if s.key.startswith('respell:')])
+        run_step(self.S, self.pid, 'mix:')
+        st = self.S.state(self.pid)
+        seg = next(x for x in st['copilot']['voice_mix']['segments'] if x['line'] == line)
+        self.gate('G3', playback={'covered': [[seg['start'], seg['end']]]})
+        self.assertTrue(A.validity(self.S.state(self.pid))['G3']['valid'])
 
 class TestScriptGate(Env):
     def test_critical_line_needs_an_evidence_override_and_majors_need_acknowledging(self):
