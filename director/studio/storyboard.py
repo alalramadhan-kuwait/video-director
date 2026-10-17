@@ -153,7 +153,7 @@ def engine_storyboard(studio, pid, doc: dict, work: Path) -> dict:
     return {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style('timekeeper'), 'scenes': scenes}
 
 
-def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None):
+def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None, crf=None):
     """Job: draw the draft film. `inject` is only used by the UAT defect copy (never on the project's own render)."""
     st = studio.state(pid)
     sbrec = next(s for s in st['storyboards'] if s['v'] == (storyboard_v or st['storyboards'][-1]['v']))
@@ -171,7 +171,7 @@ def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None):
         out = work / 'draft.mp4'
         t0 = time.monotonic()
         with studio.log.task(pid, 'draft frames (10 % steps)', 10, stage='draft', actor='system') as ft:   # equal units: a real ETA
-            log = engine.video(sbp, out, scale=scale, progress=lambda pct: ft.unit(what=f'{pct}%'))
+            log = engine.video(sbp, out, scale=scale, progress=lambda pct: ft.unit(what=f'{pct}%'), extra=('--crf', crf) if crf else ())
         task.unit(what='frames + audio')
         render_s = round(time.monotonic() - t0, 1)
         raw = work / 'draft-raw.mp4'; out.rename(raw)            # loudness to the platform target (-14 LUFS, peaks under -1.5 dBTP)
