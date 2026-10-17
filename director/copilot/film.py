@@ -75,11 +75,12 @@ def assemble(studio, pid, task):
         r = next(x for x in st['renders'] if x['id'] == rid)
         extra = film_checks(studio, pid, st, r, doc, ctx, n)
         task.unit(what='film checks')
+        share = share_copy(studio, pid, r['file'], n)
         st = studio.state(pid)
         fr = {'n': n, 'state': 'ok', 'render': rid, 'render_file': r['file'], 'preview': r.get('preview'), 'poster': r.get('poster'),
               'seconds': r['seconds'], 'storyboard_v': doc['v'], 'scenes': used, 'timeline': r['timeline'] + [{'id': 'endcard', 'start': round(t, 2), 'end': r['seconds']}],
               'base_hashes': {sid: cp['scenes'][sid]['pick']['base_hash'] for sid in ids},
-              'reviews': [x['id'] for x in st['review']['runs'] if x['render'] == rid], 'extra': extra,
+              'reviews': [x['id'] for x in st['review']['runs'] if x['render'] == rid], 'extra': extra, 'share': share,
               'label': 'DRAFT — draft voice (free), AI-reviewed scenes; not for publishing',
               'label_ar': 'مسودة — صوت تجريبي مجاني ومشاهد راجعها الذكاء؛ ليست للنشر'}
         studio.act(pid, 'cp_film', fr, actor='copilot')
@@ -87,6 +88,20 @@ def assemble(studio, pid, task):
     except Exception as e:
         studio.act(pid, 'cp_film', {'n': n, 'state': 'failed', 'storyboard_v': doc['v'], 'scenes': used, 'error': f'{type(e).__name__}: {e}'[:400]}, actor='copilot')
         raise
+
+
+def share_copy(studio, pid, rel, n):
+    """A smaller copy to save on the phone and send (about 1.5 Mb/s: a 2½-minute film is about 27 MB, fine for Instagram).
+    Free and local; the full-quality film stays the one you review. If it cannot be made, the film is still fine."""
+    out = studio.pdir(pid) / 'work' / f'film-cp{n}' / 'share.mp4'
+    out.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(studio.path(pid, rel)), '-c:v', 'libx264', '-preset', 'medium', '-crf', '24',
+                        '-maxrate', '1400k', '-bufsize', '2800k', '-pix_fmt', 'yuv420p', '-c:a', 'aac', '-b:a', '128k', '-movflags', '+faststart', str(out)],
+                       check=True, capture_output=True, timeout=1200)
+        return studio.put_file(pid, out, 'mp4')
+    except (subprocess.SubprocessError, OSError):
+        return None
 
 
 def film_checks(studio, pid, st, r, doc, ctx, n) -> int:

@@ -127,6 +127,7 @@ audio{background:none}
 .vers button{min-height:34px;font-size:.8125rem;padding:2px 10px}
 /* compact header, progress dots, the decision bar that stays at the bottom, folded details */
 a.next{color:inherit;text-decoration:none}
+.sharelink{display:flex;align-items:center;justify-content:center;min-height:44px;border:1px solid var(--line);border-radius:12px;background:var(--raise);text-decoration:none;font-weight:600}
 .top .ttl{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 button.sm{min-height:36px;padding:4px 12px;font-size:.88rem}
 .dots{display:flex;gap:4px}
@@ -183,7 +184,7 @@ const T = {
     stop_q:'إيقاف المساعد؟', stop_b:'سيتوقف أي رسم أو تسجيل جارٍ الآن. لا يُحذف شيء، وكل موافقاتك تبقى. تقدر تكمل لاحقًا بـ«متابعة».', stop_ok:'نعم، أوقف',
     manual_q:'التحويل إلى اليدوي؟', manual_b:'يتوقف المساعد ويُفتح الاستوديو الكلاسيكي. لا تُمحى أي موافقة.', manual_ok:'نعم، حوّل', keep:'تراجع',
     close:'إغلاق', details:'التفاصيل', take_me:'خذني إليه', nospend:'لا صرف تلقائي', locked:'مقفل', voice:'الصوت', choosefile:'اختر الصورة', frame:'الإطار',
-    more:'المزيد', classic_now:'مشروع من الاستوديو الكلاسيكي: افتحه هناك', back_cp:'ارجع للمساعد', manual_now:'المشروع في اليدوي، والمساعد متوقف.', manual_gate:'أنت في اليدوي. ارجع للمساعد لتوافق هنا.',
+    share:'احفظ نسخة للمشاركة', mb:'ميجا', share_note:'نسخة أصغر للجوال والإنستقرام. ما زالت مسودة بصوت تجريبي.', more:'المزيد', classic_now:'مشروع من الاستوديو الكلاسيكي: افتحه هناك', back_cp:'ارجع للمساعد', manual_now:'المشروع في اليدوي، والمساعد متوقف.', manual_gate:'أنت في اليدوي. ارجع للمساعد لتوافق هنا.',
     what_change:'ما الذي تريد تغييره؟', send_change:'أرسل طلب التعديل', hook_one:'الافتتاحية', other_hooks:'افتتاحيات أخرى', minor_n:'ملاحظات بسيطة',
     needfirst:'قبل الموافقة:', m_check:'انتظر انتهاء فحص النص', m_evidence:'أضف دليلًا أو عدّل السطر', m_ack:'علّم «قرأت التحذير»', m_mix:'التسجيل يُجهَّز، انتظر قليلًا',
     m_listen:'استمع إلى الأسطر', m_ackqa:'علّم «استمعتُ إلى هذه الكلمات»', m_watch:'شاهد الفيلم كاملًا', m_big:'ملاحظة مهمة: اكتب سببًا أو انتظر إصلاحها', m_minor:'علّم الإقرار بالملاحظات البسيطة',
@@ -218,7 +219,7 @@ const T = {
     stop_q:'Stop the Co-Pilot?', stop_b:'Any drawing or recording in progress stops now. Nothing is deleted and all your approvals stay. You can carry on later with Resume.', stop_ok:'Yes, stop',
     manual_q:'Switch to Manual?', manual_b:'The Co-Pilot stops and the classic Studio opens. No approval is erased.', manual_ok:'Yes, switch', keep:'Keep going',
     close:'Close', details:'Details', take_me:'Take me there', nospend:'No automatic spending', locked:'locked', voice:'Voice', choosefile:'Choose the picture', frame:'frame',
-    more:'More', classic_now:'A classic Studio project: open it there', back_cp:'Back to the Co-Pilot', manual_now:'This project is in Manual; the Co-Pilot is stopped.', manual_gate:'You are in Manual. Go back to the Co-Pilot to approve here.',
+    share:'Save a copy to share', mb:'MB', share_note:'A smaller copy for the phone and Instagram. Still a draft with the draft voice.', more:'More', classic_now:'A classic Studio project: open it there', back_cp:'Back to the Co-Pilot', manual_now:'This project is in Manual; the Co-Pilot is stopped.', manual_gate:'You are in Manual. Go back to the Co-Pilot to approve here.',
     what_change:'What should change?', send_change:'Send the change request', hook_one:'Hook', other_hooks:'Other hooks', minor_n:'minor issues',
     needfirst:'Before approving:', m_check:'wait for the script check to finish', m_evidence:'add evidence or edit the line', m_ack:'tick “I read the warning”', m_mix:'the narration is being prepared',
     m_listen:'listen to lines', m_ackqa:'tick “I listened to these words”', m_watch:'watch the whole film', m_big:'important issue(s): explain or wait for the fix', m_minor:'tick the minor-issues acknowledgement',
@@ -785,6 +786,7 @@ function g5(v) {
       : `<button data-seek="${s.start}" data-sid="${s.id}" class="tl-${(v.scenes.find(x => x.id === s.id) || {}).state || 'ai_reviewed'}" aria-label="${esc(lineName(s.id, true) + ' · ' + fmt(s.start))}"
       style="flex-grow:${Math.max(0.5, s.end - s.start)}">${esc(lineNo(s.id))}</button>`).join('')}</div>
     <div class="row between small"><span>${t('heard')} <b id="fheard">${fmt(h)}</b> ${t('of')} ${fmt(d.seconds)}</span><span class="tiny muted">${d.approved_film ? 'v' + d.approved_film.n + ' ' + t('owner_ok') : ''}</span></div>
+    ${d.share ? `<a class="sharelink" href="${esc(d.share)}" download="${esc((v.title || 'film').replace(/[^\w\u0600-\u06FF -]/g, '') + ' v' + d.n)}.mp4">⬇ ${t('share')}${d.share_mb ? ` (${d.share_mb} ${t('mb')})` : ''}</a><span class="tiny muted">${t('share_note')}</span>` : ''}
     <div class="row"><input id="cm" class="grow" data-draft="cm:${d.n}" aria-label="${t('comment')}" placeholder="${t('comment')} …"><button data-comment="1">${t('send')}</button></div>
     ${d.comments.map(c => { const tk = d.tasks.find(x => x.source === 'comment ' + c.id) || {}; return `<div class="tiny">⏱ ${fmt(c.t)} · ${esc(lineName(c.scene, true))} · «${esc(c.text)}» · ${esc(stx(tk.status || ''))}</div>`; }).join('')}</div>
   ${big.length || minor.length || done.length ? `<div class="card"><h3>${t('findings')}</h3>

@@ -406,7 +406,9 @@ def _g5(S, pid, st, cp):
     sev = {'critical': 0, 'major': 1, 'minor': 2, 'info': 3}
     ap = A.last(cp, 'G5', 'approved')
     prev = next((x for x in films if ap and x['n'] == ap['ref']), None)
+    share = f.get('share') and S.path(pid, f['share'])
     out.update({'n': f['n'], 'seconds': f['seconds'], 'mp4': _url(pid, f['render_file']), 'webm': _url(pid, f.get('preview')), 'poster': _url(pid, f.get('poster')),
+                'share': _url(pid, f.get('share')), 'share_mb': round(share.stat().st_size / 1048576, 1) if share and share.exists() else None,
                 'timeline': f['timeline'], 'label': f.get('label'), 'label_ar': f.get('label_ar'), 'scenes': f['scenes'],
                 'findings': sorted([{**{k: x.get(k) for k in ('id', 'code', 'severity', 'detail', 'detail_ar', 'recommendation', 'scene', 't', 'perspective', 'decision', 'decision_note', 'label')},
                                      'evidence': _url(pid, x.get('evidence'))} for x in fs], key=lambda x: (sev.get(x['severity'], 9), x['t'] or 0)),
