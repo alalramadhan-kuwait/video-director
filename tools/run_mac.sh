@@ -14,4 +14,5 @@ if [ -n "$LAN" ]; then
   ip=$(ipconfig getifaddr en0 2>/dev/null || hostname -I 2>/dev/null | awk '{print $1}')
   echo "On your iPhone (same Wi-Fi): http://$ip:$PORT/studio"
 fi
-cd "$D" && exec python3 -m director.dashboard.serve --port "$PORT" $LAN
+PY=python3; [ -x "$D/.venv/bin/python" ] && PY="$D/.venv/bin/python"     # made by tools/setup_mac.sh
+cd "$D" && exec "$PY" -m director.dashboard.serve --port "$PORT" $LAN

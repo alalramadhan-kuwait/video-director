@@ -39,10 +39,12 @@ OFFLINE_RES = re.compile(r'net::ERR_(PROXY_CONNECTION_FAILED|INTERNET_DISCONNECT
 def _chrome() -> str | None:
     if os.environ.get('CHROME_PATH') and os.path.isfile(os.environ['CHROME_PATH']):
         return os.environ['CHROME_PATH']
-    base = os.environ.get('PLAYWRIGHT_BROWSERS_PATH', '/opt/pw-browsers')
-    for p in sorted(glob.glob(os.path.join(base, 'chromium-*/chrome-linux*/chrome')), reverse=True):
-        if os.access(p, os.X_OK):
-            return p
+    bases = [os.environ.get('PLAYWRIGHT_BROWSERS_PATH', '/opt/pw-browsers'), os.path.expanduser('~/Library/Caches/ms-playwright')]   # Linux, Mac
+    for base in bases:
+        for pat in ('chromium-*/chrome-linux*/chrome', 'chromium-*/chrome-mac*/Chromium.app/Contents/MacOS/Chromium'):
+            for p in sorted(glob.glob(os.path.join(base, pat)), reverse=True):
+                if os.access(p, os.X_OK):
+                    return p
     return None
 
 
