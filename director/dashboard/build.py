@@ -29,8 +29,17 @@ def has_archive() -> bool:
     return (ROOT / 'var/review/ep7-final/pack.json').exists() and (ROOT / 'var/pages').exists()
 
 
+def ensure_sounds():
+    """The paper sounds the scenes are mixed with are made locally (deterministic, free) the first time; a new computer has none."""
+    import subprocess
+    from ..studio.engine import ENGINE
+    if not (ENGINE / 'assets/sfx/paper_slide.wav').exists():
+        subprocess.run([sys.executable, str(ENGINE / 'scripts/make-sfx.py')], check=True, capture_output=True, timeout=300)
+
+
 def prepare():
     """Import reconstructed history (idempotent) and make the media once (tracked tasks)."""
+    ensure_sounds()
     L = log()
     if not has_archive():                                            # a new computer has no archive: the Studio works without it
         return L
