@@ -26,6 +26,12 @@ stores live under `var/` (git-ignored).
 | `art/techniques.yaml`, `director/art/selector.py` | M2 | Visual Technique Registry; ranked options per scene with explicit exclusions; decision log |
 | `director/art/review.py` | M3 | Art Reviewer: evidence packs from real renders, technical pass, review packets per stage/perspective |
 
+## Use it (your Mac, and your iPhone on the same Wi-Fi)
+`tools/run_mac.sh` → open `http://127.0.0.1:8765/studio`. `tools/run_mac.sh --lan` also prints the address for the
+iPhone and an access code (or set your own: `VD_ACCESS_CODE=...`, 8+ characters); every page, file and action needs
+it. `--real-ai` allows the real Claude worker, which still spends nothing until you set an AI budget in the app
+(«استخدام الذكاء»). Paid narration, pictures and video stay locked either way.
+
 ## Run
     ./run_tests.sh            # 55 tests, network blocked, no credentials read
 

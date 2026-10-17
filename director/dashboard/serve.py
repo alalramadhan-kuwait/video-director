@@ -17,9 +17,13 @@ Routes:
   GET  /files/<id>/<path>  a studio project's files (read-only blobs), with byte ranges
   POST /api/studio        one studio action (director/studio/api.handle); long work runs as tracked jobs
 Anything else is 404/405. No route reaches the paid gateway or any provider; this module does not import them.
+
+Access from a phone (P7): `--lan` listens on the local network ONLY with an access code (VD_ACCESS_CODE, or one made at
+start and printed once). Then every route, media included, needs the session cookie the code gives (POST /login);
+a wrong code is slowed down and locked after 10 tries. Without --lan the server listens on 127.0.0.1 only.
 """
 from __future__ import annotations
-import argparse, json, mimetypes, os, re, uuid
+import argparse, hashlib, hmac, json, mimetypes, os, re, secrets, time, uuid
 from pathlib import Path
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
@@ -44,8 +48,56 @@ def decide(log: EventLog, item: str, decision: str, note: str = '', playback=Non
     return sync._one(log, doc, 'local app', {i['id']: i for i in B.snapshot()['inbox_checks']})
 
 
+# ------------------------------------------------------------------ access code (off unless a code is set)
+ACCESS = {'code': None}
+FAILS: dict = {}                                                  # ip → [count, first failure time]
+LOGIN_PAGE = '''<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>مخرج الفيديو</title><style>body{font:17px/1.6 system-ui,sans-serif;background:#f2f3f5;color:#14171b;margin:0;display:flex;min-height:100vh;align-items:center;justify-content:center;padding:16px}
+form{background:#fff;border:1px solid #d6dae0;border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:12px;width:100%;max-width:360px}
+input,button{font:inherit;border-radius:12px;padding:12px;border:1px solid #d6dae0;min-height:48px}button{background:#2b5b87;color:#fff;border-color:#2b5b87;font-weight:600}
+@media (prefers-color-scheme:dark){body{background:#0f1114;color:#e8eaed}form{background:#16191e;border-color:#2a2f37}input{background:#0b0d10;color:#e8eaed;border-color:#2a2f37}}</style></head>
+<body><form method="post" action="/login"><b>مخرج الفيديو</b><label>رمز الدخول<input name="code" type="password" autocomplete="current-password" required autofocus></label>
+<button>ادخل</button>{msg}</form></body></html>'''
+
+
+def _form_value(x):                                              # one value of a posted form (this module imports no network library)
+    x = x.replace('+', ' ')
+    return re.sub(rb'%([0-9A-Fa-f]{2})', lambda m: bytes([int(m.group(1), 16)]), x.encode('ascii', 'replace')).decode('utf-8', 'replace')
+
+
+def _session(code):
+    return hmac.new(code.encode(), b'vd-session-1', hashlib.sha256).hexdigest()
+
+
 class Handler(BaseHTTPRequestHandler):
     server_version = 'VideoDirectorDashboard/0.2'
+
+    def _authorized(self):
+        code = ACCESS['code']
+        if not code: return True
+        for part in (self.headers.get('Cookie') or '').split(';'):
+            k, _, v = part.strip().partition('=')
+            if k == 'vd_auth' and hmac.compare_digest(v, _session(code)): return True
+        return False
+
+    def _same_origin(self):                                       # a write must come from this app's own page
+        o = self.headers.get('Origin')
+        return not o or o.split('://', 1)[-1] == (self.headers.get('Host') or '')
+
+    def _login(self):
+        ip, now = self.client_address[0], time.time()
+        n, t0 = FAILS.get(ip, [0, now])
+        if now - t0 > 600: n, t0 = 0, now
+        if n >= 10:
+            return self._send(429, LOGIN_PAGE.replace('{msg}', '<p>محاولات كثيرة. حاول بعد 10 دقائق.</p>').encode(), 'text/html; charset=utf-8')
+        body = self.rfile.read(min(int(self.headers.get('Content-Length') or 0), 4096)).decode('ascii', 'replace')
+        got = next((_form_value(kv.split('=', 1)[1]) for kv in body.split('&') if kv.startswith('code=')), '')
+        if ACCESS['code'] and hmac.compare_digest(got.encode(), ACCESS['code'].encode()):
+            FAILS.pop(ip, None)
+            return self._send(303, b'', 'text/plain', {'Location': '/studio',
+                              'Set-Cookie': f'vd_auth={_session(ACCESS["code"])}; HttpOnly; SameSite=Strict; Path=/; Max-Age=2592000'})
+        FAILS[ip] = [n + 1, t0]; time.sleep(1)
+        return self._send(401, LOGIN_PAGE.replace('{msg}', '<p>الرمز غير صحيح.</p>').encode(), 'text/html; charset=utf-8')
 
     def _send(self, code, body: bytes, ctype='application/json; charset=utf-8', extra=None):
         self.send_response(code); self.send_header('Content-Type', ctype); self.send_header('Content-Length', str(len(body)))
@@ -67,6 +119,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         path = self.path.split('?', 1)[0]
+        if not self._authorized():
+            if path.startswith(('/api/', '/media/', '/files/')): return self._json(401, {'error': 'sign in first'})
+            return self._send(200, LOGIN_PAGE.replace('{msg}', '').encode(), 'text/html; charset=utf-8')
         if path == '/':
             return self._send(302, b'', 'text/plain', {'Location': '/studio'})
         if path == '/dashboard':
@@ -132,6 +187,9 @@ class Handler(BaseHTTPRequestHandler):
         return self._send(206, data, ctype, {'Content-Range': f'bytes {start}-{end}/{n}', 'Accept-Ranges': 'bytes'})
 
     def do_POST(self):
+        if self.path == '/login': return self._login()
+        if not self._authorized(): return self._json(401, {'error': 'sign in first'})
+        if not self._same_origin(): return self._json(403, {'error': 'this request did not come from the app'})
         if self.path == '/api/copilot/_test':                    # failure injection for the browser scenarios, test mode only
             if os.environ.get('VD_STUDIO_TEST') != '1': return self._json(403, {'error': 'test hooks are off'})
             from ..copilot import ai as CAI
@@ -196,9 +254,17 @@ def make_server(port=8765, host='127.0.0.1'):
 
 
 if __name__ == '__main__':
-    ap = argparse.ArgumentParser(); ap.add_argument('--port', type=int, default=8765); a = ap.parse_args()
+    ap = argparse.ArgumentParser(); ap.add_argument('--port', type=int, default=8765)
+    ap.add_argument('--lan', action='store_true', help='listen on the local network (an access code is then required)')
+    a = ap.parse_args()
+    ACCESS['code'] = os.environ.get('VD_ACCESS_CODE') or (secrets.token_urlsafe(8) if a.lan else None)
+    if ACCESS['code'] and len(ACCESS['code']) < 8: raise SystemExit('VD_ACCESS_CODE must be at least 8 characters')
     B.prepare()
-    print(f'Video Director on http://127.0.0.1:{a.port}/studio  (local only; no paid actions)')
+    if a.lan:
+        print(f'Video Director on the local network, port {a.port}. Access code: '
+              + (ACCESS['code'] if not os.environ.get('VD_ACCESS_CODE') else '(the one in VD_ACCESS_CODE)'))
+    else:
+        print(f'Video Director on http://127.0.0.1:{a.port}/studio  (local only; no paid actions)')
     from director.copilot import orchestrator as _O
     from director.studio import api as _SA
     print('Co-Pilot projects resumed:', _O.resume_all(_SA.studio(B.VAR)))
@@ -209,4 +275,4 @@ if __name__ == '__main__':
         kill_orphans(B.VAR / 'studio')
         raise SystemExit(0)
     signal.signal(signal.SIGTERM, _stop)
-    make_server(a.port).serve_forever()
+    make_server(a.port, '0.0.0.0' if a.lan else '127.0.0.1').serve_forever()

@@ -102,10 +102,13 @@ def handle(var, body: dict) -> tuple[int, dict]:
             raise Refused(f'{action} cannot be sent from the page')
         r = S.act(pid, action, args, 'owner', rid)
         if r['status'] == 'recorded':
-            if action == 'cp_control' and args.get('op') == 'stop':
-                r['stopped_renders'] = kill_renders(S, pid)
+            if (action == 'cp_control' and args.get('op') == 'stop') or (action == 'cp_mode' and args.get('mode') == 'manual'):
+                r['stopped_renders'] = kill_renders(S, pid)        # leaving the Co-Pilot stops what it was drawing
+            if action == 'cp_mode' and args.get('mode') == 'copilot' and args.get('resume'):
+                S.act(pid, 'cp_control', {'op': 'resume'}, 'owner', (rid or 'x') + '-resume')
             if action == 'cp_exception_decision' and args.get('decision') == 'manual':
                 S.act(pid, 'cp_mode', {'mode': 'manual', 'note': 'chosen from an exception'}, 'owner', (rid or 'x') + '-manual')
+                kill_renders(S, pid)
             O.kick(S, pid)
         return 200, r
     except Refused as e:
@@ -225,8 +228,9 @@ def view(var, pid) -> dict:
            'current': {g: (c and {'ref': c['ref'], 'hash': c['hash']}) for g, c in cur.items()},
            'gates': {g: [{k: r.get(k) for k in ('decision', 'ref', 'note', 'at', 'by', 'content_hash')} for r in cp['gates'][g]] for g in A.GATES},
            'exceptions': [{k: x.get(k) for k in ('id', 'kind', 'scene', 'title', 'detail', 'detail_ar', 'options', 'status', 'decision', 'decision_note', 'at', 'asset')}
-                          | {'evidence': [_url(pid, e) for e in x.get('evidence') or []], 'title_ar': M.title_ar(x.get('title'))} for x in cp['exceptions']],
-           'timing': _timing(st, now, p['waiting']), 'classic_url': f'/studio/classic#{pid}'}
+                          | {'evidence': [_url(pid, e) for e in x.get('evidence') or []], 'title_ar': M.title_ar(x.get('title')), 'recommend': _recommend(cp, x)}
+                          for x in cp['exceptions']],
+           'timing': _timing(st, now, p['waiting']), 'classic_url': f'/studio/classic#/p/{pid}/'}
     out['ai'] = {'worker': cp['settings'].get('worker', 'mock'), 'label': ai.MOCK_LABEL if cp['settings'].get('worker', 'mock') == 'mock' else ai.CLAUDE_LABEL,
                  'budget_usd': cp['ai']['budget_usd'], 'spent_usd': cp['ai']['spent_usd'], 'real_enabled': os.environ.get('VD_AI_REAL_ENABLED') == '1',
                  'calls': [{k: c.get(k) for k in ('kind', 'role', 'worker', 'ok', 'cost_usd', 'duration_s', 'at', 'error', 'model')} for c in cp['ai']['calls'][-40:]],
@@ -244,7 +248,59 @@ def view(var, pid) -> dict:
     out['g6'] = _g6(S, pid, st, cp, val)
     out['inbox'] = _inbox(out)
     out['history'] = [{k: h[k] for k in ('at', 'actor', 'action', 'summary')} for h in st['history'][-80:]][::-1]
+    if cp['mode'] == 'manual':
+        out['back'] = _return_summary(S, pid, st, cp, out['stages'], val)
     return out
+
+
+# a suggested choice for a decision, only when there is a clear reason for it (shown highlighted with that reason; never chosen for you)
+def _recommend(cp, x):
+    if x.get('status') != 'open': return None
+    opts, kind = x.get('options') or [], x.get('kind')
+    if kind == 'rights' and 'keep_fallback' in opts:
+        return {'option': 'keep_fallback', 'why_ar': 'لا يوجد دليل ترخيص لهذه الصورة، والرسم البديل آمن. تقدر تضيف الترخيص لاحقًا.',
+                'why_en': 'There is no licence evidence for this picture, and the drawn fallback is safe. You can add the licence later.'}
+    if kind == 'fact' and 'remove_banner' in opts:
+        return {'option': 'remove_banner', 'why_ar': 'المعلومة على الشاشة غير مؤكدة في البحث. حذفها أسلم من عرضها.',
+                'why_en': 'The fact on screen is not confirmed by the research. Removing it is safer than showing it.'}
+    if kind in ('retry_limit', 'unfixable', 'touches_approved') and 'accept_best' in opts and x.get('scene'):
+        d = cp['scenes'].get(x['scene']) or {}
+        ver = next((v for v in d.get('versions', []) if v['n'] == x.get('version')), None)
+        fs = [f for f in (ver or {}).get('findings', []) if f.get('severity') != 'info']
+        if ver and all(f.get('severity') == 'minor' for f in fs):
+            return {'option': 'accept_best', 'why_ar': 'أفضل نسخة ليس فيها إلا ملاحظات بسيطة.' if fs else 'أفضل نسخة ليس فيها ملاحظات.',
+                    'why_en': 'The best version has only minor issues.' if fs else 'The best version has no issues.'}
+    return None
+
+
+# what the owner did by hand in Manual mode (shown before going back; never turned into Co-Pilot approvals by itself)
+DECIDE_AR = {'research_decision': 'البحث', 'script_decision': 'النص', 'hook_select': 'اختيار الافتتاحية', 'hook_delivery': 'سطر تحقيق الافتتاحية',
+             'take_decision': 'تسجيل صوت', 'flag_word': 'علامة على كلمة', 'apply_correction': 'تصحيح كلمة', 'dismiss_flag': 'إلغاء علامة',
+             'voice_flag': 'علامة على نطق', 'voice_fix': 'تصحيح نطق', 'art_select': 'اختيار رسم', 'art_modify': 'تعديل رسم', 'art_decision': 'قرار على رسم',
+             'build_storyboard': 'لوحة المشاهد', 'storyboard_decision': 'قرار لوحة المشاهد', 'render_decision': 'قرار المسودة', 'finding_decision': 'ملاحظة مراجعة',
+             'fix_done': 'إصلاح', 'authorize_voice': 'تفويض الصوت', 'term_decision': 'كتابة مصطلح', 'set_budget': 'ميزانية الأحرف',
+             'gate_authorize': 'تفويض التعليق المدفوع', 'set_voice': 'اختيار الصوت'}
+
+
+def _return_summary(S, pid, st, cp, stages, val):
+    evs = S.events(pid)
+    since = max([e['seq'] for e in evs if e['status'] == 'cp_mode' and ((e['data'] or {}).get('result') or {}).get('mode') == 'manual'] or [0])
+    made = [{'what_ar': DECIDE_AR[e['status']], 'decision': ((e['data'] or {}).get('result') or {}).get('decision') or ((e['data'] or {}).get('args') or {}).get('decision'),
+             'at': e['at']} for e in evs if e['seq'] > since and e['actor'] == 'owner' and e['status'] in DECIDE_AR]
+    st2 = S.state(pid)                                   # a copy: what the Co-Pilot WOULD do next if it ran again (nothing runs here)
+    st2['copilot']['mode'], st2['copilot']['run'] = 'copilot', 'running'
+    try:
+        nxt = O.plan(S, pid, st2)
+    except Exception:
+        nxt = {'steps': [], 'waiting': []}
+    names = {sid: ar for sid, g, en, ar in O.STAGES}
+    steps = [{'stage_ar': names.get(x.stage, x.stage), 'what': x.what, 'ai': 'AI' in x.what} for x in nxt.get('steps', [])]
+    left = round(cp['ai']['budget_usd'] - cp['ai']['spent_usd'], 2)
+    real = cp['settings'].get('worker', 'mock') == 'claude-code'
+    return {'made': made, 'done_ar': [s['name_ar'] for s in stages if s['state'] in ('owner_approved', 'completed')],
+            'open_ar': [{'gate_ar': M.GATE_AR[g], 'why_ar': M.why_ar(val[g]['why']) if val[g]['why'] else ''} for g in A.GATES if g != 'G6' and not val[g]['valid']],
+            'next': steps, 'waiting_ar': [M.GATE_AR[g] for g in nxt.get('waiting', [])],
+            'ai_real': real, 'ai_left_usd': left, 'ai_steps': sum(1 for x in steps if x['ai']), 'paid_locked': os.environ.get('VIDEO_DIRECTOR_PAID_ENABLED') != '1'}
 
 
 def _g1(S, pid, st, cp):

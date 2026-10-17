@@ -25,7 +25,7 @@
   --bad:#b0362b; --bad-soft:#f8e1de; --ai:#5b3fb0; --ai-soft:#ece6fb; --unk:#5f6873; --unk-soft:#eceef1; color-scheme:light}
 [hidden]{display:none!important}
 *{box-sizing:border-box}
-html,body{max-width:100%;overflow-x:hidden}
+html,body{max-width:100%;overflow-x:clip}   /* clip, not hidden: hidden turns body into a scroll box and the sticky bars stop sticking */
 body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--f);margin:0;overflow-wrap:anywhere}
 a{color:var(--accent)}
 button,select,input,textarea{font:inherit;color:var(--ink)}
@@ -68,8 +68,8 @@ main{padding:12px 16px 120px;max-width:620px;margin:0 auto;display:flex;flex-dir
 .stages button.cur{outline:2px solid var(--accent)}
 .lockline{font-size:.8125rem;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
-.timeline{display:flex;gap:3px;width:100%}
-.timeline button{flex:1 1 0;min-width:24px;min-height:32px;padding:0;border-radius:6px;font-size:.8125rem;border-width:2px;white-space:nowrap;overflow:hidden;direction:ltr;position:relative;font-variant-numeric:tabular-nums}
+.timeline{display:flex;gap:2px;width:100%}
+.timeline button{flex:1 1 0;min-width:0;min-height:32px;padding:0;border-radius:6px;font-size:.8125rem;border-width:2px;white-space:nowrap;overflow:hidden;direction:ltr;position:relative;font-variant-numeric:tabular-nums}
 .timeline button i{font-style:normal;font-weight:700;position:absolute;top:-1px;inset-inline-end:2px;font-size:.75rem;line-height:1}
 .timeline .end{flex:0 0 10px;align-self:stretch;border-radius:4px;background:var(--sunk)}
 .timeline button.on{outline:2px solid var(--ink)}
@@ -102,8 +102,8 @@ audio{background:none}
 .label-ai{background:var(--ai-soft);color:var(--ai);border-radius:10px;padding:6px 10px;font-size:.8125rem;font-weight:600}
 .label-draft{background:var(--wait-soft);color:var(--wait);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:600}
 .label-lock{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:600}
-/* messages: a success note fades; a refusal stays until closed or fixed; the text never blocks a tap (only its buttons take taps) */
-.toast{position:fixed;inset-inline:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px;font-weight:600;max-width:588px;margin:0 auto;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-height:45vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,.25)}
+/* messages (at the top, clear of the decision bar): a success note fades; a refusal stays until closed or fixed; the text never blocks a tap (only its buttons take taps) */
+.toast{position:fixed;inset-inline:16px;top:calc(60px + env(safe-area-inset-top,0px));z-index:50;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px;font-weight:600;max-width:588px;margin:0 auto;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-height:45vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .toast.bad{background:var(--bad);color:#fff}
 .toast .tacts{display:flex;gap:8px;flex-wrap:wrap}
 .toast button{pointer-events:auto;min-height:40px;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.5);color:inherit;font-weight:600}
@@ -125,6 +125,27 @@ audio{background:none}
 .chips button{min-height:38px;font-size:.88rem}
 .vers{display:flex;flex-wrap:wrap;gap:6px}
 .vers button{min-height:34px;font-size:.8125rem;padding:2px 10px}
+/* compact header, progress dots, the decision bar that stays at the bottom, folded details */
+a.next{color:inherit;text-decoration:none}
+.top .ttl{font-size:1.05rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+button.sm{min-height:36px;padding:4px 12px;font-size:.88rem}
+.dots{display:flex;gap:4px}
+.dots button{flex:1 1 0;min-width:0;min-height:28px;padding:0;border:none;background:none;border-radius:6px;display:flex;align-items:center}
+.dots button i{display:block;width:100%;height:8px;border-radius:99px;background:var(--line)}
+.dots .d-done i{background:var(--ok)} .dots .d-wait i{background:var(--wait)} .dots .d-work i{background:var(--ai);animation:pulse 1.2s infinite}
+.dots .d-ai i{background:var(--ai-soft);box-shadow:inset 0 0 0 1px var(--ai)} .dots .d-bad i{background:var(--bad)} .dots .d-lock i{background:repeating-linear-gradient(90deg,var(--unk) 0 3px,transparent 3px 6px)}
+.dots button.cur i{height:12px;box-shadow:0 0 0 2px var(--ink)}
+.dbar{position:sticky;bottom:calc(8px + env(safe-area-inset-bottom,0px));z-index:20;background:var(--panel);border:1px solid var(--accent);border-radius:16px;padding:10px 12px;display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 24px rgba(0,0,0,.28)}
+.dbar .miss:empty{display:none} .dbar .miss{font-size:.8125rem;color:var(--wait)} .dbar .miss ul{margin:2px 0 0}
+.dbar .miss button.link{min-height:28px;padding:0;color:var(--wait);text-decoration:underline;text-align:start}
+details>summary{cursor:pointer;min-height:32px;display:flex;align-items:center;gap:6px}
+details.card>summary{font-weight:600}
+.dbar details>summary{color:var(--accent);font-size:.92rem}
+.rec{box-shadow:0 0 0 2px var(--ok)} .recwhy{font-size:.8125rem;color:var(--ok);margin-top:-4px}
+.stagelist{list-style:none;padding:0;margin:0;display:grid;gap:2px} .stagelist li{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:.88rem}
+.stagelist a{min-height:28px;display:inline-flex;align-items:center}
+.ask .card{max-height:85vh;overflow:auto}
+.label-lock details{font-weight:400}
 </style>
 </head>
 <body>
@@ -161,7 +182,18 @@ const T = {
     interrupted:'توقف أثناء العمل (سيُستأنف)', ai_label:'نتائج تجريبية', draftvoice:'صوت تجريبي', target:'الهدف', s:'ث',
     stop_q:'إيقاف المساعد؟', stop_b:'سيتوقف أي رسم أو تسجيل جارٍ الآن. لا يُحذف شيء، وكل موافقاتك تبقى. تقدر تكمل لاحقًا بـ«متابعة».', stop_ok:'نعم، أوقف',
     manual_q:'التحويل إلى اليدوي؟', manual_b:'يتوقف المساعد ويُفتح الاستوديو الكلاسيكي. لا تُمحى أي موافقة.', manual_ok:'نعم، حوّل', keep:'تراجع',
-    close:'إغلاق', details:'التفاصيل', take_me:'خذني إليه', nospend:'لا صرف تلقائي', locked:'مقفل', voice:'الصوت', choosefile:'اختر الصورة', frame:'الإطار'},
+    close:'إغلاق', details:'التفاصيل', take_me:'خذني إليه', nospend:'لا صرف تلقائي', locked:'مقفل', voice:'الصوت', choosefile:'اختر الصورة', frame:'الإطار',
+    more:'المزيد', classic_now:'مشروع من الاستوديو الكلاسيكي: افتحه هناك', back_cp:'ارجع للمساعد', manual_now:'المشروع في اليدوي، والمساعد متوقف.', manual_gate:'أنت في اليدوي. ارجع للمساعد لتوافق هنا.',
+    what_change:'ما الذي تريد تغييره؟', send_change:'أرسل طلب التعديل', hook_one:'الافتتاحية', other_hooks:'افتتاحيات أخرى', minor_n:'ملاحظات بسيطة',
+    needfirst:'قبل الموافقة:', m_check:'انتظر انتهاء فحص النص', m_evidence:'أضف دليلًا أو عدّل السطر', m_ack:'علّم «قرأت التحذير»', m_mix:'التسجيل يُجهَّز، انتظر قليلًا',
+    m_listen:'استمع إلى الأسطر', m_ackqa:'علّم «استمعتُ إلى هذه الكلمات»', m_watch:'شاهد الفيلم كاملًا', m_big:'ملاحظة مهمة: اكتب سببًا أو انتظر إصلاحها', m_minor:'علّم الإقرار بالملاحظات البسيطة',
+    back_q:'الرجوع للمساعد؟', back_ok:'ارجع وتابع', b_made:'ما فعلته يدويًا', b_open:'ينتظر موافقتك', b_next:'ما سيعمله المساعد', b_paid:'لا صرف: التعليق المدفوع مقفل',
+    b_ai_real:'ذكاء حقيقي، المتبقي من ميزانيته', b_ai_steps:'خطوات بالذكاء', b_ai_mock:'الذكاء تجريبي، بلا تكلفة',
+    b_rule:'قراراتك اليدوية لا تصير موافقات تلقائيًا: ستؤكد كل مرحلة بنفسك، ولا يُعاد أي عمل مدفوع.',
+    left:'المتبقي', w_mock:'تجريبي (مجاني)', w_mock_d:'نتائج تجريبية بلا نموذج حقيقي', w_real_d:'Claude الحقيقي، ضمن الميزانية فقط', w_real_off:'مقفل على هذا الجهاز',
+    set_budget:'اعتمد ميزانية الذكاء', budget_rule:'الذكاء الحقيقي لا يعمل إلا ضمن هذا الحد، وكل استدعاء يُسجَّل بتكلفته.', usd:'الحد بالدولار (0–50)',
+    budget_why:'لماذا؟ (يُحفظ في السجل)', budget_ok:'أفهم أن هذا صرف حقيقي حتى هذا الحد', budget_tick:'علّم أنك تفهم أن هذا صرف حقيقي.',
+    budget_q:'اعتماد ميزانية الذكاء؟', budget_b:'يقدر المساعد يصرف على الذكاء الحقيقي حتى', budget_yes:'نعم، اعتمد'},
   en: {app:'Video Director', projects:'Your projects', newvid:'New video', title:'Title', idea:'Idea', brand:'Brand', mode:'How to work',
     copilot:'Co-Pilot', copilot_d:'You approve the important decisions; the Co-Pilot does the work in between', manual:'Manual', manual_d:'The classic Studio, step by step',
     auto:'Auto', auto_d:'Not yet implemented', duration:'Length (seconds)', start:'Start', stage:'Stage', task:'Task', next:'Your next decision',
@@ -185,7 +217,18 @@ const T = {
     interrupted:'stopped mid-way (will be resumed)', ai_label:'mock results', draftvoice:'Draft voice', target:'target', s:'s',
     stop_q:'Stop the Co-Pilot?', stop_b:'Any drawing or recording in progress stops now. Nothing is deleted and all your approvals stay. You can carry on later with Resume.', stop_ok:'Yes, stop',
     manual_q:'Switch to Manual?', manual_b:'The Co-Pilot stops and the classic Studio opens. No approval is erased.', manual_ok:'Yes, switch', keep:'Keep going',
-    close:'Close', details:'Details', take_me:'Take me there', nospend:'No automatic spending', locked:'locked', voice:'Voice', choosefile:'Choose the picture', frame:'frame'}
+    close:'Close', details:'Details', take_me:'Take me there', nospend:'No automatic spending', locked:'locked', voice:'Voice', choosefile:'Choose the picture', frame:'frame',
+    more:'More', classic_now:'A classic Studio project: open it there', back_cp:'Back to the Co-Pilot', manual_now:'This project is in Manual; the Co-Pilot is stopped.', manual_gate:'You are in Manual. Go back to the Co-Pilot to approve here.',
+    what_change:'What should change?', send_change:'Send the change request', hook_one:'Hook', other_hooks:'Other hooks', minor_n:'minor issues',
+    needfirst:'Before approving:', m_check:'wait for the script check to finish', m_evidence:'add evidence or edit the line', m_ack:'tick “I read the warning”', m_mix:'the narration is being prepared',
+    m_listen:'listen to lines', m_ackqa:'tick “I listened to these words”', m_watch:'watch the whole film', m_big:'important issue(s): explain or wait for the fix', m_minor:'tick the minor-issues acknowledgement',
+    back_q:'Back to the Co-Pilot?', back_ok:'Go back and continue', b_made:'What you did by hand', b_open:'Waiting for your approval', b_next:'What the Co-Pilot will do', b_paid:'No spending: paid narration is locked',
+    b_ai_real:'Real AI, left in its budget', b_ai_steps:'AI steps', b_ai_mock:'Mock AI, no cost',
+    b_rule:'Your manual decisions do not become approvals by themselves: you confirm each stage, and no paid work is repeated.',
+    left:'left', w_mock:'Mock (free)', w_mock_d:'Mock results, no real model', w_real_d:'Real Claude, within the budget only', w_real_off:'Locked on this computer',
+    set_budget:'Authorize an AI budget', budget_rule:'Real AI runs only within this limit; every call is recorded with its cost.', usd:'Limit in US dollars (0–50)',
+    budget_why:'Why? (kept in the history)', budget_ok:'I understand this is real spending up to this limit', budget_tick:'Tick that you understand this is real spending.',
+    budget_q:'Authorize the AI budget?', budget_b:'The Co-Pilot may spend on real AI up to', budget_yes:'Yes, authorize'}
 };
 let LANG = 'ar';
 try { LANG = localStorage.getItem('cp_lang') || 'ar'; } catch (e) {}
@@ -234,7 +277,7 @@ const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = () => (crypto.randomUUID ? crypto.randomUUID() : 'r' + Math.random().toString(36).slice(2) + Date.now());
 const fmt = s => { s = Math.max(0, Math.round(s || 0)); const m = Math.floor(s / 60); return m ? `${m}:${String(s % 60).padStart(2, '0')}` : `${s} ${t('s')}`; };
-const S = { pid: null, v: null, panel: null, sig: '', cov: {}, sel: {}, editing: null, ex: null, list: null };
+const S = { pid: null, v: null, panel: null, sig: '', cov: {}, sel: {}, editing: null, ex: null, list: null, open: {} };
 
 function applyLang() {
   document.documentElement.lang = LANG; document.documentElement.dir = AR() ? 'rtl' : 'ltr';
@@ -269,10 +312,10 @@ async function goFix(fx) {                            // "take me there": open t
   if (el.focus) el.focus({ preventScroll: true });
 }
 // an in-page confirmation (the same on every phone; nothing happens until the second, explicit tap)
-function ask(title, body, okLabel, okClass) {
+function ask(title, body, okLabel, okClass) {         // body: plain text, or {html} for a ready-made summary
   return new Promise(res => {
     const box = $('#askbox'), back = document.activeElement;
-    box.innerHTML = `<div class="ask" role="dialog" aria-modal="true" aria-labelledby="ask-t"><div class="card"><h2 id="ask-t">${esc(title)}</h2><p class="small">${esc(body)}</p>
+    box.innerHTML = `<div class="ask" role="dialog" aria-modal="true" aria-labelledby="ask-t"><div class="card"><h2 id="ask-t">${esc(title)}</h2>${body && body.html ? body.html : `<p class="small">${esc(body)}</p>`}
       <button class="big ${okClass || 'primary'}" data-ask-ok="1">${esc(okLabel)}</button><button class="big" data-ask-no="1">${t('keep')}</button></div></div>`;
     const done = v => { box.innerHTML = ''; document.removeEventListener('keydown', esc_); if (back && back.focus) back.focus(); res(v); };
     const esc_ = ev => { if (ev.key === 'Escape') done(false); };
@@ -294,6 +337,7 @@ function draftInput(e) { const el = e.target.closest && e.target.closest('[data-
   const d = drafts(); const v = el.type === 'checkbox' ? el.checked : el.value;
   if (v === '' || v === false) delete d[el.dataset.draft]; else d[el.dataset.draft] = v; saveDrafts(); }
 document.addEventListener('input', draftInput); document.addEventListener('change', draftInput);
+document.addEventListener('change', () => showMissing()); document.addEventListener('input', () => showMissing());
 function restoreDrafts() { const d = drafts();
   document.querySelectorAll('[data-draft]').forEach(el => { const v = d[el.dataset.draft]; if (v === undefined) return;
     if (el.type === 'checkbox') el.checked = !!v; else if (el.value !== v) el.value = v; }); }
@@ -350,7 +394,7 @@ async function render(force) {
   const r = route();
   if (r.page === 'home') return home();
   if (r.page === 'new') return newForm();
-  if (S.pid !== r.pid) { S.pid = r.pid; S.v = null; S.cov = {}; }
+  if (S.pid !== r.pid) { S.pid = r.pid; S.v = null; S.cov = {}; S.open = {}; }
   S.panel = r.panel;
   try { S.v = await get('/api/copilot/' + encodeURIComponent(S.pid)); } catch (e) { $('#main').innerHTML = `<div class="card">${esc(e.message)}</div>`; return; }
   project(force);
@@ -364,7 +408,7 @@ async function home() {
     <button class="primary big" onclick="location.hash='#/new'">＋ ${t('newvid')}</button>
     <div class="card"><h2>${t('projects')}</h2>
       ${ps.length ? ps.map(p => `<a class="row between" style="text-decoration:none;color:inherit;border-top:1px solid var(--line);padding-top:8px"
-          href="${p.mode === 'copilot' ? '#/p/' + encodeURIComponent(p.id) : '/studio/classic#' + encodeURIComponent(p.id)}">
+          href="${p.mode === 'classic' ? '/studio/classic#/p/' + encodeURIComponent(p.id) + '/' : '#/p/' + encodeURIComponent(p.id)}">
           <span class="grow"><b>${esc(p.title)}</b><br><span class="tiny muted">${esc(({ timekeeper: 'Time Keeper', 'diabetes-history': 'Diabetes History' })[p.brand] || p.brand)} · ${p.mode === 'copilot' ? t('copilot') : p.mode === 'manual' ? t('manual') : t('classic')}</span></span>
           <span class="pill st-${p.run === 'running' ? 'working' : 'not_started'}">${esc(stx(p.run))}</span></a>`).join('') : `<p class="muted">${AR() ? 'لا يوجد فيديو بعد. اضغط «فيديو جديد» للبدء.' : 'No video yet. Tap “New video” to start.'}</p>`}
     </div>
@@ -391,7 +435,7 @@ function newForm() {
     if (!j) return;
     clearDrafts(['new:']);
     location.hash = mode === 'copilot' ? '#/p/' + encodeURIComponent(j.project) : '';
-    if (mode !== 'copilot') location.href = '/studio/classic#' + encodeURIComponent(j.project);
+    if (mode !== 'copilot') location.href = '/studio/classic#/p/' + encodeURIComponent(j.project) + '/';
   };
 }
 
@@ -421,59 +465,132 @@ function project(force) {
   document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => { if (m.currentTime > 0 && !m.ended) keep[m.id] = [m.currentSrc, m.currentTime]; });
   $('#main').innerHTML = `<div id="topbox">${top}</div><div id="panel" class="stack">${panelHtml(v, panel)}</div>${footHtml(v)}`;
   restoreDrafts();                              // anything you typed and did not send yet comes back after a redraw
+  document.querySelectorAll('#main details[data-keep]').forEach(d => { const k = d.dataset.keep; if (S.open[k] != null) d.open = S.open[k];
+    d.addEventListener('toggle', () => { S.open[k] = d.open; }); });
   wire(v, panel);
+  showMissing();
   document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => {
     const restore = () => { const k = keep[m.id]; if (k && k[0] === m.currentSrc) m.currentTime = k[1]; };
     if (m.readyState >= 1) restore(); else m.addEventListener('loadedmetadata', restore, { once: true }); });
   $('#main').dataset.view = location.hash;        // which screen is on display (tests and assistive tools can wait for it)
 }
+const GO = { direction: 'g1', script: 'g2', voice: 'g3', style: 'g4', assets: 'assets', scenes: 'scenes', film: 'g5', paid: 'g6', export: 'g6' };
+// what the Co-Pilot is doing, in plain words (the server names its steps in English)
+const TASK = [[/^story direction/, 'يبحث ويكتب اتجاه القصة'], [/^independent research check/, 'يتحقق من البحث'], [/^revise the direction/, 'يعدّل الاتجاه'],
+  [/^write the script/, 'يكتب النص والافتتاحيات'], [/^fact check and editor review/, 'يفحص حقائق النص'], [/^self-revision/, 'يحسّن النص'], [/^revise v\d+ as you asked/, 'يعدّل النص كما طلبت'],
+  [/^pronunciation proposals/, 'يقترح نطق الأسماء'], [/^draft voice for (\d+)/, m => `يسجّل صوتًا تجريبيًا (${m[1]} سطر)`], [/^play-all narration/, 'يجمع التسجيل ويفحصه'],
+  [/^speed\/pauses/, 'يعدّل السرعة والوقفات'], [/^art brief/, 'يصف المشاهد'], [/^style boards/, 'يرسم لوحات الأساليب'], [/^pictures this film needs/, 'يبحث عن الصور'],
+  [/^picture without licence/, 'صورة بلا ترخيص'], [/^licence evidence received/, 'وصل دليل الترخيص'], [/^your request/, 'يفهم طلبك'], [/^your comment at/, 'ينفّذ تعليقك'],
+  [/^scene (\S+): draw/, m => `يرسم ${lineName(m[1], true)} ويفحصه`], [/^assemble, render/, 'يجمع الفيلم ويراجعه'], [/^fix what the film review/, 'يصلح ملاحظات الفيلم'],
+  [/^final narration plan/, 'يجهّز خطة التعليق النهائي']];
+function taskName(what) { if (!AR()) return what || ''; for (const [re, ar] of TASK) { const m = re.exec(what || ''); if (m) return typeof ar === 'function' ? ar(m) : ar; } return 'يعمل…'; }
+function runState(v) {
+  if (v.mode === 'manual') return ['st-not_started', t('manual')];
+  if (v.task) return ['st-working', t('working')];
+  if (v.run === 'paused') return ['st-needs_owner', t('paused')];
+  if (v.run === 'stopped') return ['st-not_started', t('stopped')];
+  return v.top.next ? ['st-needs_owner', t('waiting')] : ['st-not_started', t('idle')];
+}
+const dotCls = s => s.locked ? 'd-lock' : ({ owner_approved: 'd-done', completed: 'd-done', needs_owner: 'd-wait', changes_requested: 'd-wait', working: 'd-work', ai_review: 'd-ai', blocked: 'd-bad' })[s.state] || '';
+// the top of every project screen: what it is, what it is doing, and the one thing that needs you. Everything else is under «المزيد».
 function topHtml(v) {
-  const n = v.top.next;
-  const runTxt = v.task ? t('working') : v.run === 'paused' ? t('paused') : v.run === 'stopped' ? t('stopped') : n ? t('waiting') : t('idle');
-  const tk = v.task;
-  return `<div class="card">
-    <div class="crumbs"><b>${esc(v.title)}</b><span class="sep">›</span><span>${esc(AR() ? v.top.stage_ar : v.top.stage)}</span><span class="sep">›</span>
-      <span class="muted">${esc(tk ? tk.what : runTxt)}</span></div>
-    ${n ? `<a class="next" href="#/p/${encodeURIComponent(v.id)}/${n.kind === 'gate' ? n.gate.toLowerCase() : 'ex/' + n.id}" style="color:inherit;text-decoration:none">
-        <span class="grow"><span class="tiny muted">${t('next')}</span><br><b>${esc(AR() ? (n.title_ar || n.title) : n.title)}</b></span><span>${AR() ? '‹' : '›'}</span></a>`
-      : `<div class="next calm"><span class="grow"><b>${runTxt}</b>${tk ? `<br><span class="small">${esc(tk.what)}${tk.units_total ? ` · ${tk.units_done}/${tk.units_total}` : ''} · ${fmt(tk.elapsed_s)}${tk.eta_s != null ? ` · ~${fmt(tk.eta_s)}` : ''}</span>` : ''}</span></div>`}
-    ${v.interrupted.length && !v.task ? `<div class="tiny muted">${t('interrupted')}</div>` : ''}
-    <div class="stages">${v.stages.map(s => `<button data-go="${({ direction: 'g1', script: 'g2', voice: 'g3', style: 'g4', assets: 'assets', scenes: 'scenes', film: 'g5', paid: 'g6', export: 'g6' })[s.id]}"
-        class="${s.id === v.top.stage_id ? 'cur' : ''}"><span>${esc(AR() ? s.name_ar : s.name)}</span>${s.locked ? `<span class="pill st-locked">🔒 ${t('locked')}</span>` : `<span class="pill st-${s.state}">${esc(STN(s))}</span>`}</button>`).join('')}</div>
-    <div class="row between small">
-      <span class="muted">${t('processing')} ${fmt(v.timing.processing_s)} · ${t('waittime')} ${fmt(v.timing.waiting_s)}</span>
-      <span class="row">${v.mode === 'copilot' ? (v.run === 'running' ? `<button data-ctl="pause">${t('pause')}</button>` : `<button class="primary" data-ctl="resume">${t('resume')}</button>`) : ''}</span></div>
-    ${v.blocked.length ? v.blocked.map(b => `<div class="label-lock">${esc(b.what)}: ${esc(b.error).slice(0, 160)} <button data-retry="${esc(b.key)}">${t('retry')}</button></div>`).join('') : ''}
+  const n = v.top.next, tk = v.task, P = encodeURIComponent(v.id), [rc, rt] = runState(v);
+  const more = Math.max(0, v.inbox.length - 1), idx = v.stages.findIndex(s => s.id === v.top.stage_id) + 1;
+  return `<div class="card top">
+    <div class="row"><b class="grow ttl">${esc(v.title)}</b>${pill(rc, rt)}
+      ${v.mode === 'copilot' ? (v.run === 'running' ? `<button class="sm" data-ctl="pause">${t('pause')}</button>` : `<button class="primary sm" data-ctl="resume">${t('resume')}</button>`) : ''}</div>
+    ${v.mode === 'classic' ? `<a class="next calm" href="${v.classic_url}"><span class="grow small">${t('classic_now')}</span><span aria-hidden="true">${AR() ? '‹' : '›'}</span></a>`
+      : v.mode === 'manual' ? `<div class="next calm"><span class="grow small">${t('manual_now')}</span><button class="primary sm" data-back="1">${t('back_cp')}</button></div>`
+      : n ? `<a class="next" href="#/p/${P}/${n.kind === 'gate' ? n.gate.toLowerCase() : 'ex/' + n.id}"><span class="grow"><span class="tiny muted">${t('next')}</span><br><b>${esc(AR() ? (n.title_ar || n.title) : n.title)}</b>${more ? ` <span class="tiny muted">+${more}</span>` : ''}</span><span aria-hidden="true">${AR() ? '‹' : '›'}</span></a>`
+      : tk ? `<div class="next calm"><span class="grow small"><b>${esc(taskName(tk.what))}</b>${tk.units_total ? ` · ${tk.units_done}/${tk.units_total}` : ''}${tk.eta_s != null ? ` · ~${fmt(tk.eta_s)}` : ''}</span></div>`
+      : v.interrupted.length ? `<div class="next calm"><span class="grow small">${t('interrupted')}</span></div>` : ''}
+    ${v.blocked.map(b => `<div class="label-lock">${esc(taskName(b.what))} <button class="sm" data-retry="${esc(b.key)}">${t('retry')}</button><details class="tiny"><summary>${t('details')}</summary><div dir="ltr">${esc(b.error).slice(0, 300)}</div></details></div>`).join('')}
+    <div class="dots">${v.stages.map(s => { const nm = (AR() ? s.name_ar : s.name) + ': ' + (s.locked ? t('locked') : STN(s));
+      return `<button data-go="${GO[s.id]}" class="${dotCls(s)}${s.id === v.top.stage_id ? ' cur' : ''}" aria-label="${esc(nm)}" title="${esc(nm)}"><i></i></button>`; }).join('')}</div>
+    <div class="row between tiny muted"><span>${esc(AR() ? v.top.stage_ar : v.top.stage)} · ${idx}/${v.stages.length}</span><a class="lockchip" href="#/p/${P}/g6" title="${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}">🔒 ${t('nospend')}</a></div>
     ${timelineHtml(v)}
-    <div class="lockline"><a class="lockchip" href="#/p/${encodeURIComponent(v.id)}/g6" title="${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}">🔒 ${t('nospend')}</a>
-      <span>${v.ai.worker === 'mock' ? t('mock') : esc(v.ai.label)}${(v.ai.budget_usd || v.ai.spent_usd) ? ` · $${(v.ai.spent_usd || 0).toFixed(3)} / $${(v.ai.budget_usd || 0).toFixed(2)}` : ''}</span></div>
   </div>`;
 }
 function timelineHtml(v) {
   if (!v.scenes || !v.scenes.length) return '';
-  return `<div class="stack"><div class="row between tiny muted"><span>${t('scenes')}</span><span><span class="pill st-ai_reviewed">${t('ai_rev')}</span> ≠ <span class="pill st-owner_approved">${t('owner_ok')}</span></span></div>
-    <div class="timeline">${v.scenes.map(s => { const w = v.task && v.task.what && v.task.what.startsWith('scene ' + s.id + ':'); const stt = w ? 'working' : s.state;
+  return `<div class="timeline">${v.scenes.map(s => { const w = v.task && v.task.what && v.task.what.startsWith('scene ' + s.id + ':'); const stt = w ? 'working' : s.state;
       const sym = { working: '…', needs_owner: '!', outdated: '↻', not_started: '' }[stt] ?? '';
-      return `<button class="tl-${stt}" data-go="scene/${s.id}" aria-label="${esc(lineName(s.id, true) + ': ' + stx(stt))}" title="${esc(lineName(s.id, true) + ': ' + stx(stt))}">${esc(lineNo(s.id))}${sym ? `<i aria-hidden="true">${sym}</i>` : ''}</button>`; }).join('')}</div></div>`;
+      return `<button class="tl-${stt}" data-go="scene/${s.id}" aria-label="${esc(lineName(s.id, true) + ': ' + stx(stt))}" title="${esc(lineName(s.id, true) + ': ' + stx(stt))}">${esc(lineNo(s.id))}${sym ? `<i aria-hidden="true">${sym}</i>` : ''}</button>`; }).join('')}</div>`;
 }
 function footHtml(v) {
-  return `<div class="card"><div class="ft"><a href="#/p/${encodeURIComponent(v.id)}/inbox">${t('inbox')} (${v.inbox.length})</a>
-    <a href="#/p/${encodeURIComponent(v.id)}/ai">${t('ai_usage')}</a><a href="#/p/${encodeURIComponent(v.id)}/history">${t('history')}</a>
-    <a href="${v.classic_url}">${t('advanced')}: ${t('classic')}</a><a href="/dashboard">${t('dashboard')}</a>
-    ${v.mode === 'copilot' ? `<button class="link" data-manual="1">${t('to_manual')}</button>` : `<span class="pill st-not_started">${t('manual')}</span>`}
-    ${v.mode === 'copilot' && v.run !== 'stopped' ? `<button class="bad" data-ctl="stop">${t('stop')}</button>` : ''}</div></div>`;
+  const P = encodeURIComponent(v.id);
+  return `<details class="card more" data-keep="more"><summary>${t('more')}</summary><div class="stack">
+    <ul class="stagelist">${v.stages.map(s => `<li><a href="#/p/${P}/${GO[s.id]}">${esc(AR() ? s.name_ar : s.name)}</a>${s.locked ? pill('st-locked', '🔒 ' + t('locked')) : pill('st-' + s.state, STN(s))}</li>`).join('')}</ul>
+    <p class="tiny muted">${t('processing')} ${fmt(v.timing.processing_s)} · ${t('waittime')} ${fmt(v.timing.waiting_s)}</p>
+    <p class="tiny muted">${v.ai.worker === 'mock' ? t('mock') : esc(v.ai.label)} · $${(v.ai.spent_usd || 0).toFixed(3)} / $${(v.ai.budget_usd || 0).toFixed(2)}</p>
+    <div class="ft"><a href="#/p/${P}/inbox">${t('inbox')} (${v.inbox.length})</a><a href="#/p/${P}/ai">${t('ai_usage')}</a><a href="#/p/${P}/history">${t('history')}</a>
+      <a href="${v.classic_url}">${t('classic')}</a><a href="/dashboard">${t('dashboard')}</a></div>
+    ${v.mode === 'copilot' ? `<div class="row"><button class="grow" data-manual="1">${t('to_manual')}</button>${v.run !== 'stopped' ? `<button class="bad" data-ctl="stop">${t('stop')}</button>` : ''}</div>` : ''}
+  </div></details>`;
 }
-function decisionButtons(g, opts) {
-  opts = opts || {};
-  return `<div class="stack"><textarea id="note-${g}" data-draft="note:${g}" placeholder="${t('note')}"></textarea>
-    <button class="primary big" data-gate="${g}" data-d="approved" ${opts.disabled ? 'disabled' : ''}>${t('approve')}</button>
-    ${opts.approveOnly ? '' : `<div class="row"><button class="grow" data-gate="${g}" data-d="changes_requested">${t('changes')}</button>
-    ${opts.noReject ? '' : `<button class="bad" data-gate="${g}" data-d="rejected">${t('reject')}</button>`}</div>`}</div>`;
+// the decision at the bottom of a gate screen. It is always there; above it, a live list says exactly what is still missing.
+// Tapping approve always asks the server, which checks everything again (this list only helps you get there).
+function decisionBar(v, g, o) {
+  o = o || {};
+  if (v.mode === 'classic') return `<div class="dbar"><a class="small" href="${v.classic_url}">${t('classic_now')}</a></div>`;
+  if (v.mode !== 'copilot') return `<div class="dbar"><p class="small">${t('manual_gate')}</p><button class="primary big" data-back="1">${t('back_cp')}</button></div>`;
+  const note = o.approveOnly ? '' : `<details class="note" data-keep="note:${g}"${drafts()['note:' + g] ? ' open' : ''}><summary data-open-note="${g}">${t('changes')}</summary>
+      <div class="stack"><textarea id="note-${g}" data-draft="note:${g}" placeholder="${t('what_change')}"></textarea>
+      <div class="row"><button class="grow" data-gate="${g}" data-d="changes_requested">${t('send_change')}</button>${o.noReject ? '' : `<button class="bad" data-gate="${g}" data-d="rejected">${t('reject')}</button>`}</div></div></details>`;
+  return `<div class="dbar" id="dbar-${g}"><div class="miss" id="miss-${g}" aria-live="polite"></div>${note}
+    <button class="primary big" data-gate="${g}" data-d="approved">${t('approve')}</button></div>`;
+}
+// the same rules the server applies (80 % heard or watched, every warning read, every open issue answered), read from the screen
+function missing(v, g) {
+  const m = [];
+  if (g === 'G2' && v.g2) {
+    if (!v.g2.check) m.push([t('m_check'), null]);
+    else for (const [l, c] of Object.entries(v.g2.check.lines || {})) {
+      if (c.severity === 'critical' && !((document.querySelector(`[data-ov="${l}"]`) || {}).value || '').trim()) m.push([lineName(l) + ': ' + t('m_evidence'), `[data-ov="${l}"]`]);
+      if (c.severity === 'major' && !(document.querySelector(`[data-ack="${l}"]`) || {}).checked) m.push([lineName(l) + ': ' + t('m_ack'), `[data-ack="${l}"]`]);
+    }
+  }
+  if (g === 'G3' && v.g3) {
+    const d = v.g3, mix = d.mix;
+    if (!mix || !d.mix_current) m.push([t('m_mix'), null]);
+    else { const short = mix.segments.filter(s => s.status !== 'approved' && heardIn(S.mixId, s.start, s.end) < 0.8 * (s.end - s.start)).map(s => lineNo(s.line));
+      if (short.length) m.push([t('m_listen') + ' ' + short.join('، '), '#mix']); }
+    if (d.qa.flags.some(f => f.status === 'open') && !($('#ackqa') || {}).checked) m.push([t('m_ackqa'), '#ackqa']);
+  }
+  if (g === 'G5' && v.g5 && v.g5.n) {
+    const d = v.g5, h = heardIn(S.filmId, 0, d.seconds);
+    if (h < 0.8 * d.seconds) m.push([`${t('m_watch')} (${fmt(h)} ${t('of')} ${fmt(d.seconds)})`, '#film']);
+    const big = d.findings.filter(f => !f.decision && (f.severity === 'critical' || f.severity === 'major'));
+    if (big.length) m.push([`${big.length} ${t('m_big')}`, `[data-fexp="${big[0].id}"]`]);
+    if (d.findings.some(f => !f.decision && f.severity === 'minor') && !($('#ackminor') || {}).checked) m.push([t('m_minor'), '#ackminor']);
+  }
+  return m;
+}
+function showMissing() {
+  const v = S.v; if (!v) return;
+  for (const g of ['G2', 'G3', 'G5']) {
+    const e = $('#miss-' + g); if (!e) continue;
+    const m = missing(v, g);
+    const h = m.length ? `<b>${t('needfirst')}</b><ul>${m.map(([txt, sel]) => `<li>${sel ? `<button class="link" data-goto="${esc(sel)}">${esc(txt)}</button>` : esc(txt)}</li>`).join('')}</ul>` : '';
+    if (e.dataset.h !== h) { e.dataset.h = h; e.innerHTML = h; }
+  }
+}
+// going back from Manual: what you did by hand, what still waits for you, what the Co-Pilot would do next and what it could cost
+async function backSheet(v) {
+  const b = v.back || {};
+  const li = xs => xs.length ? `<ul class="small">${xs.join('')}</ul>` : `<p class="small muted">${t('none')}</p>`;
+  const body = `<h3>${t('b_made')}</h3>${li((b.made || []).map(x => `<li>${esc(x.what_ar)}${x.decision ? ' · ' + esc(stx(x.decision)) : ''}</li>`))}
+    <h3>${t('b_open')}</h3>${li((b.open_ar || []).map(x => `<li>${esc(x.gate_ar)}${x.why_ar ? ` <span class="tiny muted">${esc(x.why_ar)}</span>` : ''}</li>`))}
+    <h3>${t('b_next')}</h3>${li([...new Set((b.next || []).map(x => taskName(x.what)))].slice(0, 4).map(x => `<li>${esc(x)}</li>`))}
+    ${b.paid_locked ? `<p class="small">🔒 ${t('b_paid')}</p>` : ''}
+    <p class="small">${b.ai_real ? `${t('b_ai_real')} $${(b.ai_left_usd || 0).toFixed(2)}${b.ai_steps ? ` · ${b.ai_steps} ${t('b_ai_steps')}` : ''}` : t('b_ai_mock')}</p>
+    <p class="tiny muted">${t('b_rule')}</p>`;
+  if (await ask(t('back_q'), { html: body }, t('back_ok'))) act('cp_mode', { mode: 'copilot', resume: true });
 }
 const pill = (cls, txt) => `<span class="pill ${cls}">${esc(txt)}</span>`;
 function gateState(v, g) { const s = v.stages.find(x => x.gate === g); if (!s) return '';
   return (s.locked ? pill('st-locked', '🔒 ' + t('locked')) : pill('st-' + s.state, STN(s))) + (s.why ? ` <span class="tiny muted">${esc(AR() ? (s.why_ar || s.why) : s.why)}</span>` : ''); }
-function working(v, stage) { return v.task && v.task.stage === stage ? `<div class="label-ai">${t('working')}: ${esc(v.task.what)}</div>` : ''; }
+function working(v, stage) { return v.task && v.task.stage === stage ? `<div class="label-ai">${t('working')}: ${esc(taskName(v.task.what))}</div>` : ''; }
 
 function panelHtml(v, p) {
   if (p === 'g1') return g1(v);
@@ -494,52 +611,56 @@ function panelHtml(v, p) {
 
 // ---------------------------------------------------------------- G1
 function g1(v) {
-  const d = v.g1;
-  if (!d) return `<div class="card"><h2>${t('stage')} 1</h2>${working(v, 'direction') || `<p class="muted">—</p>`}</div>`;
+  const d = v.g1, H = AR() ? 'اتجاه القصة' : 'Story direction';
+  if (!d) return `<div class="card"><h2>${H}</h2>${working(v, 'direction') || `<p class="muted">—</p>`}</div>`;
   const doc = d.doc, cl = d.claims;
   const st = c => ({ verified: 'st-owner_approved', attributed: 'st-ai_review', avoid: 'st-blocked', disputed: 'st-needs_owner' })[c.status] || '';
-  return `<div class="card"><div class="row between"><h2>${AR() ? 'اتجاه القصة' : 'Story direction'} · v${d.v}</h2>${gateState(v, 'G1')}</div>
-    ${d.mock ? `<div class="label-ai">${t('mock')}</div>` : ''}
+  const risky = cl.filter(c => c.status === 'avoid' || c.status === 'disputed').length;
+  return `<div class="card"><div class="row between"><h2>${H}</h2>${gateState(v, 'G1')}</div>
+    ${d.mock ? `<div class="label-ai">${t('mock')}</div>` : ''}${working(v, 'direction')}
     <p style="font-size:1.08rem"><b>${esc(AR() ? (doc.angle_ar || doc.angle) : doc.angle)}</b></p>
-    <div class="kv"><span class="muted">${t('audience')}</span><span>${esc(doc.audience)}</span>
-      <span class="muted">${t('duration')}</span><span>${esc(doc.duration_s)}</span><span class="muted">${t('format')}</span><span>${esc(doc.format)}</span></div>
+    <p class="small muted">${esc(doc.audience)} · ${fmt(doc.duration_s)} · ${esc(doc.format)}</p>
     ${doc.note_answer ? `<p class="tiny muted">${esc(doc.note_answer)}</p>` : ''}</div>
-  <div class="card"><h3>${t('claims')} (${cl.length})</h3><ul class="claims">${cl.map(c => `<li>${pill(st(c), c.id + ' · ' + t(c.status))} ${esc(c.text)}
-      ${c.why ? `<div class="tiny muted">${esc(c.why)}</div>` : ''}${c.careful ? `<div class="tiny muted">⚠ ${esc(c.careful)}</div>` : ''}
+  <details class="card" data-keep="claims"><summary>${t('claims')} (${cl.length})${risky ? ` · ⚠ ${risky}` : ''}</summary>
+    <ul class="claims">${cl.map(c => `<li>${pill(st(c), t(c.status))} ${esc(c.text)}
+      ${c.careful ? `<div class="tiny muted">⚠ ${esc(c.careful)}</div>` : ''}
       <div class="tiny srcs">${(c.sources || []).map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener" aria-label="${esc((AR() ? 'المصدر ' : 'source ') + (i + 1))}">[${i + 1}]</a>`).join(' ')}</div></li>`).join('')}</ul>
-    ${doc.claims_to_verify && doc.claims_to_verify.length ? `<h3>${t('toverify')}</h3><ul>${doc.claims_to_verify.map(x => `<li>${esc(x.claim)}: ${esc(AR() ? x.why_ar || x.why : x.why)}</li>`).join('')}</ul>` : ''}
-    ${d.check ? `<div class="tiny muted">${esc(d.check.by || '')}: ${d.check.findings.map(f => `${esc(f.claim)} · ${esc(codeName(f.code))}`).join(' · ') || t('none')}</div>` : ''}</div>
-  <div class="card">${v.validity.G1.valid ? `<p>${pill('st-owner_approved', t('owner_ok'))}</p>` : decisionButtons('G1')}</div>`;
+    ${doc.claims_to_verify && doc.claims_to_verify.length ? `<h3>${t('toverify')}</h3><ul class="small">${doc.claims_to_verify.map(x => `<li>${esc(x.claim)}: ${esc(AR() ? x.why_ar || x.why : x.why)}</li>`).join('')}</ul>` : ''}
+    ${d.check ? `<div class="tiny muted">${esc(d.check.by || '')}: ${d.check.findings.map(f => `${esc(f.claim)} · ${esc(codeName(f.code))}`).join(' · ') || t('none')}</div>` : ''}</details>
+  ${v.validity.G1.valid ? `<div class="card">${pill('st-owner_approved', t('owner_ok'))}</div>` : decisionBar(v, 'G1')}`;
 }
 
 // ---------------------------------------------------------------- G2
 function g2(v) {
   const d = v.g2;
   if (!d) return `<div class="card"><h2>${t('script')}</h2>${working(v, 'script') || `<p class="muted">—</p>`}</div>`;
-  const ck = d.check ? d.check.lines : {};
-  const hk = d.hooks;
+  const ck = d.check ? d.check.lines : {}, hk = d.hooks;
+  const open = !v.validity.G2.valid && (d.status === 'draft' || d.status === 'approved');   // approved by hand in Manual: you confirm it here
+  const VERD = { supported: 'مدعوم بمصدر', attributed: 'منسوب', uncertain: 'غير مؤكد', unsupported: 'بلا مصدر', contradicted: 'يخالف البحث', disputed: 'الفحوص مختلفة' };
   const lines = d.lines.map(l => { const c = ck[l.id] || { severity: 'none', why: [], verdict: '' }; const ed = S.editing === l.id;
+    const flag = ['critical', 'major', 'minor'].includes(c.severity);
     return `<div class="line ${ed ? 'sel' : ''}" id="ln-${l.id}"><div class="row between"><span class="tiny muted">${esc(lineName(l.id))}</span>
-      <span>${c.verdict ? pill('sev-' + c.severity, AR() ? ({ supported: 'مدعوم بمصدر', attributed: 'منسوب', uncertain: 'غير مؤكد', unsupported: 'بلا مصدر', contradicted: 'يخالف البحث', disputed: 'الفحوص مختلفة' })[c.verdict] || c.verdict : c.verdict) : ''}</span></div>
+      <span>${flag && c.verdict ? pill('sev-' + c.severity, AR() ? VERD[c.verdict] || c.verdict : c.verdict) : ''}</span></div>
       ${ed ? `<textarea id="ed-${l.id}" data-draft="ed:${d.v}:${l.id}">${esc(l.text)}</textarea><div class="row"><button class="primary" data-saveline="${l.id}">${t('save')}</button><button data-canceledit="1">${t('cancel')}</button></div>`
            : `<div class="txt">${esc(l.text)}</div>`}
-      ${c.why && c.why.length ? `<div class="tiny">${c.why.map(w => `• ${esc(w)}`).join('<br>')}</div>` : ''}
-      ${c.sources && c.sources.length ? `<div class="tiny srcs">${t('sources')}: ${c.claims.join(', ')} ${c.sources.map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener" aria-label="${esc((AR() ? 'المصدر ' : 'source ') + (i + 1))}">[${i + 1}]</a>`).join(' ')}</div>` : ''}
-      ${c.severity === 'critical' && d.status === 'draft' ? `<input data-ov="${l.id}" data-draft="ov:${d.v}:${l.id}" placeholder="${t('override')}" aria-label="${t('override')}">` : ''}
-      ${c.severity === 'major' && d.status === 'draft' ? `<label class="row small"><input type="checkbox" data-ack="${l.id}" data-draft="ack:${d.v}:${l.id}"> ${t('ack')}</label>` : ''}
+      ${flag && c.why && c.why.length ? `<div class="tiny">${c.why.map(w => `• ${esc(w)}`).join('<br>')}</div>` : ''}
+      ${flag && c.sources && c.sources.length ? `<div class="tiny srcs">${t('sources')}: ${c.sources.map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener" aria-label="${esc((AR() ? 'المصدر ' : 'source ') + (i + 1))}">[${i + 1}]</a>`).join(' ')}</div>` : ''}
+      ${c.severity === 'critical' && open ? `<input data-ov="${l.id}" data-draft="ov:${d.v}:${l.id}" placeholder="${t('override')}" aria-label="${t('override')}">` : ''}
+      ${c.severity === 'major' && open ? `<label class="row small"><input type="checkbox" data-ack="${l.id}" data-draft="ack:${d.v}:${l.id}"> ${t('ack')}</label>` : ''}
       ${l.role !== 'hook' && !ed && d.status === 'draft' ? `<button class="link" data-edit="${l.id}">${t('edit')}</button>` : ''}</div>`; }).join('');
-  return `<div class="card"><div class="row between"><h2>${t('script')} · v${d.v}</h2>${gateState(v, 'G2')}</div>
-    ${working(v, 'script')}
-    <div class="tiny muted">${esc(d.note)} · ${esc(stx(d.author))}${d.check ? ` · ${esc(d.check.fact_label || '')}` : ''}</div>
-    <div class="vers">${d.versions.map(x => `<button aria-pressed="${x.v === d.v}" disabled>v${x.v} · ${esc(stx(x.status))}</button>`).join('')}</div></div>
-  <div class="card"><h3>${t('hooks')}</h3><div class="hooks">${hk.options.map(o => `<div class="hook ${hk.selected === o.id ? 'sel' : ''}">
-      <div class="row between"><b>${esc(o.id)} · ${esc(AR() ? (HOOKT[o.type] || o.type) : o.type)}</b><span>${o.id === hk.recommended ? pill('st-ai_review', t('recommended')) : ''} ${hk.selected === o.id ? pill('st-owner_approved', t('chosen')) : ''}</span></div>
-      <div>${esc(o.spoken)}</div><div class="tiny muted">${esc(o.on_screen)} · ${esc(o.visual)}</div>
-      ${hk.selected !== o.id ? `<button data-hook="${o.id}">${t('usehook')}</button>` : ''}</div>`).join('')}</div>
-    ${d.status === 'approved' ? `<p class="tiny muted">${AR() ? 'تغيير الافتتاحية الآن يصنع نسخة جديدة؛ يُعاد تسجيل سطر الافتتاحية ومشهدها فقط' : 'Changing the hook now makes a new version; only the hook line and its scene are redone'}</p>` : ''}
-    <p class="tiny muted">${esc(hk.reasons)}</p></div>
-  <div class="card"><h3>${t('script')}</h3>${lines}</div>
-  <div class="card">${d.status === 'draft' ? decisionButtons('G2', { disabled: !d.check }) : pill('st-' + (d.status === 'approved' ? 'owner_approved' : 'needs_owner'), stx(d.status))}</div>`;
+  const sel = hk.options.find(o => o.id === hk.selected) || hk.options.find(o => o.id === hk.recommended);
+  const others = hk.options.filter(o => o !== sel);
+  const hookCard = o => `<div class="hook ${hk.selected === o.id ? 'sel' : ''}">
+      <div class="row between"><b>${esc(AR() ? (HOOKT[o.type] || o.type) : o.type)}</b><span>${o.id === hk.recommended ? pill('st-ai_review', t('recommended')) : ''} ${hk.selected === o.id ? pill('st-owner_approved', t('chosen')) : ''}</span></div>
+      <div>${esc(o.spoken)}</div>${hk.selected !== o.id ? `<button data-hook="${o.id}">${t('usehook')}</button>` : ''}</div>`;
+  return `<div class="card"><div class="row between"><h2>${t('script')}</h2>${gateState(v, 'G2')}</div>${working(v, 'script')}
+    <h3>${t('hook_one')}</h3>${sel ? hookCard(sel) : ''}${sel && sel.id === hk.recommended && hk.reasons ? `<details class="tiny muted" data-keep="hookwhy"><summary>${t('whyline')}</summary><p>${esc(hk.reasons)}</p></details>` : ''}
+    ${others.length ? `<details data-keep="hooks"><summary class="small">${t('other_hooks')} (${others.length})</summary><div class="hooks">${others.map(hookCard).join('')}</div></details>` : ''}
+    ${d.status === 'approved' ? `<p class="tiny muted">${AR() ? 'تغيير الافتتاحية الآن يصنع نسخة جديدة؛ يُعاد تسجيل سطر الافتتاحية ومشهدها فقط' : 'Changing the hook now makes a new version; only the hook line and its scene are redone'}</p>` : ''}</div>
+  <div class="card"><h3>${t('script')} · v${d.v}</h3>${lines}
+    <details class="tiny" data-keep="vers"><summary>${t('versions')} (${d.versions.length})</summary><p class="muted">${esc(d.note)} · ${esc(stx(d.author))}${d.check ? ` · ${esc(d.check.fact_label || '')}` : ''}</p>
+      <div class="vers">${d.versions.map(x => `<span class="pill st-${x.v === d.v ? 'ai_review' : 'not_started'}">v${x.v} · ${esc(stx(x.status))}</span>`).join('')}</div></details></div>
+  ${open ? decisionBar(v, 'G2', d.status === 'approved' ? { approveOnly: true } : {}) : `<div class="card">${pill('st-' + (d.status === 'approved' ? 'owner_approved' : 'needs_owner'), stx(d.status))}</div>`}`;
 }
 
 // ---------------------------------------------------------------- G3
@@ -570,17 +691,17 @@ function g3(v) {
       <h3>${t('compare')}</h3>${ln.takes.map((k, i) => `<div class="row small"><span class="grow">v${i + 1} · ${esc(stx(k.status))} · ${esc(k.processed ? (AR() ? 'معالجة محلية' : 'processed locally') : takeWhy(k.reason))}${k.same_audio_as ? ' · ' + (AR() ? 'الصوت نفسه' : 'same audio as before') : ''}</span>
         <audio controls preload="none" src="${esc(k.audio)}" style="max-width:220px"></audio></div>`).join('')}
       <button class="link" data-closeword="1">${t('cancel')}</button></div>` : ''}
-  <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة للاستماع إليها أو تصحيحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
-  <div class="card"><h3>${t('pron')}</h3>${d.pron.length ? d.pron.map(p => `<div class="row small"><span class="grow">«${esc(p.word)}» → «${esc(p.respell)}» <span class="tiny muted">${esc(p.why || '')}</span></span>
+  <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة لتسمعها أو تصحّحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
+  <details class="card" data-keep="pron"><summary>${t('pron')} (${d.pron.length})</summary>${d.pron.length ? d.pron.map(p => `<div class="row small"><span class="grow">«${esc(p.word)}» → «${esc(p.respell)}» <span class="tiny muted">${esc(p.why || '')}</span></span>
       ${pill(p.status === 'approved' ? 'st-owner_approved' : 'st-ai_review', (p.source === 'ai' ? 'AI · ' : '') + t(p.status))}
-      ${p.status === 'proposed' ? `<button data-pronrej="${p.id}">${t('reject')}</button>` : p.status === 'approved' ? `<button data-pronrej="${p.id}">${t('withdraw')}</button>` : ''}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
-    <h3>${t('qa')}</h3>${(() => { const open = d.qa.flags.filter(f => f.status === 'open');
+      ${p.status === 'proposed' ? `<button data-pronrej="${p.id}">${t('reject')}</button>` : p.status === 'approved' ? `<button data-pronrej="${p.id}">${t('withdraw')}</button>` : ''}</div>`).join('') : `<p class="muted">${t('none')}</p>`}</details>
+  <div class="card"><h3>${t('qa')}</h3>${(() => { const open = d.qa.flags.filter(f => f.status === 'open');
       const at = f => { const sg = mix && mix.segments.find(x => x.line === f.line); return sg && f.s != null ? (sg.start + f.s) : (sg ? sg.start : 0); };
       return d.qa.flags.length ? `<div class="chips">${d.qa.flags.map(f => `<button data-seekmix="${at(f).toFixed(2)}" title="${esc(AR() ? (f.detail_ar || f.detail) : f.detail)}">${esc(lineNo(f.line))} · ${esc(f.word || codeName(f.code))}${f.status !== 'open' ? ' ✓' : ''}</button>`).join('')}</div>
-        <p class="tiny muted">${AR() ? 'كلمات لم يتعرّف عليها النسخ الآلي بوضوح: اضغط لتسمعها. الآلة لا تحكم على النطق؛ أنت تحكم.' : 'Words the transcription could not place: tap to hear them. The machine does not judge pronunciation; you do.'}</p>
+        <p class="tiny muted">${AR() ? 'كلمات غير واضحة للآلة. اضغط لتسمعها؛ أنت تحكم.' : 'Words the machine could not place. Tap to hear them; you decide.'}</p>
         ${open.length ? `<label class="row small"><input type="checkbox" id="ackqa" data-draft="ackqa:${hashIds(open.map(f => f.id))}"> ${AR() ? 'استمعتُ إلى هذه الكلمات' : 'I listened to these words'} (${open.length})</label>` : ''}`
         : `<p class="muted small">${t('none')}</p>`; })()}</div>
-  <div class="card">${v.validity.G3.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('listen_need')}</p>` + `<p class="tiny muted">${d.pron.some(p => p.status === 'proposed') ? (AR() ? 'الموافقة على الصوت تعتمد أيضًا تهجئات الذكاء المقترحة أعلاه (لأنك سمعتها). ارفض أيًّا منها قبل الموافقة إن لم تعجبك.' : 'Approving the voice also approves the AI spellings above (you heard them). Reject one before approving if you do not want it.') : ''}</p>` + decisionButtons('G3', { approveOnly: true, disabled: !d.mix_current })}</div>`;
+  ${v.validity.G3.valid ? `<div class="card">${pill('st-owner_approved', t('owner_ok'))}</div>` : (d.pron.some(p => p.status === 'proposed') ? `<p class="tiny muted">${AR() ? 'الموافقة تعتمد أيضًا تهجئات الذكاء المقترحة في «قاموس النطق».' : 'Approving also approves the AI spellings in the pronunciation dictionary.'}</p>` : '') + decisionBar(v, 'G3', { approveOnly: true })}`;
 }
 
 // ---------------------------------------------------------------- G4
@@ -596,7 +717,7 @@ function g4(v) {
       ${x.board ? `<img src="${esc(x.board)}" alt="${esc(AR() ? x.name_ar : x.name)}" loading="lazy">` : `<p class="small muted">${esc(AR() ? x.why_not_ar : x.why_not)}</p>`}
       <p class="small">${esc(AR() ? x.about_ar : '')} ${esc((AR() ? d.reasons_ar : d.reasons)[x.id] || '')}</p>
       ${x.ready ? `<button data-style="${x.id}" aria-pressed="${S.sel.style === x.id}">${t('choose')}</button>` : ''}</div>`).join('')}
-  <div class="card">${v.validity.G4.valid && d.approved && d.approved.id === S.sel.style ? pill('st-owner_approved', t('owner_ok')) : decisionButtons('G4', { noReject: true })}</div>`;
+  ${v.validity.G4.valid && d.approved && d.approved.id === S.sel.style ? `<div class="card">${pill('st-owner_approved', t('owner_ok'))}</div>` : decisionBar(v, 'G4', { noReject: true })}`;
 }
 
 // ---------------------------------------------------------------- assets
@@ -640,10 +761,10 @@ function sceneSheet(v, sid) {
       <div class="frames">${p.stills.map((u, i) => `<img src="${esc(u)}" alt="${esc(lineName(s.id, true) + '، ' + t('frame') + ' ' + (i + 1))}" loading="lazy">`).join('')}</div>
       <div class="kv small"><span class="muted">${AR() ? 'التقنية' : 'Technique'}</span><span>${esc(techName(p.technique))} · ${esc(techName(p.theme))}</span>
         <span class="muted">${t('rounds')}</span><span>${p.rounds} · ${esc(p.why)}</span><span class="muted">${t('issues')}</span><span>${p.open.map(f => pill('sev-' + f.severity, codeName(f.code))).join(' ') || t('none')}</span></div>
-      ${p.fallback ? `<p class="tiny muted">${esc(p.fallback)}</p>` : ''}<div class="tiny muted">${esc(p.reviewer || '')}</div>` : working(v, 'scenes')}
+      ${p.fallback ? `<p class="tiny muted">${esc(p.fallback)}</p>` : ''}` : working(v, 'scenes')}
     ${s.exception ? `<a class="next" href="#/p/${encodeURIComponent(v.id)}/ex/${s.exception}">${t('ex')}</a>` : ''}</div>
-  <div class="card"><h3>${t('versions')}</h3>${s.versions.map(x => `<div class="row small"><img src="${esc(x.still)}" alt="${esc('v' + x.n)}" style="width:54px;border-radius:6px"><span class="grow">v${x.n} · ${AR() ? 'جولة' : 'round'} ${x.round}
-      ${Object.keys(x.changes).length ? ' · ' + esc(Object.entries(x.changes).map(([k, y]) => (AR() ? (CHG[k] || k) : k) + ' ' + y).join('، ')) : ''}<br>${x.findings.map(f => pill('sev-' + f.severity, codeName(f.code))).join(' ')}</span></div>`).join('')}</div>`;
+  <details class="card" data-keep="sv"><summary>${t('versions')} (${s.versions.length})</summary>${s.versions.map(x => `<div class="row small"><img src="${esc(x.still)}" alt="${esc('v' + x.n)}" style="width:54px;border-radius:6px"><span class="grow">v${x.n} · ${AR() ? 'جولة' : 'round'} ${x.round}
+      ${Object.keys(x.changes).length ? ' · ' + esc(Object.entries(x.changes).map(([k, y]) => (AR() ? (CHG[k] || k) : k) + ' ' + y).join('، ')) : ''}<br>${x.findings.map(f => pill('sev-' + f.severity, codeName(f.code))).join(' ')}</span></div>`).join('')}</details>`;
 }
 
 // ---------------------------------------------------------------- G5
@@ -654,6 +775,7 @@ function g5(v) {
   const open = d.findings.filter(f => !f.decision);
   const big = open.filter(f => f.severity === 'critical' || f.severity === 'major');
   const minor = open.filter(f => f.severity === 'minor');
+  const done = d.findings.filter(f => f.decision);
   const h = heardIn(id, 0, d.seconds);
   const canWebm = document.createElement('video').canPlayType('video/webm; codecs="vp9"');
   return `<div class="card"><div class="row between"><h2>${t('film')} v${d.n}</h2>${gateState(v, 'G5')}</div>
@@ -665,16 +787,15 @@ function g5(v) {
     <div class="row between small"><span>${t('heard')} <b id="fheard">${fmt(h)}</b> ${t('of')} ${fmt(d.seconds)}</span><span class="tiny muted">${d.approved_film ? 'v' + d.approved_film.n + ' ' + t('owner_ok') : ''}</span></div>
     <div class="row"><input id="cm" class="grow" data-draft="cm:${d.n}" aria-label="${t('comment')}" placeholder="${t('comment')} …"><button data-comment="1">${t('send')}</button></div>
     ${d.comments.map(c => { const tk = d.tasks.find(x => x.source === 'comment ' + c.id) || {}; return `<div class="tiny">⏱ ${fmt(c.t)} · ${esc(lineName(c.scene, true))} · «${esc(c.text)}» · ${esc(stx(tk.status || ''))}</div>`; }).join('')}</div>
-  <div class="card"><h3>${t('findings')}</h3>
+  ${big.length || minor.length || done.length ? `<div class="card"><h3>${t('findings')}</h3>
     ${big.map(f => `<div class="finding"><div class="row between">${pill('sev-' + f.severity, codeName(f.code))}<button class="link" data-seek="${f.t || 0}">⏱ ${fmt(f.t)}</button></div>
       <div class="small">${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>${f.evidence ? `<img src="${esc(f.evidence)}" alt="${esc(codeName(f.code))}" loading="lazy">` : ''}
-      <div class="tiny muted">${esc(f.perspective || '')} · ${esc(f.recommendation || '')}</div>
+      ${f.recommendation ? `<div class="tiny muted">${esc(f.recommendation)}</div>` : ''}
       <input data-fexp="${f.id}" data-draft="fexp:${f.id}" aria-label="${f.severity === 'critical' ? t('override') : t('explain')}" placeholder="${f.severity === 'critical' ? t('override') : t('explain')}"><button data-fdis="${f.id}">${t('save')}</button></div>`).join('')}
-    ${minor.length ? `<div class="stack">${minor.map(f => `<div class="small">${pill('sev-minor', codeName(f.code))} ${esc(f.scene ? lineName(f.scene, true) : '')} · ${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>`).join('')}
-      <label class="row small"><input type="checkbox" id="ackminor" data-draft="ackminor:${d.n}:${hashIds(minor.map(f => f.id))}"> ${t('ackall')} (${minor.length})</label></div>` : ''}
-    ${!big.length && !minor.length ? `<p class="muted small">${t('none')}</p>` : ''}
-    ${d.findings.filter(f => f.decision).length ? `<details class="tiny"><summary>${d.findings.filter(f => f.decision).length} ✓</summary>${d.findings.filter(f => f.decision).map(f => `<div>${esc(codeName(f.code))} · ${esc(stx(f.decision))} · ${esc(f.decision_note || '')}</div>`).join('')}</details>` : ''}</div>
-  <div class="card">${v.validity.G5.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('watch_need')}</p>` + decisionButtons('G5', { noReject: false, disabled: big.length > 0 })}</div>`;
+    ${minor.length ? `<details class="small" data-keep="minor"><summary>${minor.length} ${t('minor_n')}</summary>${minor.map(f => `<div class="small">${pill('sev-minor', codeName(f.code))} ${esc(f.scene ? lineName(f.scene, true) : '')} · ${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>`).join('')}</details>
+      <label class="row small"><input type="checkbox" id="ackminor" data-draft="ackminor:${d.n}:${hashIds(minor.map(f => f.id))}"> ${t('ackall')} (${minor.length})</label>` : ''}
+    ${done.length ? `<details class="tiny"><summary>${done.length} ✓</summary>${done.map(f => `<div>${esc(codeName(f.code))} · ${esc(stx(f.decision))} · ${esc(f.decision_note || '')}</div>`).join('')}</details>` : ''}</div>` : ''}
+  ${v.validity.G5.valid ? `<div class="card">${pill('st-owner_approved', t('owner_ok'))}</div>` : decisionBar(v, 'G5')}`;
 }
 
 // ---------------------------------------------------------------- G6
@@ -698,28 +819,43 @@ function exPanel(v, id) {
   const x = v.exceptions.find(e => e.id === id);
   if (!x) return `<div class="card">—</div>`;
   const chips = ['text_size:1.2', 'zoom:1.18', 'slower:1.4', 'theme:tk-ink', 'theme:tk-bone'];
+  const r = x.recommend;                                 // highlighted only when the server gives a clear reason; you still choose
+  const opt = o => r && r.option === o
+    ? `<button data-exd="${o}" class="primary rec">${t(o)} · ${t('recommended')}</button><p class="recwhy">${esc(AR() ? r.why_ar : r.why_en)}</p>`
+    : `<button data-exd="${o}">${t(o)}</button>`;
   return `<div class="card"><div class="row between"><h2>${t('ex')}</h2>${pill(x.status === 'open' ? 'st-needs_owner' : 'st-completed', stx(x.status))}</div>
     <p><b>${esc(AR() ? (x.title_ar || x.title) : x.title)}</b></p><p class="small">${esc(AR() ? x.detail_ar || x.detail : x.detail)}</p>
     ${x.evidence && x.evidence.length ? `<div class="frames">${x.evidence.map((u, i) => `<img src="${esc(u)}" alt="${esc((x.scene ? lineName(x.scene, true) : '') + '، ' + t('frame') + ' ' + (i + 1))}">`).join('')}</div>` : ''}
     ${x.scene ? `<a href="#/p/${encodeURIComponent(v.id)}/scene/${x.scene}">${esc(lineName(x.scene, true))}</a>` : ''}
-    ${x.status === 'open' ? `<textarea id="exnote" data-draft="exnote:${x.id}" aria-label="${t('why')}" placeholder="${t('why')}"></textarea>
+    ${x.status !== 'open' ? `<p class="small">${esc(stx(x.decision))} · ${esc(x.decision_note || '')}</p>`
+      : v.mode !== 'copilot' ? `<p class="small">${t('manual_gate')}</p><button class="primary big" data-back="1">${t('back_cp')}</button>`
+      : `<textarea id="exnote" data-draft="exnote:${x.id}" aria-label="${t('why')}" placeholder="${t('why')}"></textarea>
       ${x.options.includes('retry_with_change') ? `<div class="chips">${chips.map(c => `<button data-chip="${c}" aria-pressed="${!!(S.sel.chips || {})[c]}">${esc(chipName(c))}</button>`).join('')}</div>` : ''}
-      <div class="stack">${x.options.map(o => `<button data-exd="${o}" class="${o === 'manual' ? '' : 'primary'}">${t(o)}</button>`).join('')}</div>`
-      : `<p class="small">${esc(stx(x.decision))} · ${esc(x.decision_note || '')}</p>`}</div>`;
+      <div class="stack">${x.options.map(opt).join('')}</div>`}</div>`;
 }
 function inbox(v) {
   const g = {};
   v.inbox.forEach(i => (g[i.group] ||= []).push(i));
-  return `<div class="card"><h2>${t('inbox')}</h2>${Object.keys(g).length ? Object.entries(g).map(([k, xs]) => `<h3>${esc(k)}</h3><ul class="inbox">${xs.map(i =>
+  const GN = { decisions: 'قرارات', gates: 'موافقات', problems: 'مشكلات', scenes: 'مشاهد' };
+  return `<div class="card"><h2>${t('inbox')}</h2>${Object.keys(g).length ? Object.entries(g).map(([k, xs]) => `<h3>${esc(AR() ? GN[k] || k : k)}</h3><ul class="inbox">${xs.map(i =>
     `<li><a href="#/p/${encodeURIComponent(v.id)}/${i.kind === 'gate' ? i.gate.toLowerCase() : i.kind === 'exception' ? 'ex/' + i.id : i.kind === 'scene' ? 'scene/' + i.scene : ''}">${esc(AR() ? i.title_ar || i.title : i.title)}</a></li>`).join('')}</ul>`).join('') : `<p class="muted">${t('none')}</p>`}</div>`;
 }
+// who does the AI work, and how much real AI use you allow (the real worker is also locked by the computer it runs on)
 function aiPanel(v) {
-  const a = v.ai;
-  return `<div class="card"><h2>${t('ai_usage')}</h2><div class="kv small"><span class="muted">${t('worker')}</span><span>${esc(a.worker === 'mock' ? t('mock') : a.label)}</span>
-    <span class="muted">${t('budget')}</span><span>$${a.budget_usd.toFixed(2)}</span><span class="muted">${t('spent')}</span><span>$${a.spent_usd.toFixed(4)}</span>
-    <span class="muted">${t('calls')}</span><span>${a.n_calls}</span></div>
-    <p class="tiny muted">${AR() ? 'العامل الحقيقي (Claude) لا يعمل إلا بميزانية توافق عليها، وكل استدعاء يُسجَّل بتكلفته، ولا إعادة تلقائية.' : 'The real worker (Claude) runs only with a budget you authorize; every call is recorded with its cost; no automatic retries.'}</p>
-    ${a.calls.slice().reverse().map(c => `<div class="tiny">${esc((c.at || '').replace('T', ' ').slice(0, 16))} · ${esc(aiKind(c.kind))} · ${stx(c.ok ? 'ok' : 'failed')} · $${(c.cost_usd || 0).toFixed(4)} · ${c.duration_s} ${t('s')}</div>`).join('')}</div>`;
+  const a = v.ai, left = Math.max(0, a.budget_usd - a.spent_usd);
+  return `<div class="card"><h2>${t('ai_usage')}</h2>
+    <div class="kv small"><span class="muted">${t('budget')}</span><span>$${a.budget_usd.toFixed(2)}</span><span class="muted">${t('spent')}</span><span>$${a.spent_usd.toFixed(4)}</span>
+      <span class="muted">${t('left')}</span><span>$${left.toFixed(2)}</span></div></div>
+  <div class="card"><h3>${t('worker')}</h3><div class="mode">
+      <label><input type="radio" name="worker" value="mock" ${a.worker === 'mock' ? 'checked' : ''}><span><b>${t('w_mock')}</b><br><span class="tiny muted">${t('w_mock_d')}</span></span></label>
+      <label class="${a.real_enabled ? '' : 'dis'}"><input type="radio" name="worker" value="claude-code" ${a.worker === 'claude-code' ? 'checked' : ''} ${a.real_enabled ? '' : 'disabled'}><span><b>Claude</b><br><span class="tiny muted">${a.real_enabled ? t('w_real_d') : t('w_real_off')}</span></span></label></div>
+    <button data-worker="1">${t('save')}</button></div>
+  <div class="card"><h3>${t('set_budget')}</h3><p class="tiny muted">${t('budget_rule')}</p>
+    <label class="stack small">${t('usd')}<input id="ai-usd" type="number" min="0" max="50" step="0.5" inputmode="decimal" data-draft="ai-usd"></label>
+    <textarea id="ai-why" data-draft="ai-why" aria-label="${t('budget_why')}" placeholder="${t('budget_why')}"></textarea>
+    <label class="row small"><input type="checkbox" id="ai-ok"> ${t('budget_ok')}</label>
+    <button class="primary" data-aibudget="1">${t('set_budget')}</button></div>
+  ${a.calls.length ? `<details class="card" data-keep="calls"><summary>${t('calls')} (${a.n_calls})</summary>${a.calls.slice().reverse().map(c => `<div class="tiny">${esc((c.at || '').replace('T', ' ').slice(0, 16))} · ${esc(aiKind(c.kind))} · ${stx(c.ok ? 'ok' : 'failed')} · $${(c.cost_usd || 0).toFixed(4)} · ${c.duration_s} ${t('s')}</div>`).join('')}</details>` : ''}`;
 }
 function historyPanel(v) {
   return `<div class="card"><h2>${t('history')}</h2>${v.history.map(h => `<div class="tiny"><span class="muted">${esc(h.at.slice(11, 19))} · ${esc(h.actor)}</span> ${esc(h.summary)}</div>`).join('')}</div>`;
@@ -746,6 +882,7 @@ function usedDrafts(action, args) {
   if (action === 'cp_asset' && a.op === 'licence') return ['licev:' + a.id, 'licdec:' + a.id, 'lickind:' + a.id];
   if (action === 'upload') return ['up-credit'];
   if (action === 'cp_pron') return ['respell:'];
+  if (action === 'cp_ai_budget') return ['ai-usd', 'ai-why'];
   return [];
 }
 async function act(action, args) {
@@ -754,13 +891,14 @@ async function act(action, args) {
   return j;
 }
 function wire(v, panel) {
-  const P = encodeURIComponent(v.id);
-  document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => location.hash = `#/p/${P}/${b.dataset.go}`);
-  document.querySelectorAll('[data-ctl]').forEach(b => b.onclick = async () => {
-    if (b.dataset.ctl === 'stop' && !(await ask(t('stop_q'), t('stop_b'), t('stop_ok'), 'bad'))) return;   // Stop always asks first
-    act('cp_control', { op: b.dataset.ctl }); });
-  document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => act('cp_control', { op: 'retry', key: b.dataset.retry }));
-  document.querySelectorAll('[data-manual]').forEach(b => b.onclick = async () => { if (await ask(t('manual_q'), t('manual_b'), t('manual_ok'))) act('cp_mode', { mode: 'manual' }); });
+  const wk = document.querySelector('[data-worker]');
+  if (wk) wk.onclick = () => { const w = (document.querySelector('input[name=worker]:checked') || {}).value; if (w && w !== v.ai.worker) act('cp_settings', { worker: w }); };
+  const ab = document.querySelector('[data-aibudget]');
+  if (ab) ab.onclick = async () => {
+    const usd = +$('#ai-usd').value || 0;
+    if (!$('#ai-ok').checked) return toast(t('budget_tick'), true, { fix: { label_ar: t('take_me'), label_en: t('take_me'), target: '#ai-ok' } });
+    if (!(await ask(t('budget_q'), `${t('budget_b')} $${usd.toFixed(2)}`, t('budget_yes'), 'bad'))) return;   // real spending: asked twice
+    act('cp_ai_budget', { usd, note: $('#ai-why').value.trim() }); };
   document.querySelectorAll('[data-gate]').forEach(b => b.onclick = () => act('cp_gate', gateArgs(v, b.dataset.gate, b.dataset.d)));
   document.querySelectorAll('[data-hook]').forEach(b => b.onclick = () => act('cp_hook', { hook: b.dataset.hook }));
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { S.editing = b.dataset.edit; S.sig = ''; project(true); });
@@ -790,6 +928,7 @@ function wire(v, panel) {
       const w = [...document.querySelectorAll('.w')].find(e => tt >= +e.dataset.ws && tt < +e.dataset.we); if (w) w.classList.add('now');
       v.g3.mix.segments.forEach(s => { const e = document.querySelector(`[data-h="${s.line}"]`); if (e) e.textContent = Math.min(100, Math.round(100 * heardIn(S.mixId, s.start, s.end) / (s.end - s.start))) + '%'; });
       if (stopAt != null && tt >= stopAt) { mix.pause(); stopAt = null; }
+      showMissing();
     });
     document.querySelectorAll('.w').forEach(e => e.onclick = () => { S.sel.word = { line: e.dataset.line, word: e.dataset.word, s: +e.dataset.ws, e: +e.dataset.we };
       mix.currentTime = Math.max(0, +e.dataset.ws - 0.05); S.sig = ''; project(true); });
@@ -804,13 +943,25 @@ function wire(v, panel) {
   // film
   const fv = $('#film');
   if (fv) {
-    bindMedia(fv, S.filmId, tt => { const e = $('#fheard'); if (e) e.textContent = fmt(heardIn(S.filmId, 0, v.g5.seconds));
+    bindMedia(fv, S.filmId, tt => { const e = $('#fheard'); if (e) e.textContent = fmt(heardIn(S.filmId, 0, v.g5.seconds)); showMissing();
       document.querySelectorAll('#ftl button').forEach(b => b.classList.toggle('on', tt >= +b.dataset.seek && tt < (+b.dataset.seek + (+b.style.flexGrow || 0)))); });
     document.querySelectorAll('[data-seek]').forEach(b => b.onclick = () => { fv.currentTime = +b.dataset.seek; fv.play(); });
     const cm = document.querySelector('[data-comment]');
     if (cm) cm.onclick = () => act('cp_comment', { film: v.g5.n, t: +fv.currentTime.toFixed(2), text: $('#cm').value });
   }
 }
+
+document.addEventListener('click', async e => {
+  const b = e.target.closest('[data-go],[data-ctl],[data-retry],[data-back],[data-goto],[data-manual]');
+  if (!b || !S.v || !$('#main').contains(b)) return;
+  const v = S.v, d = b.dataset;
+  if (d.go != null) location.hash = `#/p/${encodeURIComponent(v.id)}/${d.go}`;
+  else if (d.ctl) { if (d.ctl === 'stop' && !(await ask(t('stop_q'), t('stop_b'), t('stop_ok'), 'bad'))) return; act('cp_control', { op: d.ctl }); }   // Stop always asks first
+  else if (d.retry) act('cp_control', { op: 'retry', key: d.retry });
+  else if (d.back) backSheet(v);
+  else if (d.goto) goFix({ target: d.goto });
+  else if (d.manual) { if (await ask(t('manual_q'), t('manual_b'), t('manual_ok'))) act('cp_mode', { mode: 'manual' }); }
+});
 
 // ------------------------------------------------------------------ polling
 async function poll() {

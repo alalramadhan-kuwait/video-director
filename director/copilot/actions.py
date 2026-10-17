@@ -39,7 +39,25 @@ def _cov(iv, a, b):
     return sum(max(0.0, min(y, b) - max(x, a)) for x, y in _merge(iv))
 
 
+# Which actions a project's mode allows (checked on the server for every action, whoever sends it):
+#  - Co-Pilot work (the owner's Co-Pilot decisions and everything the Co-Pilot records) only on a Co-Pilot project;
+#  - on a Co-Pilot project the owner's classic decisions only as part of a Co-Pilot gate (never on their own), so no
+#    classic screen or script can approve around a gate;
+#  - always allowed: switching mode, settings, the AI budget, pause/resume/stop, and the record of an AI call's cost.
+CP_ANY_MODE = {'cp_mode', 'cp_settings', 'cp_ai_budget', 'cp_control', 'cp_ai_call'}
+OWNER_ANY_MODE = {'set_voice'}                       # chosen while a project is created (before or after its mode is recorded)
+
+
 class CopilotActions:
+    def _mode_guard(self, pid, action, actor):
+        mode = self.state(pid)['copilot']['mode']
+        if action.startswith('cp_'):
+            if action in CP_ANY_MODE or mode == 'copilot': return
+            raise _refused('this project is in Manual mode: switch back to the Co-Pilot first' if mode == 'manual'
+                           else 'this is a classic project: the Co-Pilot does not change it')
+        if mode == 'copilot' and actor not in SYSTEM_ACTORS and action not in OWNER_ANY_MODE and not getattr(self, '_cp_depth', 0):
+            raise _refused('this project is run by the Co-Pilot: decide in the Studio, or switch to Manual first')
+
     # ------------------------------------------------------------------ mode, settings, controls, budget
     def a_cp_mode(self, pid, a, actor):
         _owner(actor)
@@ -51,6 +69,8 @@ class CopilotActions:
         st = self.state(pid)
         if st['copilot']['mode'] == m:
             raise _refused(f'already in {MODES[m]} mode')
+        if st['copilot']['mode'] is None and (st['scripts'] or self.research(pid)):     # work done in the classic Studio stays classic
+            raise _refused('this is a classic project: the Co-Pilot does not change it')
         return 'copilot', {'mode': m, 'from': st['copilot']['mode'], 'note': a.get('note', '')}
 
     def a_cp_settings(self, pid, a, actor):

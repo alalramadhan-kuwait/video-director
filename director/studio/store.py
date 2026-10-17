@@ -143,9 +143,15 @@ class Studio(CopilotActions):
             if action != 'create_project':
                 if not pid or not any(e['status'] == 'create_project' for e in self.events(pid)):
                     raise Refused(f'no project {pid!r}')
+            if action != 'create_project':
+                self._mode_guard(pid, action, actor)       # the project's mode decides which kind of action may change it
             if action.startswith('cp_'):
                 args = {**args, '_rid': request_id}         # nested decisions get request ids derived from this one
-            stage, result = fn(pid, args, actor)
+            self._cp_depth = getattr(self, '_cp_depth', 0) + (1 if action.startswith('cp_') else 0)
+            try:
+                stage, result = fn(pid, args, actor)
+            finally:
+                self._cp_depth -= 1 if action.startswith('cp_') else 0
             pid = result.pop('_pid', pid)
             seq = self._emit(pid, stage, action, actor, request_id, args, result)
             return {'status': 'recorded', 'event': seq, 'result': result, 'action': action, 'project': pid}

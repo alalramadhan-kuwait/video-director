@@ -95,6 +95,7 @@ async function approveG5(sc) {
   return view();
 }
 const gateBtn = (g, d) => page.locator(`[data-gate="${g}"][data-d="${d}"]`);
+const openAll = () => page.evaluate(() => document.querySelectorAll('#main details').forEach(d => { d.open = true; }));   // folded sections (more, other hooks…)
 const filmScenes = v => (v.g5 && v.g5.scenes) || {};
 const diff = (a, c) => Object.keys(c).filter(k => a[k] !== c[k]);
 
@@ -120,6 +121,7 @@ try {
   v = await waitView(v => v.waiting.includes('G2'), 'G2', 10);
   ok('S1', 'self-revision before Gate 2 (v1 → v2 by the AI)', v.g2.v === 2 && v.g2.versions[0].author === 'copilot', v.g2.versions);
   await go('g2'); await shot('03-g2');
+  await page.locator('[data-open-note="G2"]').click();
   await page.fill('#note-G2', 'السطر الثاني طويل، اختصره');
   await gateBtn('G2', 'rejected').click(); await page.waitForTimeout(1000);
   v = await waitView(v => v.g2 && v.g2.v === 3 && v.waiting.includes('G2'), 'G2 after rejection', 10);
@@ -269,7 +271,7 @@ try {
   // ============================================================ S3 hook changed after narration
   const takesBefore = Object.fromEntries((await view()).g3.lines.map(l => [l.line, l.take]));
   await go('g2');
-  await page.locator('[data-hook="H3"]').click(); await page.waitForTimeout(1500);
+  await openAll(); await page.locator('[data-hook="H3"]').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S9', 'changing the hook outdates the script approval and the APPROVED film (and keeps the style approval)',
      !v.validity.G2.valid && !v.validity.G5.valid && v.validity.G4.valid && (v.gates.G5 || []).some(r => r.decision === 'approved'), { G2: v.validity.G2, G4: v.validity.G4, G5: v.validity.G5 });
@@ -331,13 +333,24 @@ try {
   await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'cp_settings', args: { worker: 'mock' } } });
   // ============================================================ S10 switch to Manual
   await go('');
-  await page.locator('[data-manual]').click(); await page.waitForTimeout(400);
+  await openAll(); await page.locator('[data-manual]').click(); await page.waitForTimeout(400);
   ok('S10', 'switching to Manual asks first (nothing happens on the first tap)', (await view()).mode === 'copilot' && await page.locator('[data-ask-ok]').isVisible());
   await page.locator('[data-ask-ok]').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S10', 'switch to Manual: the Co-Pilot stops, every approval is kept', v.mode === 'manual' && v.run === 'stopped' && v.validity.G5.valid && v.validity.G3.valid, { mode: v.mode, run: v.run });
-  await page.goto(`${BASE}/studio/classic#${PID}`); await page.waitForTimeout(2000); await shot('13-classic');
-  ok('S10', 'the classic Studio opens the same project', (await page.content()).includes('Rolex Oyster'));
+  await page.goto(`${BASE}/studio/classic#/p/${PID}/`); await page.waitForTimeout(2000); await shot('13-classic');
+  ok('S10', 'the classic Studio opens the same project (its own page, not the list)', ((await page.locator('#ptitle').textContent().catch(() => '')) || '').includes('Rolex Oyster'));
+  // ... and back: the page shows what you did by hand, what still waits for you and what it could cost, before anything changes
+  await page.goto(`${BASE}/studio#/p/${PID}`); await page.waitForTimeout(1200);
+  await page.locator('[data-back]').first().click(); await page.waitForTimeout(500);
+  const sheet = (await page.locator('.ask').textContent().catch(() => '')) || '';
+  ok('S10', 'going back to the Co-Pilot shows a summary and the cost first; nothing happens on the first tap',
+     (await view()).mode === 'manual' && /(ينتظر موافقتك|Waiting for your approval)/.test(sheet) && /(صرف|تكلفة|spend|cost)/i.test(sheet), sheet.slice(0, 240));
+  await shot('13b-back');
+  await page.locator('[data-ask-ok]').click(); await page.waitForTimeout(1500);
+  v = await view();
+  ok('S10', 'back to the Co-Pilot: every approval kept, nothing paid started, no AI spent',
+     v.mode === 'copilot' && v.validity.G5.valid && v.validity.G3.valid && v.ai.spent_usd === 0 && !(v.g6 && v.g6.authorized), { mode: v.mode, run: v.run, spent: v.ai.spent_usd });
   // ============================================================ every screen on the phone
   await page.goto(`${BASE}/studio#/p/${PID}`); await page.waitForTimeout(1000);
   const ov = {};

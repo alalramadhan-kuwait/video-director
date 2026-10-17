@@ -23,6 +23,11 @@ from ..ledger import Ledger
 from ..art.selector import load_registry, recommend, ASSET_NEEDS
 
 ROOT = Path(__file__).resolve().parents[2]
+
+
+def _var() -> Path:
+    """The shared data folder (the same one the Studio writes its ledger to; tests point it at a copy)."""
+    return Path(os.environ.get('VD_DASHBOARD_VAR') or ROOT / 'var/dashboard')
 STAGES = ['script', 'hook', 'voice', 'art', 'render', 'final', 'publish']
 STAGE_LABEL = {'script': 'Script', 'hook': 'Hook', 'voice': 'Voice', 'art': 'Art', 'render': 'Render',
                'final': 'Final video', 'publish': 'Publish'}
@@ -573,7 +578,7 @@ def build(log: EventLog, S: Path, voice_data: dict, directions_data: dict, media
             'review_tasks': tasks, 'inbox_checks': checks, 'bucket_labels': BUCKET_LABEL,
             'looks': {pk: brand_looks(pk, profs[pk], registry, decisions) for pk in profs},
             'voice_lines': lines, 'flags': flagged, 'flag_types': FLAG_TYPES,
-            'costs': costs(registry, voice_data, Ledger(ROOT / 'var/dashboard/ledger.sqlite'), S),
+            'costs': costs(registry, voice_data, Ledger(_var() / 'ledger.sqlite'), S),
             'identity': identity(profs, S),
             'counts': {'tasks_open': len(open_tasks),
                        'by_status': dict(Counter(t['status'] for t in open_tasks)),
