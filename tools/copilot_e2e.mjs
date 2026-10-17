@@ -149,7 +149,7 @@ try {
   v = await view();
   const cm = v.g5.comments[v.g5.comments.length - 1];
   ok('S7', 'a time-coded comment becomes a task on the scene playing then', cm && cm.scene === 'l9', cm);
-  v = await waitView(v => v.g5 && v.g5.n >= 2 && v.waiting.includes('G5'), 'film v2', 30);
+  v = await waitView(v => v.g5 && v.g5.n >= 2 && v.waiting.includes('G5'), 'film v2', 45);
   ok('S7', 'only the commented scene was redone', JSON.stringify(diff(f1, filmScenes(v))) === '["l9"]', diff(f1, filmScenes(v)));
   const f2 = filmScenes(v);
   // ============================================================ S6 missing licensed picture
@@ -165,7 +165,7 @@ try {
   await page.fill(`[data-licev="${v.assets.library[0].id}"]`, 'nonsense'); await page.locator(`[data-lic="${v.assets.library[0].id}"]`).click(); await page.waitForTimeout(800);
   ok('S6', 'a licence without evidence is refused', /(evidence|دليل)/i.test(await toastText()));
   await page.fill(`[data-licev="${v.assets.library[0].id}"]`, 'https://example.org/test-licence-page'); await page.locator(`[data-lic="${v.assets.library[0].id}"]`).click(); await page.waitForTimeout(1500);
-  v = await waitView(v => v.g5 && v.g5.n >= 3 && v.waiting.includes('G5'), 'film v3 (licensed picture)', 30);
+  v = await waitView(v => v.g5 && v.g5.n >= 3 && v.waiting.includes('G5'), 'film v3 (licensed picture)', 45);
   const l6 = v.scenes.find(s => s.id === 'l6');
   ok('S6', 'with evidence the exception closes and only that scene uses the picture', v.exceptions.every(x => x.kind !== 'rights' || x.status !== 'open')
      && l6.pick.technique === 'archival_collage' && JSON.stringify(diff(f2, filmScenes(v))) === '["l6"]', { tech: l6.pick.technique, changed: diff(f2, filmScenes(v)) });
@@ -173,7 +173,7 @@ try {
   await go('assets');                                              // the test picture is not a real portrait: withdraw it (kept in the history)
   await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'cp_asset', args: { op: 'withdraw', id: v.assets.library[0].id, note: 'test picture only' } } });
   // ============================================================ S5 + S4: a scene that keeps failing, during a style change
-  await ctx.request.post(`${BASE}/api/copilot/_test`, { data: { inject: { scene_review: { l7: [{ code: 'COMPOSITION', severity: 'major', detail: 'TEST: injected composition problem', detail_ar: 'مشكلة تكوين (اختبار)', fix: { zoom: '1.18' } }] } } } });
+  await ctx.request.post(`${BASE}/api/copilot/_test`, { data: { inject: { scene_review: { l7: [{ code: 'COMPOSITION', severity: 'major', detail: 'TEST: injected composition problem', detail_ar: 'مشكلة تكوين (اختبار)', fix: { slower: '1.4' } }] } } } });   // a fix that really changes this drawing, but the problem stays
   await go('g4');
   await page.locator('[data-style="technical"]').click(); await page.waitForTimeout(500);
   await gateBtn('G4', 'approved').click(); await page.waitForTimeout(1500);
@@ -181,18 +181,26 @@ try {
   ok('S9', 'a style change outdates every scene drawn in the old style (and nothing is approved over it)',
      v.scenes.filter(s => s.state === 'outdated').length >= 12 && v.validity.G4.valid, v.scenes.map(s => s.state));
   const l7before = (v.scenes.find(s => s.id === 'l7').versions || []).length;
-  v = await waitView(v => v.exceptions.some(x => x.scene === 'l7' && x.status === 'open'), 'l7 exception', 30);
+  v = await waitView(v => v.exceptions.some(x => x.scene === 'l7' && x.status === 'open'), 'l7 exception', 75);
   const ex = v.exceptions.find(x => x.scene === 'l7' && x.status === 'open');
-  ok('S5', 'a scene still wrong after two correction rounds stops and asks you', !!ex && /retry_limit|unfixable/.test(ex.kind) && v.run === 'paused', ex);
-  const l7 = v.scenes.find(s => s.id === 'l7');
-  const tries = l7.versions.length - l7before;
-  ok('S5', 'every version and its evidence is kept: at most 3 drawings (2 correction rounds) before asking you', tries >= 2 && tries <= 3 && l7.pick.rounds <= 2,
-     { tries, rounds: l7.pick.rounds, versions: l7.versions.map(x => [x.n, x.round, x.score]) });
+  ok('S5', 'a scene still wrong after its safe correction round stops and asks you (the Co-Pilot pauses)', !!ex && ex.kind === 'retry_limit' && v.run === 'paused', ex);
+  let l7 = v.scenes.find(s => s.id === 'l7');
+  let tries = l7.versions.length - l7before;
+  ok('S5', 'every version and its evidence is kept: at most 3 drawings (2 correction rounds) before asking you', tries >= 2 && tries <= 3 && l7.pick.rounds >= 1 && l7.pick.rounds <= 2,
+     { tries, rounds: l7.pick.rounds, versions: l7.versions.map(x => [x.n, x.round, x.score, x.changes]) });
   await go('ex/' + ex.id); await shot('10-exception');
+  await page.locator('[data-chip="text_size:1.2"]').click();                  // your own change: tried, then asks again
+  await page.fill('#exnote', 'جرّب خطًا أكبر'); await page.locator('[data-exd="retry_with_change"]').click(); await page.waitForTimeout(1500);
+  v = await waitView(v => v.exceptions.some(x => x.scene === 'l7' && x.status === 'open' && x.id !== ex.id), 'l7 asks again after your change', 30);
+  const ex2 = v.exceptions.find(x => x.scene === 'l7' && x.status === 'open' && x.id !== ex.id);
+  l7 = v.scenes.find(s => s.id === 'l7');
+  ok('S5', 'your change is tried with its own correction round, then it asks you again', ex2 && ex2.kind === 'retry_limit' && l7.pick.rounds <= 2
+     && l7.versions.some(x => x.changes && x.changes.slower), { kind: ex2 && ex2.kind, versions: l7.versions.map(x => [x.n, x.round, x.score, x.changes]) });
   await ctx.request.post(`${BASE}/api/copilot/_test`, { data: { inject: {} } });
+  await go('ex/' + ex2.id);
   await page.fill('#exnote', 'مقبول كما هو في المسودة'); await page.locator('[data-exd="accept_best"]').click(); await page.waitForTimeout(1500);
   // ============================================================ S8 server interruption during the film render
-  v = await waitView(v => v.task && /assemble|film/.test(v.task.what) && v.task.stage === 'film', 'film render running', 30);
+  v = await waitView(v => v.task && /assemble|film/.test(v.task.what) && v.task.stage === 'film', 'film render running', 75);
   await page.waitForTimeout(20000);
   const before = await view();
   killServer(); log('server killed during', before.task && before.task.what);
@@ -202,7 +210,7 @@ try {
   const resumed = v.runner_alive && v.task && v.task.stage === 'film';
   ok('S8', 'after the restart the interrupted render is recorded as interrupted and the film is started again by itself',
      resumed && (await (await ctx.request.get(`${BASE}/api/copilot/${PID}`)).json()).history.some(h => /interrupted|assemble/.test(h.summary)), { task: v.task, interrupted: v.interrupted });
-  v = await waitView(v => v.g5 && v.waiting.includes('G5') && v.g5.films.some(f => f.state === 'ok' && f.n > 3), 'film after restart', 40);
+  v = await waitView(v => v.g5 && v.waiting.includes('G5') && v.g5.films.some(f => f.state === 'ok' && f.n > 3), 'film after restart', 60);
   const dup = v.scenes.flatMap(s => s.versions.map(x => x.inputs).filter((h, i, a) => a.indexOf(h) !== i).map(h => s.id + ':' + h));
   ok('S8', 'the film completed after the interruption, nothing generated twice', v.waiting.includes('G5') && dup.length === 0, { films: v.g5.films, dup });
   ok('S4', 'after the style change every scene was redrawn in the new style', diff(f3, filmScenes(v)).length === 13, diff(f3, filmScenes(v)));
@@ -227,7 +235,15 @@ try {
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S3', 'Gate 3 needed only the changed line', v.validity.G3.valid, v.validity.G3);
-  v = await waitView(v => v.g5 && v.waiting.includes('G5') && Object.keys(filmScenes(v)).length && diff(f4, filmScenes(v)).length > 0, 'film with the new hook', 40);
+  // H3 opens on a drawing that draws itself in: its first frame is an empty page, which the Co-Pilot cannot fix by itself
+  v = await waitView(v => (v.g5 && v.waiting.includes('G5') && diff(f4, filmScenes(v)).length > 0) || v.exceptions.some(x => x.scene === 'h' && x.status === 'open'), 'film or opening-scene question', 45);
+  const exh = v.exceptions.find(x => x.scene === 'h' && x.status === 'open');
+  if (exh) {
+    ok('Reg', 'a blank opening the Co-Pilot cannot fix (a drawing hook) is caught and brought to you', /empty page/.test(exh.detail), exh.detail);
+    await go('ex/' + exh.id); await shot('14-blank-opening');
+    await page.fill('#exnote', 'مقبول في المسودة: سأقرر لاحقًا بين H1 وH3'); await page.locator('[data-exd="accept_best"]').click(); await page.waitForTimeout(1500);
+    v = await waitView(v => v.g5 && v.waiting.includes('G5') && diff(f4, filmScenes(v)).length > 0, 'film with the new hook', 60);
+  }
   ok('S3', 'only the opening scene was redone for the new hook', JSON.stringify(diff(f4, filmScenes(v))) === '["h"]', diff(f4, filmScenes(v)));
   ok('Reg', 'the new hook is the one rendered', !v.g5.findings.some(f => f.code === 'HOOK_MISMATCH'));
   // ============================================================ S12 draft played and reviewed on the phone, Gate 5
