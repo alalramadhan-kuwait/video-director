@@ -28,6 +28,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 FIX = Path(__file__).with_name('fixtures')
 PER_CALL_CAP = 0.50
+OVERSHOOT = 2.0             # what is left is divided by this to give the per-call cap (see call())
+MIN_CALL_USD = 0.02
 MOCK_LABEL = 'MOCK AI (fixtures; no model was called)'
 CLAUDE_LABEL = 'Claude (headless Claude Code)'
 
@@ -126,10 +128,19 @@ def call(studio, pid, kind, payload, actor='copilot') -> dict:
         if left <= 0:
             raise AIRefused(f'AI usage budget for this project is ${cp["ai"]["budget_usd"]:.2f} with ${max(left, 0):.2f} left: '
                             'the owner must authorize a budget before a real AI call')
-        cap = round(min(left, PER_CALL_CAP), 4)
-        # reserve the whole cap before the CLI starts: a call cut short by a restart is still counted
-        studio.act(pid, 'cp_ai_call', {'id': cid, 'kind': kind, 'role': ROLE[kind], 'worker': 'claude-code', 'label': CLAUDE_LABEL,
-                                       'state': 'started', 'ok': None, 'cost_usd': None, 'reserved_usd': cap}, actor='system')
+        # the CLI checks its budget between turns, so one call can go past --max-budget-usd by up to a turn. The cap is
+        # therefore at most half of what is left: an overshoot as large as the cap itself still stays inside the budget.
+        cap = round(min(left / OVERSHOOT, PER_CALL_CAP), 4)
+        if cap < MIN_CALL_USD:
+            raise AIRefused(f'only ${left:.2f} of the AI budget is left: too little for a safe call (it needs at least '
+                            f'${MIN_CALL_USD * OVERSHOOT:.2f}); the owner must raise the budget')
+        job = next((j for j in reversed(st['jobs']) if j.get('kind') == 'copilot' and j['state'] == 'running'), None)
+        # reserve the whole cap before the CLI starts: a call cut short by a restart is still counted, in the event log
+        # and in the append-only ledger
+        rec0 = {'id': cid, 'kind': kind, 'role': ROLE[kind], 'worker': 'claude-code', 'label': CLAUDE_LABEL, 'key': job and (job.get('args') or {}).get('key'),
+                'state': 'started', 'ok': None, 'cost_usd': None, 'reserved_usd': cap}
+        studio.act(pid, 'cp_ai_call', rec0, actor='system')
+        _ledger(studio, pid, rec0)
         try:
             out, meta = ClaudeCodeWorker(model=cp['settings'].get('model')).run(kind, payload, cap)
         except AIFailed as e:
@@ -151,6 +162,10 @@ def _record(studio, pid, cid, kind, meta, out, error, t0, actor):
            'duration_s': round(time.monotonic() - t0, 2), 'error': error,
            'output': studio.put(pid, json.dumps(out, ensure_ascii=False).encode(), 'json') if out is not None else None}
     studio.act(pid, 'cp_ai_call', rec, actor='system')
+    _ledger(studio, pid, rec)
+
+
+def _ledger(studio, pid, rec):
     with open(studio.var / 'copilot-ai-usage.jsonl', 'a', encoding='utf-8') as f:            # append-only, all projects
         f.write(json.dumps({'at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()), 'project': pid, **{k: v for k, v in rec.items() if k != 'output'}},
                            ensure_ascii=False) + '\n')

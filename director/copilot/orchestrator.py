@@ -55,6 +55,15 @@ def failed_keys(st) -> dict:
         go = max([resumed] + [c['seq'] for c in cp['controls'] if c['op'] == 'retry' and c.get('key') == k])
         if j['state'] != 'failed': out.pop(k, None)
         elif j['seq'] > go: out[k] = j.get('error', 'failed')
+    # a real AI call cut off by a restart is never run again by itself: running it again is a second spend (audit D10)
+    live = {(j.get('args') or {}).get('key') for j in st['jobs'] if j.get('kind') == 'copilot' and j['state'] in ('queued', 'running')}
+    for c in cp['ai']['calls']:
+        k = c.get('key')
+        if c.get('state') != 'started' or c.get('worker') != 'claude-code' or not k or k in live: continue
+        go = max([resumed] + [x['seq'] for x in cp['controls'] if x['op'] == 'retry' and x.get('key') == k])
+        if c['seq'] > go:
+            out[k] = (f'a real AI call ({c["kind"]}) was cut off by a restart; its reserved ${c.get("reserved_usd") or 0:.2f} is counted. '
+                      'Retry to run it again (a new spend), or switch to Manual')
     return out
 
 

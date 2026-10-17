@@ -236,8 +236,15 @@ class CopilotActions:
                 f = a['evidence_file']
                 if not (isinstance(f, str) and f.startswith('blobs/') and self.path(pid, f).is_file()):
                     raise _refused('the licence document must be a file uploaded to this project')
-            elif not re.search(r'https?://[^\s/]+\.[a-z]{2,}(/\S*)?', ev):
-                raise _refused('licence evidence needed: the page that states the licence (link) or the licence document')
+                if any(f == y.get('file') for y in assets.values()):
+                    raise _refused('a picture is not its own licence: give the licence document or the page that states the licence')
+            else:
+                from .factcheck import URL, _real_host
+                links = [m.group(0) for m in URL.finditer(ev) if _real_host(m.group(1))]
+                if not links:
+                    raise _refused('licence evidence needed: the page that states the licence (a link to a real site) or the licence document')
+                if x.get('url') and all(l.rstrip('/') == x['url'].rstrip('/') for l in links):
+                    raise _refused('the picture\'s own address is not its licence: link the page that states the licence')
             return 'assets', {'op': op, 'id': x['id'], 'licence': kind, 'evidence': ev, 'evidence_file': a.get('evidence_file'),
                               'holder': a.get('holder', ''), 'restrictions': a.get('restrictions', '')}
         if op == 'withdraw':
@@ -491,7 +498,9 @@ def fold(st: dict, e: dict):
     elif act == 'cp_ai_call':
         # a call is first recorded as 'started' with its whole cap reserved (a restart mid-call still counts it), then
         # replaced by its result; a failed call whose cost the CLI did not report keeps the reserved cap as its cost
-        cp['ai']['calls'] = [c for c in cp['ai']['calls'] if c['id'] != r['id']] + [{**r, 'at': at}]
+        prev = next((c for c in cp['ai']['calls'] if c['id'] == r['id']), {})
+        cp['ai']['calls'] = [c for c in cp['ai']['calls'] if c['id'] != r['id']] + [{**r, 'key': r.get('key') or prev.get('key'), 'at': at,
+                                                                                     'seq': prev.get('seq', e['seq'])}]
         cp['ai']['spent_usd'] = round(sum(max(0.0, float(c.get('cost_usd') if c.get('cost_usd') is not None else c.get('reserved_usd') or 0))
                                           for c in cp['ai']['calls']), 6)
     elif act == 'cp_direction':
@@ -567,6 +576,8 @@ def fold(st: dict, e: dict):
         if r['op'] == 'version': d['versions'].append({**r, 'at': at})
         else: d['pick'] = {**r, 'at': at}; d['picks'].append(d['pick'])
     elif act == 'cp_film':
+        for f in cp['films']:                              # a newer film started: an older one still 'running' was cut off
+            if f['n'] != r['n'] and f.get('state') == 'running': f['state'] = 'interrupted'
         cp['films'] = [f for f in cp['films'] if f['n'] != r['n']] + [{**r, 'at': at}]
     elif act == 'cp_comment':
         cp['comments'].append({**r, 'at': at})

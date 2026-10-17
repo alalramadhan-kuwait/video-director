@@ -46,6 +46,26 @@ def kill_renders(S, pid):
 
 
 # ====================================================================== actions
+def picture_kind(data: bytes):
+    """'png' / 'jpg' / 'webp' when the bytes really are a picture of that kind (signature and a full decode), else None."""
+    kind = ('png' if data[:8] == b'\x89PNG\r\n\x1a\n' else 'jpg' if data[:3] == b'\xff\xd8\xff'
+            else 'webp' if data[:4] == b'RIFF' and data[8:12] == b'WEBP' else None)
+    if kind is None: return None
+    import json as _j, subprocess
+    try:                                                   # a full decode with ffmpeg (already used for every render)
+        r = subprocess.run(['ffprobe', '-v', 'error', '-show_entries', 'stream=width,height,codec_name', '-of', 'json', '-i', 'pipe:0'],
+                           input=data, capture_output=True, timeout=30)
+        st = (_j.loads(r.stdout or b'{}').get('streams') or [{}])[0]
+        dec = subprocess.run(['ffmpeg', '-nostdin', '-v', 'error', '-i', 'pipe:0', '-frames:v', '1', '-f', 'null', '-'],
+                             input=data, capture_output=True, timeout=30)
+    except Exception:
+        return None
+    if r.returncode or dec.returncode or dec.stderr.strip(): return None
+    w, h = st.get('width') or 0, st.get('height') or 0
+    if min(w, h) < 16 or w * h > 80_000_000: return None
+    return kind
+
+
 def handle(var, body: dict) -> tuple[int, dict]:
     S = studio(var)
     pid, action, args, rid = body.get('project'), body.get('action', ''), dict(body.get('args') or {}), body.get('request_id')
@@ -71,7 +91,9 @@ def handle(var, body: dict) -> tuple[int, dict]:
             if not data: raise Refused('the file is empty')
             if len(data) > MAX_UPLOAD: raise Refused('the file is larger than 12 MB')
             if ext not in IMAGE_EXT: raise Refused('upload a JPG, PNG or WebP picture')
-            rel = S.put(pid, data, 'jpg' if ext == 'jpeg' else ext)
+            kind = picture_kind(data)
+            if kind is None: raise Refused('this file is not a JPG, PNG or WebP picture (its contents do not match its name)')
+            rel = S.put(pid, data, kind)
             r = S.act(pid, 'cp_asset', {**args, 'op': 'add', 'file': rel}, 'owner', rid)
             O.kick(S, pid)
             return 200, r
@@ -317,7 +339,9 @@ def _g5(S, pid, st, cp):
     films = [f for f in cp['films'] if f.get('state') == 'ok']
     if not films and not cp['films']: return None
     f = films[-1] if films else None
-    out = {'films': [{k: x.get(k) for k in ('n', 'state', 'seconds', 'at', 'error')} for x in cp['films']]}
+    live = any(j.get('kind') == 'copilot' and j['state'] in ('queued', 'running') and j.get('stage') == 'film' for j in st['jobs'])
+    out = {'films': [{**{k: x.get(k) for k in ('n', 'state', 'seconds', 'at', 'error')},
+                      **({'state': 'interrupted'} if x.get('state') == 'running' and not live else {})} for x in cp['films']]}
     if not f: return out
     fs = [x for x in st['review']['findings'].values() if x['run'] in f['reviews']]
     sev = {'critical': 0, 'major': 1, 'minor': 2, 'info': 3}

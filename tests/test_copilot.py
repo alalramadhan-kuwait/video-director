@@ -313,7 +313,7 @@ class TestAIWorker(Env):
 
     def test_budget_needs_a_reason_and_calls_are_capped_recorded_and_never_retried(self):
         with self.assertRaises(Refused): self.owner('cp_ai_budget', {'usd': 1})
-        self.owner('cp_ai_budget', {'usd': 0.05, 'note': 'owner test of the real worker'})
+        self.owner('cp_ai_budget', {'usd': 0.10, 'note': 'owner test of the real worker'})
         self.owner('cp_settings', {'worker': 'claude-code'})
         d, log = self.fake_claude({'type': 'result', 'subtype': 'success', 'is_error': False, 'total_cost_usd': 0.03,
                                    'usage': {'input_tokens': 5, 'output_tokens': 7}, 'modelUsage': {'claude-test': {}},
@@ -325,9 +325,15 @@ class TestAIWorker(Env):
             for flag in ('--tools', '--json-schema', '--no-session-persistence', '--output-format json', '--disable-slash-commands', '--max-budget-usd 0.0500'):
                 self.assertIn(flag, args)
             self.assertEqual(self.S.state(self.pid)['copilot']['ai']['spent_usd'], 0.03)
-            ai.call(self.S, self.pid, 'fact_check', {'lines': [], 'research': RESEARCH})   # 0.02 left: capped at it
+            led = [json.loads(x) for x in (self.var / 'copilot-ai-usage.jsonl').read_text().splitlines()]
+            self.assertEqual([x['state'] for x in led[-2:]], ['started', 'done'])           # the ledger knows a call began
+            # the cap is half of what is left (the CLI can overshoot by a turn): 0.07 left → 0.035, then 0.04 → 0.02
+            ai.call(self.S, self.pid, 'fact_check', {'lines': [], 'research': RESEARCH})
+            self.assertIn('--max-budget-usd 0.0350', log.read_text().split('CALL')[-1])
+            ai.call(self.S, self.pid, 'fact_check', {'lines': [], 'research': RESEARCH})
             self.assertIn('--max-budget-usd 0.0200', log.read_text().split('CALL')[-1])
             with self.assertRaises(ai.AIRefused): ai.call(self.S, self.pid, 'fact_check', {'lines': [], 'research': RESEARCH})
+            self.assertLessEqual(self.S.state(self.pid)['copilot']['ai']['spent_usd'], 0.10)
             # a failed call: its reported cost is recorded and it is not retried
             self.owner('cp_ai_budget', {'usd': 1.0, 'note': 'owner raises the budget for the test'})
             d, log = self.fake_claude({'type': 'result', 'subtype': 'error_max_budget_usd', 'is_error': True, 'total_cost_usd': 0.01, 'usage': {}}, 1)
@@ -338,6 +344,17 @@ class TestAIWorker(Env):
             self.assertEqual((c['ok'], c['cost_usd']), (False, 0.01))
         finally:
             os.environ['PATH'] = old; os.environ.pop('VD_AI_REAL_ENABLED', None)
+
+
+    def test_a_real_ai_call_cut_off_by_a_restart_is_not_run_again_by_itself(self):     # audit D10
+        self.S.act(self.pid, 'cp_ai_call', {'id': 'ai-x', 'kind': 'direction', 'role': 'r', 'worker': 'claude-code', 'label': 'x', 'key': 'direction:1',
+                                            'state': 'started', 'ok': None, 'cost_usd': None, 'reserved_usd': 0.25}, actor='system')
+        st = self.S.state(self.pid)
+        self.assertIn('direction:1', O.failed_keys(st))
+        self.assertEqual(st['copilot']['ai']['spent_usd'], 0.25)                           # the reserved cap is counted
+        self.assertNotEqual((O.plan(self.S, self.pid)['step'] or O.Step('', '', '', None, {})).key, 'direction:1')
+        self.owner('cp_control', {'op': 'retry', 'key': 'direction:1'})
+        self.assertNotIn('direction:1', O.failed_keys(self.S.state(self.pid)))
 
 
 class TestOwnerOnly(Env):
@@ -498,6 +515,11 @@ class TestVoiceAndAssets(Env):
         self.assertEqual(styles.choose(style, bs, {})['technique'], 'kinetic_type')          # a name card, never a placeholder person
         with self.assertRaises(Refused): self.owner('cp_asset', {'op': 'licence', 'id': a['id'], 'licence': 'licensed', 'evidence': 'trust me'})
         with self.assertRaises(Refused): self.owner('cp_asset', {'op': 'licence', 'id': a['id'], 'licence': 'owner_owned'})
+        # re-audit D12: a made-up site, or the picture itself, is not licence evidence; random bytes are not a picture
+        with self.assertRaises(Refused): self.owner('cp_asset', {'op': 'licence', 'id': a['id'], 'licence': 'licensed', 'evidence': 'https://a.bc'})
+        with self.assertRaises(Refused): self.owner('cp_asset', {'op': 'licence', 'id': a['id'], 'licence': 'licensed', 'evidence_file': a['file']})
+        with self.assertRaises(Refused):
+            self.owner('upload', {'data': base64.b64encode(b'\x89PNG\r\n\x1a\n' + os.urandom(4096)).decode(), 'name': 'x.png', 'slot': 's', 'scene': 'l6', 'use': 'evidence'})
         self.owner('cp_asset', {'op': 'licence', 'id': a['id'], 'licence': 'licensed', 'evidence': 'https://example.org/licence-page'})
         st = self.S.state(self.pid)
         a = list(st['copilot']['assets'].values())[0]
