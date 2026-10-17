@@ -47,12 +47,13 @@ async function go(panel) {                            // wait until the page sho
 async function overflow() {                          // page-level AND element-level: anything cut off at the screen edge counts
   return page.evaluate(() => {
     const W = document.documentElement.clientWidth;
-    const scrolls = e => { for (let p = e.parentElement; p; p = p.parentElement) { const o = getComputedStyle(p).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return true; } return false; };
+    const scrolls = e => { for (let p = e.parentElement; p && p !== document.body && p !== document.documentElement; p = p.parentElement) { const o = getComputedStyle(p).overflowX; if (o === 'auto' || o === 'scroll' || o === 'hidden') return true; } return false; };
     const bad = [...document.querySelectorAll('#main *')].filter(e => { const r = e.getBoundingClientRect(); return r.width > 0 && r.height > 0 && (r.right > W + 1 || r.left < -1) && !scrolls(e); });
     const page = document.documentElement.scrollWidth - W;
     return page > 0 || bad.length ? { page, cut: bad.slice(0, 5).map(e => e.tagName + '.' + e.className + ' ' + (e.textContent || '').slice(0, 30)) , n: bad.length } : 0;
   });
 }
+async function closeToast() { const c = page.locator('#toast [data-tclose]'); if (await c.count() && await c.isVisible()) await c.click(); }
 async function toastText() { const t = page.locator('#toast'); await page.waitForTimeout(400); return (await t.isVisible()) ? (await t.textContent()) : ''; }
 async function playToEnd(sel, rate, maxS) {          // wait for THIS player's 'ended' (the page may redraw the panel after it stops)
   await page.evaluate(({ sel, rate }) => { const m = document.querySelector(sel); window.__ended = false; m.addEventListener('ended', () => { window.__ended = true; }, { once: true });
@@ -72,7 +73,7 @@ async function approveG3(play, label) {
   for (let i = 0; i < 3; i++) {
     let v = await view();
     if (v.validity.G3.valid) return v;
-    if (i > 0) { const t = await toastText(); ok('run', `Gate 3 replay ${i} (${label}): the decision was refused, listening again`, true, t); }
+    if (i > 0) { const t = await toastText(); ok('run', `Gate 3 replay ${i} (${label}): the decision was refused, listening again`, true, t); await closeToast(); }
     v = await idleVoice(); await go('g3'); await play(v);
     if (await page.locator('#ackqa').count()) await page.check('#ackqa');
     await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
@@ -102,7 +103,7 @@ try {
   await page.goto(`${BASE}/studio`); await page.waitForTimeout(800);
   ok('S1', 'the guided Studio is the first screen (/ → /studio)', (await (await ctx.request.get(`${BASE}/`, { maxRedirects: 0 })).headers()['location']) === '/studio');
   await page.locator('button.primary.big').first().click(); await page.waitForTimeout(400);
-  ok('S1', 'mode selector: Co-Pilot is the default, Auto is not available', await page.locator('input[value=copilot]').isChecked() && await page.locator('input[value=auto]').isDisabled());
+  ok('S1', 'mode selector: Co-Pilot is the default, Auto is not available', await page.locator('input[value=copilot]').isChecked() && (await page.locator('input[value=auto]').count() === 0 || await page.locator('input[value=auto]').isDisabled()));
   await shot('01-new');
   await page.fill('#n-idea', 'كيف جعلت رولكس أويستر (1926) الناس يثقون بساعة في الماء — Rolex Oyster');
   await page.fill('#n-title', 'Rolex Oyster');
@@ -135,12 +136,12 @@ try {
   const dl = await page.locator('.label-draft').first().textContent();
   ok('S1', 'draft voice is labelled as free draft, not ElevenLabs', /(ليس|not)/i.test(dl) && /ElevenLabs/.test(dl) && /(تجريبي|draft|free|مجاني)/i.test(dl), dl);
   await page.locator('[data-gate="G3"][data-d="approved"]').click(); await page.waitForTimeout(800);
-  ok('S1', 'Gate 3 refuses before the narration is heard', /(listen|استمع)/i.test(await toastText()));
+  ok('S1', 'Gate 3 refuses before the narration is heard', /(listen|استمع)/i.test(await toastText())); await closeToast();
   await playToEnd('#mix', 2, 300);
   await page.locator('.w').nth(3).click(); await page.waitForTimeout(800); await shot('05-g3-word');
   ok('S1', 'tapping a word opens its pronunciation / speed / compare sheet', await page.locator('.sheet').isVisible());
   const word = (await page.locator('.sheet b').first().textContent() || '').replace(/[«»]/g, '');
-  const wline = (await page.locator('.sheet .tiny.muted').first().textContent() || '').trim();
+  const wline = (await page.locator('.sheet [data-line]').first().getAttribute('data-line') || '').trim();   // the line id (the screen shows its name)
   const nBefore = Object.fromEntries((await view()).g3.lines.map(l => [l.line, l.takes.length]));
   await page.fill('#respell', word + 'ْ'); await page.locator('[data-pron]').click(); await page.waitForTimeout(1500);
   v = await waitView(v => v.g3 && v.g3.mix_current && v.g3.lines.some(l => l.takes.length > nBefore[l.line]), 'new take after the pronunciation correction', 10);
@@ -153,7 +154,10 @@ try {
   if (nq) {
     await page.locator('[data-seekmix]').first().click(); await page.waitForTimeout(2000);       // hear one of them as an owner would
       await gateBtn('G3', 'approved').click(); await page.waitForTimeout(800);
-    ok('S1', 'uncertain words must be confirmed before the voice is approved', /(uncertain|غير)/i.test(await toastText()), nq);
+    const tq = await toastText();
+    ok('S1', 'uncertain words must be confirmed before the voice is approved', /(uncertain|غير)/i.test(tq), nq);
+    ok('S1', 'the refusal is in plain words: no internal ids', !/q-tk-|tk-[a-z0-9]+-/.test(tq), tq.slice(0, 160));
+    await closeToast();
     await page.check('#ackqa');
   }
   await gateBtn('G3', 'approved').click(); await page.waitForTimeout(1500);
@@ -203,7 +207,7 @@ try {
      && v.assets.library[0].status === 'unverified', v.assets.library.map(a => [a.id, a.status]));
   await go('assets');
   await page.fill(`[data-licev="${v.assets.library[0].id}"]`, 'nonsense'); await page.locator(`[data-lic="${v.assets.library[0].id}"]`).click(); await page.waitForTimeout(800);
-  ok('S6', 'a licence without evidence is refused', /(evidence|دليل)/i.test(await toastText()));
+  ok('S6', 'a licence without evidence is refused', /(evidence|دليل)/i.test(await toastText())); await closeToast();
   await page.fill(`[data-licev="${v.assets.library[0].id}"]`, 'https://example.org/test-licence-page'); await page.locator(`[data-lic="${v.assets.library[0].id}"]`).click(); await page.waitForTimeout(1500);
   v = await waitView(v => v.g5 && v.g5.n >= 3 && v.waiting.includes('G5'), 'film v3 (licensed picture)', 45);
   const l6 = v.scenes.find(s => s.id === 'l6');
@@ -268,7 +272,7 @@ try {
   await page.locator('[data-hook="H3"]').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S9', 'changing the hook outdates the script approval and the APPROVED film (and keeps the style approval)',
-     !v.validity.G2.valid && !v.validity.G5.valid && v.validity.G4.valid && !!v.validity.G5.approved, { G2: v.validity.G2, G4: v.validity.G4, G5: v.validity.G5 });
+     !v.validity.G2.valid && !v.validity.G5.valid && v.validity.G4.valid && (v.gates.G5 || []).some(r => r.decision === 'approved'), { G2: v.validity.G2, G4: v.validity.G4, G5: v.validity.G5 });
   v = await waitView(v => v.waiting.includes('G2'), 'G2 for the new hook', 10);
   await go('g2');
   for (const c of await page.locator('[data-ack]').all()) await c.check();
@@ -307,8 +311,8 @@ try {
   v = await waitView(v => v.g6 && v.g6.plan, 'paid plan', 10);
   await go('g6'); await shot('12-g6');
   await page.fill('#g6c', String(v.g6.plan.chars_total)); await page.locator('[data-g6]').click(); await page.waitForTimeout(800);
-  const t6 = await toastText();
-  ok('S11', 'paid narration cannot be authorized here (blockers listed)', /not authorized|disabled/.test(t6), t6);
+  const t6 = await toastText(); await closeToast();
+  ok('S11', 'paid narration cannot be authorized here (blockers listed)', /not authorized|disabled|مُفوَّض|معطّلة/.test(t6), t6);
   const fg = await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'final_generate', args: {} } });
   ok('S11', 'the page has no route to paid generation', fg.status() === 422);
   const g6o = await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'cp_gate', args: { gate: 'G6', decision: 'approved', content_hash: 'old', confirm_text: '1' } } });
@@ -327,7 +331,9 @@ try {
   await ctx.request.post(`${BASE}/api/copilot`, { data: { project: PID, action: 'cp_settings', args: { worker: 'mock' } } });
   // ============================================================ S10 switch to Manual
   await go('');
-  await page.locator('[data-manual]').click(); await page.waitForTimeout(1500);
+  await page.locator('[data-manual]').click(); await page.waitForTimeout(400);
+  ok('S10', 'switching to Manual asks first (nothing happens on the first tap)', (await view()).mode === 'copilot' && await page.locator('[data-ask-ok]').isVisible());
+  await page.locator('[data-ask-ok]').click(); await page.waitForTimeout(1500);
   v = await view();
   ok('S10', 'switch to Manual: the Co-Pilot stops, every approval is kept', v.mode === 'manual' && v.run === 'stopped' && v.validity.G5.valid && v.validity.G3.valid, { mode: v.mode, run: v.run });
   await page.goto(`${BASE}/studio/classic#${PID}`); await page.waitForTimeout(2000); await shot('13-classic');

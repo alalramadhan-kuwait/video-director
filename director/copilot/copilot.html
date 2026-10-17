@@ -38,10 +38,10 @@ button:disabled{opacity:.45;cursor:not-allowed}
 button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
 input,textarea,select{background:var(--sunk);border:1px solid var(--line);border-radius:12px;padding:10px 12px;width:100%}
 textarea{min-height:84px;resize:vertical}
-input[type=checkbox]{width:22px;height:22px;flex:none}
+input[type=checkbox],input[type=radio]{width:22px;height:22px;flex:none}
 body.busy button{pointer-events:none;opacity:.6}
 h1{font-size:1.05rem;margin:0} h2{font-size:1.25rem;margin:0} h3{font-size:1rem;margin:0} p{margin:0}
-.muted{color:var(--muted)} .small{font-size:.88rem} .tiny{font-size:.78rem}
+.muted{color:var(--muted)} .small{font-size:.88rem} .tiny{font-size:.8125rem}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap} .between{justify-content:space-between} .grow{flex:1;min-width:0}
 .stack{display:flex;flex-direction:column;gap:10px;min-width:0}
 header.bar{position:sticky;top:0;z-index:30;background:var(--panel);border-bottom:1px solid var(--line);padding:8px 16px;display:flex;align-items:center;gap:8px}
@@ -49,7 +49,7 @@ header.bar a.home{color:var(--ink);text-decoration:none;font-weight:700;margin-i
 .logo{width:22px;height:22px;border-radius:6px;background:var(--accent);flex:none}
 main{padding:12px 16px 120px;max-width:620px;margin:0 auto;display:flex;flex-direction:column;gap:14px}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:10px;min-width:0}
-.pill{display:inline-flex;align-items:center;gap:4px;font-size:.76rem;font-weight:600;border-radius:99px;padding:2px 9px;line-height:1.5}
+.pill{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;font-size:.8125rem;font-weight:600;border-radius:99px;padding:2px 9px;line-height:1.5}
 .st-owner_approved,.st-completed{background:var(--ok-soft);color:var(--ok)}
 .st-needs_owner,.st-changes_requested{background:var(--wait-soft);color:var(--wait)}
 .st-blocked{background:var(--bad-soft);color:var(--bad)}
@@ -62,13 +62,16 @@ main{padding:12px 16px 120px;max-width:620px;margin:0 auto;display:flex;flex-dir
 .next{background:var(--wait-soft);border:1px solid var(--wait);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center}
 .next.calm{background:var(--ai-soft);border-color:var(--ai)}
 .stages{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
-.stages button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:4px 8px;min-height:44px;text-align:start;font-size:.76rem;line-height:1.3}
-.stages button .pill{font-size:.68rem;padding:0 7px}
+.stages button{display:flex;flex-direction:column;align-items:flex-start;gap:1px;padding:4px 8px;min-height:44px;text-align:start;font-size:.8125rem;line-height:1.3}
+.stages button .pill{font-size:.8125rem;padding:0 6px;max-width:100%;overflow:hidden;text-overflow:ellipsis}
+.st-locked{background:var(--unk-soft);color:var(--unk)}
 .stages button.cur{outline:2px solid var(--accent)}
-.lockline{font-size:.8rem;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.lockline{font-size:.8125rem;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .dot{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
 .timeline{display:flex;gap:3px;width:100%}
-.timeline button{flex:1 1 0;min-width:0;min-height:30px;padding:0;border-radius:6px;font-size:.6rem;border-width:2px;white-space:nowrap;overflow:hidden;direction:ltr}
+.timeline button{flex:1 1 0;min-width:24px;min-height:32px;padding:0;border-radius:6px;font-size:.8125rem;border-width:2px;white-space:nowrap;overflow:hidden;direction:ltr;position:relative;font-variant-numeric:tabular-nums}
+.timeline button i{font-style:normal;font-weight:700;position:absolute;top:-1px;inset-inline-end:2px;font-size:.75rem;line-height:1}
+.timeline .end{flex:0 0 10px;align-self:stretch;border-radius:4px;background:var(--sunk)}
 .timeline button.on{outline:2px solid var(--ink)}
 .tl-ai_reviewed{background:var(--ai-soft);border-color:var(--ai);color:var(--ai)} .tl-needs_owner{background:var(--wait-soft);border-color:var(--wait);color:var(--wait)}
 .tl-outdated{background:repeating-linear-gradient(45deg,var(--unk-soft) 0 5px,transparent 5px 10px);border-color:var(--unk)} .tl-not_started{border-style:dashed}
@@ -96,14 +99,23 @@ audio{background:none}
 .sheet{border:1px solid var(--accent);border-radius:14px;padding:12px;background:var(--raise);display:flex;flex-direction:column;gap:8px}
 .finding{border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;gap:6px}
 .finding img{width:120px;border-radius:8px}
-.label-ai{background:var(--ai-soft);color:var(--ai);border-radius:10px;padding:6px 10px;font-size:.8rem;font-weight:600}
+.label-ai{background:var(--ai-soft);color:var(--ai);border-radius:10px;padding:6px 10px;font-size:.8125rem;font-weight:600}
 .label-draft{background:var(--wait-soft);color:var(--wait);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:600}
 .label-lock{background:var(--bad-soft);color:var(--bad);border-radius:10px;padding:6px 10px;font-size:.84rem;font-weight:600}
-.toast{position:fixed;inset-inline:16px;bottom:18px;z-index:50;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 14px;font-weight:600;max-width:588px;margin:0 auto}
+/* messages: a success note fades; a refusal stays until closed or fixed; the text never blocks a tap (only its buttons take taps) */
+.toast{position:fixed;inset-inline:16px;bottom:calc(18px + env(safe-area-inset-bottom,0px));z-index:50;background:var(--ink);color:var(--bg);border-radius:12px;padding:10px 12px;font-weight:600;max-width:588px;margin:0 auto;display:flex;flex-direction:column;gap:8px;pointer-events:none;max-height:45vh;overflow:auto;box-shadow:0 6px 24px rgba(0,0,0,.25)}
 .toast.bad{background:var(--bad);color:#fff}
+.toast .tacts{display:flex;gap:8px;flex-wrap:wrap}
+.toast button{pointer-events:auto;min-height:40px;background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.5);color:inherit;font-weight:600}
+.toast details{pointer-events:auto;font-weight:400;font-size:.8125rem;opacity:.9} .toast details div{direction:ltr;text-align:left}
+.hl{outline:3px solid var(--wait)!important;outline-offset:3px;border-radius:8px}
+.ask{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.ask .card{width:100%;max-width:588px}
+.lockchip{display:inline-flex;gap:4px;align-items:center;border-radius:99px;padding:2px 10px;min-height:28px;background:var(--unk-soft);color:var(--unk);text-decoration:none;font-weight:600}
 .inbox li{margin:4px 0} ul{padding-inline-start:20px;margin:0}
 .claims li{margin:6px 0}
-.ft{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem}
+.ft{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.84rem;align-items:center} .ft a{display:inline-flex;align-items:center;min-height:32px}
+.srcs a{display:inline-flex;align-items:center;justify-content:center;min-width:28px;min-height:28px}
 .mode{display:grid;grid-template-columns:1fr;gap:8px}
 .mode label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:12px;padding:10px}
 .mode label.dis{opacity:.5}
@@ -112,16 +124,17 @@ audio{background:none}
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chips button{min-height:38px;font-size:.88rem}
 .vers{display:flex;flex-wrap:wrap;gap:6px}
-.vers button{min-height:34px;font-size:.8rem;padding:2px 10px}
+.vers button{min-height:34px;font-size:.8125rem;padding:2px 10px}
 </style>
 </head>
 <body>
 <header class="bar">
   <a class="home" href="#/"><span class="logo"></span><span data-t="app">مخرج الفيديو</span></a>
-  <button class="link" id="lang" aria-label="language">EN</button>
+  <button class="link" id="lang" aria-label="اللغة / language">EN</button>
 </header>
 <main id="main"></main>
 <div class="toast" id="toast" hidden></div>
+<div id="askbox"></div>
 <script>
 'use strict';
 const T = {
@@ -145,7 +158,10 @@ const T = {
     accept_best:'اقبل أفضل نسخة', retry_with_change:'جرّب بتعديل', remove_banner:'احذف العنوان', keep_fallback:'أبقِ البديل', edit_myself:'سأعدّلها بنفسي',
     dismiss_comment:'تجاهل التعليق', why:'السبب', scene:'مشهد', clip:'المقطع', rounds:'جولات التصحيح', issues:'ملاحظات', none:'لا شيء',
     budget:'ميزانية الذكاء', spent:'المصروف', worker:'العامل', calls:'الاستدعاءات', mock:'ذكاء تجريبي (بلا نموذج)', back:'رجوع', lang:'EN',
-    interrupted:'توقف أثناء العمل (سيُستأنف)', ai_label:'نتائج تجريبية', draftvoice:'صوت تجريبي', target:'الهدف', s:'ث'},
+    interrupted:'توقف أثناء العمل (سيُستأنف)', ai_label:'نتائج تجريبية', draftvoice:'صوت تجريبي', target:'الهدف', s:'ث',
+    stop_q:'إيقاف المساعد؟', stop_b:'سيتوقف أي رسم أو تسجيل جارٍ الآن. لا يُحذف شيء، وكل موافقاتك تبقى. تقدر تكمل لاحقًا بـ«متابعة».', stop_ok:'نعم، أوقف',
+    manual_q:'التحويل إلى اليدوي؟', manual_b:'يتوقف المساعد ويُفتح الاستوديو الكلاسيكي. لا تُمحى أي موافقة.', manual_ok:'نعم، حوّل', keep:'تراجع',
+    close:'إغلاق', details:'التفاصيل', take_me:'خذني إليه', nospend:'لا صرف تلقائي', locked:'مقفل', voice:'الصوت', choosefile:'اختر الصورة', frame:'الإطار'},
   en: {app:'Video Director', projects:'Your projects', newvid:'New video', title:'Title', idea:'Idea', brand:'Brand', mode:'How to work',
     copilot:'Co-Pilot', copilot_d:'You approve the important decisions; the Co-Pilot does the work in between', manual:'Manual', manual_d:'The classic Studio, step by step',
     auto:'Auto', auto_d:'Not yet implemented', duration:'Length (seconds)', start:'Start', stage:'Stage', task:'Task', next:'Your next decision',
@@ -166,12 +182,54 @@ const T = {
     accept_best:'Accept the best version', retry_with_change:'Try with a change', remove_banner:'Remove the banner', keep_fallback:'Keep the fallback', edit_myself:'I will edit it myself',
     dismiss_comment:'Dismiss the comment', why:'Why', scene:'Scene', clip:'Clip', rounds:'correction rounds', issues:'issues', none:'none',
     budget:'AI budget', spent:'spent', worker:'worker', calls:'calls', mock:'MOCK AI (no model)', back:'Back', lang:'ع',
-    interrupted:'stopped mid-way (will be resumed)', ai_label:'mock results', draftvoice:'Draft voice', target:'target', s:'s'}
+    interrupted:'stopped mid-way (will be resumed)', ai_label:'mock results', draftvoice:'Draft voice', target:'target', s:'s',
+    stop_q:'Stop the Co-Pilot?', stop_b:'Any drawing or recording in progress stops now. Nothing is deleted and all your approvals stay. You can carry on later with Resume.', stop_ok:'Yes, stop',
+    manual_q:'Switch to Manual?', manual_b:'The Co-Pilot stops and the classic Studio opens. No approval is erased.', manual_ok:'Yes, switch', keep:'Keep going',
+    close:'Close', details:'Details', take_me:'Take me there', nospend:'No automatic spending', locked:'locked', voice:'Voice', choosefile:'Choose the picture', frame:'frame'}
 };
 let LANG = 'ar';
 try { LANG = localStorage.getItem('cp_lang') || 'ar'; } catch (e) {}
 const t = k => (T[LANG][k] ?? T.en[k] ?? k);
 const AR = () => LANG === 'ar';
+// plain words for the values the server sends (statuses, check codes, techniques), so no internal code reaches the screen
+const ST = {
+  ar: { running:'يعمل', paused:'متوقف مؤقتًا', stopped:'متوقف', idle:'جاهز', draft:'مسودة', approved:'موافق عليها', rejected:'مرفوضة', superseded:'قديمة',
+    changes_requested:'طُلب تعديلها', candidate:'بانتظار مراجعتك', open:'مفتوح', decided:'تقرّر', missing:'غير موجودة', unverified:'بلا ترخيص', verified:'مرخّصة',
+    withdrawn:'مسحوبة', found:'موجودة', ai_reviewed:'راجعه الذكاء', outdated:'قديم', working:'قيد العمل', not_started:'لم يبدأ', needs_owner:'ينتظر قرارك',
+    evidence:'صورة حقيقية (دليل)', illustration:'رسم توضيحي', owner_owned:'ملكي', licensed:'مرخّصة', public_domain:'ملكية عامة', cc:'Creative Commons',
+    copilot:'المساعد', owner:'أنت', ok:'تم', failed:'فشل', accepted:'قُبلت', dismissed:'أُبقيت', done:'تم', interrupted:'انقطع', accept_best:'قُبلت أفضل نسخة',
+    retry_with_change:'جُرّب تعديل', manual:'حُوّل لليدوي', remove_banner:'حُذف العنوان', keep_fallback:'أُبقي البديل', edit_myself:'سيعدّله صاحبه', dismiss_comment:'تُجوهل التعليق' },
+  en: { ai_reviewed:'AI reviewed', not_started:'not started', needs_owner:'needs you', changes_requested:'changes requested', owner_owned:'mine', public_domain:'public domain',
+    accept_best:'best version accepted', retry_with_change:'tried with a change', keep_fallback:'fallback kept', remove_banner:'banner removed' } };
+const stx = x => (ST[LANG] && ST[LANG][x]) ?? String(x ?? '').replace(/_/g, ' ');
+const CODES = { DURATION_OFF:'المدة بعيدة عن الهدف', PACE_DIP:'الإيقاع يبطؤ', PICTURE_FALLBACK:'رسم بديل بدل الصورة', SCENE_SMALL_TEXT:'نص صغير في المشهد', SMALL_TEXT:'نص صغير',
+  LABELS_SMALL:'تسميات صغيرة', OPENING_BLANK:'الافتتاحية تبدأ فارغة', BLANK_OPENING:'الافتتاحية تبدأ فارغة', HOOK_MISMATCH:'الافتتاحية لا تطابق المختارة', ASPECT:'مقاس الفيلم',
+  SILENT_TAIL:'نهاية صامتة', STYLE_INCONSISTENT:'الأسلوب غير متناسق', AV_SYNC:'الصوت لا يطابق الصورة', BANNER_CARRIED_OVER:'عنوان انتقل لمشهد آخر', BANNER_LONG:'عنوان طويل',
+  CLAIM_ON_SCREEN:'معلومة غير مؤكدة على الشاشة', CLAIM_UNSUPPORTED:'معلومة بلا مصدر', YEAR_NOT_IN_RESEARCH:'سنة غير موجودة في البحث', CUT_BY_FRAME:'نص مقصوص عند الحافة',
+  TEXT_OVERLAP:'نصوص متداخلة', LONG_HOLD:'لقطة طويلة ثابتة', LONG_LINE:'سطر طويل', LAYOUT:'ترتيب المشهد', COMPOSITION:'تكوين المشهد', OFF_BRAND_THEME:'ألوان خارج الهوية',
+  DRAWN_BRAND_WATCH:'ساعة علامة مرسومة', PLACEHOLDER_PERSON:'شخص بديل مرسوم', DRAWING_UNLABELLED:'رسم بلا تسمية', MISSING_ASSET:'صورة ناقصة', FALLBACK:'بديل',
+  VOICE_MISSING:'صوت ناقص', WRONG_SIZE:'مقاس خطأ', LATIN_IN_CAPTIONS:'حروف لاتينية في الكتابة', LATIN_IN_NARRATION:'حروف لاتينية في التعليق', DIGITS:'أرقام مكتوبة',
+  REPEATED_WORD:'كلمة مكررة', SPELLING:'إملاء', SPECULATION:'تخمين كأنه حقيقة', UNATTRIBUTED:'قول بلا نسبة', NAME_TO_CHECK:'اسم يحتاج تحقق', NO_SOURCE:'بلا مصدر',
+  SINGLE_SOURCE:'مصدر واحد فقط', UNCERTAIN_WORD:'كلمة غير واضحة', MISSING:'تسجيل ناقص', TOO_FAST:'سريع', TOO_SLOW:'بطيء', LOW_LEVEL:'الصوت منخفض', CLIPPING:'تشويش' };
+const codeName = c => AR() ? (CODES[c] || 'ملاحظة') : String(c || '').toLowerCase().replace(/_/g, ' ');
+const TECH = { kinetic_type:'نص متحرك', animated_timeline:'خط زمني متحرك', map:'خريطة', newspaper_card:'بطاقة صحيفة', parallax_25d:'عمق متحرك', technical_illustration:'رسم تقني',
+  archival_collage:'قصاصات أرشيفية', name_card:'بطاقة اسم', 'tk-bone':'خلفية فاتحة', 'tk-ink':'خلفية داكنة' };
+const techName = x => AR() ? (TECH[x] || x) : String(x || '').replace(/_/g, ' ');
+const HOOKT = { 'Myth-buster':'تصحيح خرافة', 'Cold open':'بداية مباشرة', 'Secret detail':'تفصيل خفي', 'Shock number':'رقم صادم', 'Question':'سؤال' };
+const CHIP = { 'text_size:1.2':['خط أكبر', 'Bigger text'], 'zoom:1.18':['تكبير', 'Zoom in'], 'slower:1.4':['أبطأ', 'Slower'], 'theme:tk-ink':['خلفية داكنة', 'Dark background'], 'theme:tk-bone':['خلفية فاتحة', 'Light background'] };
+const chipName = c => (CHIP[c] || [c, c])[AR() ? 0 : 1];
+const CHG = { text_size:'حجم الخط', zoom:'تكبير', slower:'إبطاء', gap:'مسافة', first_in:'ظهور أول عنصر', theme:'الخلفية', banner:'العنوان' };
+const AIK = { direction:'اتجاه القصة', research_check:'فحص البحث', script:'كتابة النص', fact_check:'فحص الحقائق', quality_review:'مراجعة التحرير', revise_script:'تعديل النص',
+  pronunciation:'النطق', art_brief:'وصف المشاهد', style_eval:'تقييم الأساليب', scene_review:'مراجعة مشهد', film_review:'مراجعة الفيلم', comment_to_change:'فهم تعليقك', asset_research:'بحث الصور' };
+const aiKind = k => AR() ? (AIK[k] || k) : String(k || '').replace(/_/g, ' ');
+const takeWhy = r => !AR() ? (r || '') : r === 'draft read' ? 'القراءة الأولى' : r === 'pronunciation dictionary change' ? 'بعد تصحيح النطق' : /^correction/.test(r || '') ? 'بعد تصحيح كلمة' : /^speed/.test(r || '') ? 'سرعة أو وقفة معدّلة' : (r || '');
+function lineName(id, scene) {                      // 'h' → the hook, 'l6' → line / scene 6: never an internal id on screen
+  if (id === 'h') return AR() ? 'الافتتاحية' : 'the hook';
+  if (id === 'endcard') return AR() ? 'الختام' : 'end card';
+  const m = /^l(\d+)$/.exec(id || '');
+  return m ? (scene ? (AR() ? 'المشهد ' : 'Scene ') : (AR() ? 'السطر ' : 'Line ')) + m[1] : (id || '');
+}
+const lineNo = id => id === 'h' ? '1' : (/^l(\d+)$/.exec(id || '') || [, id])[1];
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const rid = () => (crypto.randomUUID ? crypto.randomUUID() : 'r' + Math.random().toString(36).slice(2) + Date.now());
@@ -185,7 +243,62 @@ function applyLang() {
 }
 $('#lang').onclick = () => { LANG = AR() ? 'en' : 'ar'; try { localStorage.setItem('cp_lang', LANG); } catch (e) {} applyLang(); S.sig = ''; render(true); };
 
-function toast(msg, bad) { const e = $('#toast'); e.textContent = msg; e.className = 'toast' + (bad ? ' bad' : ''); e.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => e.hidden = true, bad ? 6000 : 2600); }
+// a success note fades after a moment; a refusal stays (announced to screen readers) until it is closed, fixed, or the next action
+function toast(msg, bad, extra) {
+  const e = $('#toast'); clearTimeout(toast.h);
+  e.className = 'toast' + (bad ? ' bad' : ''); e.setAttribute('role', bad ? 'alert' : 'status'); e.setAttribute('aria-live', bad ? 'assertive' : 'polite');
+  const fx = extra && extra.fix, det = extra && extra.details;
+  e.innerHTML = `<div>${esc(msg)}</div>${det ? `<details><summary>${t('details')}</summary><div>${esc(det)}</div></details>` : ''}`
+    + (bad ? `<div class="tacts">${fx ? `<button data-tfix="1">${esc(AR() ? fx.label_ar : fx.label_en)}</button>` : ''}<button data-tclose="1">${t('close')}</button></div>` : '');
+  e.hidden = false;
+  const c = e.querySelector('[data-tclose]'); if (c) c.onclick = () => { e.hidden = true; };
+  const f = e.querySelector('[data-tfix]'); if (f) f.onclick = () => { e.hidden = true; goFix(fx); };
+  if (!bad) toast.h = setTimeout(() => e.hidden = true, 2600);
+}
+function clearToast() { const e = $('#toast'); if (e && e.classList.contains('bad')) e.hidden = true; }
+async function goFix(fx) {                            // "take me there": open the right screen, then show the exact control
+  if (!fx) return;
+  if (fx.reload || (fx.panel && fx.panel !== (S.panel || ''))) {
+    if (fx.panel && fx.panel !== (S.panel || '') && S.pid) { location.hash = `#/p/${encodeURIComponent(S.pid)}/${fx.panel}`; await new Promise(r => setTimeout(r, 500)); }
+    else { S.sig = ''; await render(true); }
+  }
+  const el = fx.target && document.querySelector(fx.target);
+  if (!el) return;
+  el.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+  el.classList.add('hl'); setTimeout(() => el.classList.remove('hl'), 2600);
+  if (el.focus) el.focus({ preventScroll: true });
+}
+// an in-page confirmation (the same on every phone; nothing happens until the second, explicit tap)
+function ask(title, body, okLabel, okClass) {
+  return new Promise(res => {
+    const box = $('#askbox'), back = document.activeElement;
+    box.innerHTML = `<div class="ask" role="dialog" aria-modal="true" aria-labelledby="ask-t"><div class="card"><h2 id="ask-t">${esc(title)}</h2><p class="small">${esc(body)}</p>
+      <button class="big ${okClass || 'primary'}" data-ask-ok="1">${esc(okLabel)}</button><button class="big" data-ask-no="1">${t('keep')}</button></div></div>`;
+    const done = v => { box.innerHTML = ''; document.removeEventListener('keydown', esc_); if (back && back.focus) back.focus(); res(v); };
+    const esc_ = ev => { if (ev.key === 'Escape') done(false); };
+    document.addEventListener('keydown', esc_);
+    box.querySelector('[data-ask-ok]').onclick = () => done(true);
+    box.querySelector('[data-ask-no]').onclick = () => done(false);
+    box.querySelector('.ask').onclick = ev => { if (ev.target.classList.contains('ask')) done(false); };
+    box.querySelector('[data-ask-no]').focus();
+  });
+}
+// ------------------------------------------------------------------ unsent text (notes, comments, reasons, links) survives refreshes and navigation
+// Every field with data-draft="key" is saved as you type and put back after any redraw, a screen change or a reload; it is cleared
+// once the action it belongs to is recorded. Ticks are kept only for the same content (the key carries the ids they cover).
+const DR = {};
+const dkey = () => 'cp_drafts:' + (S.pid || '_new');
+function drafts() { const k = dkey(); if (!DR[k]) { try { DR[k] = JSON.parse(localStorage.getItem(k) || '{}'); } catch (e) { DR[k] = {}; } } return DR[k]; }
+function saveDrafts() { try { localStorage.setItem(dkey(), JSON.stringify(drafts())); } catch (e) {} }
+function draftInput(e) { const el = e.target.closest && e.target.closest('[data-draft]'); if (!el) return;
+  const d = drafts(); const v = el.type === 'checkbox' ? el.checked : el.value;
+  if (v === '' || v === false) delete d[el.dataset.draft]; else d[el.dataset.draft] = v; saveDrafts(); }
+document.addEventListener('input', draftInput); document.addEventListener('change', draftInput);
+function restoreDrafts() { const d = drafts();
+  document.querySelectorAll('[data-draft]').forEach(el => { const v = d[el.dataset.draft]; if (v === undefined) return;
+    if (el.type === 'checkbox') el.checked = !!v; else if (el.value !== v) el.value = v; }); }
+function clearDrafts(prefixes) { const d = drafts(); for (const k of Object.keys(d)) if (prefixes.some(p => k === p || k.startsWith(p))) delete d[k]; saveDrafts(); }
+const hashIds = ids => { let h = 5381; for (const ch of [...ids].sort().join('|')) h = (h * 33 + ch.charCodeAt(0)) >>> 0; return h.toString(36); };
 async function get(u) { const r = await fetch(u, { cache: 'no-store' }); if (!r.ok) throw new Error((await r.json()).error || r.status); return r.json(); }
 async function post(action, args, project) {
   document.body.classList.add('busy');
@@ -193,9 +306,11 @@ async function post(action, args, project) {
     const r = await fetch('/api/copilot', { method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ project: project ?? S.pid, action, args: args || {}, request_id: rid() }) });
     const j = await r.json();
-    if (j.status === 'refused' || j.status === 'failed') { toast(j.reason || 'refused', true); return null; }
+    if (j.status === 'refused' || j.status === 'failed') {
+      const msg = AR() ? (j.reason_ar || 'تعذّر تنفيذ هذا الطلب.') : (j.reason_en || j.reason || 'refused');
+      toast(msg, true, { fix: j.fix, details: j.known === false || j.status === 'failed' ? j.reason : null }); return null; }
     return j;
-  } catch (e) { toast(String(e), true); return null; }
+  } catch (e) { toast(AR() ? 'تعذّر الاتصال بالمحرّك. تأكد أنه يعمل ثم حاول مرة ثانية.' : 'Could not reach the Studio server. Check it is running, then try again.', true, { details: String(e) }); return null; }
   finally { document.body.classList.remove('busy'); }
 }
 
@@ -250,30 +365,31 @@ async function home() {
     <div class="card"><h2>${t('projects')}</h2>
       ${ps.length ? ps.map(p => `<a class="row between" style="text-decoration:none;color:inherit;border-top:1px solid var(--line);padding-top:8px"
           href="${p.mode === 'copilot' ? '#/p/' + encodeURIComponent(p.id) : '/studio/classic#' + encodeURIComponent(p.id)}">
-          <span class="grow"><b>${esc(p.title)}</b><br><span class="tiny muted">${esc(p.brand)} · ${p.mode === 'copilot' ? t('copilot') : p.mode === 'manual' ? t('manual') : t('classic')}</span></span>
-          <span class="pill st-${p.run === 'running' ? 'working' : 'not_started'}">${esc(p.run)}</span></a>`).join('') : `<p class="muted">—</p>`}
+          <span class="grow"><b>${esc(p.title)}</b><br><span class="tiny muted">${esc(({ timekeeper: 'Time Keeper', 'diabetes-history': 'Diabetes History' })[p.brand] || p.brand)} · ${p.mode === 'copilot' ? t('copilot') : p.mode === 'manual' ? t('manual') : t('classic')}</span></span>
+          <span class="pill st-${p.run === 'running' ? 'working' : 'not_started'}">${esc(stx(p.run))}</span></a>`).join('') : `<p class="muted">${AR() ? 'لا يوجد فيديو بعد. اضغط «فيديو جديد» للبدء.' : 'No video yet. Tap “New video” to start.'}</p>`}
     </div>
     <div class="ft muted"><a href="/studio/classic">${t('classic')}</a><a href="/dashboard">${t('dashboard')}</a></div>`;
 }
 function newForm() {
   $('#main').innerHTML = `
     <div class="card"><h2>${t('newvid')}</h2>
-      <label class="stack small">${t('idea')}<textarea id="n-idea" placeholder="${AR() ? 'مثال: كيف جعلت رولكس أويستر الناس يثقون بساعة في الماء' : 'e.g. How the Rolex Oyster made people trust a watch in water'}"></textarea></label>
-      <label class="stack small">${t('title')}<input id="n-title"></label>
+      <label class="stack small">${t('idea')}<textarea id="n-idea" data-draft="new:idea" placeholder="${AR() ? 'مثال: كيف جعلت رولكس أويستر الناس يثقون بساعة في الماء' : 'e.g. How the Rolex Oyster made people trust a watch in water'}"></textarea></label>
+      <label class="stack small">${t('title')}<input id="n-title" data-draft="new:title"></label>
       <label class="stack small">${t('brand')}<select id="n-brand"><option value="timekeeper">Time Keeper</option><option value="diabetes-history">Diabetes History</option></select></label>
       <div class="stack small">${t('mode')}
         <div class="mode">
           <label><input type="radio" name="mode" value="copilot" checked><span><b>${t('copilot')}</b><br><span class="tiny muted">${t('copilot_d')}</span></span></label>
           <label><input type="radio" name="mode" value="manual"><span><b>${t('manual')}</b><br><span class="tiny muted">${t('manual_d')}</span></span></label>
-          <label class="dis"><input type="radio" name="mode" value="auto" disabled><span><b>${t('auto')}</b><br><span class="tiny muted">${t('auto_d')}</span></span></label>
         </div></div>
       <label class="stack small">${t('duration')}<input id="n-dur" type="number" min="20" max="180" value="75" inputmode="numeric"></label>
       <button class="primary big" id="n-go">${t('start')}</button>
     </div>`;
+  restoreDrafts();
   $('#n-go').onclick = async () => {
     const mode = document.querySelector('input[name=mode]:checked').value;
     const j = await post('create', { idea: $('#n-idea').value, title: $('#n-title').value, brand: $('#n-brand').value, mode, duration_s: +$('#n-dur').value }, null);
     if (!j) return;
+    clearDrafts(['new:']);
     location.hash = mode === 'copilot' ? '#/p/' + encodeURIComponent(j.project) : '';
     if (mode !== 'copilot') location.href = '/studio/classic#' + encodeURIComponent(j.project);
   };
@@ -304,6 +420,7 @@ function project(force) {
   const keep = {};                              // a refresh never moves a player you paused part-way
   document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => { if (m.currentTime > 0 && !m.ended) keep[m.id] = [m.currentSrc, m.currentTime]; });
   $('#main').innerHTML = `<div id="topbox">${top}</div><div id="panel" class="stack">${panelHtml(v, panel)}</div>${footHtml(v)}`;
+  restoreDrafts();                              // anything you typed and did not send yet comes back after a redraw
   wire(v, panel);
   document.querySelectorAll('#main audio[id], #main video[id]').forEach(m => {
     const restore = () => { const k = keep[m.id]; if (k && k[0] === m.currentSrc) m.currentTime = k[1]; };
@@ -318,42 +435,44 @@ function topHtml(v) {
     <div class="crumbs"><b>${esc(v.title)}</b><span class="sep">›</span><span>${esc(AR() ? v.top.stage_ar : v.top.stage)}</span><span class="sep">›</span>
       <span class="muted">${esc(tk ? tk.what : runTxt)}</span></div>
     ${n ? `<a class="next" href="#/p/${encodeURIComponent(v.id)}/${n.kind === 'gate' ? n.gate.toLowerCase() : 'ex/' + n.id}" style="color:inherit;text-decoration:none">
-        <span class="grow"><span class="tiny muted">${t('next')}</span><br><b>${esc(n.kind === 'gate' ? (AR() ? n.title_ar : n.title) : n.title)}</b></span><span>${AR() ? '‹' : '›'}</span></a>`
+        <span class="grow"><span class="tiny muted">${t('next')}</span><br><b>${esc(AR() ? (n.title_ar || n.title) : n.title)}</b></span><span>${AR() ? '‹' : '›'}</span></a>`
       : `<div class="next calm"><span class="grow"><b>${runTxt}</b>${tk ? `<br><span class="small">${esc(tk.what)}${tk.units_total ? ` · ${tk.units_done}/${tk.units_total}` : ''} · ${fmt(tk.elapsed_s)}${tk.eta_s != null ? ` · ~${fmt(tk.eta_s)}` : ''}</span>` : ''}</span></div>`}
     ${v.interrupted.length && !v.task ? `<div class="tiny muted">${t('interrupted')}</div>` : ''}
     <div class="stages">${v.stages.map(s => `<button data-go="${({ direction: 'g1', script: 'g2', voice: 'g3', style: 'g4', assets: 'assets', scenes: 'scenes', film: 'g5', paid: 'g6', export: 'g6' })[s.id]}"
-        class="${s.id === v.top.stage_id ? 'cur' : ''}"><span>${esc(AR() ? s.name_ar : s.name)}</span><span class="pill st-${s.state}">${esc(STN(s))}</span></button>`).join('')}</div>
+        class="${s.id === v.top.stage_id ? 'cur' : ''}"><span>${esc(AR() ? s.name_ar : s.name)}</span>${s.locked ? `<span class="pill st-locked">🔒 ${t('locked')}</span>` : `<span class="pill st-${s.state}">${esc(STN(s))}</span>`}</button>`).join('')}</div>
     <div class="row between small">
       <span class="muted">${t('processing')} ${fmt(v.timing.processing_s)} · ${t('waittime')} ${fmt(v.timing.waiting_s)}</span>
-      <span class="row">${v.mode === 'copilot' ? (v.run === 'running' ? `<button data-ctl="pause">${t('pause')}</button>` : `<button class="primary" data-ctl="resume">${t('resume')}</button>`)
-        + (v.run !== 'stopped' ? `<button class="bad" data-ctl="stop">${t('stop')}</button>` : '') : ''}</span></div>
+      <span class="row">${v.mode === 'copilot' ? (v.run === 'running' ? `<button data-ctl="pause">${t('pause')}</button>` : `<button class="primary" data-ctl="resume">${t('resume')}</button>`) : ''}</span></div>
     ${v.blocked.length ? v.blocked.map(b => `<div class="label-lock">${esc(b.what)}: ${esc(b.error).slice(0, 160)} <button data-retry="${esc(b.key)}">${t('retry')}</button></div>`).join('') : ''}
     ${timelineHtml(v)}
-    <div class="lockline"><span class="dot" style="background:var(--bad)"></span>${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}
-      · ${t('ai_usage')}: ${v.ai.worker === 'mock' ? t('mock') : esc(v.ai.label)} · $${(v.ai.spent_usd || 0).toFixed(3)} / $${(v.ai.budget_usd || 0).toFixed(2)}</div>
+    <div class="lockline"><a class="lockchip" href="#/p/${encodeURIComponent(v.id)}/g6" title="${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}">🔒 ${t('nospend')}</a>
+      <span>${v.ai.worker === 'mock' ? t('mock') : esc(v.ai.label)}${(v.ai.budget_usd || v.ai.spent_usd) ? ` · $${(v.ai.spent_usd || 0).toFixed(3)} / $${(v.ai.budget_usd || 0).toFixed(2)}` : ''}</span></div>
   </div>`;
 }
 function timelineHtml(v) {
   if (!v.scenes || !v.scenes.length) return '';
   return `<div class="stack"><div class="row between tiny muted"><span>${t('scenes')}</span><span><span class="pill st-ai_reviewed">${t('ai_rev')}</span> ≠ <span class="pill st-owner_approved">${t('owner_ok')}</span></span></div>
-    <div class="timeline">${v.scenes.map(s => { const w = v.task && v.task.what && v.task.what.startsWith('scene ' + s.id + ':');
-      return `<button class="tl-${w ? 'working' : s.state}" data-go="scene/${s.id}" title="${esc(s.id)}">${esc(s.id)}</button>`; }).join('')}</div></div>`;
+    <div class="timeline">${v.scenes.map(s => { const w = v.task && v.task.what && v.task.what.startsWith('scene ' + s.id + ':'); const stt = w ? 'working' : s.state;
+      const sym = { working: '…', needs_owner: '!', outdated: '↻', not_started: '' }[stt] ?? '';
+      return `<button class="tl-${stt}" data-go="scene/${s.id}" aria-label="${esc(lineName(s.id, true) + ': ' + stx(stt))}" title="${esc(lineName(s.id, true) + ': ' + stx(stt))}">${esc(lineNo(s.id))}${sym ? `<i aria-hidden="true">${sym}</i>` : ''}</button>`; }).join('')}</div></div>`;
 }
 function footHtml(v) {
   return `<div class="card"><div class="ft"><a href="#/p/${encodeURIComponent(v.id)}/inbox">${t('inbox')} (${v.inbox.length})</a>
     <a href="#/p/${encodeURIComponent(v.id)}/ai">${t('ai_usage')}</a><a href="#/p/${encodeURIComponent(v.id)}/history">${t('history')}</a>
     <a href="${v.classic_url}">${t('advanced')}: ${t('classic')}</a><a href="/dashboard">${t('dashboard')}</a>
-    ${v.mode === 'copilot' ? `<button class="link" data-manual="1">${t('to_manual')}</button>` : `<span class="pill st-not_started">${t('manual')}</span>`}</div></div>`;
+    ${v.mode === 'copilot' ? `<button class="link" data-manual="1">${t('to_manual')}</button>` : `<span class="pill st-not_started">${t('manual')}</span>`}
+    ${v.mode === 'copilot' && v.run !== 'stopped' ? `<button class="bad" data-ctl="stop">${t('stop')}</button>` : ''}</div></div>`;
 }
 function decisionButtons(g, opts) {
   opts = opts || {};
-  return `<div class="stack"><textarea id="note-${g}" placeholder="${t('note')}"></textarea>
+  return `<div class="stack"><textarea id="note-${g}" data-draft="note:${g}" placeholder="${t('note')}"></textarea>
     <button class="primary big" data-gate="${g}" data-d="approved" ${opts.disabled ? 'disabled' : ''}>${t('approve')}</button>
     ${opts.approveOnly ? '' : `<div class="row"><button class="grow" data-gate="${g}" data-d="changes_requested">${t('changes')}</button>
     ${opts.noReject ? '' : `<button class="bad" data-gate="${g}" data-d="rejected">${t('reject')}</button>`}</div>`}</div>`;
 }
 const pill = (cls, txt) => `<span class="pill ${cls}">${esc(txt)}</span>`;
-function gateState(v, g) { const s = v.stages.find(x => x.gate === g); return s ? pill('st-' + s.state, STN(s)) + (s.why ? ` <span class="tiny muted">${esc(s.why)}</span>` : '') : ''; }
+function gateState(v, g) { const s = v.stages.find(x => x.gate === g); if (!s) return '';
+  return (s.locked ? pill('st-locked', '🔒 ' + t('locked')) : pill('st-' + s.state, STN(s))) + (s.why ? ` <span class="tiny muted">${esc(AR() ? (s.why_ar || s.why) : s.why)}</span>` : ''); }
 function working(v, stage) { return v.task && v.task.stage === stage ? `<div class="label-ai">${t('working')}: ${esc(v.task.what)}</div>` : ''; }
 
 function panelHtml(v, p) {
@@ -387,9 +506,9 @@ function g1(v) {
     ${doc.note_answer ? `<p class="tiny muted">${esc(doc.note_answer)}</p>` : ''}</div>
   <div class="card"><h3>${t('claims')} (${cl.length})</h3><ul class="claims">${cl.map(c => `<li>${pill(st(c), c.id + ' · ' + t(c.status))} ${esc(c.text)}
       ${c.why ? `<div class="tiny muted">${esc(c.why)}</div>` : ''}${c.careful ? `<div class="tiny muted">⚠ ${esc(c.careful)}</div>` : ''}
-      <div class="tiny">${(c.sources || []).map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener">[${i + 1}]</a>`).join(' ')}</div></li>`).join('')}</ul>
+      <div class="tiny srcs">${(c.sources || []).map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener" aria-label="${esc((AR() ? 'المصدر ' : 'source ') + (i + 1))}">[${i + 1}]</a>`).join(' ')}</div></li>`).join('')}</ul>
     ${doc.claims_to_verify && doc.claims_to_verify.length ? `<h3>${t('toverify')}</h3><ul>${doc.claims_to_verify.map(x => `<li>${esc(x.claim)}: ${esc(AR() ? x.why_ar || x.why : x.why)}</li>`).join('')}</ul>` : ''}
-    ${d.check ? `<div class="tiny muted">${esc(d.check.by || '')}: ${d.check.findings.map(f => `${f.claim} ${f.code}`).join(' · ') || t('none')}</div>` : ''}</div>
+    ${d.check ? `<div class="tiny muted">${esc(d.check.by || '')}: ${d.check.findings.map(f => `${esc(f.claim)} · ${esc(codeName(f.code))}`).join(' · ') || t('none')}</div>` : ''}</div>
   <div class="card">${v.validity.G1.valid ? `<p>${pill('st-owner_approved', t('owner_ok'))}</p>` : decisionButtons('G1')}</div>`;
 }
 
@@ -400,27 +519,27 @@ function g2(v) {
   const ck = d.check ? d.check.lines : {};
   const hk = d.hooks;
   const lines = d.lines.map(l => { const c = ck[l.id] || { severity: 'none', why: [], verdict: '' }; const ed = S.editing === l.id;
-    return `<div class="line ${ed ? 'sel' : ''}" id="ln-${l.id}"><div class="row between"><span class="tiny muted">${esc(l.id)}${l.role === 'hook' ? ' · ' + t('hooks') : ''}</span>
+    return `<div class="line ${ed ? 'sel' : ''}" id="ln-${l.id}"><div class="row between"><span class="tiny muted">${esc(lineName(l.id))}</span>
       <span>${c.verdict ? pill('sev-' + c.severity, AR() ? ({ supported: 'مدعوم بمصدر', attributed: 'منسوب', uncertain: 'غير مؤكد', unsupported: 'بلا مصدر', contradicted: 'يخالف البحث', disputed: 'الفحوص مختلفة' })[c.verdict] || c.verdict : c.verdict) : ''}</span></div>
-      ${ed ? `<textarea id="ed-${l.id}">${esc(l.text)}</textarea><div class="row"><button class="primary" data-saveline="${l.id}">${t('save')}</button><button data-canceledit="1">${t('cancel')}</button></div>`
+      ${ed ? `<textarea id="ed-${l.id}" data-draft="ed:${d.v}:${l.id}">${esc(l.text)}</textarea><div class="row"><button class="primary" data-saveline="${l.id}">${t('save')}</button><button data-canceledit="1">${t('cancel')}</button></div>`
            : `<div class="txt">${esc(l.text)}</div>`}
       ${c.why && c.why.length ? `<div class="tiny">${c.why.map(w => `• ${esc(w)}`).join('<br>')}</div>` : ''}
-      ${c.sources && c.sources.length ? `<div class="tiny">${t('sources')}: ${c.claims.join(', ')} ${c.sources.map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener">[${i + 1}]</a>`).join(' ')}</div>` : ''}
-      ${c.severity === 'critical' && d.status === 'draft' ? `<input data-ov="${l.id}" placeholder="${t('override')}">` : ''}
-      ${c.severity === 'major' && d.status === 'draft' ? `<label class="row small"><input type="checkbox" data-ack="${l.id}"> ${t('ack')}</label>` : ''}
+      ${c.sources && c.sources.length ? `<div class="tiny srcs">${t('sources')}: ${c.claims.join(', ')} ${c.sources.map((s, i) => `<a href="${esc(s)}" target="_blank" rel="noopener" aria-label="${esc((AR() ? 'المصدر ' : 'source ') + (i + 1))}">[${i + 1}]</a>`).join(' ')}</div>` : ''}
+      ${c.severity === 'critical' && d.status === 'draft' ? `<input data-ov="${l.id}" data-draft="ov:${d.v}:${l.id}" placeholder="${t('override')}" aria-label="${t('override')}">` : ''}
+      ${c.severity === 'major' && d.status === 'draft' ? `<label class="row small"><input type="checkbox" data-ack="${l.id}" data-draft="ack:${d.v}:${l.id}"> ${t('ack')}</label>` : ''}
       ${l.role !== 'hook' && !ed && d.status === 'draft' ? `<button class="link" data-edit="${l.id}">${t('edit')}</button>` : ''}</div>`; }).join('');
   return `<div class="card"><div class="row between"><h2>${t('script')} · v${d.v}</h2>${gateState(v, 'G2')}</div>
     ${working(v, 'script')}
-    <div class="tiny muted">${esc(d.note)} · ${esc(d.author)}${d.check ? ` · ${esc(d.check.fact_label || '')}` : ''}</div>
-    <div class="vers">${d.versions.map(x => `<button aria-pressed="${x.v === d.v}" disabled>v${x.v} · ${esc(x.status)}</button>`).join('')}</div></div>
+    <div class="tiny muted">${esc(d.note)} · ${esc(stx(d.author))}${d.check ? ` · ${esc(d.check.fact_label || '')}` : ''}</div>
+    <div class="vers">${d.versions.map(x => `<button aria-pressed="${x.v === d.v}" disabled>v${x.v} · ${esc(stx(x.status))}</button>`).join('')}</div></div>
   <div class="card"><h3>${t('hooks')}</h3><div class="hooks">${hk.options.map(o => `<div class="hook ${hk.selected === o.id ? 'sel' : ''}">
-      <div class="row between"><b>${esc(o.id)} · ${esc(o.type)}</b><span>${o.id === hk.recommended ? pill('st-ai_review', t('recommended')) : ''} ${hk.selected === o.id ? pill('st-owner_approved', t('chosen')) : ''}</span></div>
+      <div class="row between"><b>${esc(o.id)} · ${esc(AR() ? (HOOKT[o.type] || o.type) : o.type)}</b><span>${o.id === hk.recommended ? pill('st-ai_review', t('recommended')) : ''} ${hk.selected === o.id ? pill('st-owner_approved', t('chosen')) : ''}</span></div>
       <div>${esc(o.spoken)}</div><div class="tiny muted">${esc(o.on_screen)} · ${esc(o.visual)}</div>
       ${hk.selected !== o.id ? `<button data-hook="${o.id}">${t('usehook')}</button>` : ''}</div>`).join('')}</div>
     ${d.status === 'approved' ? `<p class="tiny muted">${AR() ? 'تغيير الافتتاحية الآن يصنع نسخة جديدة؛ يُعاد تسجيل سطر الافتتاحية ومشهدها فقط' : 'Changing the hook now makes a new version; only the hook line and its scene are redone'}</p>` : ''}
     <p class="tiny muted">${esc(hk.reasons)}</p></div>
   <div class="card"><h3>${t('script')}</h3>${lines}</div>
-  <div class="card">${d.status === 'draft' ? decisionButtons('G2', { disabled: !d.check }) : pill('st-' + (d.status === 'approved' ? 'owner_approved' : 'needs_owner'), d.status)}</div>`;
+  <div class="card">${d.status === 'draft' ? decisionButtons('G2', { disabled: !d.check }) : pill('st-' + (d.status === 'approved' ? 'owner_approved' : 'needs_owner'), stx(d.status))}</div>`;
 }
 
 // ---------------------------------------------------------------- G3
@@ -431,7 +550,7 @@ function g3(v) {
   const id = mix ? 'mix-' + mix.file : 'mix';         // the play-all's own file: a re-take is a new file, never the old coverage
   S.mixId = id;
   const segs = mix ? mix.segments.map(s => { const need = s.status !== 'approved'; const h = heardIn(id, s.start, s.end), L = s.end - s.start;
-    return `<div class="seg ${need ? 'need' : 'ok'}" data-seg="${s.line}"><div class="row between tiny"><span class="muted">${esc(s.line)}</span>
+    return `<div class="seg ${need ? 'need' : 'ok'}" data-seg="${s.line}"><div class="row between tiny"><span class="muted">${esc(lineName(s.line))}</span>
       <span>${need ? `${t('heard')} <b data-h="${s.line}">${Math.min(100, Math.round(100 * h / L))}%</b>` : pill('st-owner_approved', t('owner_ok'))}</span></div>
       <div class="words">${s.words.map((w, i) => `<span class="w ${w.est ? 'est' : ''}" data-ws="${w.s}" data-we="${w.e}" data-line="${s.line}" data-word="${esc(w.w)}">${esc(w.w)}</span>`).join(' ')}</div></div>`; }).join('') : '';
   const sel = S.sel.word;
@@ -440,15 +559,15 @@ function g3(v) {
     <div class="label-draft">${esc(AR() ? d.label_ar : d.label)}</div>${working(v, 'voice')}
     ${mix ? `<audio id="mix" controls preload="metadata" src="${esc(mix.url)}"></audio>
       <div class="tiny muted">${t('playall')} · ${fmt(mix.seconds)}${d.mix_current ? '' : ' · ⟳'}</div>` : ''}</div>
-  ${sel && ln ? `<div class="sheet"><div class="row between"><b>«${esc(sel.word)}»</b><span class="tiny muted">${esc(sel.line)}</span></div>
+  ${sel && ln ? `<div class="sheet"><div class="row between"><b>«${esc(sel.word)}»</b><span class="tiny muted" data-line="${esc(sel.line)}">${esc(lineName(sel.line))}</span></div>
       <div class="row"><button data-playword="1">▶ ${AR() ? 'الكلمة' : 'word'}</button></div>
-      <label class="stack small">${t('fixword')}<input id="respell" placeholder="${t('respell')}" value="${esc(sel.word)}"></label>
+      <label class="stack small">${t('fixword')}<input id="respell" data-draft="respell:${esc(sel.line)}:${esc(sel.word)}" placeholder="${t('respell')}" value="${esc(sel.word)}"></label>
       <button class="primary" data-pron="1">${t('apply')}</button>
       <div class="row small"><label class="grow">${t('speed')}<select id="sp"><option>0.9</option><option selected>1.0</option><option>1.1</option></select></label>
         <label class="grow">${t('pbefore')}<select id="pb"><option>0</option><option>0.3</option><option>0.6</option></select></label>
         <label class="grow">${t('pafter')}<select id="pa"><option>0</option><option>0.3</option><option>0.6</option></select></label></div>
       <button data-adjust="1">${t('apply')} (${AR() ? 'معالجة محلية مجانية' : 'free local processing'})</button>
-      <h3>${t('compare')}</h3>${ln.takes.map((k, i) => `<div class="row small"><span class="grow">v${i + 1} · ${esc(k.status)} · ${esc(k.processed ? (AR() ? 'معالجة محلية' : 'processed locally') : (k.reason || ''))}${k.same_audio_as ? ' · ' + (AR() ? 'الصوت نفسه' : 'same audio as before') : ''}</span>
+      <h3>${t('compare')}</h3>${ln.takes.map((k, i) => `<div class="row small"><span class="grow">v${i + 1} · ${esc(stx(k.status))} · ${esc(k.processed ? (AR() ? 'معالجة محلية' : 'processed locally') : takeWhy(k.reason))}${k.same_audio_as ? ' · ' + (AR() ? 'الصوت نفسه' : 'same audio as before') : ''}</span>
         <audio controls preload="none" src="${esc(k.audio)}" style="max-width:220px"></audio></div>`).join('')}
       <button class="link" data-closeword="1">${t('cancel')}</button></div>` : ''}
   <div class="card"><h3>${t('script')}</h3><p class="tiny muted">${AR() ? 'اضغط كلمة للاستماع إليها أو تصحيحها' : 'Tap a word to hear or fix it'}</p>${segs}</div>
@@ -457,9 +576,9 @@ function g3(v) {
       ${p.status === 'proposed' ? `<button data-pronrej="${p.id}">${t('reject')}</button>` : p.status === 'approved' ? `<button data-pronrej="${p.id}">${t('withdraw')}</button>` : ''}</div>`).join('') : `<p class="muted">${t('none')}</p>`}
     <h3>${t('qa')}</h3>${(() => { const open = d.qa.flags.filter(f => f.status === 'open');
       const at = f => { const sg = mix && mix.segments.find(x => x.line === f.line); return sg && f.s != null ? (sg.start + f.s) : (sg ? sg.start : 0); };
-      return d.qa.flags.length ? `<div class="chips">${d.qa.flags.map(f => `<button data-seekmix="${at(f).toFixed(2)}" title="${esc(f.detail)}">${esc(f.line)} · ${esc(f.word || f.code)}${f.status !== 'open' ? ' ✓' : ''}</button>`).join('')}</div>
+      return d.qa.flags.length ? `<div class="chips">${d.qa.flags.map(f => `<button data-seekmix="${at(f).toFixed(2)}" title="${esc(AR() ? (f.detail_ar || f.detail) : f.detail)}">${esc(lineNo(f.line))} · ${esc(f.word || codeName(f.code))}${f.status !== 'open' ? ' ✓' : ''}</button>`).join('')}</div>
         <p class="tiny muted">${AR() ? 'كلمات لم يتعرّف عليها النسخ الآلي بوضوح: اضغط لتسمعها. الآلة لا تحكم على النطق؛ أنت تحكم.' : 'Words the transcription could not place: tap to hear them. The machine does not judge pronunciation; you do.'}</p>
-        ${open.length ? `<label class="row small"><input type="checkbox" id="ackqa"> ${AR() ? 'استمعتُ إلى هذه الكلمات' : 'I listened to these words'} (${open.length})</label>` : ''}`
+        ${open.length ? `<label class="row small"><input type="checkbox" id="ackqa" data-draft="ackqa:${hashIds(open.map(f => f.id))}"> ${AR() ? 'استمعتُ إلى هذه الكلمات' : 'I listened to these words'} (${open.length})</label>` : ''}`
         : `<p class="muted small">${t('none')}</p>`; })()}</div>
   <div class="card">${v.validity.G3.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('listen_need')}</p>` + `<p class="tiny muted">${d.pron.some(p => p.status === 'proposed') ? (AR() ? 'الموافقة على الصوت تعتمد أيضًا تهجئات الذكاء المقترحة أعلاه (لأنك سمعتها). ارفض أيًّا منها قبل الموافقة إن لم تعجبك.' : 'Approving the voice also approves the AI spellings above (you heard them). Reject one before approving if you do not want it.') : ''}</p>` + decisionButtons('G3', { approveOnly: true, disabled: !d.mix_current })}</div>`;
 }
@@ -474,7 +593,7 @@ function g4(v) {
   ${d.directions.map(x => `<div class="board ${S.sel.style === x.id ? 'sel' : ''}">
       <div class="row between"><b>${esc(AR() ? x.name_ar : x.name)}</b><span>${x.id === d.recommended ? pill('st-ai_review', t('recommended')) : ''}
         ${d.approved && d.approved.id === x.id ? pill('st-owner_approved', t('owner_ok')) : ''} ${!x.ready ? pill('st-not_started', t('notready')) : ''}</span></div>
-      ${x.board ? `<img src="${esc(x.board)}" alt="${esc(x.name)}" loading="lazy">` : `<p class="small muted">${esc(AR() ? x.why_not_ar : x.why_not)}</p>`}
+      ${x.board ? `<img src="${esc(x.board)}" alt="${esc(AR() ? x.name_ar : x.name)}" loading="lazy">` : `<p class="small muted">${esc(AR() ? x.why_not_ar : x.why_not)}</p>`}
       <p class="small">${esc(AR() ? x.about_ar : '')} ${esc((AR() ? d.reasons_ar : d.reasons)[x.id] || '')}</p>
       ${x.ready ? `<button data-style="${x.id}" aria-pressed="${S.sel.style === x.id}">${t('choose')}</button>` : ''}</div>`).join('')}
   <div class="card">${v.validity.G4.valid && d.approved && d.approved.id === S.sel.style ? pill('st-owner_approved', t('owner_ok')) : decisionButtons('G4', { noReject: true })}</div>`;
@@ -484,21 +603,22 @@ function g4(v) {
 function assets(v) {
   const a = v.assets;
   return `<div class="card"><h2>${t('pictures')}</h2><p class="small muted">${esc(AR() ? a.rule_ar : a.rule)}</p>
-    ${a.needs.map(n => `<div class="line"><div class="row between"><b>${esc(AR() ? n.what_ar || n.what : n.what)}</b>${pill(n.status === 'verified' ? 'st-owner_approved' : n.status === 'missing' ? 'st-not_started' : 'st-needs_owner', n.status)}</div>
-      <div class="tiny muted">${t('scene')} ${esc(n.scene)} · ${esc(n.id)} · ${esc((n.where || []).join(' · '))}</div>
-      <div class="tiny">${esc(n.found || '')}${n.fallback ? ' · ' + (AR() ? 'البديل: ' : 'fallback: ') + esc(n.fallback) : ''}</div></div>`).join('') || `<p class="muted">—</p>`}</div>
+    ${a.needs.map(n => `<div class="line"><div class="row between"><b>${esc(AR() ? n.what_ar || n.what : n.what)}</b>${pill(n.status === 'verified' ? 'st-owner_approved' : n.status === 'missing' ? 'st-not_started' : 'st-needs_owner', stx(n.status))}</div>
+      <div class="tiny muted">${esc(lineName(n.scene, true))} · ${esc((n.where || []).join(' · '))}</div>
+      <div class="tiny">${esc(n.found || '')}${n.fallback ? ' · ' + (AR() ? 'البديل: ' : 'fallback: ') + esc(techName(n.fallback)) : ''}</div></div>`).join('') || `<p class="muted">—</p>`}</div>
   <div class="card"><h3>${t('upload')}</h3>
-    <input type="file" id="up-file" accept="image/jpeg,image/png,image/webp">
-    <label class="stack small">${t('slot')}<select id="up-slot">${a.needs.map(n => `<option value="${esc(n.id)}|${esc(n.scene)}">${esc(n.scene)} · ${esc(AR() ? n.what_ar || n.what : n.what)}</option>`).join('')}<option value="|">—</option></select></label>
+    <label class="stack small">${t('choosefile')}<input type="file" id="up-file" accept="image/jpeg,image/png,image/webp"></label>
+    <label class="stack small">${t('slot')}<select id="up-slot">${a.needs.map(n => `<option value="${esc(n.id)}|${esc(n.scene)}">${esc(lineName(n.scene, true))} · ${esc(AR() ? n.what_ar || n.what : n.what)}</option>`).join('')}<option value="|">—</option></select></label>
     <div class="row small"><label class="row"><input type="radio" name="use" value="evidence" checked> ${t('use_ev')}</label><label class="row"><input type="radio" name="use" value="illustration"> ${t('use_il')}</label></div>
-    <input id="up-credit" placeholder="${AR() ? 'المصدر / الحقوق' : 'Source / credit'}">
+    <input id="up-credit" data-draft="up-credit" aria-label="${AR() ? 'المصدر / الحقوق' : 'Source / credit'}" placeholder="${AR() ? 'المصدر / الحقوق' : 'Source / credit'}">
     <button class="primary" data-upload="1">${t('upload')}</button></div>
-  <div class="card"><h3>${AR() ? 'مكتبة الصور' : 'Library'}</h3>${a.library.map(x => `<div class="line"><div class="row between"><b>${esc(x.name || x.id)}</b>${pill(x.status === 'verified' ? 'st-owner_approved' : 'st-needs_owner', x.status)}</div>
-      ${x.file ? `<img src="${esc(x.file)}" style="max-width:160px;border-radius:8px">` : ''}<div class="tiny muted">${esc(x.slot)} · ${esc(x.use)} · ${esc(x.credit)}</div>
-      ${x.licence ? `<div class="tiny">${t('licence')}: ${esc(x.licence.licence)} · ${esc(x.licence.evidence)}</div>` : x.status === 'unverified' ? `
-        <select data-lickind="${x.id}"><option value="licensed">${t('licensed')}</option><option value="owner_owned">${t('own')}</option><option value="public_domain">${t('pd')}</option><option value="cc">${t('cc')}</option></select>
-        <input data-licev="${x.id}" placeholder="${t('evidence')}"><label class="row small"><input type="checkbox" data-licdec="${x.id}"> ${t('declare')}</label>
-        <button data-lic="${x.id}">${t('addlic')}</button>` : ''}</div>`).join('') || `<p class="muted">—</p>`}</div>`;
+  <div class="card"><h3>${AR() ? 'مكتبة الصور' : 'Library'}</h3>${a.library.map(x => { const nd = a.needs.find(n => n.id === x.slot);
+      return `<div class="line"><div class="row between"><b>${esc(x.name || x.id)}</b>${pill(x.status === 'verified' ? 'st-owner_approved' : 'st-needs_owner', stx(x.status))}</div>
+      ${x.file ? `<img src="${esc(x.file)}" alt="${esc(x.name || '')}" style="max-width:160px;border-radius:8px">` : ''}<div class="tiny muted">${esc(nd ? (AR() ? nd.what_ar || nd.what : nd.what) : '')} · ${esc(stx(x.use))} · ${esc(x.credit)}</div>
+      ${x.licence ? `<div class="tiny">${t('licence')}: ${esc(stx(x.licence.licence))} · ${esc(x.licence.evidence)}</div>` : x.status === 'unverified' ? `
+        <select data-lickind="${x.id}" data-draft="lickind:${x.id}" aria-label="${t('licence')}"><option value="licensed">${t('licensed')}</option><option value="owner_owned">${t('own')}</option><option value="public_domain">${t('pd')}</option><option value="cc">${t('cc')}</option></select>
+        <input data-licev="${x.id}" data-draft="licev:${x.id}" aria-label="${t('evidence')}" placeholder="${t('evidence')}"><label class="row small"><input type="checkbox" data-licdec="${x.id}" data-draft="licdec:${x.id}"> ${t('declare')}</label>
+        <button data-lic="${x.id}">${t('addlic')}</button>` : ''}</div>`; }).join('') || `<p class="muted">—</p>`}</div>`;
 }
 
 // ---------------------------------------------------------------- scenes
@@ -506,24 +626,24 @@ function scenesList(v) {
   if (!v.scenes.length) return `<div class="card"><h2>${t('scenes')}</h2><p class="muted">—</p></div>`;
   return `<div class="card"><h2>${t('scenes')}</h2><p class="tiny muted">${AR() ? 'المساعد يرسم كل مشهد ويفحصه ويصحّحه (جولتان كحد أقصى). موافقتك على المشاهد تكون مع الفيلم.' : 'The Co-Pilot draws, checks and fixes each scene (two rounds at most). You approve scenes with the film.'}</p></div>
     ${v.scenes.map(s => `<a class="card" href="#/p/${encodeURIComponent(v.id)}/scene/${s.id}" style="color:inherit;text-decoration:none">
-      <div class="row between"><b>${esc(s.id)}</b>${pill('st-' + s.state, s.state === 'ai_reviewed' ? t('ai_rev') : s.state)}</div>
-      ${s.pick ? `<div class="frames">${s.pick.stills.slice(0, 3).map(u => `<img src="${esc(u)}" loading="lazy">`).join('')}</div>` : ''}
+      <div class="row between"><b>${esc(lineName(s.id, true))}</b>${pill('st-' + s.state, stx(s.state))}</div>
+      ${s.pick ? `<div class="frames">${s.pick.stills.slice(0, 3).map((u, i) => `<img src="${esc(u)}" alt="${esc(lineName(s.id, true) + '، ' + t('frame') + ' ' + (i + 1))}" loading="lazy">`).join('')}</div>` : ''}
       <div class="small">${esc(s.text)}</div></a>`).join('')}`;
 }
 function sceneSheet(v, sid) {
   const s = v.scenes.find(x => x.id === sid);
   if (!s) return `<div class="card">—</div>`;
   const p = s.pick;
-  return `<div class="card"><div class="row between"><h2>${t('scene')} ${esc(s.id)}</h2>${pill('st-' + s.state, s.state === 'ai_reviewed' ? t('ai_rev') : s.state)}</div>
+  return `<div class="card"><div class="row between"><h2>${esc(lineName(s.id, true))}</h2>${pill('st-' + s.state, stx(s.state))}</div>
     <div class="small">${esc(s.text)}</div>
     ${p ? `<video controls playsinline preload="metadata" poster="${esc(p.stills[1])}">${p.clip_webm ? `<source src="${esc(p.clip_webm)}" type="video/webm">` : ''}<source src="${esc(p.clip)}" type="video/mp4"></video>
-      <div class="frames">${p.stills.map(u => `<img src="${esc(u)}" loading="lazy">`).join('')}</div>
-      <div class="kv small"><span class="muted">${AR() ? 'التقنية' : 'Technique'}</span><span>${esc(p.technique)} · ${esc(p.theme)}</span>
-        <span class="muted">${t('rounds')}</span><span>${p.rounds} · ${esc(p.why)}</span><span class="muted">${t('issues')}</span><span>${p.open.map(f => pill('sev-' + f.severity, f.code)).join(' ') || t('none')}</span></div>
+      <div class="frames">${p.stills.map((u, i) => `<img src="${esc(u)}" alt="${esc(lineName(s.id, true) + '، ' + t('frame') + ' ' + (i + 1))}" loading="lazy">`).join('')}</div>
+      <div class="kv small"><span class="muted">${AR() ? 'التقنية' : 'Technique'}</span><span>${esc(techName(p.technique))} · ${esc(techName(p.theme))}</span>
+        <span class="muted">${t('rounds')}</span><span>${p.rounds} · ${esc(p.why)}</span><span class="muted">${t('issues')}</span><span>${p.open.map(f => pill('sev-' + f.severity, codeName(f.code))).join(' ') || t('none')}</span></div>
       ${p.fallback ? `<p class="tiny muted">${esc(p.fallback)}</p>` : ''}<div class="tiny muted">${esc(p.reviewer || '')}</div>` : working(v, 'scenes')}
     ${s.exception ? `<a class="next" href="#/p/${encodeURIComponent(v.id)}/ex/${s.exception}">${t('ex')}</a>` : ''}</div>
-  <div class="card"><h3>${t('versions')}</h3>${s.versions.map(x => `<div class="row small"><img src="${esc(x.still)}" style="width:54px;border-radius:6px"><span class="grow">v${x.n} · ${AR() ? 'جولة' : 'round'} ${x.round}
-      ${Object.keys(x.changes).length ? ' · ' + esc(Object.entries(x.changes).map(([k, y]) => k + ' ' + y).join(', ')) : ''}<br>${x.findings.map(f => pill('sev-' + f.severity, f.code)).join(' ')}</span></div>`).join('')}</div>`;
+  <div class="card"><h3>${t('versions')}</h3>${s.versions.map(x => `<div class="row small"><img src="${esc(x.still)}" alt="${esc('v' + x.n)}" style="width:54px;border-radius:6px"><span class="grow">v${x.n} · ${AR() ? 'جولة' : 'round'} ${x.round}
+      ${Object.keys(x.changes).length ? ' · ' + esc(Object.entries(x.changes).map(([k, y]) => (AR() ? (CHG[k] || k) : k) + ' ' + y).join('، ')) : ''}<br>${x.findings.map(f => pill('sev-' + f.severity, codeName(f.code))).join(' ')}</span></div>`).join('')}</div>`;
 }
 
 // ---------------------------------------------------------------- G5
@@ -539,20 +659,21 @@ function g5(v) {
   return `<div class="card"><div class="row between"><h2>${t('film')} v${d.n}</h2>${gateState(v, 'G5')}</div>
     <div class="label-draft">${esc(AR() ? d.label_ar || d.label : d.label)}</div>
     <video id="film" controls playsinline preload="metadata" poster="${esc(d.poster)}">${canWebm && d.webm ? `<source src="${esc(d.webm)}" type="video/webm">` : ''}<source src="${esc(d.mp4)}" type="video/mp4"></video>
-    <div class="timeline" id="ftl">${d.timeline.map(s => `<button data-seek="${s.start}" data-sid="${s.id}" class="tl-${(v.scenes.find(x => x.id === s.id) || {}).state || 'ai_reviewed'}"
-      style="flex-grow:${Math.max(0.5, s.end - s.start)}">${esc(s.id === 'endcard' ? '■' : s.id)}</button>`).join('')}</div>
+    <div class="timeline" id="ftl">${d.timeline.map(s => s.id === 'endcard' ? `<span class="end" aria-hidden="true" title="${esc(lineName('endcard'))}"></span>`
+      : `<button data-seek="${s.start}" data-sid="${s.id}" class="tl-${(v.scenes.find(x => x.id === s.id) || {}).state || 'ai_reviewed'}" aria-label="${esc(lineName(s.id, true) + ' · ' + fmt(s.start))}"
+      style="flex-grow:${Math.max(0.5, s.end - s.start)}">${esc(lineNo(s.id))}</button>`).join('')}</div>
     <div class="row between small"><span>${t('heard')} <b id="fheard">${fmt(h)}</b> ${t('of')} ${fmt(d.seconds)}</span><span class="tiny muted">${d.approved_film ? 'v' + d.approved_film.n + ' ' + t('owner_ok') : ''}</span></div>
-    <div class="row"><input id="cm" class="grow" placeholder="${t('comment')} …"><button data-comment="1">${t('send')}</button></div>
-    ${d.comments.map(c => { const tk = d.tasks.find(x => x.source === 'comment ' + c.id) || {}; return `<div class="tiny">⏱ ${fmt(c.t)} · ${esc(c.scene)} · «${esc(c.text)}» · ${esc(tk.status || '')}</div>`; }).join('')}</div>
+    <div class="row"><input id="cm" class="grow" data-draft="cm:${d.n}" aria-label="${t('comment')}" placeholder="${t('comment')} …"><button data-comment="1">${t('send')}</button></div>
+    ${d.comments.map(c => { const tk = d.tasks.find(x => x.source === 'comment ' + c.id) || {}; return `<div class="tiny">⏱ ${fmt(c.t)} · ${esc(lineName(c.scene, true))} · «${esc(c.text)}» · ${esc(stx(tk.status || ''))}</div>`; }).join('')}</div>
   <div class="card"><h3>${t('findings')}</h3>
-    ${big.map(f => `<div class="finding"><div class="row between">${pill('sev-' + f.severity, f.code)}<button class="link" data-seek="${f.t || 0}">⏱ ${fmt(f.t)}</button></div>
-      <div class="small">${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>${f.evidence ? `<img src="${esc(f.evidence)}" loading="lazy">` : ''}
+    ${big.map(f => `<div class="finding"><div class="row between">${pill('sev-' + f.severity, codeName(f.code))}<button class="link" data-seek="${f.t || 0}">⏱ ${fmt(f.t)}</button></div>
+      <div class="small">${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>${f.evidence ? `<img src="${esc(f.evidence)}" alt="${esc(codeName(f.code))}" loading="lazy">` : ''}
       <div class="tiny muted">${esc(f.perspective || '')} · ${esc(f.recommendation || '')}</div>
-      <input data-fexp="${f.id}" placeholder="${f.severity === 'critical' ? t('override') : t('explain')}"><button data-fdis="${f.id}">${t('save')}</button></div>`).join('')}
-    ${minor.length ? `<div class="stack">${minor.map(f => `<div class="small">${pill('sev-minor', f.code)} ${esc(f.scene || '')} · ${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>`).join('')}
-      <label class="row small"><input type="checkbox" id="ackminor"> ${t('ackall')} (${minor.length})</label></div>` : ''}
+      <input data-fexp="${f.id}" data-draft="fexp:${f.id}" aria-label="${f.severity === 'critical' ? t('override') : t('explain')}" placeholder="${f.severity === 'critical' ? t('override') : t('explain')}"><button data-fdis="${f.id}">${t('save')}</button></div>`).join('')}
+    ${minor.length ? `<div class="stack">${minor.map(f => `<div class="small">${pill('sev-minor', codeName(f.code))} ${esc(f.scene ? lineName(f.scene, true) : '')} · ${esc(AR() && f.detail_ar ? f.detail_ar : f.detail)}</div>`).join('')}
+      <label class="row small"><input type="checkbox" id="ackminor" data-draft="ackminor:${d.n}:${hashIds(minor.map(f => f.id))}"> ${t('ackall')} (${minor.length})</label></div>` : ''}
     ${!big.length && !minor.length ? `<p class="muted small">${t('none')}</p>` : ''}
-    ${d.findings.filter(f => f.decision).length ? `<details class="tiny"><summary>${d.findings.filter(f => f.decision).length} ✓</summary>${d.findings.filter(f => f.decision).map(f => `<div>${esc(f.code)} · ${esc(f.decision)} · ${esc(f.decision_note || '')}</div>`).join('')}</details>` : ''}</div>
+    ${d.findings.filter(f => f.decision).length ? `<details class="tiny"><summary>${d.findings.filter(f => f.decision).length} ✓</summary>${d.findings.filter(f => f.decision).map(f => `<div>${esc(codeName(f.code))} · ${esc(stx(f.decision))} · ${esc(f.decision_note || '')}</div>`).join('')}</details>` : ''}</div>
   <div class="card">${v.validity.G5.valid ? pill('st-owner_approved', t('owner_ok')) : `<p class="small muted">${t('watch_need')}</p>` + decisionButtons('G5', { noReject: false, disabled: big.length > 0 })}</div>`;
 }
 
@@ -562,12 +683,12 @@ function g6(v) {
   const p = d && d.plan;
   return `<div class="card"><div class="row between"><h2>${t('paid')}</h2>${gateState(v, 'G6')}</div>
     <div class="label-lock">${esc(AR() ? v.cost_lock.text_ar : v.cost_lock.text)}</div>
-    ${p ? `<div class="kv small"><span class="muted">${t('script')}</span><span>v${p.script_v}</span><span class="muted">Voice</span><span>${esc(p.voice.name)} · ${esc(p.voice.model || p.voice.provider)}</span>
+    ${p ? `<div class="kv small"><span class="muted">${t('script')}</span><span>v${p.script_v}</span><span class="muted">${t('voice')}</span><span>${esc(p.voice.name)} · ${esc(p.voice.model || p.voice.provider)}</span>
       <span class="muted">${AR() ? 'الأحرف' : 'Characters'}</span><span>${p.chars_total}</span><span class="muted">${t('budget')}</span><span>${p.budget_remaining ?? '—'}</span></div>
       <details><summary class="small">${AR() ? 'النص الذي سيُرسل' : 'Exact text that would be sent'} (${p.items.length})</summary>${p.items.map(i => `<div class="tiny">${esc(i.line)} · ${esc(i.action)} · ${i.chars} · ${esc(i.provider_input)}</div>`).join('')}</details>
-      <h3>${t('blockers')}</h3><ul class="small">${p.blockers.map(b => `<li>${esc(b)}</li>`).join('')}</ul>
+      <h3>${t('blockers')}</h3><ul class="small">${p.blockers.map((b, i) => `<li>${esc(AR() ? ((p.blockers_ar || [])[i] || b) : b)}</li>`).join('')}</ul>
       <p class="tiny muted">${esc(AR() ? d.note_ar : d.note)}</p>
-      <input id="g6c" inputmode="numeric" placeholder="${AR() ? 'اكتب عدد الأحرف للتأكيد' : 'Type the character count to confirm'}">
+      <input id="g6c" data-draft="g6c:${p.hash}" inputmode="numeric" aria-label="${AR() ? 'عدد الأحرف للتأكيد' : 'Character count to confirm'}" placeholder="${AR() ? 'اكتب عدد الأحرف للتأكيد' : 'Type the character count to confirm'}">
       <button class="bad big" data-g6="1">${t('authorize')}</button>` : `<p class="muted small">${AR() ? 'تُبنى الخطة بعد موافقتك على الفيلم' : 'The plan is built after you approve the film'}</p>`}
     <p class="tiny muted">${AR() ? 'التصدير النهائي والنشر: تفويضات منفصلة، لا تحدث تلقائيًا أبدًا.' : 'Final export and publishing are separate authorizations and never automatic.'}</p></div>`;
 }
@@ -577,14 +698,14 @@ function exPanel(v, id) {
   const x = v.exceptions.find(e => e.id === id);
   if (!x) return `<div class="card">—</div>`;
   const chips = ['text_size:1.2', 'zoom:1.18', 'slower:1.4', 'theme:tk-ink', 'theme:tk-bone'];
-  return `<div class="card"><div class="row between"><h2>${t('ex')}</h2>${pill(x.status === 'open' ? 'st-needs_owner' : 'st-completed', x.status)}</div>
-    <p><b>${esc(x.title)}</b></p><p class="small">${esc(AR() ? x.detail_ar || x.detail : x.detail)}</p>
-    ${x.evidence && x.evidence.length ? `<div class="frames">${x.evidence.map(u => `<img src="${esc(u)}">`).join('')}</div>` : ''}
-    ${x.scene ? `<a href="#/p/${encodeURIComponent(v.id)}/scene/${x.scene}">${t('scene')} ${esc(x.scene)}</a>` : ''}
-    ${x.status === 'open' ? `<textarea id="exnote" placeholder="${t('why')}"></textarea>
-      ${x.options.includes('retry_with_change') ? `<div class="chips">${chips.map(c => `<button data-chip="${c}" aria-pressed="${!!(S.sel.chips || {})[c]}">${esc(c)}</button>`).join('')}</div>` : ''}
+  return `<div class="card"><div class="row between"><h2>${t('ex')}</h2>${pill(x.status === 'open' ? 'st-needs_owner' : 'st-completed', stx(x.status))}</div>
+    <p><b>${esc(AR() ? (x.title_ar || x.title) : x.title)}</b></p><p class="small">${esc(AR() ? x.detail_ar || x.detail : x.detail)}</p>
+    ${x.evidence && x.evidence.length ? `<div class="frames">${x.evidence.map((u, i) => `<img src="${esc(u)}" alt="${esc((x.scene ? lineName(x.scene, true) : '') + '، ' + t('frame') + ' ' + (i + 1))}">`).join('')}</div>` : ''}
+    ${x.scene ? `<a href="#/p/${encodeURIComponent(v.id)}/scene/${x.scene}">${esc(lineName(x.scene, true))}</a>` : ''}
+    ${x.status === 'open' ? `<textarea id="exnote" data-draft="exnote:${x.id}" aria-label="${t('why')}" placeholder="${t('why')}"></textarea>
+      ${x.options.includes('retry_with_change') ? `<div class="chips">${chips.map(c => `<button data-chip="${c}" aria-pressed="${!!(S.sel.chips || {})[c]}">${esc(chipName(c))}</button>`).join('')}</div>` : ''}
       <div class="stack">${x.options.map(o => `<button data-exd="${o}" class="${o === 'manual' ? '' : 'primary'}">${t(o)}</button>`).join('')}</div>`
-      : `<p class="small">${esc(x.decision)} · ${esc(x.decision_note || '')}</p>`}</div>`;
+      : `<p class="small">${esc(stx(x.decision))} · ${esc(x.decision_note || '')}</p>`}</div>`;
 }
 function inbox(v) {
   const g = {};
@@ -594,11 +715,11 @@ function inbox(v) {
 }
 function aiPanel(v) {
   const a = v.ai;
-  return `<div class="card"><h2>${t('ai_usage')}</h2><div class="kv small"><span class="muted">${t('worker')}</span><span>${esc(a.label)}</span>
+  return `<div class="card"><h2>${t('ai_usage')}</h2><div class="kv small"><span class="muted">${t('worker')}</span><span>${esc(a.worker === 'mock' ? t('mock') : a.label)}</span>
     <span class="muted">${t('budget')}</span><span>$${a.budget_usd.toFixed(2)}</span><span class="muted">${t('spent')}</span><span>$${a.spent_usd.toFixed(4)}</span>
     <span class="muted">${t('calls')}</span><span>${a.n_calls}</span></div>
     <p class="tiny muted">${AR() ? 'العامل الحقيقي (Claude) لا يعمل إلا بميزانية توافق عليها، وكل استدعاء يُسجَّل بتكلفته، ولا إعادة تلقائية.' : 'The real worker (Claude) runs only with a budget you authorize; every call is recorded with its cost; no automatic retries.'}</p>
-    ${a.calls.slice().reverse().map(c => `<div class="tiny">${esc(c.at)} · ${esc(c.role)} · ${esc(c.kind)} · ${c.ok ? 'ok' : 'failed'} · $${(c.cost_usd || 0).toFixed(4)} · ${c.duration_s}s</div>`).join('')}</div>`;
+    ${a.calls.slice().reverse().map(c => `<div class="tiny">${esc((c.at || '').replace('T', ' ').slice(0, 16))} · ${esc(aiKind(c.kind))} · ${stx(c.ok ? 'ok' : 'failed')} · $${(c.cost_usd || 0).toFixed(4)} · ${c.duration_s} ${t('s')}</div>`).join('')}</div>`;
 }
 function historyPanel(v) {
   return `<div class="card"><h2>${t('history')}</h2>${v.history.map(h => `<div class="tiny"><span class="muted">${esc(h.at.slice(11, 19))} · ${esc(h.actor)}</span> ${esc(h.summary)}</div>`).join('')}</div>`;
@@ -614,13 +735,32 @@ function gateArgs(v, g, d) {
   if (g === 'G5') { a.playback = { covered: covered(S.filmId), of: S.filmN }; a.ack = ($('#ackminor') || {}).checked ? v.g5.findings.filter(f => !f.decision && f.severity === 'minor').map(f => f.id) : []; }
   return a;
 }
-async function act(action, args) { const j = await post(action, args); if (j) { toast('✓'); S.sig = ''; await render(true); } return j; }
+// what each recorded action used up: its unsent text is cleared once the server has recorded it (never before)
+function usedDrafts(action, args) {
+  const a = args || {};
+  if (action === 'cp_gate') return ['note:' + a.gate].concat(a.gate === 'G2' ? ['ov:', 'ack:'] : a.gate === 'G3' ? ['ackqa:'] : a.gate === 'G5' ? ['ackminor:'] : a.gate === 'G6' ? ['g6c:'] : []);
+  if (action === 'cp_comment') return ['cm:'];
+  if (action === 'cp_finding') return ['fexp:' + a.finding];
+  if (action === 'cp_exception_decision') return ['exnote:' + a.id];
+  if (action === 'cp_line_edit') return ['ed:'];
+  if (action === 'cp_asset' && a.op === 'licence') return ['licev:' + a.id, 'licdec:' + a.id, 'lickind:' + a.id];
+  if (action === 'upload') return ['up-credit'];
+  if (action === 'cp_pron') return ['respell:'];
+  return [];
+}
+async function act(action, args) {
+  const j = await post(action, args);
+  if (j) { clearDrafts(usedDrafts(action, args)); toast('✓'); S.sig = ''; await render(true); }
+  return j;
+}
 function wire(v, panel) {
   const P = encodeURIComponent(v.id);
   document.querySelectorAll('[data-go]').forEach(b => b.onclick = () => location.hash = `#/p/${P}/${b.dataset.go}`);
-  document.querySelectorAll('[data-ctl]').forEach(b => b.onclick = () => act('cp_control', { op: b.dataset.ctl }));
+  document.querySelectorAll('[data-ctl]').forEach(b => b.onclick = async () => {
+    if (b.dataset.ctl === 'stop' && !(await ask(t('stop_q'), t('stop_b'), t('stop_ok'), 'bad'))) return;   // Stop always asks first
+    act('cp_control', { op: b.dataset.ctl }); });
   document.querySelectorAll('[data-retry]').forEach(b => b.onclick = () => act('cp_control', { op: 'retry', key: b.dataset.retry }));
-  document.querySelectorAll('[data-manual]').forEach(b => b.onclick = () => { if (confirm(AR() ? 'التحويل إلى اليدوي؟ لا تُمحى أي موافقة.' : 'Switch to Manual? No approval is erased.')) act('cp_mode', { mode: 'manual' }); });
+  document.querySelectorAll('[data-manual]').forEach(b => b.onclick = async () => { if (await ask(t('manual_q'), t('manual_b'), t('manual_ok'))) act('cp_mode', { mode: 'manual' }); });
   document.querySelectorAll('[data-gate]').forEach(b => b.onclick = () => act('cp_gate', gateArgs(v, b.dataset.gate, b.dataset.d)));
   document.querySelectorAll('[data-hook]').forEach(b => b.onclick = () => act('cp_hook', { hook: b.dataset.hook }));
   document.querySelectorAll('[data-edit]').forEach(b => b.onclick = () => { S.editing = b.dataset.edit; S.sig = ''; project(true); });

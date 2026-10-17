@@ -13,6 +13,7 @@ from ..studio import api as SA
 from ..studio.store import Refused
 from . import ai, approvals as A, orchestrator as O, scenes as SC, styles
 from .voicekit import effective_takes
+from . import messages as M
 
 OWNER_ACTIONS = {'cp_mode', 'cp_settings', 'cp_control', 'cp_ai_budget', 'cp_gate', 'cp_hook', 'cp_line_edit', 'cp_pron',
                  'cp_voice_adjust', 'cp_asset', 'cp_exception_decision', 'cp_comment', 'cp_finding'}
@@ -109,7 +110,8 @@ def handle(var, body: dict) -> tuple[int, dict]:
         return 200, r
     except Refused as e:
         S.refuse_log(pid, action, {k: v for k, v in args.items() if k != 'data'}, str(e), 'owner')
-        return 422, {'status': 'refused', 'reason': str(e), 'action': action}
+        x = M.explain(str(e), action, args)               # plain words for the page; the English reason is unchanged
+        return 422, {'status': 'refused', 'reason': str(e), 'action': action, 'reason_ar': x['ar'], 'reason_en': x['en'], 'fix': x['fix'], 'known': x['known']}
 
 
 # ====================================================================== the view
@@ -202,12 +204,13 @@ def view(var, pid) -> dict:
             elif any(cp['scenes'].get(s, {}).get('pick') for s in sc): state = 'outdated' if not working else 'working'
         elif sid == 'export':
             state, why = 'blocked', 'needs the paid narration, then a master approval; publishing is a separate authorization (never automatic)'
-        stage_rows.append({'id': sid, 'gate': g, 'name': en, 'name_ar': ar, 'state': state, 'why': why,
+        stage_rows.append({'id': sid, 'gate': g, 'name': en, 'name_ar': ar, 'state': state, 'why': why, 'why_ar': M.why_ar(why),
+                           'locked': sid in ('paid', 'export') and state == 'blocked',   # locked by design here, not a failure
                            'state_name': A.STATE_NAME[state][0], 'state_name_ar': A.STATE_NAME[state][1]})
     first = next((s for s in stage_rows if s['state'] not in ('owner_approved', 'completed')), stage_rows[-1])
     nxt = None
     if ex_open:
-        nxt = {'kind': 'exception', 'id': ex_open[0]['id'], 'title': ex_open[0]['title'], 'title_ar': ex_open[0].get('detail_ar', '')}
+        nxt = {'kind': 'exception', 'id': ex_open[0]['id'], 'title': ex_open[0]['title'], 'title_ar': M.title_ar(ex_open[0]['title'])}
     for g in p['waiting']:
         if nxt is None and not (g == 'G6'):
             nxt = {'kind': 'gate', 'gate': g, 'title': A.GATE_NAME[g][0], 'title_ar': A.GATE_NAME[g][1]}
@@ -218,11 +221,11 @@ def view(var, pid) -> dict:
     out = {'id': pid, 'title': st['title'], 'idea': st['idea'], 'brand': st['brand'], 'mode': cp['mode'] or 'classic', 'run': cp['run'],
            'paused_by': cp.get('paused_by'), 'settings': cp['settings'], 'top': top, 'stages': stage_rows, 'task': task,
            'interrupted': [{'what': j['what'], 'at': j['at']} for j in stuck], 'blocked': p['blocked'], 'waiting': p['waiting'],
-           'runner_alive': O.running(S, pid), 'validity': {g: {'valid': v['valid'], 'why': v['why']} for g, v in val.items()},
+           'runner_alive': O.running(S, pid), 'validity': {g: {'valid': v['valid'], 'why': v['why'], 'why_ar': M.why_ar(v['why'])} for g, v in val.items()},
            'current': {g: (c and {'ref': c['ref'], 'hash': c['hash']}) for g, c in cur.items()},
            'gates': {g: [{k: r.get(k) for k in ('decision', 'ref', 'note', 'at', 'by', 'content_hash')} for r in cp['gates'][g]] for g in A.GATES},
            'exceptions': [{k: x.get(k) for k in ('id', 'kind', 'scene', 'title', 'detail', 'detail_ar', 'options', 'status', 'decision', 'decision_note', 'at', 'asset')}
-                          | {'evidence': [_url(pid, e) for e in x.get('evidence') or []]} for x in cp['exceptions']],
+                          | {'evidence': [_url(pid, e) for e in x.get('evidence') or []], 'title_ar': M.title_ar(x.get('title'))} for x in cp['exceptions']],
            'timing': _timing(st, now, p['waiting']), 'classic_url': f'/studio/classic#{pid}'}
     out['ai'] = {'worker': cp['settings'].get('worker', 'mock'), 'label': ai.MOCK_LABEL if cp['settings'].get('worker', 'mock') == 'mock' else ai.CLAUDE_LABEL,
                  'budget_usd': cp['ai']['budget_usd'], 'spent_usd': cp['ai']['spent_usd'], 'real_enabled': os.environ.get('VD_AI_REAL_ENABLED') == '1',
@@ -360,7 +363,7 @@ def _g6(S, pid, st, cp, val):
     g = st['gate']['plan']
     if not g: return {'plan': None, 'locked': True}
     return {'plan': {k: g.get(k) for k in ('hash', 'created', 'script_v', 'voice', 'voice_status', 'voice_why', 'items', 'chars_total', 'blockers',
-                                           'budget_remaining', 'paid_enabled', 'proposed_terms', 'overrides')},
+                                           'budget_remaining', 'paid_enabled', 'proposed_terms', 'overrides')} | {'blockers_ar': [M.blocker_ar(b) for b in g.get('blockers') or []]},
             'locked': not (os.environ.get('VIDEO_DIRECTOR_PAID_ENABLED') == '1'), 'stale': SA._plan_stale(st),
             'authorized': st['gate'].get('authorized'), 'attempts': st['gate']['attempts'][-5:],
             'note': 'Approval here is single-use, tied to this exact plan, and expires if anything changes. No paid retry is ever automatic.',
