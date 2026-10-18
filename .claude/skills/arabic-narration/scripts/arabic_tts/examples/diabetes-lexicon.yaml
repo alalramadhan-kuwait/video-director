@@ -1,0 +1,131 @@
+# Pronunciation lexicon for «قصة السكري» narration (Phase 2).
+#
+# match     bare form (no diacritics) of the word stem, after proclitics (و ف ب ل ك ال لل) and before a clitic pronoun
+#           (ه ها هم هما ...). Hamza forms are matched loosely (إ أ آ ا).
+# stem      approved diacritization of the stem. The final letter's case vowel comes from the sentence (Phase 1)
+#           unless `ending: fixed`, in which case the stem's own final mark is used everywhere.
+# contexts  optional, checked in order; the first rule whose conditions hold replaces `stem` (and/or `spoken`).
+#             prev / next:         a neighbour word's bare stem is one of these
+#             prev_number: true    the previous word is a number word or digits
+#           Rules let one spelling be read differently by context instead of forcing one pronunciation everywhere.
+# spoken    what the narrator says instead of the written form (captions keep the original). Used by Phase 4.
+# avoid     known mispronunciations of this term heard in the audit, as patterns over Whisper text (whisper:) and
+#           recognized phonemes (phon:). Phase 3 rejects or flags takes that contain them.
+# protect   Phase 1 flags any sentence that diacritizes this term differently from `stem`.
+# kind      medical | name | abbreviation | general (for reporting only)
+
+entries:
+  # ---------- medical terms ----------
+  - match: إنسولين
+    stem: إِنْسُولِين
+    kind: medical
+    protect: true
+    avoid: {whisper: ['انسور', 'انسري', 'انسلي', 'انسرين'], phon: ['nsur', 'nsri', 'insr']}
+  - match: بنكرياس
+    stem: بَنْكِرِيَاس
+    kind: medical
+    protect: true
+  - match: سكري
+    stem: سُكَّرِيّ
+    kind: medical
+    protect: true
+  - match: سكر
+    stem: سُكَّر
+    kind: medical
+    protect: true
+    note: always «سُكَّر» (sugar) in this series, never «سُكْر»
+  - match: جلوكوز
+    stem: جُلُوكُوز
+    kind: medical
+    protect: true
+  - match: هيموجلوبين
+    stem: هِيمُوجْلُوبِين
+    kind: medical
+    protect: true
+  - match: هرمون
+    stem: هُرْمُون
+    kind: medical
+    protect: true
+  - match: هرمونات
+    stem: هُرْمُونَات
+    kind: medical
+    protect: true
+  - match: خلايا
+    stem: خَلَايَا
+    kind: medical
+    ending: fixed
+  - match: حقنة
+    stem: حُقْنَة
+    kind: medical
+    protect: true
+  - match: حقن
+    stem: حَقْن                 # the act of injecting
+    kind: medical
+    contexts:
+      - prev_number: true       # «ثلاث حُقَن» — plural of حُقْنَة
+        stem: حُقَن
+      - prev: [عدة, بضع, كثير, كثيرة]
+        stem: حُقَن
+      - next: [كثيرة, عديدة, يومية, صغيرة]
+        stem: حُقَن
+  - match: جرعات
+    stem: جُرُعَات
+    kind: medical
+  - match: جرعة
+    stem: جُرْعَة
+    kind: medical
+  - match: بول
+    stem: بَوْل
+    kind: medical
+
+  # ---------- names ----------
+  - match: نوبل
+    stem: نُوبِلْ
+    ending: fixed
+    kind: name
+    avoid: {whisper: ['نوبي', 'نوب ', 'نو بال', 'بلا'], phon: []}
+  - match: لندن
+    stem: لَنْدَن
+    kind: name
+  - match: نيويورك
+    stem: نيويورك
+    plain: true               # read better without marks: «نِيُويُورْك» came out as «نيورك» (review of 12 Oct)
+    kind: name
+  - match: يالو
+    stem: يَالُو
+    ending: fixed
+    kind: name
+  - match: بيرسون
+    stem: بِيرْسُون
+    kind: name
+  - match: هيمزوورث
+    stem: هِيمْزْوُورْث
+    ending: fixed
+    kind: name
+  - match: بانتنج
+    stem: بَانْتِنْج
+    ending: fixed
+    kind: name
+
+  # ---------- abbreviations and foreign words (spoken forms; captions keep the original) ----------
+  - match: DNA
+    spoken: دِي إِنْ إِيه
+    kind: abbreviation
+  - match: HbA1c
+    spoken: إِتْشْ بِي إِيهْ وَانْ سِي
+    kind: abbreviation
+  - match: Type 1
+    spoken: تَايْبْ وَانْ
+    kind: abbreviation
+  - match: Type 2
+    spoken: تَايْبْ تُو
+    kind: abbreviation
+  - match: insulin
+    spoken: إِنْسُولِين
+    kind: abbreviation
+  - match: IDDM
+    spoken: آيْ دِي دِي إِمْ
+    kind: abbreviation
+  - match: NIDDM
+    spoken: إِنْ آيْ دِي دِي إِمْ
+    kind: abbreviation

@@ -1,0 +1,8 @@
+{
+  "skill_name": "arabic-narration",
+  "evals": [
+    {"id": 1, "prompt": "عندي مسودة 5 أسطر لحلقة جديدة بالفصحى (evals/files/ep8_draft.json). جهزها للتسجيل بصوت Fasih: اكتب التشكيل الكامل وشغّل فحوص الحماية، وقل لي وش لازم أغير بالنص قبل التسجيل. لا تولّد صوت.", "expected_output": "proposals with full i'rab; diacritize run; flags: dual verb فحص الطبيبان OK but no dual-alif verb; year 1922 should move to screen or be words; ellipsis after tanween مرتفعا… → comma override; HbA1c → spoken Arabic form via lexicon; يتبع… not voiced alone; passive كُتِبَ.", "files": ["evals/files/ep8_draft.json"]},
+    {"id": 2, "prompt": "سجلت تعليق صوتي بالفصحى وWhisper يعطي كل الأسطر 0.95 وفوق، بس أنا أسمع أخطاء، مثلا «كُتب التقرير» تنقال «كَتب». ليش؟ وشلون أتأكد من النطق بدون ما أسمع كل سطر بنفسي؟", "expected_output": "Explains Whisper strips diacritics so it cannot judge vowels; recommends full diacritization, phoneme-based check, flagging uncertain lines, full-episode word-marking review; automated scores are not proof.", "files": []},
+    {"id": 3, "prompt": "المستخدم خلص مراجعة الحلقة وعلّم هالكلمات (evals/files/marks_round1.json فيها العلامات ونص كل سطر وش سمع Whisper). صنّف كل علامة: وش السبب وكيف بتصلحها، ولا تولّد صوت.", "expected_output": "Table per mark: l3 phonemes match → explain/ask; l9 engine error varies by take → regenerate with phase-3 selection/avoid pattern; l16 dual alif dropped 5/5 → reword with explicit subject; l20 tanween lost due to ellipsis → spoken override comma; l25 wording change → apply to text and caption.", "files": ["evals/files/marks_round1.json"]}
+  ]
+}
