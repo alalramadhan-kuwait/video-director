@@ -23,7 +23,9 @@ def enabled() -> bool:
 
 
 def _text(v) -> str:
-    return html.unescape(re.sub(r'<[^>]+>', '', str(v or ''))).strip()
+    t = re.sub(r'\s+', ' ', html.unescape(re.sub(r'<[^>]+>', ' ', str(v or '')))).strip()
+    m = re.fullmatch(r'(.+?)\s*\1', t)                     # Commons often repeats the author («Unknown author Unknown author»)
+    return m.group(1) if m else t
 
 
 def _get(params: dict, tries=3) -> dict:

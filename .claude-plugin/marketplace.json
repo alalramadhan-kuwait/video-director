@@ -1,0 +1,14 @@
+{
+  "name": "video-director",
+  "owner": {
+    "name": "Time Keeper"
+  },
+  "plugins": [
+    {
+      "name": "video-director",
+      "source": "./",
+      "description": "Arabic documentary videos: research, script, narration, real photos, motion graphics, owner approvals."
+    }
+  ],
+  "description": "Time Keeper video tools: Arabic documentary videos with research, narration, real photos and motion graphics."
+}

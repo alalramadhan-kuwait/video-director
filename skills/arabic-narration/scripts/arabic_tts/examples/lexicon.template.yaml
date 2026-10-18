@@ -1,0 +1,13 @@
+# Pronunciation lexicon for one project. Copy to $ARABIC_TTS_WORK/lexicon.yaml and fill it as the review finds words.
+# Full worked example: examples/diabetes-lexicon.yaml (series «قصة السكري»).
+#
+# match     bare stem (no diacritics), matched after proclitics (و ف ب ل ك ال لل) and before a clitic pronoun (ه ها هم …)
+# stem      approved diacritization of the stem; the final case vowel still comes from the sentence
+#           unless `ending: fixed`
+# plain     true = strip this word's diacritics (some foreign names read better bare, e.g. نيويورك)
+# contexts  ordered rules: prev / next (neighbour stems), prev_number: true → a different stem (or spoken form)
+# spoken    what the narrator says instead (captions keep the original): abbreviations, Latin words
+# avoid     known mispronunciations: {whisper: [...], phon: [...]} — the selector rejects takes containing them
+# protect   true = Phase 1 flags any sentence that diacritizes this term differently
+
+entries: []

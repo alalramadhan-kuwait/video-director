@@ -1,0 +1,231 @@
+<title>مراجعة النطق</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&family=Noto+Naskh+Arabic:wght@400;600&display=swap">
+<style>
+/* Layout: sticky player bar on top, transcript as the reading column, marks list below; one column on phones */
+:root{
+  --bg:#f4f6f8; --surface:#ffffff; --ink:#17202a; --muted:#5d6a77; --line:#d8dfe6;
+  --accent:#1c6a8f; --accent-soft:#e1eef5; --now:#fff1b8; --now-ink:#4a3b00;
+  --bad:#b23a2f; --bad-soft:#f9e3e0; --ok:#1d7a4f; --ok-soft:#e2f3ea;
+  --f-body:"IBM Plex Sans Arabic",system-ui,sans-serif; --f-ar:"Noto Naskh Arabic","IBM Plex Sans Arabic",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf0; --muted:#9aa8b5; --line:#2a3542;
+  --accent:#78b8dc; --accent-soft:#1b3344; --now:#5a4a0c; --now-ink:#fff3c4;
+  --bad:#f08c80; --bad-soft:#3b1d1a; --ok:#6cc79a; --ok-soft:#173326; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f141a; --surface:#17202a; --ink:#e6ebf0; --muted:#9aa8b5; --line:#2a3542;
+  --accent:#78b8dc; --accent-soft:#1b3344; --now:#5a4a0c; --now-ink:#fff3c4;
+  --bad:#f08c80; --bad-soft:#3b1d1a; --ok:#6cc79a; --ok-soft:#173326; color-scheme:dark}
+html{direction:rtl}
+body{background:var(--bg);color:var(--ink);font:16px/1.7 var(--f-body);padding-inline:16px;padding-block:0 80px}
+main{max-width:860px;margin-inline:auto;display:flex;flex-direction:column;gap:20px}
+h1{font-size:1.45rem;margin:0;text-wrap:balance}
+p{margin:0}
+.sub{color:var(--muted);font-size:.93rem}
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);padding:6px 12px}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:700}
+button[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.play{width:46px;height:46px;border-radius:50%;padding:0;font-size:1.1rem}
+input[type=range]{flex:1;min-width:140px;accent-color:var(--accent)}
+.time{font-variant-numeric:tabular-nums;color:var(--muted);font-size:.9rem;direction:ltr}
+.tx{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.ln{display:flex;flex-direction:column;gap:4px}
+.ln .txt{font-family:var(--f-ar);font-size:1.22rem;line-height:2.1}
+.w{cursor:pointer;border-radius:5px;padding:0 2px;transition:background .12s}
+.w:hover{background:var(--accent-soft)}
+.w.now{background:var(--now);color:var(--now-ink)}
+.w.marked{color:var(--bad);text-decoration:underline wavy var(--bad);text-underline-offset:6px}
+.ln .meta{display:flex;gap:10px;align-items:center;font-size:.8rem;color:var(--muted)}
+.ln .tts{font-family:var(--f-ar);font-size:1.05rem;color:var(--muted)}
+.lnid{font-variant-numeric:tabular-nums}
+.pop{position:fixed;z-index:20;inset-inline:16px;bottom:16px;max-width:560px;margin-inline:auto;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:14px;display:flex;flex-direction:column;gap:10px}
+.pop .word{font-family:var(--f-ar);font-size:1.3rem}
+.types{display:flex;gap:6px;flex-wrap:wrap}
+textarea{font:inherit;width:100%;box-sizing:border-box;min-height:56px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:8px}
+.marks{display:flex;flex-direction:column;gap:8px}
+.mk{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center}
+.mk .wd{font-family:var(--f-ar);font-size:1.1rem}
+.mk .info{font-size:.85rem;color:var(--muted)}
+.pill{display:inline-block;font-size:.76rem;font-weight:700;padding:1px 9px;border-radius:99px;background:var(--bad-soft);color:var(--bad)}
+.empty{color:var(--muted);font-size:.92rem}
+.status{font-size:.85rem;color:var(--muted)}
+.done{background:var(--ok-soft);color:var(--ok);border-radius:10px;padding:10px 14px;font-weight:500}
+@media (prefers-reduced-motion:reduce){.w{transition:none}}
+</style>
+
+<main>
+  <div class="bar">
+    <div class="row" style="justify-content:space-between">
+      <h1 id="ttl"></h1>
+      <div class="row" role="group" aria-label="النسخة" id="vers"></div>
+    </div>
+    <div class="row">
+      <button type="button" class="play primary" id="play" aria-label="تشغيل">▶</button>
+      <input type="range" id="seek" min="0" max="1000" value="0" aria-label="موضع التشغيل">
+      <span class="time" id="time">0:00 / 0:00</span>
+      <button type="button" id="rate" aria-label="سرعة التشغيل">1×</button>
+    </div>
+  </div>
+
+  <p class="sub" id="intro"></p>
+  <audio id="au" preload="auto"></audio>
+  <div class="tx" id="tx"></div>
+
+  <section style="display:flex;flex-direction:column;gap:10px">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="font-size:1.15rem;margin:0">الأخطاء اللي حددتها</h2>
+      <span class="status" id="saveStatus"></span>
+    </div>
+    <div class="marks" id="marks"></div>
+    <div class="row">
+      <button type="button" id="allgood">سمعتها كاملة وما فيها أخطاء غير المحددة</button>
+    </div>
+    <div id="doneMsg" hidden class="done">تم. وصلني إنك خلصت المراجعة.</div>
+  </section>
+</main>
+
+<div class="pop" id="pop" hidden role="dialog" aria-labelledby="popWord">
+  <div class="row" style="justify-content:space-between">
+    <span class="word" id="popWord"></span>
+    <span class="status" id="popWhere"></span>
+  </div>
+  <div class="types" role="group" aria-label="نوع الخطأ">
+    <button type="button" data-t="نطق غلط">نطق غلط</button>
+    <button type="button" data-t="حركة غلط">حركة أو إعراب غلط</button>
+    <button type="button" data-t="مقطوعة أو ناقصة">مقطوعة أو ناقصة</button>
+    <button type="button" data-t="كلام زايد">كلام زايد هنا</button>
+    <button type="button" data-t="غير ذلك">غير ذلك</button>
+  </div>
+  <label for="note" class="status">ملاحظة (اختياري): وش المفروض ينقال؟</label>
+  <textarea id="note"></textarea>
+  <div class="row">
+    <button type="button" class="primary" id="save">احفظ الخطأ</button>
+    <button type="button" id="listen">اسمع من هنا</button>
+    <button type="button" id="cancel">إلغاء</button>
+  </div>
+</div>
+
+<script>
+const DATA = __DATA__;
+const $ = id => document.getElementById(id);
+const au = $('au');
+let version = DATA.order[0].key, db = null, marks = {}, sel = null, selType = null, rates=[1,0.85,0.7], ri=0;
+const fmt = s => { s=Math.max(0,s|0); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+
+function render(){
+  const V = DATA.versions[version];
+  const tx = $('tx'); tx.textContent='';
+  V.lines.forEach((l,li)=>{
+    const ln=document.createElement('div'); ln.className='ln';
+    const meta=document.createElement('div'); meta.className='meta';
+    const id=document.createElement('span'); id.className='lnid'; id.textContent='سطر '+l.id.replace('l','')+' · '+fmt(l.start);
+    meta.append(id);
+    if(l.fixed && version!==DATA.reference){ const f=document.createElement('span'); f.className='pill'; f.style.background='var(--ok-soft)'; f.style.color='var(--ok)'; f.textContent='مصحح'; meta.append(f); }
+    if(version!==DATA.reference && l.tts){
+      const b=document.createElement('button'); b.type='button'; b.textContent='اعرض التشكيل'; b.style.fontSize='.78rem'; b.style.padding='1px 8px';
+      const t=document.createElement('div'); t.className='tts'; t.textContent=l.tts; t.hidden=true;
+      b.addEventListener('click',()=>{t.hidden=!t.hidden; b.textContent=t.hidden?'اعرض التشكيل':'أخف التشكيل';});
+      meta.append(b); ln.append(meta);
+      const txt=document.createElement('div'); txt.className='txt';
+      words(l,li,txt); ln.append(txt,t);
+    } else {
+      ln.append(meta); const txt=document.createElement('div'); txt.className='txt'; words(l,li,txt); ln.append(txt);
+    }
+    tx.append(ln);
+  });
+  au.src='data:audio/mpeg;base64,'+V.audio;
+  document.querySelectorAll('#vers button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.v===version)));
+  paintMarks();
+}
+function words(l,li,el){
+  l.words.forEach((w,wi)=>{
+    const s=document.createElement('span'); s.className='w'; s.textContent=w.w; s.dataset.k=version+':'+l.id+':'+wi;
+    s.dataset.s=w.s; s.dataset.e=w.e;
+    s.addEventListener('click',()=>openPop(l,wi,w));
+    el.append(s, document.createTextNode(' '));
+  });
+}
+function openPop(l,wi,w){
+  sel={line:l.id, wi, word:w.w, time:w.s, version}; selType=null;
+  $('popWord').textContent=w.w; $('popWhere').textContent='سطر '+l.id.replace('l','')+' · '+fmt(w.s);
+  $('note').value=''; document.querySelectorAll('.types button').forEach(b=>b.setAttribute('aria-pressed','false'));
+  $('pop').hidden=false;
+}
+document.querySelectorAll('.types button').forEach(b=>b.addEventListener('click',()=>{
+  selType=b.dataset.t; document.querySelectorAll('.types button').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));
+}));
+$('cancel').addEventListener('click',()=>{$('pop').hidden=true;});
+$('listen').addEventListener('click',()=>{ if(!sel)return; au.currentTime=Math.max(0,sel.time-0.4); au.play(); $('pop').hidden=true; });
+$('save').addEventListener('click',async()=>{
+  if(!sel)return;
+  const m={...sel, type:selType||'غير ذلك', note:$('note').value.trim(), at:new Date().toISOString()};
+  const key=m.version+'-'+m.line+'-'+m.wi;
+  marks[key]=m; $('pop').hidden=true; paintMarks();
+  await persist(key,m);
+});
+async function persist(key,m){
+  if(db){
+    try{ if(m) await db.doc('marks/'+key).set(m); else await db.doc('marks/'+key).delete(); $('saveStatus').textContent='محفوظ'; }
+    catch(e){ $('saveStatus').textContent='ما انحفظ ('+(e&&e.code||'خطأ')+')، جرّب مرة ثانية'; }
+  } else {
+    try{ localStorage.setItem('tts-review-marks',JSON.stringify(marks)); }catch(e){}
+    $('saveStatus').textContent='محفوظ في هذا المتصفح فقط';
+  }
+}
+function paintMarks(){
+  document.querySelectorAll('.w').forEach(s=>{
+    const [v,l,wi]=s.dataset.k.split(':'); s.classList.toggle('marked', !!marks[v+'-'+l+'-'+wi]);
+  });
+  const box=$('marks'); box.textContent='';
+  const list=Object.entries(marks).sort((a,b)=>(a[1].version+a[1].time)<(b[1].version+b[1].time)?-1:1);
+  if(!list.length){ const p=document.createElement('p'); p.className='empty'; p.textContent='ما في أخطاء محددة لين الحين.'; box.append(p); return; }
+  for(const [k,m] of list){
+    const d=document.createElement('div'); d.className='mk';
+    const a=document.createElement('div');
+    const wd=document.createElement('div'); wd.className='wd'; wd.textContent=m.word+' ';
+    const pl=document.createElement('span'); pl.className='pill'; pl.textContent=m.type; wd.append(pl);
+    const inf=document.createElement('div'); inf.className='info';
+    inf.textContent=((DATA.order.find(o=>o.key===m.version)||{}).label||m.version)+' · سطر '+m.line.replace('l','')+' · '+fmt(m.time)+(m.note?' · '+m.note:'');
+    a.append(wd,inf);
+    const btns=document.createElement('div'); btns.className='row';
+    const go=document.createElement('button'); go.type='button'; go.textContent='اسمع';
+    go.addEventListener('click',()=>{ if(version!==m.version){version=m.version;render();} au.currentTime=Math.max(0,m.time-0.4); au.play(); });
+    const del=document.createElement('button'); del.type='button'; del.textContent='احذف';
+    del.addEventListener('click',async()=>{ delete marks[k]; paintMarks(); await persist(k,null); });
+    btns.append(go,del); d.append(a,btns); box.append(d);
+  }
+}
+// player
+$('play').addEventListener('click',()=>{ au.paused?au.play():au.pause(); });
+au.addEventListener('play',()=>{$('play').textContent='❚❚'; $('play').setAttribute('aria-label','إيقاف');});
+au.addEventListener('pause',()=>{$('play').textContent='▶'; $('play').setAttribute('aria-label','تشغيل');});
+$('rate').addEventListener('click',()=>{ ri=(ri+1)%rates.length; au.playbackRate=rates[ri]; $('rate').textContent=rates[ri]+'×'; });
+$('seek').addEventListener('input',()=>{ if(au.duration) au.currentTime=$('seek').value/1000*au.duration; });
+let lastNow=null;
+au.addEventListener('timeupdate',()=>{
+  const t=au.currentTime, d=au.duration||DATA.versions[version].total;
+  $('time').textContent=fmt(t)+' / '+fmt(d); $('seek').value=d?Math.round(t/d*1000):0;
+  let cur=null;
+  for(const s of document.querySelectorAll('.w')){ if(t>=+s.dataset.s && t<+s.dataset.e+0.05){cur=s;break;} }
+  if(cur!==lastNow){ if(lastNow)lastNow.classList.remove('now'); if(cur){cur.classList.add('now'); const r=cur.getBoundingClientRect(); if(r.top<120||r.bottom>innerHeight-40) cur.scrollIntoView({block:'center',behavior:'smooth'});} lastNow=cur; }
+});
+DATA.order.forEach(o=>{ const b=document.createElement('button'); b.type='button'; b.dataset.v=o.key; b.textContent=o.label;
+  b.addEventListener('click',()=>{ if(version!==o.key){au.pause();version=o.key;render();} }); $('vers').append(b); });
+$('ttl').textContent=DATA.title||'مراجعة النطق'; $('intro').textContent=DATA.intro||'اسمع كاملاً. لما تسمع خطأ، اضغط على الكلمة واختر نوعه. علاماتك تنحفظ.';
+$('allgood').addEventListener('click',async()=>{
+  $('doneMsg').hidden=false;
+  if(db){ try{ await db.doc('review/summary').set({finished:true, marks:Object.keys(marks).length, at:new Date().toISOString()}); }catch(e){} }
+});
+try{ Object.assign(marks, JSON.parse(localStorage.getItem('tts-review-marks')||'{}')); }catch(e){}
+render();
+(async()=>{
+  try{
+    db = window.claude && window.claude.use ? await window.claude.use('db') : null;
+    if(!db) return;
+    db.collection('marks').onSnapshot(s=>{ const m={}; for(const d of s.docs){ const v=d.data(); if(v) m[d.id]=v; } marks=m; paintMarks(); }, ()=>{});
+  }catch(e){ db=null; }
+})();
+</script>

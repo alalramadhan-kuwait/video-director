@@ -26,6 +26,11 @@ stores live under `var/` (git-ignored).
 | `art/techniques.yaml`, `director/art/selector.py` | M2 | Visual Technique Registry; ranked options per scene with explicit exclusions; decision log |
 | `director/art/review.py` | M3 | Art Reviewer: evidence packs from real renders, technical pass, review packets per stage/perspective |
 
+## Use it as a Claude plugin (any Claude Code chat)
+    /plugin install video-director --marketplace alalramadhan-kuwait/video-director
+Then `/video <the idea>` or just ask for a video: Claude follows the `video-director` skill (research → script → voice →
+real photos → motion graphics → film), and you approve each step in the chat. Styles: the `motion-graphics` skill.
+
 ## Use it (your Mac, and your iPhone on the same Wi-Fi)
 `tools/run_mac.sh` → open `http://127.0.0.1:8765/studio`. `tools/run_mac.sh --lan` also prints the address for the
 iPhone and an access code (or set your own: `VD_ACCESS_CODE=...`, 8+ characters); every page, file and action needs
