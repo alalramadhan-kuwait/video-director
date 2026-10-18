@@ -32,6 +32,13 @@ def choose(style: dict, bs: dict, verified: dict, hook_visual: dict | None = Non
     if hook_visual:
         t, p = hook_visual['technique'], hook_visual['params']
         return {'technique': t, 'params': p, 'theme': style.get('theme_for', {}).get(t, style['theme']), 'fallback': None, 'assets': []}
+    photo = next((a for a in verified.values() if a.get('scene') == bs.get('_id') and a['use'] == 'evidence'), None)
+    if photo:
+        p = {'photos': [{'asset': photo['slot'], 'desc': photo.get('what') or photo.get('name', ''), 'label': '' if bs.get('banner') else (photo.get('what') or ''),
+                         'w': 560, 'aspect': photo.get('aspect') or 0.8, 'y': 580}]}
+        if photo.get('credit'):                                    # the author and licence, on screen (CC BY / BY-SA ask for it), clear of the captions
+            p['tags'] = [{'text': photo['credit'][:70], 'size': 22, 'y': 90, 'at': 0.3}]
+        return {'technique': 'archival_collage', 'params': p, 'theme': style['theme'], 'fallback': None, 'assets': [photo['slot']]}
     concepts = bs.get('concepts', {})
     def usable(t):
         if t not in art.BUILDERS or t == 'neutral_placeholder' or t not in concepts: return False
@@ -42,10 +49,6 @@ def choose(style: dict, bs: dict, verified: dict, hook_visual: dict | None = Non
             need = art.NEEDS_ASSETS.get(t, lambda p: [])(concepts[t])
             return {'technique': t, 'params': concepts[t], 'theme': style.get('theme_for', {}).get(t, style['theme']), 'fallback': None, 'assets': need}
     beat = bs.get('beat')
-    photo = next((a for a in verified.values() if a.get('scene') == bs.get('_id') and a['use'] == 'evidence'), None)
-    if beat == 'person_real' and photo:
-        p = {'photos': [{'asset': photo['slot'], 'desc': photo.get('what') or photo.get('name', ''), 'label': bs.get('banner') or '', 'w': 480, 'y': 560}]}
-        return {'technique': 'archival_collage', 'params': p, 'theme': style['theme'], 'fallback': None, 'assets': [photo['slot']]}
     if usable(bs.get('default', '')):
         t = bs['default']
         return {'technique': t, 'params': concepts[t], 'theme': style.get('theme_for', {}).get(t, style['theme']), 'fallback': None, 'assets': []}

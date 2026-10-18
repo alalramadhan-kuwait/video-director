@@ -94,8 +94,10 @@ SYSTEM = {
     'art_brief': 'For each script line, the beat, a short on-screen banner (6 words or fewer), and parameters for the techniques '
                  'the engine can draw. Never invent a historical photograph.',
     'style_eval': 'Compare the style boards for this film and recommend one, with reasons per style.',
-    'asset_search': 'List the real pictures this film needs per scene, with candidate sources and what licence evidence is needed. '
-                    'Never claim a licence without a page that states it.',
+    'asset_search': 'List the real pictures this film needs per scene (prefer a real, documented photograph over a drawing, '
+                    'especially of watches, people and documents), with candidate sources and what licence evidence is needed. '
+                    'For each, give "query": a short English Wikimedia Commons search naming exactly what must be in the picture '
+                    '(for example "Hans Wilsdorf" or "Rolex Oyster 1926"). Never claim a licence without a page that states it.',
     'scene_review': 'You are an independent art reviewer. Look at the scene stills and report problems a phone viewer would see. '
                     'Propose only safe parameter changes (zoom, text_size, slower, theme within the approved style).',
     'film_review': 'You are an independent film reviewer. Report creative problems with a time code and the scene.',

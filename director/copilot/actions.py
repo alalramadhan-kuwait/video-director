@@ -241,6 +241,18 @@ class CopilotActions:
             return 'assets', {'op': op, 'id': aid, 'slot': a.get('slot') or '', 'scene': a.get('scene') or '', 'file': a.get('file'), 'url': a.get('url'),
                               'name': a.get('name', ''), 'credit': a.get('credit', ''), 'use': a['use'], 'source': 'upload' if a.get('file') else 'link',
                               'what': a.get('what', '')}
+        if op == 'found':                                  # the Co-Pilot found it on Wikimedia Commons: its page states the licence
+            _system(actor)
+            from . import commons
+            if not (a.get('file') and str(a.get('page', '')).startswith('https://commons.wikimedia.org/') and commons.licence_ok(a.get('licence', ''))):
+                raise _refused('a found picture needs its Commons page and a free licence stated there')
+            aid = f'as{len(assets) + 1}'
+            return 'assets', {'op': op, 'id': aid, 'slot': a.get('slot') or '', 'scene': a.get('scene') or '', 'file': a['file'], 'url': a['page'],
+                              'name': a.get('name', ''), 'credit': a.get('credit', ''), 'use': 'evidence', 'source': 'wikimedia-commons',
+                              'what': a.get('what', ''), 'aspect': a.get('aspect'),
+                              'licence': {'licence': 'public_domain' if a['licence'].lower().startswith(('public', 'pd', 'cc0')) else 'cc',
+                                          'evidence': a['page'], 'name': a['licence'], 'licence_url': a.get('licence_url', ''),
+                                          'holder': a.get('author', ''), 'restrictions': 'credit the author and licence on screen'}}
         x = assets.get(a.get('id'))
         if x is None: raise _refused('unknown asset')
         if op == 'licence':
@@ -271,7 +283,7 @@ class CopilotActions:
             _owner(actor)
             if len((a.get('note') or '').strip()) < 4: raise _refused('say why')
             return 'assets', {'op': op, 'id': x['id'], 'note': a['note']}
-        raise _refused('op must be add, licence or withdraw')
+        raise _refused('op must be add, found, licence or withdraw')
 
     def a_cp_exception_decision(self, pid, a, actor):
         _owner(actor)
@@ -570,6 +582,8 @@ def fold(st: dict, e: dict):
     elif act == 'cp_asset':
         if r['op'] == 'add':
             cp['assets'][r['id']] = {**r, 'licence': None, 'status': 'unverified', 'at': at, 'history': [{'op': 'add', 'at': at}]}
+        elif r['op'] == 'found':
+            cp['assets'][r['id']] = {**r, 'status': 'verified', 'at': at, 'history': [{'op': 'found', 'at': at, 'evidence': r['url']}]}
         else:
             x = cp['assets'][r['id']]
             x['history'].append({**r, 'at': at})

@@ -241,7 +241,7 @@ const ST = {
     changes_requested:'طُلب تعديلها', candidate:'بانتظار مراجعتك', open:'مفتوح', decided:'تقرّر', missing:'غير موجودة', unverified:'بلا ترخيص', verified:'مرخّصة',
     withdrawn:'مسحوبة', found:'موجودة', ai_reviewed:'راجعه الذكاء', outdated:'قديم', working:'قيد العمل', not_started:'لم يبدأ', needs_owner:'ينتظر قرارك',
     evidence:'صورة حقيقية (دليل)', illustration:'رسم توضيحي', owner_owned:'ملكي', licensed:'مرخّصة', public_domain:'ملكية عامة', cc:'Creative Commons',
-    copilot:'المساعد', owner:'أنت', ok:'تم', failed:'فشل', accepted:'قُبلت', dismissed:'أُبقيت', done:'تم', interrupted:'انقطع', accept_best:'قُبلت أفضل نسخة',
+    copilot:'المساعد', owner:'أنت', 'wikimedia-commons':'ويكيميديا كومنز', upload:'رفعتها', link:'رابط', ok:'تم', failed:'فشل', accepted:'قُبلت', dismissed:'أُبقيت', done:'تم', interrupted:'انقطع', accept_best:'قُبلت أفضل نسخة',
     retry_with_change:'جُرّب تعديل', manual:'حُوّل لليدوي', remove_banner:'حُذف العنوان', keep_fallback:'أُبقي البديل', edit_myself:'سيعدّله صاحبه', dismiss_comment:'تُجوهل التعليق' },
   en: { ai_reviewed:'AI reviewed', not_started:'not started', needs_owner:'needs you', changes_requested:'changes requested', owner_owned:'mine', public_domain:'public domain',
     accept_best:'best version accepted', retry_with_change:'tried with a change', keep_fallback:'fallback kept', remove_banner:'banner removed' } };
@@ -736,8 +736,8 @@ function assets(v) {
     <button class="primary" data-upload="1">${t('upload')}</button></div>
   <div class="card"><h3>${AR() ? 'مكتبة الصور' : 'Library'}</h3>${a.library.map(x => { const nd = a.needs.find(n => n.id === x.slot);
       return `<div class="line"><div class="row between"><b>${esc(x.name || x.id)}</b>${pill(x.status === 'verified' ? 'st-owner_approved' : 'st-needs_owner', stx(x.status))}</div>
-      ${x.file ? `<img src="${esc(x.file)}" alt="${esc(x.name || '')}" style="max-width:160px;border-radius:8px">` : ''}<div class="tiny muted">${esc(nd ? (AR() ? nd.what_ar || nd.what : nd.what) : '')} · ${esc(stx(x.use))} · ${esc(x.credit)}</div>
-      ${x.licence ? `<div class="tiny">${t('licence')}: ${esc(stx(x.licence.licence))} · ${esc(x.licence.evidence)}</div>` : x.status === 'unverified' ? `
+      ${x.file ? `<img src="${esc(x.file)}" alt="${esc(x.name || '')}" style="max-width:160px;border-radius:8px">` : ''}<div class="tiny muted">${esc(nd ? (AR() ? nd.what_ar || nd.what : nd.what) : '')} · ${esc(stx(x.use))} · ${esc(stx(x.source))} · ${esc(x.credit)}</div>
+      ${x.licence ? `<div class="tiny">${t('licence')}: ${esc(x.licence.name || stx(x.licence.licence))} · ${/^https?:\/\//.test(x.licence.evidence || '') ? `<a href="${esc(x.licence.evidence)}" target="_blank" rel="noopener">${x.source === 'wikimedia-commons' ? (AR() ? 'صفحتها في ويكيميديا' : 'its Commons page') : (AR() ? 'دليل الترخيص' : 'licence evidence')}</a>` : esc(x.licence.evidence)}</div>` : x.status === 'unverified' ? `
         <select data-lickind="${x.id}" data-draft="lickind:${x.id}" aria-label="${t('licence')}"><option value="licensed">${t('licensed')}</option><option value="owner_owned">${t('own')}</option><option value="public_domain">${t('pd')}</option><option value="cc">${t('cc')}</option></select>
         <input data-licev="${x.id}" data-draft="licev:${x.id}" aria-label="${t('evidence')}" placeholder="${t('evidence')}"><label class="row small"><input type="checkbox" data-licdec="${x.id}" data-draft="licdec:${x.id}"> ${t('declare')}</label>
         <button data-lic="${x.id}">${t('addlic')}</button>` : ''}</div>`; }).join('') || `<p class="muted">—</p>`}</div>`;

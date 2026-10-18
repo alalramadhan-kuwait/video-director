@@ -12,6 +12,6 @@ if [ "$1" = fresh ]; then
   [ -e "$V/media" ] || ln -s "$D/var/dashboard/media" "$V/media"
   [ -e "$V/events.sqlite" ] || cp "$D/var/dashboard/events.sqlite" "$V/events.sqlite"
 fi
-(cd "$D" && env -u ELEVENLABS_API_KEY -u FAL_KEY -u VD_AI_REAL_ENABLED VIDEO_DIRECTOR_PAID_ENABLED=0 VD_STUDIO_TEST=1 VD_DASHBOARD_VAR="$V" PYTHONPATH="$D" \
+(cd "$D" && env -u ELEVENLABS_API_KEY -u FAL_KEY -u VD_AI_REAL_ENABLED VIDEO_DIRECTOR_PAID_ENABLED=0 VD_STUDIO_TEST=1 VD_COMMONS=${VD_COMMONS:-0} VD_DASHBOARD_VAR="$V" PYTHONPATH="$D" \
    ${VD_DRAFT_VOICE:+VD_DRAFT_VOICE=$VD_DRAFT_VOICE} nohup python3 -m director.dashboard.serve --port "$PORT" >> "$V/serve.log" 2>&1 &)
 for i in $(seq 1 120); do curl -sf -o /dev/null "http://127.0.0.1:$PORT/studio" && exit 0; sleep 0.5; done; echo "server did not start"; tail -20 "$V/serve.log"; exit 1

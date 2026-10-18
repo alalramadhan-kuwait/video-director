@@ -64,6 +64,7 @@ rule(r'^already in .+ mode', 'المشروع على هذا الوضع أصلًا
 rule(r'^this project is in Manual mode', 'المشروع في اليدوي. ارجع للمساعد أولًا.', 'This project is in Manual. Go back to the Co-Pilot first.')
 rule(r'^this project is run by the Co-Pilot', 'هذا المشروع يديره المساعد. قرّر من صفحته، أو حوّله لليدوي أولًا.', 'The Co-Pilot runs this project. Decide on its page, or switch to Manual first.')
 rule(r'^this is a classic project', 'هذا مشروع من الاستوديو الكلاسيكي، والمساعد لا يغيّره.', 'This is a classic project; the Co-Pilot does not change it.')
+rule(r'^a found picture needs its Commons page', 'الصورة التي وجدها المساعد تحتاج صفحتها في ويكيميديا وترخيصًا حرًّا مكتوبًا فيها.', 'A picture the Co-Pilot found needs its Commons page and a free licence stated there.')
 rule(r'^duration must be', 'المدة بين 20 و180 ثانية.', 'The length must be 20–180 seconds.', _fix(None, '#n-dur', 'خذني للمدة', 'Go to the length'))
 rule(r'^format must be one of', 'اختر مقاسًا من القائمة.', 'Choose a format from the list.')
 rule(r'^worker must be one of', 'اختر عاملًا من القائمة.', 'Choose a worker from the list.')

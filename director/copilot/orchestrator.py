@@ -472,6 +472,8 @@ def s_assets(studio, pid, task, key):
     st = studio.state(pid)
     order = FM.order(studio, pid, st)
     out = ai.call(studio, pid, 'asset_search', {'scenes': order})
+    _commons(studio, pid, out.get('needs', []))
+    st = studio.state(pid)
     cp = st['copilot']
     needs = []
     for nd in out.get('needs', []):
@@ -483,6 +485,32 @@ def s_assets(studio, pid, task, key):
     _done(studio, pid, key, 'assets', needs=len(needs))
     task.unit(what='assets')
     return {}
+
+
+def _commons(studio, pid, needs):
+    """A real photograph first: for each picture the film needs and does not have, the first Wikimedia Commons file whose
+    page states a free licence and whose title or description names what is needed. None found: the scene keeps its drawing.
+    A failed search never stops the film (it is only a better picture)."""
+    from . import commons
+    from .api import picture_kind
+    if not commons.enabled(): return
+    have = {a.get('slot') for a in studio.state(pid)['copilot']['assets'].values() if a['status'] in ('verified', 'unverified')}
+    for nd in needs:
+        q = commons.query_for(nd)
+        if nd.get('id') in have or not q: continue
+        try:
+            c = commons.best(q, commons.candidates(q))
+            if not c: continue
+            data = commons.fetch(c['url'])
+            kind = picture_kind(data)
+            if not kind: continue
+            rel = studio.put(pid, data, kind)
+            studio.act(pid, 'cp_asset', {'op': 'found', 'slot': nd['id'], 'scene': nd.get('scene') or '', 'file': rel, 'page': c['page'],
+                                         'licence': c['licence'], 'licence_url': c['licence_url'], 'author': c['author'],
+                                         'credit': commons.credit(c), 'name': c['title'].removeprefix('File:'), 'what': nd.get('what', ''),
+                                         'aspect': round(c['width'] / c['height'], 3) if c.get('height') else None}, actor='copilot')
+        except Exception:
+            continue
 
 
 def s_rights(studio, pid, task, key, asset):
