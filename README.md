@@ -31,6 +31,14 @@ stores live under `var/` (git-ignored).
 Then `/video <the idea>` or just ask for a video: Claude follows the `video-director` skill (research → script → voice →
 real photos → motion graphics → film), and you approve each step in the chat. Styles: the `motion-graphics` skill.
 
+## Optional local narration: OmniVoice
+
+The chat plugin supports OmniVoice voice design through the `arabic-narration` skill. See
+[setup and generation](skills/arabic-narration/references/omnivoice.md). It preserves approved text, generates
+at natural speed, and writes a new candidate WAV with provenance. No paid API key is needed.
+The upstream pretrained checkpoint is **non-commercial (CC-BY-NC)**; this path is for non-commercial review,
+not a commercially cleared final voice. The existing dashboard voice provider and paid approval gates stay as configured.
+
 ## Use it (your Mac, and your iPhone on the same Wi-Fi)
 `tools/run_mac.sh` → open `http://127.0.0.1:8765/studio`. `tools/run_mac.sh --lan` also prints the address for the
 iPhone and an access code (or set your own: `VD_ACCESS_CODE=...`, 8+ characters); every page, file and action needs
