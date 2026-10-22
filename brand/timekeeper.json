@@ -20,8 +20,14 @@
     "pronunciation": "brand/pronunciation.json"
   },
   "music": {
-    "_why": "Subtle cinematic bed under the voice. A track is used only with its commercial licence record next to it (same name, .licence.json); otherwise there is no music.",
+    "_why": "Subtle cinematic bed under the voice. A track is used only with its commercial licence record next to it (same name, .licence.json); otherwise there is no music. The owner's own track in the library wins; else the film picks from the whole catalogue by mood (prefer/avoid) and length, and its credit goes with the film.",
     "library": "brand/music",
+    "catalogs": ["brand/music/incompetech.json"],
+    "prefer": ["Calming", "Relaxed", "Uplifting", "Mysterious", "Somber"],
+    "avoid": ["Humorous", "Bouncy", "Grooving", "Driving", "Action", "Aggressive", "Intense", "Dark", "Eerie", "Unnerving", "Suspenseful", "Ren Faire", "Medieval"],
+    "instruments": ["Piano", "Strings", "Cello", "Synth", "Harp"],
+    "avoid_words": ["funeral", "christmas", "hymn", "grace", "church", "ghost", "horror", "zombie", "halloween", "lute", "organ", "drum kit", "bagpipe", "accordion", "banjo", "kazoo", "ukulele", "vocals", "solo voice"],
+    "max_bpm": 100,
     "gain_db": -22
   },
   "export": { "width": 1080, "height": 1920, "crf": 24, "platform": "instagram-reels" }
