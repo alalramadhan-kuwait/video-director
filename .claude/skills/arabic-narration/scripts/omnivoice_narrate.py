@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+import re
 import tempfile
 
 MODEL = 'k2-fsa/OmniVoice'
@@ -30,14 +31,36 @@ def read_script(path):
     return text
 
 
+def brand_settings(path):
+    """Narration settings and the pronunciation list from the brand config (brand/<id>.json); {} without one."""
+    if not path:
+        return {}, {}
+    path = Path(path)
+    cfg = json.loads(path.read_text(encoding='utf-8')).get('narration') or {}
+    lex = {}
+    if cfg.get('pronunciation'):
+        lp = path.parent.parent / cfg['pronunciation']        # paths in the config are relative to the repository root
+        if lp.is_file():
+            lex = {k: v for k, v in json.loads(lp.read_text(encoding='utf-8')).items() if not k.startswith('_')}
+    return cfg, lex
+
+
+def spoken(text, lex):
+    """What the voice is given: watch names as they are said (longest first, whole words). Captions keep the script."""
+    for k in sorted(lex, key=len, reverse=True):
+        text = re.sub(r'(?<![\w\u0600-\u06FF])' + re.escape(k) + r'(?![\w\u0600-\u06FF])', lex[k], text)
+    return text
+
+
 def parser():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--script', required=True, type=Path, help='Approved UTF-8 text or JSON lines')
     p.add_argument('--output', required=True, type=Path, help='New WAV file; existing takes are never replaced')
     p.add_argument('--model', default=MODEL)
     p.add_argument('--device', choices=['auto', 'mps', 'cuda', 'cpu'], default='auto')
-    p.add_argument('--language', default='arb', help='OmniVoice language ID; arb = Standard Arabic')
-    p.add_argument('--instruct', default='male, middle-aged, low pitch')
+    p.add_argument('--brand', type=Path, help='Brand config (brand/timekeeper.json): voice settings and pronunciation')
+    p.add_argument('--language', default=None, help='OmniVoice language ID; arb = Standard Arabic (default)')
+    p.add_argument('--instruct', default=None, help='Speaker description (default: the brand config, else male, middle-aged, low pitch)')
     p.add_argument('--seed', type=int, default=1234)
     p.add_argument('--steps', type=int, default=32)
     p.add_argument('--plan', action='store_true', help='Inspect the request without importing or downloading models')
@@ -49,10 +72,16 @@ def request(args):
         raise ValueError('Output must be a .wav file')
     if args.steps < 1 or args.steps > 100:
         raise ValueError('Steps must be between 1 and 100')
-    text = read_script(args.script)
+    cfg, lex = brand_settings(args.brand)
+    script = read_script(args.script)
+    text = spoken(script, lex)
+    language = args.language or cfg.get('language') or 'arb'
+    instruct = args.instruct or cfg.get('instruct') or 'male, middle-aged, low pitch'
     return dict(provider='omnivoice', model=args.model, text=text,
                 text_sha256=hashlib.sha256(text.encode()).hexdigest(),
-                language=args.language, instruct=args.instruct, seed=args.seed,
+                script_sha256=hashlib.sha256(script.encode()).hexdigest(),
+                pronunciation_applied=sorted(k for k in lex if k in script),
+                language=language, instruct=instruct, seed=args.seed,
                 num_step=args.steps, speed=1.0, status='candidate',
                 license_note='Upstream pretrained model: CC-BY-NC; non-commercial review only',
                 source='https://huggingface.co/k2-fsa/OmniVoice')
@@ -79,8 +108,8 @@ def generate(args):
     print(f'Loading {args.model} on {device}', flush=True)
     model = OmniVoice.from_pretrained(args.model, device_map=device, dtype=dtype)
     print('Generating the complete narration at natural speed', flush=True)
-    audio = model.generate(text=req['text'], language=args.language,
-                           instruct=args.instruct, num_step=args.steps, speed=1.0)[0]
+    audio = model.generate(text=req['text'], language=req['language'],
+                           instruct=req['instruct'], num_step=args.steps, speed=1.0)[0]
     audio = np.asarray(audio)
     if audio.ndim != 1 or not audio.size or not np.isfinite(audio).all():
         raise ValueError('Model returned empty or invalid audio; no take saved')

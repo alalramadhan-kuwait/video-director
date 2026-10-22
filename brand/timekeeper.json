@@ -1,0 +1,28 @@
+{
+  "_note": "The one place for Time Keeper's identity. Every step reads it: scene captions and banners, narration, music, logo and end card, export. Change it here, not in code.",
+  "name": "Time Keeper",
+  "logo": { "file": "vendor/paper-story/tk-logo-512.png", "end_card": true },
+  "fonts": {
+    "_why": "Clean and modern for luxury watches, already embedded in the renderer (OFL licence): Cairo for Arabic, Inter Tight for Latin.",
+    "arabic": "Cairo",
+    "latin": "Inter Tight",
+    "banner": "\"Inter Tight\",\"Cairo\",system-ui,sans-serif",
+    "caption": "\"Cairo\",\"Inter Tight\",system-ui,sans-serif"
+  },
+  "captions": { "bg": "#111111", "ink": "#FFFFFF", "size": 40 },
+  "safe_area": { "_why": "Instagram/TikTok vertical: keep text clear of the app's top bar and bottom controls (in 720x1280 units).", "top": 150, "bottom": 300, "side": 48 },
+  "narration": {
+    "provider": "omnivoice",
+    "draft_provider": "gtts",
+    "language": "arb",
+    "instruct": "male, middle-aged, low pitch, calm and natural documentary narration",
+    "speed": 1.0,
+    "pronunciation": "brand/pronunciation.json"
+  },
+  "music": {
+    "_why": "Subtle cinematic bed under the voice. A track is used only with its commercial licence record next to it (same name, .licence.json); otherwise there is no music.",
+    "library": "brand/music",
+    "gain_db": -22
+  },
+  "export": { "width": 1080, "height": 1920, "crf": 24, "platform": "instagram-reels" }
+}

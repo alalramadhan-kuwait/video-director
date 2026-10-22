@@ -1,0 +1,13 @@
+{
+  "_note": "How narration says watch names. Keys are what the script may contain (Latin or Arabic); values are what the voice is given. On-screen captions keep the script's own spelling.",
+  "Rolex": "رولكس", "Omega": "أوميغا", "Panerai": "بانيراي", "Patek Philippe": "باتيك فيليب",
+  "Audemars Piguet": "أوديمار بيغيه", "Vacheron Constantin": "فاشرون كونستانتين", "Jaeger-LeCoultre": "جيجر لوكولتر",
+  "Cartier": "كارتييه", "Breitling": "برايتلينغ", "TAG Heuer": "تاغ هوير", "Tudor": "تيودور", "Grand Seiko": "غراند سيكو",
+  "Seiko": "سيكو", "IWC": "آي دبليو سي", "Hublot": "أوبلو", "Richard Mille": "ريشار ميل", "Zenith": "زينيث",
+  "Blancpain": "بلانبان", "Breguet": "بريغيه", "Longines": "لونجين", "A. Lange & Söhne": "لانغه أند زونه",
+  "Luminor": "لومينور", "Radiomir": "راديومير", "Submariner": "صبمارينر", "Daytona": "دايتونا",
+  "Speedmaster": "سبيدماستر", "Seamaster": "سيماستر", "Royal Oak": "رويال أوك", "Nautilus": "نوتيلوس",
+  "Oyster": "أويستر", "Datejust": "ديت جست", "Calatrava": "كالاترافا", "Reverso": "ريفيرسو", "Santos": "سانتوس",
+  "Navitimer": "نافيتايمر", "Monaco": "موناكو", "Carrera": "كاريرا", "Black Bay": "بلاك باي",
+  "أوديمار بيجيه": "أوديمار بيغيه", "بانيراى": "بانيراي", "اوميغا": "أوميغا"
+}
