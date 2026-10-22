@@ -1,0 +1,152 @@
+# The motion catalogue: every scene template the studio can draw, what it is for, and whether it is ready.
+#   implemented   the studio's own builder draws it; its preview renders with no layout fault; the film may use it
+#   experimental  it draws, but is not trusted yet (reason given); the film never picks it on its own
+#   unavailable   not in this studio (it exists in another engine, or is paid); cannot be selected
+# `python3 tools/motion_catalogue.py <dir>` renders a real preview of every implemented and experimental entry from its
+# `example` (the words and pictures are samples). tests/test_catalogue.py keeps this file and the code in step.
+version: 1
+templates:
+  # ---------------------------------------------------------------- watches and products
+  - id: product_reveal
+    status: implemented
+    purpose: [product, hook]
+    name_ar: كشف الساعة
+    about: a real product photo revealed under a spotlight, then its name and year
+    needs_photo: true
+    example: {asset: sample_watch, desc: real photograph of the watch (licensed), name: Rolex Submariner, year: '1953',
+              credit: OpaleHorse · CC BY-SA 4.0 · Wikimedia Commons}
+  - id: product_macro
+    status: implemented
+    purpose: [product, detail]
+    name_ar: لقطة قريبة
+    about: one real product photo full frame, slow push in
+    needs_photo: true
+    example: {asset: sample_watch, desc: real close-up of the watch (licensed)}
+  # ---------------------------------------------------------------- archival and documentary
+  - id: archival_collage
+    status: implemented
+    purpose: [archive, person_real, document]
+    name_ar: كولاج أرشيفي
+    about: real photos as taped prints, the author and licence on screen
+    needs_photo: true
+    example: {photos: [{asset: sample_watch, desc: licensed photo, label: صبمارينر · 1953, w: 460, aspect: 1.33, y: 560}],
+              tags: [{text: OpaleHorse · CC BY-SA 4.0, size: 22, y: 90, at: 0.3}]}
+  - id: newspaper_card
+    status: implemented
+    purpose: [document, archive]
+    name_ar: بطاقة صحيفة
+    about: a typographic card that says where an advertisement or article ran (never imitates the page)
+    example: {header: Daily Mail, title: 24 نوفمبر 1927, body: إعلان رولكس على الصفحة الأولى, stamp: أويستر, stamp_at: 1.6}
+  - id: neutral_placeholder
+    status: implemented
+    purpose: [person_no_photo]
+    name_ar: شخص بلا صورة موثقة
+    about: a grey silhouette and «no documented photo», for a named person with no licensed picture
+    example: {label: هانس فيلسدورف, tags: [{text: مؤسس رولكس, y: 860, at: 1.0}]}
+  # ---------------------------------------------------------------- dates
+  - id: animated_timeline
+    status: implemented
+    purpose: [timeline, number]
+    name_ar: خط زمني
+    about: years on a drawn line, one card each (2–4 events)
+    example: {events: [{year: '1926', label: أويستر · أول علبة محكمة}, {year: '1953', label: صبمارينر · ١٠٠ متر}, {year: '1960', label: «ديب سي» · قاع ماريانا, hero: true}]}
+  # ---------------------------------------------------------------- technical
+  - id: technical_illustration
+    status: implemented
+    purpose: [mechanism, detail]
+    name_ar: رسم تقني
+    about: a watch part drawn and labelled as a simplified principle (screw crown, case parts, water)
+    example: {kind: screw_crown, screw_at: 1.6, water: true, card: التاج اللولبي}
+  - id: spec_card
+    status: implemented
+    purpose: [comparison, specification, number]
+    name_ar: بطاقة مواصفات ومقارنة
+    about: rows of label / value for one watch, or two watches side by side; sourced figures only
+    example: {title: صبمارينر مقابل لومينور, columns: [Submariner 1953, Luminor 1950],
+              rows: [{label: العمق, values: [100 م, 200 م]}, {label: القطر, values: [37 مم, 47 مم]}, {label: المادة, values: [فولاذ, فولاذ]}],
+              source: 'المصدر: أرشيف الشركتين'}
+  # ---------------------------------------------------------------- places
+  - id: map
+    status: implemented
+    purpose: [place, journey]
+    name_ar: خريطة
+    about: a map that moves, with pins, routes, labels and a date card
+    example: {view_from: {lon: 10.0, lat: 45.0, span: 24}, view: {lon: 11.25, lat: 43.77, span: 8},
+              pins: [{id: florence, lon: 11.25, lat: 43.77, label: فلورنسا, at: 1.0}], date: '1860', date_at: 1.8}
+  # ---------------------------------------------------------------- words
+  - id: kinetic_type
+    status: implemented
+    purpose: [title, hook, claim, number]
+    name_ar: كتابة متحركة
+    about: big words rising in, optional stamp — titles and hooks
+    example: {lines: [{text: ساعة صُنعت, size: 92, in: slam}, {text: للبحرية الإيطالية, size: 72, at: 0.4, in: slam}], y: 480,
+              stamp: {text: سرّي, at: 1.2, y: 800}}
+  - id: quote_card
+    status: implemented
+    purpose: [quote]
+    name_ar: اقتباس
+    about: a quotation in the speaker's words, who said it, and where it was printed
+    example: {quote: الساعة يجب أن تُقرأ في الظلام وتحت الماء, who: غويدو بانيراي, source: (صياغة توضيحية — ضع النص الموثّق ومصدره)}
+  - id: dark_keynote
+    status: implemented
+    purpose: [title, hook, claim]
+    name_ar: عرض داكن
+    about: kinetic type on black, strong contrast
+    example: {lines: [{text: ما تزال, size: 90}, {text: تعمل, size: 130, at: 0.6}], y: 480}
+  - id: swiss_grid
+    status: experimental
+    reason: three grid rules behind kinetic type; no photo slot yet and the grid does not follow the text
+    purpose: [title]
+    name_ar: شبكة سويسرية
+    about: clean grid and type
+    example: {lines: [{text: التصميم, size: 96}, {text: قبل الزخرفة, size: 64, at: 0.4}]}
+  # ---------------------------------------------------------------- mood
+  - id: paper_cut
+    status: implemented
+    purpose: [establishing, metaphor, transition]
+    name_ar: قصاصات ورقية
+    about: layered paper scenery (sea, cliffs) with an optional year counter
+    theme: tk-graphite
+    example: {counter: {text: '1936', turns: 0.25, at: 0.8}}
+  - id: parallax_25d
+    status: implemented
+    purpose: [establishing, place]
+    name_ar: عمق ثنائي ونصف
+    about: a 2.5D push and lateral dolly through paper layers
+    theme: tk-graphite
+    example: {cliffs: true}
+  # ---------------------------------------------------------------- endings and joins (engine features, not scene builders)
+  - id: end_card
+    status: implemented
+    purpose: [end_card]
+    name_ar: بطاقة النهاية
+    about: the Time Keeper end card with the logo (vendor/paper-story/tk_endcard.py); every Time Keeper film ends on it
+    engine: tk_endcard
+  - id: transitions
+    status: implemented
+    purpose: [transition]
+    name_ar: الانتقالات
+    about: 'scene.transition: cut, fade, slide, push, rise, drop (transitionDur, default 0.45 s)'
+    engine: paper.js
+  # ---------------------------------------------------------------- not in this studio
+  - id: scientific_diagram
+    status: unavailable
+    reason: charts live in the motion engine (motion-kit), not in the studio's paper engine
+  - id: character_animation
+    status: unavailable
+    reason: puppet rigs exist in paper-story but have no studio builder; real people are never drawn as characters
+  - id: verified_3d
+    status: unavailable
+    reason: three.js scenes live in other engines; needs a verified model of the exact watch
+  - id: live_footage
+    status: unavailable
+    reason: cut in the ad engine, not the studio; needs licensed footage
+  - id: copperplate_engraving
+    status: unavailable
+    reason: a sample look only (director/art/looks.html)
+  - id: silent_film_cards
+    status: unavailable
+    reason: a sample look only (director/art/looks.html)
+  - id: ai_illustration
+    status: unavailable
+    reason: paid generation; never runs without the owner's yes

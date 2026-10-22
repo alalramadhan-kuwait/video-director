@@ -270,12 +270,91 @@ def b_swiss_grid(p, theme, dur):
     return sc
 
 
+def b_spec_card(p, theme, dur):
+    """Specifications or a comparison: a title and rows of label / value, one column per watch (one or two).
+    Only sourced figures belong here; the card draws what it is given and nothing else."""
+    ink = ink_for(theme)
+    cols, rows = p.get('columns', []), p['rows']
+    two = len(cols) == 2
+    XS = (545, 175)                            # value columns either side of the label column (rtl: first on the right)
+    top, rh = p.get('y', 420), p.get('row_h', 92)
+    els = [{'type': 'text', 'text': p['title'], 'font': 'title', 'size': p.get('title_size', 50), 'color': ink, 'x': 360, 'y': top - 70,
+            'w': 640, 'align': 'center', 'in': {'type': 'rise', 'at': 0.1, 'dur': .45}}]
+    if two:
+        for c, x in zip(cols, XS):             # rtl: the first watch on the right
+            els.append({'type': 'text', 'text': c, 'font': 'banner', 'size': 26, 'color': PAPER if ink == INK else INK,
+                        'paper': INK if ink == INK else PAPER, 'x': x, 'y': top + 10, 'in': {'type': 'drop', 'at': .35}})
+    y0 = top + (90 if two else 40)
+    for i, r in enumerate(rows):
+        y, at = y0 + i * rh, p.get('at', .6) + i * p.get('stagger', .35)
+        els.append({'type': 'shape', 'kind': 'rect', 'w': 640, 'h': 2, 'x': 360, 'y': y + rh / 2 - 6, 'color': ink, 'opacity': .18,
+                    'in': {'type': 'fade', 'at': at}})
+        els.append({'type': 'text', 'text': r['label'], 'font': 'cap', 'size': 28, 'color': ink, 'opacity': .7, 'x': 360 if two else 520,
+                    'y': y, 'w': 160 if two else 220, 'align': 'center' if two else 'right', 'in': {'type': 'fade', 'at': at}})
+        vals = r.get('values') or [r.get('value', '')]
+        for v, x in zip(vals, XS if two else (200,)):
+            els.append({'type': 'text', 'text': v, 'font': 'title', 'size': r.get('size', 40), 'color': ink, 'x': x, 'y': y,
+                        'w': 200 if two else 300, 'align': 'center', 'in': {'type': 'rise', 'at': at + .1, 'dur': .4}})
+    if p.get('source'):
+        els.append({'type': 'text', 'text': p['source'], 'font': 'cap', 'size': 22, 'color': ink, 'opacity': .6, 'x': 360,
+                    'y': y0 + len(rows) * rh + 10, 'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .9}})
+    return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.04)}
+
+
+def b_quote_card(p, theme, dur):
+    """A quotation in the speaker's words, with who said it and where it was printed (the source line is required)."""
+    ink = ink_for(theme)
+    y = p.get('y', 560)
+    els = [{'type': 'text', 'text': '«', 'font': 'title', 'size': 200, 'color': GOLD, 'x': 560, 'y': y - 230, 'opacity': .9,
+            'in': {'type': 'pop', 'at': .1}},
+           {'type': 'text', 'text': p['quote'], 'font': 'title', 'size': p.get('size', 50), 'color': ink, 'x': 360, 'y': y, 'w': 600,
+            'align': 'center', 'in': {'type': 'fade', 'at': .3, 'dur': .8}},
+           {'type': 'shape', 'kind': 'rect', 'w': 120, 'h': 3, 'x': 360, 'y': y + 190, 'color': GOLD, 'in': {'type': 'grow', 'at': 1.0}},
+           {'type': 'text', 'text': p['who'], 'font': 'banner', 'size': 34, 'color': ink, 'x': 360, 'y': y + 240, 'w': 600,
+            'align': 'center', 'in': {'type': 'rise', 'at': 1.1}},
+           {'type': 'text', 'text': p['source'], 'font': 'cap', 'size': 24, 'color': ink, 'opacity': .6, 'x': 360, 'y': y + 290, 'w': 600,
+            'align': 'center', 'in': {'type': 'fade', 'at': 1.3}}]
+    return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.05)}
+
+
+def b_product_reveal(p, theme, dur):
+    """A real product photograph revealed under a spotlight, then its name and year. Never a drawn or generated watch."""
+    ink = ink_for(theme)
+    els = [{'type': 'spotlight', 'x': 360, 'y': 560, 'w': 720, 'h': 900, 'opacity': [[0, 0], [.8, .55, 'outCubic']], 'behind': True},
+           {'type': 'image', 'asset': p['asset'], 'desc': p['desc'], 'w': p.get('w', 560), 'h': p.get('h', 560), 'x': 360, 'y': 560,
+            'frame': False, 'fit': 'contain', 'opacity': [[0, 0], [.9, 1, 'outCubic']],
+            'scale': [[0, .92], [dur, 1.04, 'inOutCubic']]},
+           {'type': 'text', 'text': p['name'], 'font': 'banner', 'size': p.get('name_size', 46), 'color': ink, 'x': 360, 'y': 900, 'w': 640,
+            'align': 'center', 'in': {'type': 'rise', 'at': 1.0}}]
+    if p.get('year'):
+        els.append({'type': 'text', 'text': p['year'], 'font': 'mono', 'size': 30, 'color': ink, 'opacity': .75, 'x': 360, 'y': 960,
+                    'in': {'type': 'fade', 'at': 1.3}})
+    if p.get('credit'):
+        els.append({'type': 'text', 'text': p['credit'][:70], 'font': 'cap', 'size': 20, 'color': ink, 'opacity': .6, 'x': 360, 'y': 90,
+                    'w': 640, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
+    return {'theme': theme, 'floor': False, 'elements': els}
+
+
 BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_timeline, 'map': b_map,
             'technical_illustration': b_technical_illustration, 'paper_cut': b_paper_cut, 'parallax_25d': b_parallax_25d,
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
-            'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid}
+            'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
+            'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
-                'product_macro': lambda p: [p['asset']]}
+                'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']]}
+
+
+CATALOGUE = ROOT / 'art/catalogue.yaml'
+
+
+def catalogue() -> list[dict]:
+    """The motion catalogue (art/catalogue.yaml): every template, its purpose and status."""
+    return yaml.safe_load(CATALOGUE.read_text(encoding='utf-8'))['templates']
+
+
+def production_ready(tech: str) -> bool:
+    """Only an implemented template with a builder may be picked for a film; experimental and unavailable ones never are."""
+    return tech in BUILDERS and any(t['id'] == tech and t['status'] == 'implemented' for t in catalogue())
 
 
 def scene_visual(tech, params, theme, dur, banner=None):
@@ -302,7 +381,7 @@ def support_matrix(profile: dict) -> list[dict]:
             lvl = 'paid tool'
         elif tid in forbidden:
             lvl = 'forbidden by the brand'
-        elif t['status'] == 'prototype':
+        elif t['status'] == 'prototype' or (tid in BUILDERS and not production_ready(tid)):
             lvl = 'prototype'
         elif tid in BUILDERS:
             lvl = 'supported' + (' (needs real material)' if tid in NEEDS_ASSETS else '')

@@ -9,7 +9,7 @@
  *   node render.mjs <storyboard.json> --sheet [--every 2] -o sheet.png   contact sheet of the whole video
  *
  * Options: --fps N  --scale N (1 = 720x1280, 1.5 = 1080x1920)  --workers N  --from S --to S
- *          --crf N  --keep-frames  --voice-gain dB  --music-gain dB
+ *          --crf N  --keep-frames  --voice-gain dB  --music-gain dB  --no-duck (music stays level under the voice)
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -46,6 +46,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--final') opt.final = true;
   else if (a === '--voice-gain') opt.voiceGain = +next();
   else if (a === '--music-gain') opt.musicGain = +next();
+  else if (a === '--no-duck') opt.noDuck = true;
   else if (!sbPath) sbPath = a;
   else die('Unexpected argument: ' + a);
 }
@@ -265,6 +266,7 @@ await browser.close();
 const D = total / fps;
 const args = ['-y', '-v', 'error', '-framerate', String(fps), '-i', path.join(tmp, 'f_%06d.jpg')];
 const vg = opt.voiceGain != null ? opt.voiceGain : (sb.audio && sb.audio.voiceGain) || 0;
+const duck = !opt.noDuck && !(sb.audio && sb.audio.duck === false), duckRatio = 6;
 const mg = opt.musicGain != null ? opt.musicGain : (sb.audio && sb.audio.musicGain != null ? sb.audio.musicGain : -18);
 // every audio source becomes { f, start, gain(dB), loop?, len? }; start is in output seconds
 const srcs = [];
@@ -272,9 +274,9 @@ if (audio) {
   if (!fs.existsSync(audio)) die('audio not found: ' + audio);
   const ad = audioDuration(audio);
   if (ad && ad > D + 0.3) console.warn(`warning: voice-over is ${ad.toFixed(1)}s but the storyboard is ${D.toFixed(1)}s. Lengthen scene durations or the end will be cut.`);
-  srcs.push({ f: audio, start: 0, gain: vg });
+  srcs.push({ f: audio, start: 0, gain: vg, voice: true });
 }
-voiceClips.filter((v) => v.start < t1).forEach((v) => srcs.push({ f: v.f, start: Math.max(0, v.start - t0), gain: vg }));
+voiceClips.filter((v) => v.start < t1).forEach((v) => srcs.push({ f: v.f, start: Math.max(0, v.start - t0), gain: vg, voice: true }));
 // sound effects: scene.sfx = [{at, name, gain}], scene.beds = [{name, from, to, gain}], automatic paper sounds unless scene.silent
 const sfxFile = (name) => {
   for (const d of [path.join(sbDir, 'sfx'), path.join(here, '..', 'assets', 'sfx')]) { const f = path.join(d, name.endsWith('.wav') ? name : name + '.wav'); if (fs.existsSync(f)) return f; }
@@ -306,7 +308,19 @@ if (srcs.length || music) {
     c += `adelay=${Math.round(x.start * 1000)}:all=1,volume=${x.gain}dB[a${i}]`;
     chains.push(c); labels.push(`[a${i}]`);
   });
-  if (music) { const mi = srcs.length + 1; chains.push(`[${mi}:a]volume=${mg}dB,afade=t=in:d=1.5,afade=t=out:st=${Math.max(0, D - 2.5).toFixed(2)}:d=2.5[m]`); labels.push('[m]'); }
+  if (music) {
+    // the music bed ducks under the voice (sidechain): full level in pauses, ~duck dB lower while someone speaks
+    const mi = srcs.length + 1, vl = srcs.map((x, i) => x.voice ? `[a${i}]` : null).filter(Boolean);
+    chains.push(`[${mi}:a]volume=${mg}dB,afade=t=in:d=1.5,afade=t=out:st=${Math.max(0, D - 2.5).toFixed(2)}:d=2.5${duck && vl.length ? '[m0]' : '[m]'}`);
+    if (duck && vl.length) {
+      vl.forEach((l) => labels.splice(labels.indexOf(l), 1));
+      chains.push(`${vl.join('')}${vl.length > 1 ? `amix=inputs=${vl.length}:duration=longest:normalize=0,` : ''}asplit=2[vo][vk0]`);
+      chains.push('[vk0]apad[vk]');                     // the key runs to the end, so the music does too
+      chains.push(`[m0][vk]sidechaincompress=threshold=0.015:ratio=${duckRatio}:attack=60:release=700:knee=4[m]`);
+      labels.push('[vo]');
+    }
+    labels.push('[m]');
+  }
   chains.push(labels.length === 1 ? `${labels[0]}anull[a]` : `${labels.join('')}amix=inputs=${labels.length}:duration=longest:normalize=0,loudnorm=I=-18:TP=-2:LRA=11[a]`);
   args.push('-filter_complex', chains.join(';'), '-map', '0:v', '-map', '[a]');
 }
