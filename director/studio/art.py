@@ -233,7 +233,11 @@ def b_archival_collage(p, theme, dur):
 def b_product_macro(p, theme, dur):
     el = {'type': 'image', 'asset': p['asset'], 'desc': p['desc'], 'w': 720, 'h': 1280, 'x': 360, 'y': 640, 'frame': False,
           'fit': 'cover', 'scale': [[0, 1.0], [dur, 1.12, 'inOutCubic']]}
-    return {'theme': theme, 'floor': False, 'elements': [el]}
+    els = [el]
+    if p.get('credit'):                                   # the author and licence on screen (CC BY / BY-SA ask for it)
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+                    'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
+    return {'theme': theme, 'floor': False, 'elements': els}
 
 
 def b_neutral_placeholder(p, theme, dur):
@@ -330,8 +334,8 @@ def b_product_reveal(p, theme, dur):
         els.append({'type': 'text', 'text': p['year'], 'font': 'mono', 'size': 30, 'color': ink, 'opacity': .75, 'x': 360, 'y': 960,
                     'in': {'type': 'fade', 'at': 1.3}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:70], 'font': 'cap', 'size': 20, 'color': ink, 'opacity': .6, 'x': 360, 'y': 90,
-                    'w': 640, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .7, 'x': 360, 'y': 90,
+                    'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
     return {'theme': theme, 'floor': False, 'elements': els}
 
 

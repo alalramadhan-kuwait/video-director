@@ -1,0 +1,62 @@
+"""A film file becomes a film: catalogue-only templates, the brand's pronunciation, captions timed to the take,
+omissions reported, sources and credits written. Offline: the mock voice (tones) and no music."""
+from tests import _guard  # noqa: F401
+import json, os, shutil, tempfile, unittest
+from pathlib import Path
+
+import yaml
+
+from director import quickfilm
+from director.studio import engine
+
+HAVE_RENDER = bool(shutil.which('ffmpeg') and shutil.which('node')) and engine.RENDER.is_file()
+FILM = {'title': 't', 'brand': 'timekeeper', 'seed': 't',
+        'sources': ['[1] a source: https://example.org'],
+        'lines': [{'id': 'l1', 'text': 'ساعة Panerai من 1936', 'say': 'ساعة Panerai من ألفٍ وتسعمئةٍ وستةٍ وثلاثين',
+                   'template': 'kinetic_type', 'params': {'lines': [{'text': 'بانيراي', 'size': 90}]}},
+                  {'id': 'l2', 'text': 'العلبة من رولكس', 'template': 'spec_card', 'banner': 'من صنع ماذا؟',
+                   'params': {'title': 'الصانع', 'rows': [{'label': 'العلبة', 'value': 'رولكس'}]}}]}
+
+
+class TestQuickFilm(unittest.TestCase):
+    def setUp(self):
+        self.d = Path(tempfile.mkdtemp())
+        self.env = {k: os.environ.get(k) for k in ('VD_DRAFT_VOICE', 'VD_MUSIC_CACHE')}     # other test modules set these too
+        os.environ.update(VD_DRAFT_VOICE='offline-mock', VD_MUSIC_CACHE=str(self.d / 'music'))
+
+    def tearDown(self):
+        for k, v in self.env.items():
+            if v is None: os.environ.pop(k, None)
+            else: os.environ[k] = v
+        shutil.rmtree(self.d, ignore_errors=True)
+
+    def _file(self, film):
+        f = self.d / 'film.yaml'; f.write_text(yaml.safe_dump(film, allow_unicode=True), encoding='utf-8'); return f
+
+    def test_only_production_ready_templates(self):
+        bad = json.loads(json.dumps(FILM)); bad['lines'][0]['template'] = 'swiss_grid'
+        with self.assertRaises(ValueError):
+            quickfilm.load(self._file(bad))
+        self.assertEqual(len(quickfilm.load(self._file(FILM))['lines']), 2)
+
+    def test_the_voice_says_the_brand_pronunciation_and_captions_keep_the_script(self):
+        t = quickfilm.take(FILM['lines'][0], 'timekeeper', self.d / 'voice')
+        self.assertIn('بانيراي', t['spoken']); self.assertNotIn('Panerai', t['spoken'])
+        self.assertIn('ألفٍ', t['spoken'])                                   # `say` is what the voice reads
+        self.assertEqual([w['w'] for w in t['words']], ['ساعة', 'Panerai', 'من', '1936'])   # captions keep the script
+        self.assertTrue(all(w['s'] is not None and w['e'] > w['s'] for w in t['words']))
+        again = quickfilm.take(FILM['lines'][0], 'timekeeper', self.d / 'voice')
+        self.assertEqual(again['wav'], t['wav'])                             # cached by what is spoken
+
+    @unittest.skipUnless(HAVE_RENDER, 'node/ffmpeg not available')
+    def test_a_film_file_makes_scenes_stills_and_credits(self):
+        r = quickfilm.make(self._file(FILM), self.d / 'out', video=False)
+        sb = json.loads((self.d / 'out/film.json').read_text())
+        self.assertEqual([s.get('id') for s in sb['scenes'][:2]], ['l1', 'l2'])
+        self.assertTrue(sb['scenes'][-1].get('endcard'))                     # the Time Keeper end card
+        self.assertTrue(all(s['words'] and s['voice'].startswith('voice/') for s in sb['scenes'][:2]))
+        self.assertEqual(r['layout'], [])
+        self.assertEqual(len(r['stills']), 2)
+        self.assertIsNone(r['music'])                                        # offline: no music, never a broken one
+        self.assertIn('[1] a source', (self.d / 'out/credits.txt').read_text())
+        self.assertIn('DRAFT', r['label'])
