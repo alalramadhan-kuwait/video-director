@@ -4,16 +4,18 @@ description: >-
   Make a short Arabic documentary video (Reels/TikTok/Instagram, 9:16) for Time Keeper or Diabetes History from an idea:
   research with sources, a story direction, an Arabic script with a chosen hook, free Arabic narration, real licensed
   photographs first (Wikimedia Commons), paper-story motion graphics in a chosen style, and one Instagram-ready film.
-  The owner approves each important step in the chat; nothing paid runs by itself. Use this whenever the user asks for
+  It runs from idea to finished film on its own, using the brand config; the owner approves the finished film before
+  anything is published. Nothing paid runs by itself. Use this whenever the user asks for
   a video, a Reel, an episode, «سوّ لي فيديو عن…», «فيديو عن ساعة…», a watch history, a brand story, or sends an idea
   for Time Keeper — even if they do not say "video director".
 ---
 
 # مخرج الفيديو — making a film in the chat
 
-The owner talks to you from an iPhone. They approve; you do the work in between. Reply in Arabic (Kuwaiti is fine),
-short: **what is done, what remains, what you need from them.** Never send long reports or ask for approval of small
-steps.
+The owner talks to you from an iPhone. Run the whole film yourself and ask for **one approval: the finished film,
+before publishing**. Reply in Arabic (Kuwaiti is fine), short: **what is done, what remains, what you need from them.**
+Never send long reports or ask for approval of intermediate steps. Stop and ask only for: paid generation, a picture
+whose licence is uncertain, or a fact you cannot source.
 
 ## Rules that never bend
 - **No paid generation or spending without an explicit yes in this chat**: no ElevenLabs, no paid image or video
@@ -23,29 +25,29 @@ steps.
   Credit the author and licence on screen. Never a replica, homage or fake watch. Never invent a historical photo.
 - **Facts need sources.** Every claim in the script maps to a source; a popular but false claim is only said as a
   belief («يُقال…»), never as fact.
-- **Do not change approved material** (an approved script, take or film) without asking; a change makes a new version.
+- **Never publish** without the owner's approval of the finished film. A requested change makes a new version; keep the old one.
 - Label drafts honestly: the free voice is a draft voice, not the final narration.
 
-## The steps (one approval each, in this order)
-1. **Direction + research** — search the web for trustworthy sources (museum, archive, patent office, the brand only
-   for its own claims, established references). Send: the angle in one line, 5–10 claims each with its source link,
-   and what is uncertain. → owner approves or asks for changes.
-2. **Hook + script** — propose 3–4 hooks (spoken line, first on-screen text, first visual), recommend one with a
-   reason. Then the script: Modern Standard Arabic, clear for listening, 8–16 lines, one idea per line, ~60–90 s.
-   Mark each line's claim ids. → owner approves.
-3. **Voice** — use the `arabic-narration` skill. When the user selects OmniVoice, follow its
-   `references/omnivoice.md` for local, non-commercial review narration at natural speed. Otherwise use the
-   existing Fasih workflow or the explicitly labelled Google TTS timing draft. Never silently substitute engines.
-   Send the full narration as one audio file. → owner listens to all of it and approves, or names the words to fix.
-4. **Style** — offer 2–3 looks from the `motion-graphics` skill, each with one real frame of THIS film (render a still).
-   Recommend one. → owner picks.
-5. **Pictures** — for each scene that needs a real thing (a person, a watch, a document), run
-   `python3 tools/find_photo.py "<what>" --save <dir>`. Found: use it with its credit. Not found: say so and use a
-   drawing (the owner may send a photo they own). No approval needed unless a picture is uncertain.
-6. **Film** — build scenes with the engine (see `motion-graphics`), check stills yourself (text cut, overlaps, captions
-   covering things, wrong photo), render at 1080×1920 with `--crf 24` (≈ 20–26 MB for 2½ minutes: fits Instagram),
-   Time Keeper films end on the Time Keeper end card. Send the film. → owner watches it all and approves or comments
-   with time codes («عند 0:42 الخط صغير»); fix and resend.
+## Brand
+Fonts, captions, narration voice, watch-name pronunciation, music and logo come from one file:
+`brand/timekeeper.json` (+ `brand/pronunciation.json`, `brand/music/`). Use it; do not restate them per film.
+
+## The steps (all automatic; one approval at the end)
+1. **Research** — trustworthy sources only (museum, archive, patent office, the brand only for its own claims,
+   established references); each claim keeps its source link. Drop or soften what you cannot source.
+2. **Hook + script** — pick the strongest honest hook yourself; Modern Standard Arabic, clear for listening,
+   8–16 lines, one idea per line, ~60–90 s.
+3. **Voice** — OmniVoice with the brand settings (`arabic-narration` → `references/omnivoice.md`, pass `--brand`):
+   calm, natural documentary delivery, watch names from `brand/pronunciation.json`, natural speed. Listen-check the
+   take yourself (Whisper for omissions/repetitions) and regenerate a passage that is wrong.
+4. **Look** — the brand's default look (`paper-story`); another only if the subject clearly calls for it
+   (`motion-graphics`).
+5. **Pictures** — real photos first: `python3 tools/find_photo.py "<what>" --save <dir>`, credited on screen;
+   a drawing when none is found.
+6. **Film** — build scenes, check every still yourself (text cut, overlaps, captions covering things, wrong photo),
+   render 1080×1920 with `--crf 24` (≈ 20–26 MB for 2½ minutes), brand music if the library has a licensed track,
+   Time Keeper end card. **Send the finished film for approval**, with a one-line list of sources and photo credits.
+   The owner approves or comments with time codes («عند 0:42 الخط صغير»); fix only that, resend.
 
 ## Setup in a fresh cloud session (once)
 ```bash

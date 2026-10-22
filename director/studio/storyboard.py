@@ -171,7 +171,10 @@ def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None, crf=Non
         out = work / 'draft.mp4'
         t0 = time.monotonic()
         with studio.log.task(pid, 'draft frames (10 % steps)', 10, stage='draft', actor='system') as ft:   # equal units: a real ETA
-            log = engine.video(sbp, out, scale=scale, progress=lambda pct: ft.unit(what=f'{pct}%'), extra=('--crf', crf) if crf else ())
+            from .. import brand as B
+            mus = B.music(st['brand'])                   # only a track with its commercial licence record, else none
+            extra = (('--crf', crf) if crf else ()) + (('--music', str(mus[0]), '--music-gain', mus[1]) if mus else ())
+            log = engine.video(sbp, out, scale=scale, progress=lambda pct: ft.unit(what=f'{pct}%'), extra=extra)
         task.unit(what='frames + audio')
         render_s = round(time.monotonic() - t0, 1)
         raw = work / 'draft-raw.mp4'; out.rename(raw)            # loudness to the platform target (-14 LUFS, peaks under -1.5 dBTP)

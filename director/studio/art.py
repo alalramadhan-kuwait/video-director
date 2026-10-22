@@ -32,8 +32,12 @@ DRAWING_NOTE = 'رسم توضيحي مبسّط للمبدأ — ليس مخطط�
 
 
 def style(brand):
+    """The renderer style: the paper themes, with the brand config's fonts and captions (brand/<id>.json)."""
+    from .. import brand as B
     st = json.loads((ROOT / 'director/studio/assets/tk-style.json').read_text(encoding='utf-8'))
-    return {'style': st['style'], 'themes': st['themes']}
+    out = {'style': B.style(st['style'], brand), 'themes': st['themes']}
+    if B.caption_size(brand): out['captionSize'] = B.caption_size(brand)
+    return out
 
 
 def ink_for(theme):
