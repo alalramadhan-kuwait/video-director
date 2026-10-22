@@ -36,7 +36,7 @@ def parser():
     p.add_argument('--output', required=True, type=Path, help='New WAV file; existing takes are never replaced')
     p.add_argument('--model', default=MODEL)
     p.add_argument('--device', choices=['auto', 'mps', 'cuda', 'cpu'], default='auto')
-    p.add_argument('--language', default='Arabic')
+    p.add_argument('--language', default='arb', help='OmniVoice language ID; arb = Standard Arabic')
     p.add_argument('--instruct', default='male, middle-aged, low pitch')
     p.add_argument('--seed', type=int, default=1234)
     p.add_argument('--steps', type=int, default=32)

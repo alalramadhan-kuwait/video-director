@@ -38,6 +38,7 @@ a JSON list of `{id, text}` records, or an object with `lines` (strings or recor
   --script /path/to/approved-script.json --output /path/to/new-take.wav
 ```
 
+The default language is `arb` (Standard Arabic); upstream does not recognize the generic name `Arabic`.
 `--plan` needs only standard Python and downloads nothing. Auto device selection prefers CUDA, then Apple MPS,
 then CPU. Override with `--device cpu` if needed. The helper uses the model's natural speed (1.0), generates
 one narration request to reduce speaker changes, and saves a candidate WAV plus JSON provenance with hashes,
