@@ -33,7 +33,7 @@ def ensure_sounds():
     """The paper sounds the scenes are mixed with are made locally (deterministic, free) the first time; a new computer has none."""
     import subprocess
     from ..studio.engine import ENGINE
-    if not (ENGINE / 'assets/sfx/paper_slide.wav').exists():
+    if not all((ENGINE / 'assets/sfx' / f).exists() for f in ('paper_slide.wav', 'underwater.wav')):    # the kit grew: remake if one is missing
         subprocess.run([sys.executable, str(ENGINE / 'scripts/make-sfx.py')], check=True, capture_output=True, timeout=300)
 
 
