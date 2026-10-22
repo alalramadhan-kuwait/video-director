@@ -13,9 +13,21 @@ RENDER = ENGINE / 'scripts/render.mjs'
 
 
 def _env():
-    g = subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True).stdout.strip()
-    env = {**os.environ, 'NODE_PATH': os.path.join(g, 'playwright', 'node_modules') + os.pathsep + g,
-           'PLAYWRIGHT_BROWSERS_PATH': '/opt/pw-browsers'}
+    env = dict(os.environ)
+    # Keep caller-supplied module/browser locations. In particular, Playwright's
+    # default browser cache is platform-specific (Library/Caches on macOS).
+    roots = [p for p in env.get('NODE_PATH', '').split(os.pathsep) if p]
+    try:
+        result = subprocess.run(['npm', 'root', '-g'], capture_output=True, text=True, timeout=10)
+        g = result.stdout.strip() if result.returncode == 0 else ''
+    except (OSError, subprocess.TimeoutExpired):
+        g = ''
+    if g:
+        roots.extend([os.path.join(g, 'playwright', 'node_modules'), g])
+    if roots:
+        env['NODE_PATH'] = os.pathsep.join(dict.fromkeys(roots))
+    if 'PLAYWRIGHT_BROWSERS_PATH' not in env and Path('/opt/pw-browsers').is_dir():
+        env['PLAYWRIGHT_BROWSERS_PATH'] = '/opt/pw-browsers'
     for k in ('ELEVENLABS_API_KEY', 'FAL_KEY', 'HIGGSFIELD_API_KEY'):
         env.pop(k, None)                       # the renderer never needs a key; make sure it cannot see one
     return env
