@@ -328,6 +328,7 @@ def b_product_reveal(p, theme, dur):
            {'type': 'image', 'asset': p['asset'], 'desc': p['desc'], 'w': p.get('w', 560), 'h': p.get('h', 560), 'x': 360, 'y': 560,
             'frame': False, 'fit': 'contain', 'opacity': [[0, 0], [.9, 1, 'outCubic']],
             'scale': [[0, .92], [dur, 1.04, 'inOutCubic']]},
+           {'type': 'sparkles', 'x': p.get('glint_x', 470), 'y': p.get('glint_y', 430), 'count': 7, 'radius': 46, 'life': .9, 'color': '#FFFFFF', 'at': 1.0},
            {'type': 'text', 'text': p['name'], 'font': 'banner', 'size': p.get('name_size', 46), 'color': ink, 'x': 360, 'y': 900, 'w': 640,
             'align': 'center', 'in': {'type': 'rise', 'at': 1.0}}]
     if p.get('year'):
@@ -361,8 +362,33 @@ def production_ready(tech: str) -> bool:
     return tech in BUILDERS and any(t['id'] == tech and t['status'] == 'implemented' for t in catalogue())
 
 
+def _sounds(tech, p, sc, dur):
+    """The template's own sound effects, on the beats it draws: a stamp lands, a card is placed, a pin drops, a row
+    clicks in, a photo is revealed. Quiet, under the voice; the sounds are the engine's local kit."""
+    cue = lambda at, name, gain: sc.setdefault('sfx', []).append({'at': round(at, 2), 'name': name, 'gain': gain}) if at < dur else None
+    if tech in ('kinetic_type', 'dark_keynote', 'swiss_grid'):
+        for i, ln in enumerate(p.get('lines', [])):
+            if ln.get('in') == 'slam': cue(ln.get('at', i * .5) + .1, 'paper_place', -12)
+        if p.get('stamp'): cue(p['stamp'].get('at', 1.2) + .05, 'stamp', -9)
+    elif tech == 'newspaper_card' and p.get('stamp'):
+        cue(p.get('stamp_at', 1.4) + .05, 'stamp', -9)
+    elif tech == 'animated_timeline':
+        for i, e in enumerate(p.get('events', [])): cue(e.get('at', .25 + i * .6) + .15, 'paper_place', -15)
+    elif tech == 'map':
+        for pin in p.get('pins', []): cue(pin.get('at', 1.0), 'pin', -12)
+        if p.get('date'): cue(p.get('date_at', .6), 'paper_place', -15)
+    elif tech == 'spec_card':
+        for i, _ in enumerate(p.get('rows', [])): cue(p.get('at', .6) + i * p.get('stagger', .35) + .1, 'click', -16)
+    elif tech in ('product_reveal', 'product_macro'):
+        cue(.1, 'whoosh', -18)
+        if tech == 'product_reveal': cue(1.0, 'shutter', -20)
+    elif tech == 'quote_card':
+        cue(.3, 'paper_place', -16)
+
+
 def scene_visual(tech, params, theme, dur, banner=None):
     sc = BUILDERS[tech](copy.deepcopy(params), theme, dur)
+    _sounds(tech, params, sc, dur)
     sc['banner'] = banner or None          # explicit: the engine keeps the PREVIOUS scene's banner when the key is missing
     return sc
 

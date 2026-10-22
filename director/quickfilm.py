@@ -19,7 +19,7 @@ import yaml
 
 from . import brand as B
 from .copilot import commons
-from .studio import art, checks, engine, voice
+from .studio import art, checks, engine, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
 
@@ -105,9 +105,13 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
             if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro'): params.setdefault('credit', pics[slot]['credit'])
-        sc = art.scene_visual(ln['template'], params, ln.get('theme', film.get('theme', 'tk-bone')), dur, banner=ln.get('banner'))
+        world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
+        theme = ln.get('theme') or sets.theme_for(world, film.get('theme', 'tk-bone'))
+        sc = sets.dress(art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner')), world, dur, seed=ln['id'])
+        same = scenes and scenes[-1].get('set') == world
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
-                  words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']], transition=ln.get('transition', 'cut' if not scenes else 'slide'))
+                  words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']],
+                  transition=ln.get('transition', 'cut' if not scenes else ('slide' if same else 'fade')))     # a new world fades in
         scenes.append(sc)
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': ln['template']})
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style(brand), 'scenes': scenes + _endcard(out)}

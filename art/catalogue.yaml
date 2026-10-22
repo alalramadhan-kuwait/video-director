@@ -128,6 +128,12 @@ templates:
     name_ar: الانتقالات
     about: 'scene.transition: cut, fade, slide, push, rise, drop (transitionDur, default 0.45 s)'
     engine: paper.js
+  - id: story_worlds
+    status: implemented
+    purpose: [world, atmosphere]
+    name_ar: عوالم القصة
+    about: 'set dressing and ambience behind any template, per line `set:` — underwater, sea_night, florence, workshop, radium, archive (director/studio/sets.py)'
+    engine: sets.py
   # ---------------------------------------------------------------- not in this studio
   - id: scientific_diagram
     status: unavailable

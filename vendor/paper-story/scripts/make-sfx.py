@@ -74,4 +74,25 @@ n = 8.0; x = bandpass(noise(n), 200, 3200); m = np.zeros(len(x))
 for f, a in [(3.1, .5), (4.7, .35), (6.2, .3), (2.3, .4)]: m += a * np.sin(2 * np.pi * f * t(n) + rng.random() * 6)
 save('crowd', x * (0.55 + 0.45 * np.clip(m, -1, 1)), .35)
 save('room', lowpass(noise(8), 900) * .3 + bandpass(noise(8), 60, 180) * .6, .2)
+
+# --- story worlds (beds loop under a scene; see director/studio/sets.py)
+def swell(d, period, lo=.35):                               # slow rise and fall, as waves or breath
+    x = t(d); return lo + (1 - lo) * (0.5 + 0.5 * np.sin(2 * np.pi * x / period - np.pi / 2))
+def bubble(f0=600, d=.09):                                  # a small rising "bloop"
+    x = t(d); return np.sin(2 * np.pi * (f0 * x + 2600 * x * x)) * np.exp(-28 * x) * np.sin(np.pi * x / d)
+def loopable(x, ms=400):                                    # cross-fade the end into the start so `beds` loop without a click
+    n = int(SR * ms / 1000); y = x[:-n].copy(); y[:n] = y[:n] * np.linspace(0, 1, n) + x[-n:] * np.linspace(1, 0, n); return y
+pops = np.zeros(int(SR * 3))
+for s, f in [(.05, 520), (.32, 760), (.48, 610), (.9, 900), (1.3, 480), (1.42, 700), (2.1, 820), (2.6, 560)]: pops += at(bubble(f), s, 3)
+save('bubbles', pops, .5)
+under = lowpass(noise(12), 260) * swell(12, 6, .55) * 1.4 + bandpass(noise(12), 900, 2600) * .03
+for i in range(14): under += at(bubble(450 + 50 * (i % 7)) * .25, .4 + i * .83, 12)
+save('underwater', loopable(under), .35)
+save('sea', loopable(bandpass(noise(12), 150, 3200) * swell(12, 4.0, .25) + lowpass(noise(12), 120) * .5), .3)
+save('wind', loopable(bandpass(noise(12), 250, 1400) * swell(12, 5.5, .4)), .25)
+gm = np.zeros(int(SR * 6)); k = 0.0
+while k < 5.9: gm += at(mix(damped(3800, .004, 900), bandpass(noise(.003), 2000, 9000) * .6), k, 6); k += float(rng.exponential(.11))
+save('geiger', loopable(gm, 50), .45)
+save('sonar', mix(damped(1180, 2.4, 2.2) * .9, at(damped(1180, 1.6, 3.0) * .25, .55, 2.4)), .5)
+save('bell_far', lowpass(mix(bell(392, 3.0, 1.6), at(bell(523, 2.6, 1.8) * .7, .9, 3.0)), 2400), .35)
 print('wrote', len(os.listdir(OUT)), 'files to', os.path.normpath(OUT))
