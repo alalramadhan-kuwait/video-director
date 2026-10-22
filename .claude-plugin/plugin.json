@@ -1,6 +1,8 @@
 {
   "name": "video-director",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Arabic-first short documentary videos for Time Keeper: research with sources, script, free Arabic narration, real licensed photos first, paper-story motion graphics, one Instagram-ready film. Every important step waits for the owner's approval; nothing paid runs by itself.",
-  "author": { "name": "Time Keeper" }
+  "author": {
+    "name": "Time Keeper"
+  }
 }

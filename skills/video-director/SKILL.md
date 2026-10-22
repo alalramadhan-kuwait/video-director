@@ -33,9 +33,10 @@ steps.
 2. **Hook + script** — propose 3–4 hooks (spoken line, first on-screen text, first visual), recommend one with a
    reason. Then the script: Modern Standard Arabic, clear for listening, 8–16 lines, one idea per line, ~60–90 s.
    Mark each line's claim ids. → owner approves.
-3. **Voice** — use the `arabic-narration` skill (free Fasih voice with full tashkeel) or, if its model is not
-   available, the free draft voice (Google TTS). Send the full narration as one audio file. → owner listens to all of
-   it and approves, or names the words to fix.
+3. **Voice** — use the `arabic-narration` skill. When the user selects OmniVoice, follow its
+   `references/omnivoice.md` for local, non-commercial review narration at natural speed. Otherwise use the
+   existing Fasih workflow or the explicitly labelled Google TTS timing draft. Never silently substitute engines.
+   Send the full narration as one audio file. → owner listens to all of it and approves, or names the words to fix.
 4. **Style** — offer 2–3 looks from the `motion-graphics` skill, each with one real frame of THIS film (render a still).
    Recommend one. → owner picks.
 5. **Pictures** — for each scene that needs a real thing (a person, a watch, a document), run

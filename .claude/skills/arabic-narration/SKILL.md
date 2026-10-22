@@ -1,7 +1,7 @@
 ---
 name: arabic-narration
 description: >-
-  تعليق صوتي عربي فصيح مجاني بنطق صحيح: Fasih-TTS-V1 بصوت مرجعي، تشكيل كامل بالإعراب يكتبه Claude بسياق الجملة مع فحوص حماية،
+  تعليق صوتي عربي محلي باستخدام OmniVoice عند طلبه، أو مسار Fasih: Fasih-TTS-V1 بصوت مرجعي، تشكيل كامل بالإعراب يكتبه Claude بسياق الجملة مع فحوص حماية،
   قاموس نطق للمشروع، اختيار أفضل محاولة بالفونيمات، وصفحة يسمع فيها المستخدم الحلقة كاملة ويضغط على الكلمة الغلط.
   Use this skill whenever the user wants Arabic (MSA / فصحى) voiceover, narration, or TTS for a video, series episode,
   podcast, ad, or explainer; asks for a free Arabic voice; complains that an Arabic voice mispronounces words, case
@@ -14,6 +14,13 @@ description: >-
 
 هذا النظام انبنى وانجرّب على سلسلة «قصة السكري». على الحلقة 6 مرت المراجعة بثلاث جولات: 10 أخطاء بسمع المستخدم ← 2 ← صفر.
 الكود في `scripts/arabic_tts/`، والأرقام والدروس اللي وراء كل قاعدة في `references/lessons.md`.
+
+## OmniVoice — محرك محلي اختياري
+
+إذا اختار المستخدم OmniVoice، استخدم [مسار OmniVoice](references/omnivoice.md) والسكربت
+`scripts/omnivoice_narrate.py`. يدعم العربية وApple Silicon، ويولّد صوتًا بوصف خصائص الراوي دون تسجيل مرجعي.
+النموذج الجاهز غير تجاري (CC-BY-NC)، والمخرجات تبقى مرشّحة للمراجعة حتى يسمعها المستخدم.
+هذا مسار مستقل؛ بقية تعليمات Fasih أدناه لا تغيّر إعدادات OmniVoice. لا تسرّع التسجيل بعد إنتاجه لإجباره على مدة الفيلم.
 
 ## الفكرة باختصار
 الموديل المجاني (Fasih) **يتبع الحركة المكتوبة** بدقة. أغلب أخطاء النطق تجي من نص ناقص التشكيل أو من اختيار محاولة غلط، وليس من الصوت نفسه.
