@@ -172,8 +172,8 @@ def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None, crf=Non
         t0 = time.monotonic()
         with studio.log.task(pid, 'draft frames (10 % steps)', 10, stage='draft', actor='system') as ft:   # equal units: a real ETA
             from .. import brand as B
-            mus = B.music(st['brand'])                   # only a track with its commercial licence record, else none
-            extra = (('--crf', crf) if crf else ()) + (('--music', str(mus[0]), '--music-gain', mus[1]) if mus else ())
+            mus = B.music(st['brand'], seconds=sum(s.get('dur', 0) for s in esb['scenes']), seed=pid)   # a licensed track, else none
+            extra = (('--crf', crf) if crf else ()) + (('--music', str(mus['file']), '--music-gain', mus['gain']) if mus else ())
             log = engine.video(sbp, out, scale=scale, progress=lambda pct: ft.unit(what=f'{pct}%'), extra=extra)
         task.unit(what='frames + audio')
         render_s = round(time.monotonic() - t0, 1)
@@ -192,6 +192,7 @@ def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None, crf=Non
         rec = {'id': rid, 'state': 'ok', 'storyboard_v': sbrec['v'], 'file': studio.put_file(pid, out, 'mp4'),
                'poster': studio.put_file(pid, poster, 'jpg'), 'preview': studio.put_file(pid, webm, 'webm'), 'seconds': round(dur, 2), 'render_s': render_s,
                'size_mb': round(out.stat().st_size / 1e6, 2), 'label': 'DRAFT — draft voice, not for publishing',
+               'music': mus and {k: mus[k] for k in ('title', 'licence', 'source', 'credit')},   # the credit goes in the post caption
                'check': chk[-40:], 'placeholders': [l for l in log.splitlines() if 'placeholder' in l.lower()][:5],
                'timeline': [{'id': s['id'], 'start': s['start'], 'end': round(s['start'] + s['dur'], 2)} for s in doc['scenes']],
                'engine_storyboard': studio.put(pid, json.dumps(esb, ensure_ascii=False).encode(), 'json'),

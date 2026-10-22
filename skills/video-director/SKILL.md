@@ -31,6 +31,8 @@ whose licence is uncertain, or a fact you cannot source.
 ## Brand
 Fonts, captions, narration voice, watch-name pronunciation, music and logo come from one file:
 `brand/timekeeper.json` (+ `brand/pronunciation.json`, `brand/music/`). Use it; do not restate them per film.
+The music library is the whole Kevin MacLeod catalogue (1,443 tracks, CC BY 4.0, commercial use with credit),
+filtered by the brand's mood; the owner's own licensed track in `brand/music/` wins if there is one.
 
 ## The steps (all automatic; one approval at the end)
 1. **Research** — trustworthy sources only (museum, archive, patent office, the brand only for its own claims,
@@ -45,8 +47,11 @@ Fonts, captions, narration voice, watch-name pronunciation, music and logo come 
 5. **Pictures** — real photos first: `python3 tools/find_photo.py "<what>" --save <dir>`, credited on screen;
    a drawing when none is found.
 6. **Film** — build scenes, check every still yourself (text cut, overlaps, captions covering things, wrong photo),
-   render 1080×1920 with `--crf 24` (≈ 20–26 MB for 2½ minutes), brand music if the library has a licensed track,
-   Time Keeper end card. **Send the finished film for approval**, with a one-line list of sources and photo credits.
+   render 1080×1920 with `--crf 24` (≈ 20–26 MB for 2½ minutes), Time Keeper end card, and a music bed from the
+   brand's library: `python3 tools/music.py pick --seconds <film length> --seed <film> --save <dir>`, then
+   `render.mjs ... --music <track> --music-gain -22` (choose another with `tools/music.py search calm piano` if it does
+   not suit the film). **Send the finished film for approval**, with a one-line list of sources and photo credits and
+   the music credit line (it goes in the post caption).
    The owner approves or comments with time codes («عند 0:42 الخط صغير»); fix only that, resend.
 
 ## Setup in a fresh cloud session (once)
