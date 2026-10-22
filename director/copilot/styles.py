@@ -33,6 +33,11 @@ def choose(style: dict, bs: dict, verified: dict, hook_visual: dict | None = Non
         t, p = hook_visual['technique'], hook_visual['params']
         return {'technique': t, 'params': p, 'theme': style.get('theme_for', {}).get(t, style['theme']), 'fallback': None, 'assets': []}
     photo = next((a for a in verified.values() if a.get('scene') == bs.get('_id') and a['use'] == 'evidence'), None)
+    if photo and bs.get('beat') == 'product' and 'product_reveal' in style['prefer'] and art.production_ready('product_reveal'):
+        p = {'asset': photo['slot'], 'desc': photo.get('what') or photo.get('name', ''), 'name': photo.get('what') or bs.get('banner') or '',
+             **({'credit': photo['credit']} if photo.get('credit') else {})}      # the watch itself, revealed; its credit on screen
+        return {'technique': 'product_reveal', 'params': p, 'theme': style.get('theme_for', {}).get('product_reveal', style['theme']),
+                'fallback': None, 'assets': [photo['slot']]}
     if photo:
         p = {'photos': [{'asset': photo['slot'], 'desc': photo.get('what') or photo.get('name', ''), 'label': '' if bs.get('banner') else (photo.get('what') or ''),
                          'w': 560, 'aspect': photo.get('aspect') or 0.8, 'y': 580}]}
@@ -41,7 +46,7 @@ def choose(style: dict, bs: dict, verified: dict, hook_visual: dict | None = Non
         return {'technique': 'archival_collage', 'params': p, 'theme': style['theme'], 'fallback': None, 'assets': [photo['slot']]}
     concepts = bs.get('concepts', {})
     def usable(t):
-        if t not in art.BUILDERS or t == 'neutral_placeholder' or t not in concepts: return False
+        if not art.production_ready(t) or t == 'neutral_placeholder' or t not in concepts: return False
         need = art.NEEDS_ASSETS.get(t, lambda p: [])(concepts[t])
         return all(n in verified for n in need)
     for t in style['prefer']:

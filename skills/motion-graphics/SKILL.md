@@ -37,8 +37,15 @@ order of techniques (`art/styles.yaml`); each scene uses the first technique it 
 | `archival_collage` | real photos as taped prints, author credit on screen | `photos[{asset,desc,aspect}]`, `tags` |
 | `product_macro` | one product photo full-frame, slow zoom | `asset`, `desc` |
 | `newspaper_card` | a newspaper front page card with a stamp | `header`, `title`, `body`, `stamp` |
-| `swiss_grid` | clean grid, type and one photo (Opuscar-inspired) | `photos` / `asset` |
+| `swiss_grid` | clean grid and type — experimental, not picked for a film | as `kinetic_type` |
 | `dark_keynote` | kinetic type on black (Opuscar-inspired) | as `kinetic_type` |
+| `product_reveal` | a real watch photo revealed under a spotlight, name and year | `asset`, `desc`, `name`, `year`, `credit` |
+| `spec_card` | specifications, or two watches compared row by row (sourced figures only) | `title`, `columns`, `rows[{label,values}]`, `source` |
+| `quote_card` | a quotation, who said it, where it was printed | `quote`, `who`, `source` |
+
+**The catalogue** — `art/catalogue.yaml` is the list of every template with its purpose and status (implemented /
+experimental / unavailable); only implemented ones are picked for a film. See them all, drawn, with the layout check:
+`python3 tools/motion_catalogue.py <dir> --photo <a licensed photo> [--video]` (opens as `<dir>/catalogue.html`).
 
 Themes: `tk-bone` (warm off-white), `tk-ink` / `tk-black` (dark), `tk-graphite`. Time Keeper boxes are #111111 / #FFFFFF;
 no accent colour is invented. Every Time Keeper film ends on the Time Keeper end card (`vendor/paper-story/tk_endcard.py`).

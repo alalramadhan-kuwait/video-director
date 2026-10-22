@@ -49,7 +49,7 @@ filtered by the brand's mood; the owner's own licensed track in `brand/music/` w
 6. **Film** — build scenes, check every still yourself (text cut, overlaps, captions covering things, wrong photo),
    render 1080×1920 with `--crf 24` (≈ 20–26 MB for 2½ minutes), Time Keeper end card, and a music bed from the
    brand's library: `python3 tools/music.py pick --seconds <film length> --seed <film> --save <dir>`, then
-   `render.mjs ... --music <track> --music-gain -22` (choose another with `tools/music.py search calm piano` if it does
+   `render.mjs ... --music <track> --music-gain -18` (it ducks under the voice by itself) (choose another with `tools/music.py search calm piano` if it does
    not suit the film). **Send the finished film for approval**, with a one-line list of sources and photo credits and
    the music credit line (it goes in the post caption).
    The owner approves or comments with time codes («عند 0:42 الخط صغير»); fix only that, resend.

@@ -15,7 +15,7 @@ styles:
     about_ar: قصاصات ورق وطبقات وحركة كاميرا هادئة؛ دافئ ومتّسق مع هوية تايم كيبر
     theme: tk-bone
     theme_for: {paper_cut: tk-graphite}
-    prefer: [paper_cut, animated_timeline, map, parallax_25d, newspaper_card, kinetic_type, technical_illustration]
+    prefer: [paper_cut, animated_timeline, map, product_reveal, spec_card, quote_card, parallax_25d, newspaper_card, kinetic_type, technical_illustration]
     fallback: {person_real: name_card, product: technical_illustration}
     text_scale: 1.0
   - id: technical
@@ -25,7 +25,7 @@ styles:
     name_ar: رسم تقني توضيحي
     about_ar: رسم بالقلم على ورق فاتح، أجزاء الساعة معلَّمة كرسم مبسّط للمبدأ
     theme: tk-bone
-    prefer: [technical_illustration, animated_timeline, map, newspaper_card, kinetic_type, paper_cut, parallax_25d]
+    prefer: [technical_illustration, spec_card, animated_timeline, map, product_reveal, newspaper_card, quote_card, kinetic_type, paper_cut, parallax_25d]
     fallback: {person_real: name_card, product: technical_illustration}
     text_scale: 1.0
   - id: ink-keynote
@@ -35,7 +35,7 @@ styles:
     name_ar: عرض داكن
     about_ar: خلفية حبر داكنة وكتابة كبيرة وتباين قوي، إحساس فاخر
     theme: tk-ink
-    prefer: [dark_keynote, kinetic_type, technical_illustration, map, animated_timeline, newspaper_card, paper_cut, parallax_25d]
+    prefer: [dark_keynote, product_reveal, quote_card, kinetic_type, spec_card, technical_illustration, map, animated_timeline, newspaper_card, paper_cut, parallax_25d]
     fallback: {person_real: name_card, product: kinetic_type}
     text_scale: 1.1
   - id: archive
@@ -45,6 +45,6 @@ styles:
     name_ar: كولاج أرشيفي
     about_ar: صور ووثائق حقيقية مرخّصة على ورق؛ يحتاج صورًا مرخّصة لكل مشهد
     theme: tk-linen
-    prefer: [archival_collage, product_macro, newspaper_card, map, kinetic_type]
+    prefer: [archival_collage, product_reveal, product_macro, newspaper_card, quote_card, spec_card, map, kinetic_type]
     fallback: {person_real: name_card, product: technical_illustration}
     text_scale: 1.0

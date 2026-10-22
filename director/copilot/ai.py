@@ -178,6 +178,18 @@ class AIFailed(Exception):
         super().__init__(msg); self.meta = meta
 
 
+def system_prompt(kind: str) -> str:
+    """The task's instructions; the art brief also gets the motion catalogue (only templates ready for a film)."""
+    if kind != 'art_brief': return SYSTEM[kind]
+    from ..studio import art
+    ready = [t for t in art.catalogue() if t['status'] == 'implemented' and t.get('example') is not None]
+    lines = [f"- {t['id']} ({', '.join(t['purpose'])}): {t['about']}. Example params: {json.dumps(t['example'], ensure_ascii=False)}"
+             for t in ready]
+    return (SYSTEM[kind] + ' Give each scene `concepts`: {template id: params}, for the templates that suit its purpose. '
+            'Example words, years and figures below are placeholders: use only this film\'s sourced facts. '
+            'A template that needs a photo names an asset slot; never invent the picture.\nTemplates:\n' + '\n'.join(lines))
+
+
 # ====================================================================== real worker
 class ClaudeCodeWorker:
     """`claude -p` with a lean prompt. One attempt; the cost it reports is returned even when it fails."""
@@ -186,7 +198,7 @@ class ClaudeCodeWorker:
 
     def command(self, kind, payload, cap_usd) -> list[str]:
         prompt = f'Task: {kind}\nReply with JSON only, matching the schema.\n\nInput:\n' + json.dumps(payload, ensure_ascii=False)
-        cmd = [self.binary, '-p', prompt, '--system-prompt', SYSTEM[kind], '--tools', TOOLS.get(kind, ''), '--disable-slash-commands',
+        cmd = [self.binary, '-p', prompt, '--system-prompt', system_prompt(kind), '--tools', TOOLS.get(kind, ''), '--disable-slash-commands',
                '--json-schema', json.dumps(SCHEMA[kind]), '--output-format', 'json', '--no-session-persistence',
                '--max-budget-usd', f'{cap_usd:.4f}', '--max-turns', '12' if kind in TOOLS else '3']
         if self.model:
