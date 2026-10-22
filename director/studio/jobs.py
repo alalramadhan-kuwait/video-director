@@ -13,17 +13,28 @@ FAIL_NEXT: dict[str, str] = {}        # test hook: {job kind: message} makes the
 
 def start(studio, pid, kind, stage, what, total, fn, args=None, sync=False, request_id=None):
     """Run fn(studio, pid, task, **args) as a tracked job. Returns the job id."""
-    jid = f'j-{kind}-{uuid.uuid4().hex[:8]}'
-    if any(j['kind'] == kind and j['state'] == 'running' for j in studio.state(pid)['jobs']):
-        from .store import Refused
-        raise Refused(f'{what} is already running')
-    studio.jobs[jid] = {'pid': pid, 'kind': kind, 'started': time.time()}
-    try:
-        shown = {k: (f'<{getattr(v, "__name__", "callable")}>' if callable(v) else v) for k, v in (args or {}).items()}
-        studio.act(pid, 'job', {'id': jid, 'kind': kind, 'stage': stage, 'what': what, 'state': 'running', 'args': shown},
-                   actor='system', request_id=request_id)
-    except Exception:
-        studio.jobs.pop(jid, None); raise
+    # Reserve the job and record its receipt under the same lock as Studio.act.
+    # Otherwise simultaneous HTTP requests can both observe no running job.
+    with studio.lock:
+        if request_id:
+            for event in studio.events(pid):
+                if event['data'].get('request_id') == request_id:
+                    if event['status'] == 'job':
+                        return event['data']['args']['id']
+                    from .store import Refused
+                    raise Refused('request id already used by another action')
+        jid = f'j-{kind}-{uuid.uuid4().hex[:8]}'
+        if any(j['kind'] == kind and j['state'] == 'running' for j in studio.state(pid)['jobs']):
+            from .store import Refused
+            raise Refused(f'{what} is already running')
+        studio.jobs[jid] = {'pid': pid, 'kind': kind, 'started': time.time()}
+        try:
+            shown = {k: (f'<{getattr(v, "__name__", "callable")}>' if callable(v) else v) for k, v in (args or {}).items()}
+            studio.act(pid, 'job', {'id': jid, 'kind': kind, 'stage': stage, 'what': what, 'state': 'running', 'args': shown},
+                       actor='system', request_id=request_id)
+        except Exception:
+            studio.jobs.pop(jid, None)
+            raise
 
     def body():
         t0 = time.monotonic()
