@@ -17,6 +17,7 @@
     "language": "arb",
     "instruct": "male, middle-aged, low pitch, calm and natural documentary narration",
     "speed": 1.0,
+    "draft_speed": 1.25,
     "pronunciation": "brand/pronunciation.json"
   },
   "music": {

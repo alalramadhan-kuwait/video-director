@@ -1,0 +1,84 @@
+# Panerai: the Italian watch whose first models were made by Rolex. Time Keeper, ~70 s, draft voice.
+# Every line names its sources (numbers refer to `sources` below). Years are written as words in `say` so the voice reads them.
+title: بانيراي — ساعة الغطّاسين
+brand: timekeeper
+seed: panerai
+theme: tk-bone
+sources:
+  - "[1] Panerai — Wikipedia (founding 1860 Florence; Radiomir radium sights; Rolex made the watches, Panerai the dials; ~1,600 watches 1935–1970; supply to the navy ended 1970; civilian market 1993; Richemont): https://en.wikipedia.org/wiki/Panerai"
+  - "[2] Phillips auction notes on the Radiomir (1936 prototypes for the Italian Navy; ref. 3646 made by Rolex; used by the navy's combat swimmers): https://www.phillips.com/detail/panerai/97925"
+  - "[3] Espacenet GB191512270A (Panerai radium luminous sights patent, 1915): https://worldwide.espacenet.com/patent/search?q=pn%3DGB191512270A"
+  - "[4] Luminor and the crown-protecting bridge, 1950s (several collector histories; dates differ, so only the decade is said): https://wristreview.com/brief-history-panerai-luminor/"
+  - "[5] Vendôme Luxury Group bought Officine Panerai in 1997 (later Richemont): https://wiki.grail-watch.com/index.php/Vend%C3%B4me_Luxury_Group"
+photos:
+  crown_guard: {query: CROWN GUARD 29728851024}
+  luminor_glow: {query: LUMINOR 30075754506}
+  luminor_close: {query: PANERAI 29802698304}
+lines:
+  - id: l1        # [1][2]
+    text: ساعة إيطالية شهيرة، لكن أولى ساعاتها صُنعت في سويسرا، عند رولكس.
+    template: kinetic_type
+    params: {lines: [{text: ساعة إيطالية…, size: 76, in: slam}, {text: صنعتها رولكس؟, size: 76, at: 1.6, in: slam}], y: 480,
+             stamp: {text: بانيراي, at: 2.8, y: 800}}
+  - id: l2        # [1]
+    text: القصة تبدأ عام 1860 في فلورنسا، حين افتتح جوفاني بانيراي محل ساعات صغيرًا.
+    say: القصة تبدأ عام ألفٍ وثمانمئةٍ وستين في فلورنسا، حين افتتح جوفاني بانيراي محل ساعات صغيرًا.
+    template: map
+    banner: فلورنسا · 1860
+    params: {view_from: {lon: 10.5, lat: 43.0, span: 22}, view: {lon: 11.25, lat: 43.77, span: 6},
+             pins: [{id: florence, lon: 11.25, lat: 43.77, label: فلورنسا, at: 1.2}], date: '1860', date_at: 2.0}
+  - id: l3        # [1][2]
+    text: ومع الوقت صارت الشركة تورّد أدوات دقيقة للبحرية الإيطالية.
+    template: paper_cut
+    theme: tk-graphite
+    banner: البحرية الإيطالية
+    params: {}
+  - id: l4        # [1][3]
+    text: وفي الحرب العالمية الأولى طوّرت مسحوقًا مضيئًا بالراديوم سمّته راديومير، لتُقرأ أدوات التصويب في الظلام.
+    template: kinetic_type
+    banner: راديومير
+    params: {lines: [{text: راديومير, size: 110}, {text: مسحوق مضيء بالراديوم, size: 50, at: 0.8}], y: 480,
+             stamp: {text: يُقرأ في الظلام, at: 2.4, y: 860, size: 60}}
+  - id: l5        # [2]
+    text: وفي عام 1936 طلبت البحرية ساعة تتحمّل الغوص، فظهرت النماذج الأولى.
+    say: وفي عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين طلبت البحرية ساعة تتحمّل الغوص، فظهرت النماذج الأولى.
+    template: animated_timeline
+    banner: أول ساعة للبحرية
+    params: {events: [{year: '1860', label: محل ساعات في فلورنسا}, {year: '1915', label: راديومير · مسحوق مضيء}, {year: '1936', label: النماذج الأولى للبحرية, hero: true}]}
+  - id: l6        # [1][2]
+    text: لكن العلبة والآلية صنعتهما رولكس، وصنعت بانيراي الميناء المضيء.
+    template: spec_card
+    banner: مَن صنع ماذا؟
+    params: {title: ساعات البحرية الأولى, rows: [{label: العلبة, value: رولكس}, {label: الآلية, value: رولكس}, {label: الميناء المضيء, value: بانيراي}],
+             source: 'المصدر: ويكيبيديا · مزادات فيليبس', y: 470}
+  - id: l7        # [2]
+    text: كانت كبيرة وواضحة، لأن من يلبسها غطّاس يعمل تحت الماء في العتمة.
+    template: product_reveal
+    banner: للغطّاسين
+    params: {asset: luminor_glow, desc: Luminor Marina, name: لومينور مارينا · طراز حديث}
+  - id: l8        # [4]
+    text: وفي الخمسينيات أُضيف جسر يحمي التاج ويُحكم إغلاقه.
+    template: product_macro
+    banner: جسر حماية التاج
+    params: {asset: crown_guard, desc: crown guard}
+  - id: l9        # [1][4]
+    text: ولاحقًا حلّت مادة لومينور محلّ الراديوم.
+    template: kinetic_type
+    banner: لومينور
+    params: {lines: [{text: لومينور, size: 120}, {text: بدل الراديوم, size: 56, at: 0.7}], y: 520}
+  - id: l10       # [1]
+    text: وحتى 1970 يُقدَّر ما صُنع بنحو 1600 ساعة فقط، أغلبها للبحرية.
+    say: وحتى عام ألفٍ وتسعمئةٍ وسبعين، يُقدَّر ما صُنع بنحو ألفٍ وستمئة ساعة فقط، أغلبها للبحرية.
+    template: kinetic_type
+    banner: 1935 – 1970
+    params: {lines: [{text: '1600', size: 150}, {text: ساعة تقريبًا · أغلبها للبحرية, size: 46, at: 0.8}], y: 500}
+  - id: l11       # [1][5]
+    text: وفي 1993 طُرحت للجمهور أول مرة، وبعد أربع سنوات اشترتها مجموعة فاندوم، التي صارت لاحقًا ريشمون.
+    say: وفي عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين طُرحت للجمهور أول مرة، وبعد أربع سنوات اشترتها مجموعة فاندوم، التي صارت لاحقًا ريشمون.
+    template: animated_timeline
+    banner: من البحرية إلى الجمهور
+    params: {events: [{year: '1970', label: آخر توريد للبحرية}, {year: '1993', label: للجمهور أول مرة}, {year: '1997', label: فاندوم · ريشمون لاحقًا, hero: true}]}
+  - id: l12       # —
+    text: ساعة صُنعت لعتمة البحر… وصارت اليوم من أشهر الساعات الكبيرة في العالم.
+    template: product_reveal
+    params: {asset: luminor_close, desc: Luminor Marina, name: بانيراي, name_size: 60}
