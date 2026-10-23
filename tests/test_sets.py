@@ -1,6 +1,6 @@
 """Story worlds dress any template without covering it; their sounds exist; templates carry their own sound effects."""
 from tests import _guard  # noqa: F401
-import unittest
+import json, re, unittest
 
 from director.studio import art, engine, sets
 
@@ -41,7 +41,8 @@ class TestSets(unittest.TestCase):
     def test_the_same_line_gets_the_same_world(self):
         a = sets.dress(art.scene_visual('kinetic_type', {'lines': [{'text': 'x'}]}, 'tk-ink', 5.0), 'underwater', 5.0, seed='l1')
         b = sets.dress(art.scene_visual('kinetic_type', {'lines': [{'text': 'x'}]}, 'tk-ink', 5.0), 'underwater', 5.0, seed='l1')
-        self.assertEqual(a, b)
+        norm = lambda sc: re.sub(r'(bd|glow|wash)\d+', 'id', json.dumps(sc, ensure_ascii=False))   # gradient ids are unique per scene
+        self.assertEqual(norm(a), norm(b))
 
     def test_templates_carry_their_sound_effects(self):
         k = art.scene_visual('kinetic_type', {'lines': [{'text': 'x', 'in': 'slam'}], 'stamp': {'text': 'y', 'at': 1.2}}, 'tk-bone', 5.0)

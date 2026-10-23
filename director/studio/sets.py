@@ -7,7 +7,15 @@ the edges and the bottom. Everything is drawn in code (paper style, the brand's 
     sc = art.scene_visual(...); sets.dress(sc, 'underwater', dur)
 """
 from __future__ import annotations
-import math, random
+import itertools, math, random
+
+_IDS = itertools.count(1)
+
+
+def uid(name: str) -> str:
+    """A gradient id no other scene uses: every scene's SVGs share one page, and a repeated id makes a later scene
+    point at an earlier (hidden) scene's gradient, which then draws nothing."""
+    return f'{name}{next(_IDS)}'
 
 W, H = 760, 1320                       # a little larger than the 720x1280 frame, so camera moves never show an edge
 
@@ -21,8 +29,9 @@ def _el(svg_body, w=W, h=H, x=360, y=640, **kw):
 
 
 def _backdrop(top, bottom):          # first in the list, so the engine draws it under the rest of the decor
-    g = (f'<defs><linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{top}"/>'
-         f'<stop offset="1" stop-color="{bottom}"/></linearGradient></defs><rect width="{W}" height="{H}" fill="url(#g)"/>')
+    i = uid('bd')
+    g = (f'<defs><linearGradient id="{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="{top}"/>'
+         f'<stop offset="1" stop-color="{bottom}"/></linearGradient></defs><rect width="{W}" height="{H}" fill="url(#{i})"/>')
     return _el(g, behind=True, depth=0)
 
 
@@ -126,9 +135,10 @@ def workshop(dur, rng):
 
 def radium(dur, rng):
     els = [_backdrop('#0B0D0C', '#030403')]
-    glow = '<defs><radialGradient id="r"><stop offset="0" stop-color="#9FD9A3" stop-opacity=".55"/><stop offset="1" stop-color="#9FD9A3" stop-opacity="0"/></radialGradient></defs>'
     for x, y, s in ((130, 1050, 230), (600, 1000, 260), (360, 240, 300)):
-        els.append({**_el(glow + f'<circle cx="{s / 2}" cy="{s / 2}" r="{s / 2}" fill="url(#r)"/>', s, s, x, y), 'behind': True, 'depth': .5,
+        i = uid('glow')
+        glow = f'<defs><radialGradient id="{i}"><stop offset="0" stop-color="#9FD9A3" stop-opacity=".55"/><stop offset="1" stop-color="#9FD9A3" stop-opacity="0"/></radialGradient></defs>'
+        els.append({**_el(glow + f'<circle cx="{s / 2}" cy="{s / 2}" r="{s / 2}" fill="url(#{i})"/>', s, s, x, y), 'behind': True, 'depth': .5,
                     'opacity': [[0, .5], [dur * .5, .9], [dur, .6]]})
     vial = ('<rect x="14" y="0" width="28" height="12" rx="3" fill="#5A5E5A"/><path d="M10 12 L46 12 L46 120 Q46 140 28 140 Q10 140 10 120 Z" '
             'fill="#1C221D" stroke="#7E8A80" stroke-width="2"/><path d="M12 80 L44 80 L44 120 Q44 138 28 138 Q12 138 12 120 Z" fill="#9FD9A3" fill-opacity=".75"/>')

@@ -293,6 +293,48 @@ def b_swiss_grid(p, theme, dur):
     return sc
 
 
+def b_city_zoom(p, theme, dur):
+    """The map flies from the country into the city (pan first, then zoom), the pin drops, the map gives way to the
+    city's own colours and its skyline rises like a pop-up book (far, middle, the landmarks), then its name.
+    `city` is an id from director/studio/cities.py; `sub` is the line under the name (country · year)."""
+    from . import cities as C
+    c = C.CITIES[p['city']]
+    zt = max(1.8, min(4.2, dur * p.get('zoom_share', .45)))                # when the camera arrives over the city
+    here = {'lon': c['lon'], 'lat': c['lat'], 'span': p.get('span', c['span'])}
+    start = p.get('from', {'lon': c['lon'] + 2.5, 'lat': c['lat'] - 1.5, 'span': c['from_span']})
+    mid = {'lon': c['lon'], 'lat': c['lat'], 'span': (start['span'] * here['span']) ** .5}
+    view = [[0, start], [zt * .55, mid, 'inCubic'], [zt, here, 'outCubic']]   # the city is centred before the deep zoom: it never slides away
+    name = p.get('name', c['name_ar'])
+    m = {'type': 'map', 'x': 360, 'y': 640, 'w': 720, 'h': 1280, 'z': 1, 'view': view, **ATLAS,
+         'highlight': [{'n': c['country'], 'color': GOLD, 'at': .3}], 'labelSize': 26,
+         'pins': [{'id': p['city'], 'lon': c['lon'], 'lat': c['lat'], 'label': name, 'at': zt * .7}]}
+    from .sets import uid
+    wid = uid('wash')
+    wash = (f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1320"><defs><linearGradient id="{wid}" x1="0" y1="0" x2="0" y2="1">'
+            f'<stop offset="0" stop-color="{c["sky"]}"/><stop offset=".75" stop-color="{c["sky"]}"/><stop offset="1" stop-color="{c["far"]}"/>'
+            f'</linearGradient></defs><rect width="760" height="1320" fill="url(#{wid})"/></svg>')
+    t1 = zt + .35
+    els = [m, {'type': 'svg', 'w': 760, 'h': 1320, 'svg': wash, 'x': 360, 'y': 640, 'z': 20, 'still': True,
+               'opacity': [[0, 0], [zt - .1, 0], [t1 + .4, 1, 'inOutCubic']]},
+           {'type': 'svg', 'w': 120, 'h': 120, 'z': 21, 'x': 560, 'y': 300, 'still': True, 'opacity': [[0, 0], [t1, 0], [t1 + .8, .9]],
+            'svg': f'<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120"><circle cx="60" cy="60" r="44" fill="#F6EEDC"/></svg>'}]
+    for k, layer in enumerate(C.skyline(p['city'])):                       # far, middle, near: each rises after the one behind it
+        els.append({'type': 'svg', 'w': 720, 'h': 440, 'svg': layer, 'x': 360, 'y': 960, 'anchor': 'b', 'z': 22 + k, 'still': True,
+                    'depth': .7 + .2 * k, 'underCaptions': True, 'in': {'type': 'rise', 'at': t1 + .15 + .3 * k, 'dur': .7, 'from': 260 + 60 * k}})
+    ink = INK
+    els.append({'type': 'text', 'text': name, 'font': 'title', 'size': p.get('size', 96), 'color': ink, 'x': 360, 'y': 380, 'z': 30,
+                'in': {'type': 'rise', 'at': t1 + 1.1, 'dur': .5}})
+    if p.get('sub'):
+        els.append({'type': 'text', 'text': p['sub'], 'font': 'banner', 'size': 34, 'color': ink, 'x': 360, 'y': 500, 'z': 30, 'opacity': .8,
+                    'in': {'type': 'fade', 'at': t1 + 1.4}})
+    cam = {'zoom': [[0, 1.0], [t1, 1.0], [dur, 1.06, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640], [dur, 630, 'inOutCubic']]}
+    sc = {'theme': theme, 'floor': False, 'elements': els, 'camera': cam,
+          'beds': [{'name': c['bed'], 'from': round(t1, 2), 'gain': -26}]}
+    sc['sfx'] = [{'at': .15, 'name': 'whoosh', 'gain': -16}, {'at': round(zt * .7, 2), 'name': 'pin', 'gain': -12}] + \
+                [{'at': round(t1 + .2 + .3 * k, 2), 'name': 'paper_place', 'gain': -14} for k in range(3)]
+    return sc
+
+
 def b_spec_card(p, theme, dur):
     """Specifications or a comparison: a title and rows of label / value, one column per watch (one or two).
     Only sourced figures belong here; the card draws what it is given and nothing else."""
@@ -363,12 +405,12 @@ BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_time
             'technical_illustration': b_technical_illustration, 'paper_cut': b_paper_cut, 'parallax_25d': b_parallax_25d,
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
-            'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal}
+            'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']]}
 
 
-FULL_FRAME = {'map', 'product_macro'}       # templates that fill the frame: they are the world themselves (a set adds only its sound)
+FULL_FRAME = {'map', 'product_macro', 'city_zoom'}       # templates that fill the frame: they are the world themselves (a set adds only its sound)
 CATALOGUE = ROOT / 'art/catalogue.yaml'
 
 
