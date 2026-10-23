@@ -1,0 +1,4 @@
+# Separate Python 3.12 environment for VoxCPM2 (Apache-2.0 weights); the same Apple Silicon torch as OmniVoice.
+torch==2.8.0
+torchaudio==2.8.0
+voxcpm==2.0.3

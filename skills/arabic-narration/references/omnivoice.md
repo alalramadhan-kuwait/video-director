@@ -46,6 +46,15 @@ one narration request to reduce speaker changes, and saves a candidate WAV plus 
 settings and measured duration. Existing files cannot be replaced. A seed records the request, but does not
 promise bit-identical output across devices.
 
+## VoxCPM2: the voice that may be published
+
+`--engine voxcpm2` reads with [openbmb/VoxCPM2](https://huggingface.co/openbmb/VoxCPM2): Apache-2.0 weights
+(commercial use permitted), Arabic among its 30 languages, 48 kHz. The brand's speaker description is given as its
+documented voice-design prefix «(description)text». Its own environment: `requirements-voxcpm2.txt`. The project
+documents CUDA; on Apple Silicon it is tried on MPS and may be slow; listen before trusting it. Choose by ear:
+`tools/voice_mac.sh --compare films/<name>.yaml` reads three test lines (the hook, a foreign name, a year in words)
+with both engines into `var/voice/compare-<name>/`.
+
 ## A film's narration, one take per line
 
 For a film file (`films/<name>.yaml`), read each line as its own take so a wrong line can be read again alone and
@@ -53,7 +62,8 @@ the film can use the takes directly. On the owner's Mac, from the repository roo
 installs the environment on the first run):
 
 ```sh
-tools/voice_mac.sh films/panerai.yaml            # every line without a take, into var/voice/panerai/
+tools/voice_mac.sh films/panerai.yaml            # every line without a take, into var/voice/panerai-omnivoice/
+tools/voice_mac.sh --engine voxcpm2 films/panerai.yaml   # the same with VoxCPM2 (may be published)
 tools/voice_mac.sh films/panerai.yaml l5,l9      # read these lines again (old takes are renamed, kept)
 ```
 
