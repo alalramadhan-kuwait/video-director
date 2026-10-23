@@ -161,10 +161,13 @@ def theme_for(set_id: str | None, default: str) -> str:
     return SETS[set_id](1.0, random.Random(0))['theme']
 
 
-def dress(sc: dict, set_id: str | None, dur: float, seed: str = '') -> dict:
-    """Add the world behind the scene's own elements, its ambience as looping beds, and its one-off sounds."""
+def dress(sc: dict, set_id: str | None, dur: float, seed: str = '', template: str | None = None) -> dict:
+    """Add the world behind the scene's own elements, its ambience as looping beds, and its one-off sounds. A template
+    that fills the frame (a map, a full photo) is the world itself: it gets the world's sound, not its decor."""
     if not set_id: return sc
+    from .art import FULL_FRAME
     w = SETS[set_id](dur, random.Random(f'{set_id}|{seed}'))
+    if template in FULL_FRAME: w = {**w, 'elements': []}
     back = [e for e in w['elements'] if e.get('behind')]
     front = [e for e in w['elements'] if not e.get('behind')]       # edge and bottom decor (weeds, vials, skyline): over a full-frame map too
     sc['elements'] = back + sc['elements'] + front

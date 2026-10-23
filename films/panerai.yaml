@@ -28,7 +28,8 @@ lines:
     template: map
     banner: فلورنسا · 1860
     params: {view_from: {lon: 10.5, lat: 43.0, span: 22}, view: {lon: 11.25, lat: 43.77, span: 6},
-             pins: [{id: florence, lon: 11.25, lat: 43.77, label: فلورنسا, at: 1.2}], date: '1860', date_at: 2.0}
+             pins: [{id: florence, lon: 11.25, lat: 43.77, label: فلورنسا, at: 1.2}], highlight: [Italy], date: '1860', date_at: 2.0,
+             labels: [{text: إيطاليا, x: 560, y: 720, at: 0.9}, {text: البحر التيراني, x: 250, y: 760, at: 1.4, size: 30}]}
   - id: l3        # [1][2]
     set: sea_night
     text: ومع الوقت صارت الشركة تورّد أدوات دقيقة للبحرية الإيطالية.

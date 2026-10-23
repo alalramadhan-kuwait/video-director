@@ -107,7 +107,7 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
             if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro'): params.setdefault('credit', pics[slot]['credit'])
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or sets.theme_for(world, film.get('theme', 'tk-bone'))
-        sc = sets.dress(art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner')), world, dur, seed=ln['id'])
+        sc = sets.dress(art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner')), world, dur, seed=ln['id'], template=ln['template'])
         same = scenes and scenes[-1].get('set') == world
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
                   words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']],
