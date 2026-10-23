@@ -7,7 +7,7 @@ from director.studio import art, engine, moods, sets
 
 
 def film(*lines):
-    return {'lines': [{'id': f'l{i}', 'text': 'x', 'template': 'kinetic_type', 'params': {'lines': [{'text': 'x'}]}, **ln}
+    return {'lines': [{'id': f'l{i}', 'text': 'x', 'template': 'kinetic_type', 'params': {}, **ln}
                       for i, ln in enumerate(lines, 1)]}
 
 
@@ -28,6 +28,23 @@ class TestStory(unittest.TestCase):
         self.assertTrue(any('out of order' in o for o in out))
         self.assertEqual(quickfilm.story_check(film({'text': 'في 1936'}, {'text': 'في 1915', 'flashback': True})), [])
         self.assertEqual(quickfilm.story_check(film({'text': 'من 1860 إلى 1915'}, {'text': 'في 1936'})), [])
+
+    def test_each_scene_shows_only_what_is_said_in_it(self):
+        ok = film({'text': 'طلبت البحرية ساعة في 1936', 'banner': 'طلب البحرية', 'params': {'lines': [{'text': '1936'}]}})
+        self.assertEqual(quickfilm.story_check(ok), [])
+        bad = film({'text': 'طلبت البحرية ساعة', 'banner': 'لومينور مارينا', 'params': {'lines': [{'text': '1860'}]}})
+        out = quickfilm.story_check(bad)
+        self.assertTrue(any('«لومينور مارينا»' in o for o in out) and any('«1860»' in o for o in out))
+        self.assertEqual(quickfilm.story_check(film({'text': 'x', 'banner': 'غير مقال', 'screen_ok': True})), [])
+        sc = quickfilm.on_screen({'banner': 'ب', 'params': {'rows': [{'label': 'ل', 'value': 'ق'}], 'credit': 'c', 'source': 's', 'asset': 'a'}})
+        self.assertEqual(sorted(sc), ['ب', 'ق', 'ل'])                              # credits, sources and slots are not "what is shown"
+
+    def test_every_change_of_scene_is_led_into(self):
+        out = quickfilm.story_check(film({'text': 'البداية'}, {'text': 'عاملات في أمريكا'}))
+        self.assertTrue(any('without leading in' in o for o in out))
+        for first in ('وفي أمريكا', 'غير أن الضوء', 'لكن البحرية', 'ثم انتهت', 'وبينما كان'):
+            self.assertEqual(quickfilm.story_check(film({'text': 'البداية'}, {'text': first})), [], first)
+        self.assertEqual(quickfilm.story_check(film({'text': 'البداية'}, {'text': 'ساعة وُلدت', 'closing': True})), [])
 
     def test_the_panerai_film_keeps_every_rule(self):
         self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])
