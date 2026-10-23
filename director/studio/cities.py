@@ -184,21 +184,22 @@ def dubai(c):
     return far, mid, burj + arab + _palm(230, 440, 100, c['near'])
 
 
+# span is how close the zoom ends (degrees of longitude): inland cities stop where a coast or a neighbour is still in view;
 # country is the Natural Earth name the map highlights; tint is the city's wash; bed is its ambience (make-sfx.py)
 CITIES = {
-    'florence': {'name_ar': 'فلورنسا', 'country': 'Italy', 'lon': 11.2558, 'lat': 43.7696, 'span': 1.6, 'from_span': 24, 'draw': florence, 'bed': 'bell_far',
+    'florence': {'name_ar': 'فلورنسا', 'country': 'Italy', 'lon': 11.2558, 'lat': 43.7696, 'span': 3.6, 'from_span': 24, 'draw': florence, 'bed': 'bell_far',
                  'sky': '#F0D3A6', 'far': '#D9B38A', 'mid': '#C08A62', 'near': '#8E5A3A', 'line': '#5E3A24', 'accent': '#8E5A3A', 'water': '#9FB8BC'},
-    'geneva': {'name_ar': 'جنيف', 'country': 'Switzerland', 'lon': 6.1432, 'lat': 46.2044, 'span': 1.4, 'from_span': 16, 'draw': geneva, 'bed': 'wind',
+    'geneva': {'name_ar': 'جنيف', 'country': 'Switzerland', 'lon': 6.1432, 'lat': 46.2044, 'span': 3.0, 'from_span': 16, 'draw': geneva, 'bed': 'wind',
                'sky': '#DCE7EA', 'far': '#B7C6CC', 'mid': '#6F8790', 'near': '#3E5560', 'line': '#2C3D45', 'accent': '#5E8C6A', 'water': '#7FA4B3'},
-    'vallee_de_joux': {'name_ar': 'وادي جو', 'country': 'Switzerland', 'lon': 6.2333, 'lat': 46.6167, 'span': 1.2, 'from_span': 14, 'draw': vallee_de_joux, 'bed': 'wind',
+    'vallee_de_joux': {'name_ar': 'وادي جو', 'country': 'Switzerland', 'lon': 6.2333, 'lat': 46.6167, 'span': 3.0, 'from_span': 14, 'draw': vallee_de_joux, 'bed': 'wind',
                        'sky': '#E2E8DA', 'far': '#A9B9A0', 'mid': '#7D9273', 'near': '#3F5640', 'line': '#2A3A2B', 'accent': '#3F5640', 'water': '#8FAEB4'},
     'kuwait': {'name_ar': 'الكويت', 'country': 'Kuwait', 'lon': 47.9783, 'lat': 29.3759, 'span': 1.5, 'from_span': 24, 'draw': kuwait, 'bed': 'sea',
                'sky': '#F2E2C2', 'far': '#7FA9BC', 'mid': '#C9B28C', 'near': '#3C5A6E', 'line': '#26394A', 'accent': '#2F7D8E', 'water': '#6E9FB4'},
-    'paris': {'name_ar': 'باريس', 'country': 'France', 'lon': 2.3522, 'lat': 48.8566, 'span': 1.4, 'from_span': 16, 'draw': paris, 'bed': 'crowd',
+    'paris': {'name_ar': 'باريس', 'country': 'France', 'lon': 2.3522, 'lat': 48.8566, 'span': 3.6, 'from_span': 16, 'draw': paris, 'bed': 'crowd',
               'sky': '#E3E4E2', 'far': '#BFC3C6', 'mid': '#8E979E', 'near': '#4C5660', 'line': '#2E353C', 'accent': '#4C5660', 'water': '#8FA6B0'},
-    'london': {'name_ar': 'لندن', 'country': 'United Kingdom', 'lon': -0.1276, 'lat': 51.5072, 'span': 1.4, 'from_span': 14, 'draw': london, 'bed': 'crowd',
+    'london': {'name_ar': 'لندن', 'country': 'United Kingdom', 'lon': -0.1276, 'lat': 51.5072, 'span': 3.2, 'from_span': 14, 'draw': london, 'bed': 'crowd',
                'sky': '#DEDAD2', 'far': '#B9B1A6', 'mid': '#8C7D70', 'near': '#5A3A33', 'line': '#3A2520', 'accent': '#5A3A33', 'water': '#8A9EA4'},
-    'rome': {'name_ar': 'روما', 'country': 'Italy', 'lon': 12.4964, 'lat': 41.9028, 'span': 1.5, 'from_span': 20, 'draw': rome, 'bed': 'bell_far',
+    'rome': {'name_ar': 'روما', 'country': 'Italy', 'lon': 12.4964, 'lat': 41.9028, 'span': 3.2, 'from_span': 20, 'draw': rome, 'bed': 'bell_far',
              'sky': '#F1DDB8', 'far': '#D8B88E', 'mid': '#6F7550', 'near': '#A9784A', 'line': '#5E3E22', 'accent': '#A9784A', 'water': '#9FB8BC'},
     'new_york': {'name_ar': 'نيويورك', 'country': 'United States of America', 'lon': -74.006, 'lat': 40.7128, 'span': 1.6, 'from_span': 40, 'draw': new_york, 'bed': 'crowd',
                  'sky': '#DDE2E6', 'far': '#B5BEC6', 'mid': '#7D8994', 'near': '#3E4A56', 'line': '#26303A', 'accent': '#5E8C7E', 'water': '#7F9EAE'},
