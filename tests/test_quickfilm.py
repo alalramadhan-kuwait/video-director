@@ -48,6 +48,30 @@ class TestQuickFilm(unittest.TestCase):
         again = quickfilm.take(FILM['lines'][0], 'timekeeper', self.d / 'voice')
         self.assertEqual(again['wav'], t['wav'])                             # cached by what is spoken
 
+    def test_the_voice_script_is_what_the_voice_reads(self):
+        recs = quickfilm.voice_script(FILM)
+        self.assertEqual([r['id'] for r in recs], ['l1', 'l2'])
+        self.assertIn('ألفٍ', recs[0]['text']); self.assertEqual(recs[1]['text'], 'العلبة من رولكس')
+
+    @unittest.skipUnless(shutil.which('ffmpeg'), 'ffmpeg not available')
+    def test_a_take_read_elsewhere_is_used_as_it_is_and_listened_to(self):
+        import numpy as np
+        from director.studio import voice
+        given = self.d / 'omni'; given.mkdir()
+        tone = lambda sec: voice.encode(0.3 * np.sin(np.linspace(0, 440 * 2 * np.pi * sec, int(voice.SR * sec))), 'wav')
+        (given / 'l1.wav').write_bytes(tone(2.0))
+        (given / 'l1.json').write_text(json.dumps({'provider': 'omnivoice', 'license_note': 'Upstream pretrained model: CC-BY-NC'}))
+        t = quickfilm.take(FILM['lines'][0], 'timekeeper', self.d / 'voice', given=given)
+        self.assertAlmostEqual(t['seconds'], 2.0, delta=0.2)                 # no speed change on a real take
+        self.assertEqual([w['w'] for w in t['words']], ['ساعة', 'Panerai', 'من', '1936'])
+        (given / 'l1.wav').write_bytes(tone(3.0))                            # the line read again is a new take
+        self.assertNotEqual(quickfilm.take(FILM['lines'][0], 'timekeeper', self.d / 'voice', given=given)['wav'], t['wav'])
+        label, lic = quickfilm.voice_label(given)
+        self.assertIn('REVIEW', label); self.assertIn('not for publishing', label); self.assertIn('CC-BY-NC', lic)
+        with self.assertRaises(FileNotFoundError) as e:                      # every line needs its take
+            quickfilm.make(self._file(FILM), self.d / 'out', video=False, voice_dir=given)
+        self.assertIn('l2', str(e.exception))
+
     @unittest.skipUnless(HAVE_RENDER, 'node/ffmpeg not available')
     def test_a_film_file_makes_scenes_stills_and_credits(self):
         r = quickfilm.make(self._file(FILM), self.d / 'out', video=False)
