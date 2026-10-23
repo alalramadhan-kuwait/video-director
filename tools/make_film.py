@@ -13,6 +13,7 @@ for ln in r['lines']:
     if ln['not_heard']: print(f"{ln['id']}: not heard → {' '.join(ln['not_heard'])}   (heard: {ln['heard']})")
 for slot, p in r['photos'].items():
     print(f"photo {slot}: " + ('MISSING — ' + p['query'] if p.get('missing') else p['credit']))
+print('story:', 'all rules kept' if not r['story'] else '\n  ' + '\n  '.join(r['story']))
 print('layout:', 'no faults' if not r['layout'] else '\n  ' + '\n  '.join(r['layout']))
 print('music:', r['music']['title'] if r['music'] else 'none')
 print(f"{r['seconds']} s" + (f"  {r['film']}  {r['size_mb']} MB" if r.get('film') else '  (stills only)'))

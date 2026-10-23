@@ -95,4 +95,13 @@ while k < 5.9: gm += at(mix(damped(3800, .004, 900), bandpass(noise(.003), 2000,
 save('geiger', loopable(gm, 50), .45)
 save('sonar', mix(damped(1180, 2.4, 2.2) * .9, at(damped(1180, 1.6, 3.0) * .25, .55, 2.4)), .5)
 save('bell_far', lowpass(mix(bell(392, 3.0, 1.6), at(bell(523, 2.6, 1.8) * .7, .9, 3.0)), 2400), .35)
+# --- moods (director/studio/moods.py): a low drone for mystery, a heartbeat for fear, a chime for joy, a far boom
+dx = t(12); drone = sum(a * np.sin(2 * np.pi * f * dx + ph) for a, f, ph in ((1, 55, 0), (.6, 82.4, 1), (.35, 110.3, 2), (.2, 164.8, .5)))
+save('drone', loopable(drone * swell(12, 6, .6) + lowpass(noise(12), 200) * .3), .3)
+def thump(f=52, d=.18): x = t(d); return np.sin(2 * np.pi * f * x) * np.exp(-22 * x) + .3 * lowpass(noise(d), 150) * np.exp(-30 * x)
+beat = np.zeros(int(SR * 1.0)); beat += at(thump(), 0, 1.0); beat += at(thump(46) * .7, .22, 1.0)
+save('heartbeat', np.tile(beat, 8), .6)
+save('chime', mix(bell(1319, 1.6, 3.5), at(bell(1760, 1.4, 3.8) * .8, .14, 1.8), at(bell(2093, 1.2, 4.2) * .6, .28, 1.8)), .4)
+bm = lowpass(noise(3), 180) * np.exp(-1.6 * t(3)) + np.sin(2 * np.pi * 38 * t(3)) * np.exp(-2.2 * t(3)) * .8
+save('boom', bm, .7)
 print('wrote', len(os.listdir(OUT)), 'files to', os.path.normpath(OUT))

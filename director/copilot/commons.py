@@ -79,13 +79,23 @@ def best(query: str, cands: list[dict]) -> dict | None:
     return None
 
 
+def thumb(url: str, width=500) -> str | None:
+    """The same file at a standard thumbnail width: Commons may refuse a near-original size to tools but serves these."""
+    m = re.match(r'(https://upload\.wikimedia\.org/wikipedia/commons)/([0-9a-f])/([0-9a-f]{2})/([^?/]+)', url)
+    return m and f'{m[1]}/thumb/{m[2]}/{m[3]}/{m[4]}/{width}px-{m[4]}'
+
+
 def fetch(url: str) -> bytes:
     for i in range(3):
         try:
             with urllib.request.urlopen(urllib.request.Request(url, headers={'User-Agent': UA}), timeout=60) as r:
                 return r.read(15 * 1024 * 1024)
         except urllib.error.HTTPError as e:
-            if e.code != 429 or i == 2: raise
+            if e.code != 429: raise
+            if i == 2:
+                alt = '/thumb/' not in url and thumb(url)                # an unscaled original refused: the standard 500 px one
+                if not alt: raise
+                return fetch(alt)
             time.sleep(min(30, int(e.headers.get('Retry-After') or 10)))
     return b''
 
