@@ -21,6 +21,11 @@ import re
 import tempfile
 
 MODEL = 'k2-fsa/OmniVoice'
+# the speaker words OmniVoice accepts (it refuses any other item in its comma-separated description)
+OMNI_ITEMS = {'american accent', 'australian accent', 'british accent', 'canadian accent', 'child', 'chinese accent', 'elderly',
+              'female', 'high pitch', 'indian accent', 'japanese accent', 'korean accent', 'low pitch', 'male', 'middle-aged',
+              'moderate pitch', 'portuguese accent', 'russian accent', 'teenager', 'very high pitch', 'very low pitch', 'whisper',
+              'young adult'}
 ENGINES = {
     'omnivoice': {'model': MODEL, 'steps': 32, 'source': 'https://huggingface.co/k2-fsa/OmniVoice',
                   'license_note': 'Upstream pretrained model: CC-BY-NC; non-commercial review only'},
@@ -113,13 +118,18 @@ def request(args):
     text = spoken(script, lex)
     language = args.language or cfg.get('language') or 'arb'
     instruct = args.instruct or cfg.get('instruct') or 'male, middle-aged, low pitch'
+    dropped = []
+    if args.engine == 'omnivoice':                            # a free-form description (VoxCPM2's) keeps only OmniVoice's words
+        items = [x.strip() for x in instruct.split(',') if x.strip()]
+        dropped = [x for x in items if x.lower() not in OMNI_ITEMS]
+        instruct = ', '.join(x for x in items if x.lower() in OMNI_ITEMS) or 'male, middle-aged, low pitch'
     return dict(provider=args.engine, model=args.model, text=text,
                 text_sha256=hashlib.sha256(text.encode()).hexdigest(),
                 script_sha256=hashlib.sha256(script.encode()).hexdigest(),
                 pronunciation_applied=sorted(k for k in lex if k in script),
                 language=language, instruct=instruct, seed=args.seed,
                 num_step=args.steps, speed=1.0, status='candidate', **({'cfg': args.cfg} if args.engine == 'voxcpm2' else {}),
-                license_note=eng['license_note'], source=eng['source'])
+                license_note=eng['license_note'], source=eng['source'], **({'instruct_dropped': dropped} if dropped else {}))
 
 
 def _load(args):

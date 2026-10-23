@@ -36,6 +36,15 @@ class TestOmniVoicePlugin(unittest.TestCase):
         self.assertEqual(plan['status'], 'candidate')
         self.assertFalse(self.args.output.exists())
 
+    def test_omnivoice_keeps_only_the_speaker_words_it_accepts(self):
+        args = voice.parser().parse_args(['--script', str(self.script), '--output', str(self.root / 't.wav'), '--plan',
+                                          '--instruct', 'male, middle-aged, low pitch, calm and natural documentary narration'])
+        plan = voice.generate(args)
+        self.assertEqual(plan['instruct'], 'male, middle-aged, low pitch')
+        self.assertEqual(plan['instruct_dropped'], ['calm and natural documentary narration'])
+        args.engine = 'voxcpm2'; args.model = args.steps = None                     # VoxCPM2 takes the whole description
+        self.assertEqual(voice.generate(args)['instruct'], 'male, middle-aged, low pitch, calm and natural documentary narration')
+
     def test_record_list_input(self):
         self.script.write_text(json.dumps([{'id': str(i), 'text': t} for i,t in enumerate(self.texts)]))
         self.assertEqual(voice.read_script(self.script), '\n'.join(self.texts))
