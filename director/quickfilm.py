@@ -13,6 +13,9 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              · a historical event (`event: true`) is shown with a historical photograph (archive_photo, archival_collage,
                newspaper_card) so the viewer sees it happened, or says why none exists (`no_photo:`)
              · a change (`change: true`: a new material, a new design) says why it happened (`because:`), in the narration
+             · each scene shows only what is said in it (on-screen words share the narration's words or numbers)
+             · every change of scene is led into: the line opens with a connective (و، ثم، لكن، بينما…) or a
+               sentence that prepares the change (`closing: true` for an echo that ends the film)
              · the feeling of the story is named on the lines that carry it (`mood:` mystery, fear, sadness, tension, joy,
                wonder): it changes the light and the sound of the scene (director/studio/moods.py)
 The voice here is the free DRAFT voice; the final narration is OmniVoice on the owner's computer (same file, --voice-dir).
@@ -40,6 +43,33 @@ def load(path) -> dict:
 PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro'}
 
 
+SCREEN = ('text', 'title', 'body', 'label', 'value', 'values', 'name', 'sub', 'card', 'quote', 'who', 'header', 'banner', 'lines',
+          'rows', 'events', 'stamp', 'labels', 'pins', 'year', 'columns')
+LEADS = {'ثم', 'لكن', 'لكنّ', 'غير', 'بينما', 'حين', 'عندما', 'بعد', 'إلى', 'الى', 'حتى', 'هناك', 'أما', 'في', 'منذ', 'لذلك', 'لأن', 'مع', 'هكذا'}
+
+
+def on_screen(ln: dict) -> list[str]:
+    """Every piece of text the scene shows (not the captions, which are the narration itself; not credits or sources)."""
+    out = []
+    def walk(v, key=None):
+        if isinstance(v, dict):
+            for k, x in v.items():
+                if k in SCREEN: walk(x, k)
+        elif isinstance(v, list):
+            for x in v: walk(x, key)
+        elif isinstance(v, str) and key in SCREEN and v.strip():
+            out.append(v.strip())
+    walk({'banner': ln.get('banner')}); walk(ln.get('params', {}), 'lines')
+    return out
+
+
+def _says(screen: str, narration: str) -> bool:
+    """Whether a piece of on-screen text belongs to what is being said: a shared word (by its stem) or number."""
+    st = lambda t: {checks.stem(w) for w in checks.words(t) if len(checks.stem(w)) >= 3 or w.isdigit()}
+    a, b = st(screen), st(narration)
+    return any(x == y or (len(x) >= 4 and len(y) >= 4 and x[:4] == y[:4]) for x in a for y in b)
+
+
 def story_check(film: dict) -> list[str]:
     """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
     out, lines = [], film['lines']
@@ -52,6 +82,15 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: unknown mood {ln['mood']!r} (one of {', '.join(moods.MOODS)})")
     if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
         out.append('the story has events but no line carries its feeling (mood:)')
+    for ln in lines:                                                     # each scene shows what is being said in it
+        said = ln['text'] + ' ' + ln.get('say', '')
+        for t in on_screen(ln):
+            if not ln.get('screen_ok') and not _says(t, said):
+                out.append(f"{ln['id']}: the screen shows «{t}», which this line does not say")
+    for prev, ln in zip(lines, lines[1:]):                               # every change of scene is led into
+        first = (checks.words(ln['text']) or [''])[0]
+        if ln.get('closing') or first in LEADS or (first[:1] in 'وف' and len(first) > 2): continue
+        out.append(f"{ln['id']}: begins without leading in from {prev['id']} (open with وبينما، لكن، ثم، وبعد… or a sentence that prepares the change)")
     last = None                                                          # told in order: a year never goes back unless it says so
     for ln in lines:
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
