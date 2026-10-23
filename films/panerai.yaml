@@ -1,6 +1,6 @@
 # Panerai, told in order and in four acts: the shop on the bridge (1860); the light and its human price (1915–1928);
 # the secret mission (1936–1941); after the war (1949–1993). Each act leads into the next.
-# Every scene shows only what is said in it, and every change of scene is led into by its first words.
+# Every scene has a related photo of the time it speaks of (`year:` on each photo), shows only what is said in it, and every change of scene is led into by its first words.
 # Each line has its story world (`set`, director/studio/sets.py) and, where the story carries a feeling, its `mood`.
 # A historical event (`event: true`) is shown with a historical photograph; a change (`change: true`) says why (`because`).
 # Every line names its sources (numbers refer to `sources`). Years are written as words in `say` so the voice reads them.
@@ -20,21 +20,31 @@ sources:
   - "[8] Luminor (tritium) replaced radium because radium was too hazardous; the crown-protecting bridge, 1950s: https://www.watchfinder.com/articles/feature-the-incredible-deadly-story and https://wristreview.com/brief-history-panerai-luminor/"
   - "[9] Panerai, History (its own account: the first shop, on the Ponte alle Grazie, Florence, 1860): https://www.panerai.com/en/about-panerai/history.html"
   - "[11] Undark — Wikipedia (radium paint made by the U.S. Radium Corporation, Orange, New Jersey, 1917–1926; radium and zinc paint first mixed by William J. Hammer, 1902; a different product from Panerai's Radiomir): https://en.wikipedia.org/wiki/Undark"
+  - "[12] Marie Curie discovered radium (with Pierre Curie, 1898): https://en.wikipedia.org/wiki/Radium"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
-  first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie}
-  radium_painters: {query: USRadiumGirls Argonne1}
-  undark_ad: {query: Undark Radium Girls advertisement 1921}
-  slc_torpedo: {query: Siluro lenta corsa Taranto}
-  queen_elizabeth_1942: {query: HMS QUEEN ELIZABETH FLIES ENSIGN HALF MAST}
-  crown_guard: {query: CROWN GUARD 29728851024}
-  luminor_glow: {query: LUMINOR 30075754506}
-  luminor_close: {query: PANERAI 29802698304}
+  first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
+  florence_1860s: {query: Fratelli Alinari Duomo Firenze c1860s, year: 1865}
+  marie_curie: {query: Marie Curie portrait 1900, year: 1900}
+  radium_painters: {query: USRadiumGirls Argonne1, year: 1922}
+  undark_ad: {query: Undark Radium Girls advertisement 1921, year: 1921}
+  grace_fryer: {query: Grace Fryer, year: 1925}
+  mas_plate_1936: {query: Decima Flotiglia MAS remnants National War Museum Malta MAS 452 plate, year: 1936}
+  rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926}
+  slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
+  slc_compass: {query: Decima Flotiglia MAS remnants Malta SLC compass, year: 1941}
+  queen_elizabeth_1942: {query: HMS QUEEN ELIZABETH FLIES ENSIGN HALF MAST, year: 1942}
+  egiziano_1956: {query: Egiziano panerai2, year: 1956}
+  marina_militare_1990s: {query: Panerai Marina Militare 5218, year: 1995}
+  crown_guard: {query: CROWN GUARD 29728851024, year: 2016}
+  luminor_glow: {query: LUMINOR 30075754506, year: 2016}
+  luminor_close: {query: PANERAI 29802698304, year: 2016}
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
   - id: l1        # [1][2][4]
     set: workshop
     mood: mystery
+    photo: luminor_glow
     text: قصة بانيراي… ساعة وُلدت من ضوء قاتل، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
     template: kinetic_type
     params: {lines: [{text: ضوء قاتل…, size: 84, in: slam}, {text: وسرّ عسكري, size: 70, at: 1.4, in: slam}], y: 470,
@@ -53,23 +63,23 @@ lines:
     banner: جسر ألّي غراتسيه
     params: {asset: first_shop_bridge, desc: Ponte alle Grazie 19th century, card: على هذا الجسر · أول محل}
   - id: l4        # [1][9]
-    set: workshop
-    text: ومن هذا المحل الصغير كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.
-    template: kinetic_type
+    event: true
+    text: ومن هذا المحل الصغير في فلورنسا كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.
+    template: archive_photo
     banner: من المحل إلى البحرية
-    params: {lines: [{text: أدوات دقيقة, size: 96}, {text: للبحرية الإيطالية, size: 60, at: 0.7}], y: 480}
+    params: {asset: florence_1860s, desc: Florence cathedral 1860s, card: فلورنسا في تلك السنوات, move: in, pos: '55% 40%'}
   # ----------------------------------------------------------------------------------- act 2: the light and its price
-  - id: l5        # [1][3]
+  - id: l5        # [1][3][12]
     set: radium
     mood: wonder
     event: true
-    no_photo: no free-licence photograph of the first Radiomir exists; the patent is cited instead
     change: true
     because: احتاجت البحرية أن ترى أجهزتها ليلًا
-    text: لكن البحرية احتاجت أن ترى أجهزتها ليلًا، فطوّرت بانيراي مسحوقًا بالراديوم يتوهّج، سمّته راديومير.
+    photo: marie_curie
+    text: لكن البحرية احتاجت أن ترى أجهزتها ليلًا، فطوّرت بانيراي، من الراديوم الذي اكتشفته ماري كوري، مسحوقًا يتوهّج سمّته راديومير.
     template: kinetic_type
     banner: راديومير
-    params: {lines: [{text: راديومير, size: 110}, {text: يتوهّج ليلًا, size: 60, at: 0.8}], y: 480}
+    params: {lines: [{text: راديومير, size: 110}, {text: يتوهّج ليلًا, size: 60, at: 0.8}, {text: من راديوم ماري كوري, size: 36, at: 1.4}], y: 470}
   - id: l6        # [4][11] (Undark, not Radiomir: the link is radium itself)
     event: true
     mood: sadness
@@ -87,6 +97,7 @@ lines:
   - id: l8        # [4]
     set: radium
     mood: sadness
+    photo: radium_painters
     text: ثم تساقطت أسنانهنّ، وتآكلت فكوكهنّ، ومات أكثر من خمسين بحلول 1927.
     say: ثم تساقطت أسنانهنّ، وتآكلت فكوكهنّ، ومات أكثر من خمسين بحلول عام ألفٍ وتسعمئةٍ وسبعةٍ وعشرين.
     template: kinetic_type
@@ -95,14 +106,15 @@ lines:
   - id: l9        # [4]
     event: true
     mood: sadness
-    text: وحين رفعت خمسٌ منهنّ قضية، حصلن على تعويض… لكنّهنّ رحلن جميعًا.
-    template: newspaper_card
-    banner: القضية
-    params: {header: قضية, title: خمس عاملات رفعن قضية, body: حصلن على تعويض… ثم رحلن جميعًا}
+    text: وحين رفعت خمسٌ منهنّ قضية، ومنهنّ غريس فراير، حصلن على تعويض… لكنّهنّ رحلن جميعًا.
+    template: archive_photo
+    banner: غريس فراير
+    params: {asset: grace_fryer, desc: Grace Fryer, card: واحدة من الخمس اللواتي رفعن القضية}
   # ----------------------------------------------------------------------------------- act 3: the secret mission
   - id: l10       # [2][4]
     set: underwater
     mood: tension
+    photo: mas_plate_1936
     text: وبينما كان العالم يكتشف خطر الراديوم، طلبت البحرية الإيطالية عام 1936 ساعة لغطّاسيها المقاتلين.
     say: وبينما كان العالم يكتشف خطر الراديوم، طلبت البحرية الإيطالية عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين ساعة لغطّاسيها المقاتلين.
     template: kinetic_type
@@ -112,7 +124,8 @@ lines:
     set: workshop
     change: true
     because: لم تكن بانيراي تملك مصنعًا للساعات
-    text: ولأن بانيراي لا تملك مصنعًا للساعات، صنعت رولكس العلبة والآلية، وصنعت بانيراي الميناء المضيء.
+    photo: rolex_oyster_1926
+    text: ولأن بانيراي لا تملك مصنعًا للساعات، لجأت إلى رولكس صاحبة ساعة أويستر المقاومة للماء، فصنعت رولكس العلبة والآلية، وصنعت بانيراي الميناء المضيء.
     template: spec_card
     banner: لماذا رولكس؟
     params: {title: صنعت رولكس وصنعت بانيراي, rows: [{label: العلبة, value: رولكس}, {label: الآلية, value: رولكس}, {label: الميناء المضيء, value: بانيراي}], y: 470}
@@ -122,7 +135,7 @@ lines:
     text: وكانت لرجال يعملون في العتمة، غطّاسون يركبون طوربيدات يسمّونها الخنازير، ويتسلّلون ليلًا إلى موانئ العدو.
     template: archive_photo
     banner: الطوربيد البشري
-    params: {asset: slc_torpedo, desc: SLC human torpedo in a museum, card: طوربيد «الخنزير»}
+    params: {asset: slc_torpedo, desc: SLC human torpedo in a museum, card: طوربيد «الخنزير» · من تلك الحرب}
   - id: l13       # [5]
     mood: tension
     text: وفي ديسمبر 1941، تسلّل ستة منهم إلى ميناء الإسكندرية، وعطّلوا بارجتين بريطانيتين.
@@ -138,51 +151,42 @@ lines:
     banner: البارجة كوين إليزابيث
     params: {asset: queen_elizabeth_1942, desc: HMS Queen Elizabeth at Alexandria 1942, card: تبدو سليمة… لكنها ليست كذلك}
   - id: l15       # [7]
-    set: underwater
+    event: true
     mood: mystery
-    text: ويبقى سؤال بلا جواب أكيد، فيُقال إن ساعات بانيراي كانت على معاصمهم تلك الليلة.
-    template: kinetic_type
+    text: ويُقال إن ساعات بانيراي كانت على معاصم هؤلاء الغطّاسين تلك الليلة، إلى جانب بوصلاتهم المضيئة.
+    template: archive_photo
     banner: يُقال…
-    params: {lines: [{text: يُقال…, size: 110}, {text: ساعات بانيراي على معاصمهم؟, size: 52, at: 0.8}], y: 480}
+    params: {asset: slc_compass, desc: SLC compass, card: بوصلة من طوربيدات الغطّاسين · متحف مالطا}
   # ----------------------------------------------------------------------------------- act 4: after the war
   - id: l16       # [8][10]
-    set: underwater
+    event: true
     mood: joy
     change: true
     because: الراديوم كان خطرًا، والتريتيوم إشعاعه أضعف بكثير
-    text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت بانيراي عام 1949 مادة أخفّ إشعاعًا، سمّتها لومينور.
-    say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت بانيراي عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا، سمّتها لومينور.
-    template: product_reveal
+    text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت بانيراي عام 1949 مادة أخفّ إشعاعًا سمّتها لومينور، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
+    say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت بانيراي عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا سمّتها لومينور، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
+    template: archive_photo
     banner: لومينور · 1949
-    params: {asset: luminor_glow, desc: Luminor Marina, name: لومينور، أخفّ إشعاعًا, year: '1949'}
+    params: {asset: egiziano_1956, desc: Panerai Egiziano 1956, card: ساعة بانيراي من الخمسينيات · ما زال عليها الراديوم}
   - id: l17       # [8]
     set: workshop
     change: true
     because: كي يبقى التاج مضغوطًا على مانع التسرّب فلا يدخل الماء
-    text: وفي الخمسينيات أُضيف جسر يضغط التاج، كي لا يتسرّب الماء.
+    text: ومنذ الخمسينيات يضغط جسرٌ التاجَ ويُحكم إغلاقه كي لا يتسرّب الماء، وما زال هذا الجسر علامتها حتى اليوم.
     template: product_macro
-    banner: جسر يحمي التاج
+    banner: جسر التاج اليوم
     params: {asset: crown_guard, desc: crown guard}
   - id: l18       # [1]
-    set: archive
-    mood: mystery
-    text: وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة.
-    say: وبقيت سرًّا، فحتى عام ألفٍ وتسعمئةٍ وسبعين لم يُصنع منها إلا نحو ألفٍ وستمئة ساعة.
-    template: kinetic_type
-    banner: سرّ حتى 1970
-    params: {lines: [{text: '1600', size: 150}, {text: ساعة فقط, size: 56, at: 0.8}], y: 500}
-  - id: l19       # [1]
-    set: archive
     mood: joy
-    text: إلى أن خرجت أخيرًا إلى الناس عام 1993.
-    say: إلى أن خرجت أخيرًا إلى الناس عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين.
-    template: kinetic_type
+    text: وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة، إلى أن خرجت أخيرًا إلى الناس عام 1993.
+    say: وبقيت سرًّا، فحتى عام ألفٍ وتسعمئةٍ وسبعين لم يُصنع منها إلا نحو ألفٍ وستمئة ساعة، إلى أن خرجت أخيرًا إلى الناس عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين.
+    template: product_reveal
     banner: إلى الناس · 1993
-    params: {lines: [{text: '1993', size: 140}, {text: أخيرًا إلى الناس, size: 56, at: 0.7}], y: 500}
-  - id: l20       # —
+    params: {asset: marina_militare_1990s, desc: Panerai Marina Militare 1990s, name: خرجت إلى الناس, year: '1993'}
+  - id: l19       # —
     set: underwater
     mood: wonder
     closing: true
-    text: هكذا صارت بانيراي، المولودة من ضوء قاتل، من أشهر ساعات العالم.
+    text: هكذا صارت بانيراي، المولودة من ضوء قاتل، من أشهر ساعات العالم اليوم.
     template: product_reveal
     params: {asset: luminor_close, desc: Luminor Marina, name: بانيراي, name_size: 60}

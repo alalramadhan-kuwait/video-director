@@ -456,6 +456,22 @@ def production_ready(tech: str) -> bool:
     return tech in BUILDERS and any(t['id'] == tech and t['status'] == 'implemented' for t in catalogue())
 
 
+def backdrop(sc: dict, asset: str, dur: float, credit: str = '', move: str = 'in') -> dict:
+    """A related photograph behind a scene of words (a stamp, a number, a card): full frame, a slow drift, darkened so
+    the words stay readable, its credit on screen. The scene's world adds only its sound (the photo is the world)."""
+    s0, s1 = (1.16, 1.04) if move == 'out' else (1.04, 1.16)
+    shade = ('<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1320"><rect width="760" height="1320" fill="#08090B" '
+             'fill-opacity=".62"/></svg>')
+    sc['elements'] = [{'type': 'image', 'asset': asset, 'desc': asset, 'w': 720, 'h': 1280, 'x': 360, 'y': 640, 'frame': False, 'fit': 'cover',
+                       'behind': True, 'scale': [[0, s0], [dur, s1, 'linear']]},
+                      {'type': 'svg', 'w': 760, 'h': 1320, 'svg': shade, 'x': 360, 'y': 640, 'behind': True, 'still': True}] + sc['elements']
+    if credit:
+        sc['elements'].append({'type': 'text', 'text': credit[:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+                               'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
+    sc['full_frame'] = True
+    return sc
+
+
 def _sounds(tech, p, sc, dur):
     """The template's own sound effects, on the beats it draws: a stamp lands, a card is placed, a pin drops, a row
     clicks in, a photo is revealed. Quiet, under the voice; the sounds are the engine's local kit."""

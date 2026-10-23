@@ -13,6 +13,8 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              · a historical event (`event: true`) is shown with a historical photograph (archive_photo, archival_collage,
                newspaper_card) so the viewer sees it happened, or says why none exists (`no_photo:`)
              · a change (`change: true`: a new material, a new design) says why it happened (`because:`), in the narration
+             · every scene has a related picture (a photo template, a photo behind the words: `photo:`, or a city
+               zoom), and the picture is of the time the line speaks of (`year:` on each photo)
              · each scene shows only what is said in it (on-screen words share the narration's words or numbers)
              · every change of scene is led into: the line opens with a connective (و، ثم، لكن، بينما…) or a
                sentence that prepares the change (`closing: true` for an echo that ends the film)
@@ -74,7 +76,7 @@ def story_check(film: dict) -> list[str]:
     """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
     out, lines = [], film['lines']
     for ln in lines:
-        if ln.get('event') and ln['template'] not in PHOTO_TEMPLATES and not ln.get('no_photo'):
+        if ln.get('event') and ln['template'] not in PHOTO_TEMPLATES and not ln.get('photo') and not ln.get('no_photo'):
             out.append(f"{ln['id']}: a historical event with no historical photo (use archive_photo, or say why: no_photo)")
         if ln.get('change') and not ln.get('because'):
             out.append(f"{ln['id']}: a change without its reason (because:)")
@@ -82,6 +84,17 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: unknown mood {ln['mood']!r} (one of {', '.join(moods.MOODS)})")
     if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
         out.append('the story has events but no line carries its feeling (mood:)')
+    photos = film.get('photos') or {}
+    for ln in lines:                                                     # every scene has a related picture, of the right time
+        slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
+        if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo'):
+            out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
+        py = (photos.get(slot) or {}).get('year') if slot else None
+        ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
+        if py and ys and min(abs(py - y) for y in ys) > 15:
+            out.append(f"{ln['id']}: the photo is from about {py} but the line speaks of {', '.join(map(str, ys))}")
+        if slot and slot not in photos:
+            out.append(f"{ln['id']}: photo slot {slot!r} is not in photos:")
     for ln in lines:                                                     # each scene shows what is being said in it
         said = ln['text'] + ' ' + ln.get('say', '')
         for t in on_screen(ln):
@@ -189,8 +202,11 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
             if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo'): params.setdefault('credit', pics[slot]['credit'])
             if ln['template'] == 'archive_photo' and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
-        theme = ln.get('theme') or sets.theme_for(world, film.get('theme', 'tk-bone'))
-        sc = sets.dress(art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner')), world, dur, seed=ln['id'], template=ln['template'])
+        theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
+        sc = art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner'))
+        if ln.get('photo'):                                                  # a scene of words gets its related photo behind
+            art.backdrop(sc, ln['photo'], dur, credit=pics.get(ln['photo'], {}).get('credit', ''))
+        sc = sets.dress(sc, world, dur, seed=ln['id'], template=ln['template'])
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
         same = scenes and scenes[-1].get('set') == world
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
