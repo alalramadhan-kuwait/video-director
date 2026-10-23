@@ -23,6 +23,12 @@ class TestStory(unittest.TestCase):
         self.assertTrue(any('feeling' in o for o in out))
         self.assertTrue(any('unknown mood' in o for o in quickfilm.story_check(film({'mood': 'happyish'}))))
 
+    def test_the_story_is_told_in_order(self):
+        out = quickfilm.story_check(film({'text': 'في 1936'}, {'text': 'في 1915'}))
+        self.assertTrue(any('out of order' in o for o in out))
+        self.assertEqual(quickfilm.story_check(film({'text': 'في 1936'}, {'text': 'في 1915', 'flashback': True})), [])
+        self.assertEqual(quickfilm.story_check(film({'text': 'من 1860 إلى 1915'}, {'text': 'في 1936'})), [])
+
     def test_the_panerai_film_keeps_every_rule(self):
         self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])
 
