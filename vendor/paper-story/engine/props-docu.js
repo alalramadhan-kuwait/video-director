@@ -132,18 +132,24 @@
     const NS = 'http://www.w3.org/2000/svg';
     const svg = document.createElementNS(NS, 'svg');
     svg.setAttribute('width', w); svg.setAttribute('height', h); svg.style.position = 'absolute'; svg.style.left = '0'; svg.style.top = '0';
-    const gGrat = document.createElementNS(NS, 'g'), gLand = document.createElementNS(NS, 'g'), gRoute = document.createElementNS(NS, 'g');
+    const gGrat = document.createElementNS(NS, 'g'), gCoast = document.createElementNS(NS, 'g'), gLand = document.createElementNS(NS, 'g'), gRoute = document.createElementNS(NS, 'g');
     gLand.style.filter = 'drop-shadow(1.5px 3px 2px rgba(0,0,0,.30))';
-    svg.append(gGrat, gLand, gRoute); clip.appendChild(svg);
-    const paths = data.countries.map((c) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('fill', land); p.setAttribute('stroke', 'rgba(0,0,0,.18)'); p.setAttribute('stroke-width', '0.8'); gLand.appendChild(p); return { c, p }; });
+    svg.append(gGrat, gCoast, gLand, gRoute); clip.appendChild(svg);
+    // atlas look (opt-in): `palette` tints each country from a list (stable per name); `coast` draws water lines along the shores
+    const pal = sp.palette || null, coast = sp.coast || null;
+    const tint = (n) => { if (!pal) return land; let hsh = 0; for (const ch of n || '') hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0; return pal[hsh % pal.length]; };
+    const rings = coast ? (coast.rings || [[16, .10], [9, .16], [4, .26]]) : [];
+    const coasts = rings.map(([sw, op]) => data.countries.map(() => { const p = document.createElementNS(NS, 'path'); p.setAttribute('fill', 'none'); p.setAttribute('stroke', coast.color || '#4E6F78'); p.setAttribute('stroke-opacity', op); p.setAttribute('stroke-width', sw); p.setAttribute('stroke-linejoin', 'round'); gCoast.appendChild(p); return p; }));
+    const paths = data.countries.map((c) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('fill', tint(c.n)); p.setAttribute('stroke', sp.border || 'rgba(0,0,0,.18)'); p.setAttribute('stroke-width', '0.8'); gLand.appendChild(p); return { c, p }; });
     const spaths = sp.states ? data.states.map((c) => { const p = document.createElementNS(NS, 'path'); p.setAttribute('fill', 'none'); p.setAttribute('stroke', 'rgba(0,0,0,.28)'); p.setAttribute('stroke-width', '0.7'); gLand.appendChild(p); return { c, p }; }) : [];
     const hl = (sp.highlight || []).map((x) => (typeof x === 'string' ? { n: x } : x));
     const pins = (sp.pins || []).map((pn) => {
       const el = box(node, { left: '0', top: '0', width: '0', height: '0', zIndex: 5 });
       box(el, { left: '-1px', top: '-30px', width: '2px', height: '30px', background: ink });
-      box(el, { left: '-9px', top: '-46px', width: '18px', height: '18px', borderRadius: '50%', background: pn.color || ink, boxShadow: '1px 3px 3px rgba(0,0,0,.4), inset -3px -3px 0 rgba(0,0,0,.25)' });
-      const lab = put(el, { w: 10 + (pn.label || '').length * 11, h: 30, x: pn.left ? -24 - (pn.label || '').length * 11 : 14, y: -64, color: '#F6F2E8', j: .8, bevel: false });
-      text(lab, pn.label || '', { font: 'banner', size: 15, w: 10 + (pn.label || '').length * 11, h: 30, center: true, ls: .04 });
+      box(el, { left: '-9px', top: '-46px', width: '18px', height: '18px', borderRadius: '50%', background: pn.color || sp.pinColor || ink, boxShadow: '1px 3px 3px rgba(0,0,0,.4), inset -3px -3px 0 rgba(0,0,0,.25)' });
+      const ls = pn.size || sp.labelSize || 15, lw = 10 + (pn.label || '').length * ls * .73, lh = Math.round(ls * 2);   // label size scales its paper
+      const lab = put(el, { w: lw, h: lh, x: pn.left ? -24 - lw + 10 : 14, y: -34 - lh, color: '#F6F2E8', j: .8, bevel: false });
+      text(lab, pn.label || '', { font: 'banner', size: ls, w: lw, h: lh, center: true, ls: .04 });
       return { pn, el };
     });
     const routes = (sp.routes || []).map((r) => {
@@ -182,10 +188,11 @@
           }
           p.setAttribute('d', d);
         };
-        paths.forEach(({ c, p }) => {
+        paths.forEach(({ c, p }, i) => {
           draw(c, p);
+          coasts.forEach((ring) => ring[i].setAttribute('d', p.getAttribute('d')));
           const hh = hl.find((x) => x.n === c.n);
-          p.setAttribute('fill', hh && lt >= (hh.at || 0) ? (hh.color || ink) : land);
+          p.setAttribute('fill', hh && lt >= (hh.at || 0) ? (hh.color || ink) : tint(c.n));
         });
         spaths.forEach(({ c, p }) => draw(c, p));
         // graticule

@@ -86,11 +86,30 @@ def b_animated_timeline(p, theme, dur):
     return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.05, 640, 660)}
 
 
+# An old atlas: a sea the colour of faded ink with water lines along every coast, each country its own muted tint (stable
+# per name), the story's country picked out in gold, a red pin, and a compass rose. `plain: true` keeps the old grey map.
+ATLAS = {'sea': '#9FB8BC', 'coast': {'color': '#4F7179'}, 'border': 'rgba(70,52,30,.35)', 'pinColor': '#8E2B22', 'labelSize': 24,
+         'palette': ['#EADFC2', '#DFCFA6', '#D3D8B4', '#E6CDAA', '#DCD5BB', '#E9D7B4', '#CFCFA8']}
+
+
+def _compass(ink):
+    pts = ''.join(f'<polygon points="60,{60 - r} {60 + w},60 60,{60 + r} {60 - w},60" fill="{c}" transform="rotate({a} 60 60)"/>'
+                  for a, r, w, c in ((0, 54, 9, ink), (90, 54, 9, ink), (45, 34, 6, '#8E2B22'), (135, 34, 6, '#8E2B22')))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="120" height="140"><circle cx="60" cy="60" r="44" fill="none" stroke="{ink}" '
+            f'stroke-width="2" stroke-opacity=".6"/>{pts}<circle cx="60" cy="60" r="5" fill="#F3F0E8" stroke="{ink}" stroke-width="2"/>'
+            f'<text x="60" y="136" text-anchor="middle" font-family="Fraunces, serif" font-size="20" font-weight="700" fill="{ink}">N</text></svg>')
+
+
 def b_map(p, theme, dur):
     v0, v1 = p.get('view_from', p['view']), p['view']
+    look = {} if p.get('plain') else {k: p.get(k, v) for k, v in ATLAS.items()}
+    hl = [{'color': GOLD, 'at': .6, **({'n': h} if isinstance(h, str) else h)} for h in p.get('highlight', [])]
     els = [{'type': 'map', 'x': 360, 'y': 640, 'w': 720, 'h': 1280, 'z': 1, 'view': [[0, v0], [min(dur, 2.4), v1, 'inOutCubic']],
-            'pins': p.get('pins', []), 'routes': p.get('routes', []), 'highlight': p.get('highlight', []),
-            'sea': p.get('sea', '#CFC7B5'), 'land': p.get('land', '#F3F0E8')}]
+            'pins': p.get('pins', []), 'routes': p.get('routes', []), 'highlight': hl,
+            'sea': p.get('sea', '#CFC7B5'), 'land': p.get('land', '#F3F0E8'), **look}]
+    if not p.get('plain'):
+        els.append({'type': 'svg', 'w': 120, 'h': 140, 'svg': _compass(INK), 'x': 600, 'y': 380, 'z': 24, 'opacity': .85, 'still': True,
+                    'rot': [[0, -40], [1.4, 0, 'outBack']], 'in': {'type': 'fade', 'at': .2}})
     for lb in p.get('labels', []):
         els.append({'type': 'text', 'text': lb['text'], 'font': 'title', 'size': lb.get('size', 40), 'color': INK, 'paper': PAPER,
                     'x': lb['x'], 'y': lb['y'], 'rot': lb.get('rot', -2), 'z': 25, 'in': {'type': 'pop', 'at': lb.get('at', 1.0)}})
@@ -349,6 +368,7 @@ NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('phot
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']]}
 
 
+FULL_FRAME = {'map', 'product_macro'}       # templates that fill the frame: they are the world themselves (a set adds only its sound)
 CATALOGUE = ROOT / 'art/catalogue.yaml'
 
 

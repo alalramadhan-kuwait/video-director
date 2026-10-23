@@ -10,7 +10,7 @@ class TestSets(unittest.TestCase):
         for k in sets.SETS:
             base = art.scene_visual('map', {'view': {'lon': 11, 'lat': 43, 'span': 6}}, sets.theme_for(k, 'tk-bone'), 6.0)
             own = list(base['elements'])
-            sc = sets.dress(base, k, 6.0, seed='x')
+            sc = sets.dress(base, k, 6.0, seed='x', template='kinetic_type')
             i = sc['elements'].index(own[0])
             self.assertTrue(all(e.get('behind') for e in sc['elements'][:i]), k)            # back decor under the template
             self.assertTrue(all(not e.get('behind') for e in sc['elements'][i + len(own):]), k)   # front decor over it (a full map too)
@@ -21,6 +21,17 @@ class TestSets(unittest.TestCase):
             for c in sc['beds'] + sc.get('sfx', []):
                 self.assertIn(f"save('{c['name']}'", kit, k)                                    # the local kit makes every sound used
             self.assertEqual(sc['set'], k)
+
+    def test_a_full_frame_template_gets_the_world_sound_not_its_decor(self):
+        m = art.scene_visual('map', {'view': {'lon': 11, 'lat': 43, 'span': 6}, 'highlight': ['Italy']}, 'tk-bone', 6.0)
+        n = len(m['elements'])
+        sets.dress(m, 'florence', 6.0, template='map')
+        self.assertEqual(len(m['elements']), n)
+        self.assertTrue(m['beds'])
+        self.assertEqual(m['elements'][0]['highlight'][0]['n'], 'Italy')          # the story's country, picked out in gold
+        self.assertEqual(m['elements'][0]['highlight'][0]['color'], art.GOLD)
+        self.assertIn('palette', m['elements'][0])                                   # the atlas look by default
+        self.assertNotIn('palette', art.scene_visual('map', {'view': {'lon': 11, 'lat': 43, 'span': 6}, 'plain': True}, 'tk-bone', 6.0)['elements'][0])
 
     def test_dark_worlds_turn_the_text_light(self):
         self.assertEqual(sets.theme_for('underwater', 'tk-bone'), 'tk-ink')
