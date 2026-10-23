@@ -21,14 +21,20 @@ sources:
   - "[9] Panerai, History (its own account: the first shop, on the Ponte alle Grazie, Florence, 1860): https://www.panerai.com/en/about-panerai/history.html"
   - "[11] Undark — Wikipedia (radium paint made by the U.S. Radium Corporation, Orange, New Jersey, 1917–1926; radium and zinc paint first mixed by William J. Hammer, 1902; a different product from Panerai's Radiomir): https://en.wikipedia.org/wiki/Undark"
   - "[12] Marie Curie discovered radium (with Pierre Curie, 1898): https://en.wikipedia.org/wiki/Radium"
+  - "[13] US Patent 2,995,639, Giuseppe and Maria Panerai, filed 28 Aug 1957, granted 8 Aug 1961 (a device for a hermetically sealed box to be immersed under pressure); the drawing is public domain: US patent drawings are not subject to copyright (USPTO terms of use, https://www.uspto.gov/terms-use-uspto-websites): https://patents.google.com/patent/US2995639A"
+  - "[14] Panerai diving instruments (depth gauge, compass, torch, knife, watch), probably 1940s–1960s: https://commons.wikimedia.org/wiki/File:Set_of_tools_for_scuba_diving_from_the_Italian_company_Panerai.jpg"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
+  # the opening: Panerai's own patent drawing (a real drawing from the archive, never an invented one), lines on blueprint
+  panerai_patent_1961: {file: films/assets/panerai_patent_1961.png, year: 1961, licence: Public domain (US patent drawing),
+                        credit: "G. & M. Panerai · US Patent 2,995,639 (1961) · public domain", page: "https://patents.google.com/patent/US2995639A"}
+  panerai_tools: {query: Set of tools for scuba diving from the Italian company Panerai, year: 1950}
+  panerai_gauge: {query: Panerai depth gauge for scuba diving, year: 1950}
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
-  florence_1860s: {query: Fratelli Alinari Duomo Firenze c1860s, year: 1865}
-  marie_curie: {query: Marie Curie portrait 1900, year: 1900}
+  marie_curie: {query: Marie Curie portrait 1900, year: 1900, person: ماري كوري}
   radium_painters: {query: USRadiumGirls Argonne1, year: 1922}
   undark_ad: {query: Undark Radium Girls advertisement 1921, year: 1921}
-  grace_fryer: {query: Grace Fryer, year: 1925}
+  grace_fryer: {query: Grace Fryer, year: 1925, person: غريس فراير}
   mas_plate_1936: {query: Decima Flotiglia MAS remnants National War Museum Malta MAS 452 plate, year: 1936}
   rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926}
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
@@ -41,12 +47,13 @@ photos:
   luminor_close: {query: PANERAI 29802698304, year: 2016}
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
-  - id: l1        # [1][2][4]
+  - id: l1        # [1][2][4][13]
     mood: mystery
     text: قصة بانيراي… ساعة وُلدت من ضوء قاتل، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
-    template: drawing
-    params: {subject: watch, glow_at: 2.0, lines: [{text: ضوء قاتل…, size: 80, at: 2.0, y: 170}], torpedo: {at: 3.2, y: 930},
-             stamp: {text: سرّ عسكري, at: 4.2, x: 360, y: 800, size: 72}}
+    template: blueprint
+    params: {asset: panerai_patent_1961, desc: Panerai patent drawing 1961, y: 560, reveal: 2.2,
+             lines: [{text: ضوء قاتل…, size: 80, at: 2.4, y: 190}], stamp: {text: سرّ عسكري, at: 3.6, x: 470, y: 690, size: 70},
+             card: رسم من براءة اختراع بانيراي · جهاز محكم تحت الماء}
   - id: l2        # [1][9]
     set: florence
     text: في فلورنسا، عام 1860.
@@ -64,20 +71,26 @@ lines:
     event: true
     text: ومن هذا المحل الصغير في فلورنسا كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.
     template: archive_photo
-    banner: من المحل إلى البحرية
-    params: {asset: florence_1860s, desc: Florence cathedral 1860s, card: فلورنسا في تلك السنوات, move: in, pos: '55% 40%'}
+    banner: أدوات بانيراي للبحرية
+    params: {asset: panerai_tools, desc: Panerai diving instruments, print: true, w: 580, y: 580,
+             card: بوصلة ومقياس عمق ومصباح · أدوات بانيراي من منتصف القرن العشرين}
   # ----------------------------------------------------------------------------------- act 2: the light and its price
-  - id: l5        # [1][3][12]
+  - id: l5        # [1][3][14]
+    mood: tension
+    text: لكن البحرية احتاجت أن ترى أجهزتها في عتمة الليل، وتحت الماء.
+    template: archive_photo
+    banner: أجهزة تُقرأ في العتمة
+    params: {asset: panerai_gauge, desc: Panerai depth gauge, card: مقياس عمق من أجهزة بانيراي للبحرية, move: in, pos: '50% 0%'}
+  - id: l5b       # [1][3][12]
     set: radium
     mood: wonder
     event: true
     change: true
     because: احتاجت البحرية أن ترى أجهزتها ليلًا
-    photo: marie_curie
-    text: لكن البحرية احتاجت أن ترى أجهزتها ليلًا، فطوّرت بانيراي، من الراديوم الذي اكتشفته ماري كوري، مسحوقًا يتوهّج سمّته راديومير.
-    template: kinetic_type
-    banner: راديومير
-    params: {lines: [{text: راديومير, size: 110}, {text: يتوهّج ليلًا, size: 60, at: 0.8}, {text: من راديوم ماري كوري, size: 36, at: 1.4}], y: 470}
+    text: فطوّرت بانيراي، من الراديوم الذي اكتشفته العالمة ماري كوري، مسحوقًا يتوهّج سمّته راديومير.
+    template: archive_photo
+    banner: راديومير · من راديوم ماري كوري
+    params: {asset: marie_curie, desc: Marie Curie portrait 1900, card: ماري كوري · العالمة التي اكتشفت الراديوم, move: in, pos: '50% 30%'}
   - id: l6        # [4][11] (Undark, not Radiomir: the link is radium itself)
     event: true
     mood: sadness

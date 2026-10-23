@@ -80,3 +80,7 @@ class TestThumbFallback(unittest.TestCase):
         self.assertEqual(C.thumb('https://upload.wikimedia.org/wikipedia/commons/8/86/HMS_X%2C_A8016.jpg?utm_source=x'),
                          'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/HMS_X%2C_A8016.jpg/500px-HMS_X%2C_A8016.jpg')
         self.assertIsNone(C.thumb('https://example.org/x.jpg'))
+
+    def test_a_derivative_work_is_credited_to_its_authors_not_its_source_file_name(self):
+        c = {'author': 'File:Set of tools from Panerai.jpg: Piero7 derivative work: Pittigrilli', 'licence': 'Public domain'}
+        self.assertEqual(commons.credit(c), 'Piero7 derivative work: Pittigrilli · Public domain · Wikimedia Commons')

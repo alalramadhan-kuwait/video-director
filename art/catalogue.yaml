@@ -86,12 +86,12 @@ templates:
     name_ar: الوصول إلى المدينة
     about: 'the map flies from the country into the city, then the city''s colours and skyline rise like a pop-up book (landmarks), then its name; cities: florence, geneva, vallee_de_joux, kuwait, paris, london, rome, alexandria, new_york, tokyo, dubai'
     example: {city: florence, sub: إيطاليا · 1860}
-  - id: drawing
+  - id: blueprint
     status: implemented
-    purpose: [hook, opening, mechanism]
-    name_ar: رسمة تنرسم
-    about: an opening that hooks — a drawing that draws itself stroke by stroke, then comes alive (the dial glows, a human torpedo glides past), with the hook's words and a stamp (director/studio/drawings.py)
-    example: {subject: watch, lines: [{text: ضوء قاتل…, at: 2.0}], torpedo: {at: 3.0}, stamp: {text: سرّ عسكري, at: 4.0}}
+    purpose: [hook, opening]
+    name_ar: رسم أرشيفي على ورق أزرق
+    about: an opening that hooks with a real drawing from the archive (a patent, a plan), never an invented illustration — its lines laid on blueprint paper and revealed by a scanning light, a cold glow behind, the hook's words, a stamp, a card naming the drawing and its source
+    example: {asset: panerai_patent_1961, lines: [{text: ضوء قاتل…, at: 2.6}], stamp: {text: سرّ عسكري, at: 3.8}, card: رسم بانيراي الأصلي}
   # ---------------------------------------------------------------- words
   - id: kinetic_type
     status: implemented

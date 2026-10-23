@@ -47,11 +47,11 @@ class TestStory(unittest.TestCase):
         self.assertEqual(quickfilm.story_check(film({'text': 'البداية'}, {'text': 'ساعة وُلدت', 'closing': True})), [])
 
     def test_every_scene_has_a_picture_of_its_own_time(self):
-        f = film({'text': 'البداية', 'template': 'drawing'}, {'text': 'وفي 1949', 'no_photo': None})          # the opening is drawn; the rest need a picture
+        f = film({'text': 'البداية', 'template': 'blueprint', 'params': {'asset': 'd'}}, {'text': 'وفي 1949', 'no_photo': None})          # the opening is an archive drawing; the rest need a picture
         self.assertTrue(any('l2: no picture' in o for o in quickfilm.story_check(f)))
-        f = {**film({'text': 'البداية', 'template': 'drawing'}, {'text': 'وفي 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 2016}}}
+        f = {**film({'text': 'البداية', 'template': 'blueprint', 'params': {'asset': 'd'}}, {'text': 'وفي 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 2016}}}
         self.assertTrue(any('photo is from about 2016' in o for o in quickfilm.story_check(f)))
-        f = {**film({'text': 'البداية', 'template': 'drawing'}, {'text': 'وفي 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 1956}}}
+        f = {**film({'text': 'البداية', 'template': 'blueprint', 'params': {'asset': 'd'}}, {'text': 'وفي 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 1956}}}
         self.assertEqual(quickfilm.story_check(f), [])
         self.assertEqual(quickfilm.story_check(film({'text': 'x', 'template': 'city_zoom', 'no_photo': None, 'params': {'city': 'kuwait'}})), [])
 
@@ -61,15 +61,35 @@ class TestStory(unittest.TestCase):
         self.assertIn('fill-opacity=".62"', sc['elements'][1]['svg'])
         self.assertTrue(sc['full_frame']); self.assertTrue(any(e.get('text') == 'A · PD' for e in sc['elements']))
 
-    def test_the_opening_is_drawn_not_a_photo(self):
+    def test_the_opening_is_a_drawing_from_the_archive_not_a_photo(self):
         out = quickfilm.story_check(film({'text': 'x', 'template': 'archive_photo', 'params': {'asset': 'p'}}))
-        self.assertTrue(any('opening should hook with a drawing' in o for o in out))
-        self.assertFalse(any('opening' in o for o in quickfilm.story_check(film({'text': 'x', 'template': 'drawing'}))))
-        sc = art.scene_visual('drawing', {'subject': 'watch', 'lines': [{'text': 'x'}], 'torpedo': {'at': 2}, 'stamp': {'text': 's'}}, 'tk-ink', 6.0)
+        self.assertTrue(any('opening should hook with a real drawing from the archive' in o for o in out))
+        self.assertFalse(any('opening' in o for o in quickfilm.story_check(film({'text': 'x', 'template': 'blueprint', 'params': {'asset': 'd'}}))))
+        sc = art.scene_visual('blueprint', {'asset': 'd', 'aspect': 1.2, 'lines': [{'text': 'x'}], 'stamp': {'text': 's'}, 'card': 'c',
+                                            'credit': 'G. Panerai · PD'}, 'tk-ink', 6.0)
+        img = next(e for e in sc['elements'] if e['type'] == 'image')
+        self.assertEqual(img['asset'], 'd'); self.assertFalse(img['frame'])                  # the real drawing, not an invented one
+        cover = next(e for e in sc['elements'] if e['type'] == 'svg' and e.get('z') == 4)
+        self.assertGreater(cover['y'][-1][1], img['y'] + img['h'] / 2)                     # the light lifts the cover off the whole drawing
         kinds = [e['type'] for e in sc['elements']]
-        self.assertIn('sketch', kinds); self.assertIn('stamp', kinds)
-        self.assertEqual({c['name'] for c in sc['sfx']} >= {'chime', 'bubbles', 'stamp'}, True)
-        self.assertTrue(art.production_ready('drawing'))
+        self.assertIn('stamp', kinds); self.assertTrue(any(e.get('text') == 'G. Panerai · PD' for e in sc['elements']))
+        self.assertEqual({c['name'] for c in sc['sfx']} >= {'sonar', 'stamp'}, True)
+        self.assertTrue(art.production_ready('blueprint')); self.assertNotIn('drawing', art.BUILDERS)   # the cartoon drawing is gone
+
+    def test_a_person_is_introduced_and_never_under_words(self):
+        ph = {'p': {'query': 'q', 'year': 1900, 'person': 'ماري كوري'}}
+        under = {**film({'text': 'x', 'template': 'blueprint', 'params': {'asset': 'd'}}, {'text': 'وفي ذلك', 'photo': 'p'}), 'photos': ph}
+        self.assertTrue(any('behind the words' in o for o in quickfilm.story_check(under)))
+        nameless = {**film({'text': 'x', 'template': 'blueprint', 'params': {'asset': 'd'}},
+                           {'text': 'واكتشفت كوري الراديوم', 'template': 'archive_photo', 'params': {'asset': 'p', 'card': 'اكتشفت الراديوم'}}), 'photos': ph}
+        self.assertTrue(any('not introduced' in o for o in quickfilm.story_check(nameless)))
+        named = {**film({'text': 'x', 'template': 'blueprint', 'params': {'asset': 'd'}},
+                        {'text': 'واكتشفت ماري كوري الراديوم', 'template': 'archive_photo', 'params': {'asset': 'p', 'card': 'ماري كوري'}}), 'photos': ph}
+        self.assertEqual(quickfilm.story_check(named), [])
+
+    def test_a_photo_can_be_kept_whole_as_a_print(self):
+        whole = art.scene_visual('archive_photo', {'asset': 'p', 'desc': 'd', 'aspect': .88, 'print': True}, 'tk-bone', 5.0)
+        self.assertEqual(whole['elements'][0]['type'], 'photo'); self.assertFalse(whole['full_frame'])
 
     def test_the_panerai_film_keeps_every_rule(self):
         self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])

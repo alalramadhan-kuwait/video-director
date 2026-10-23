@@ -342,7 +342,7 @@ def b_archive_photo(p, theme, dur):
     aspect = p.get('aspect', .75)
     move = p.get('move', 'in')
     els = []
-    if aspect < 1.0:                                                    # fills the frame (Ken Burns)
+    if aspect < 1.0 and not p.get('print'):                             # fills the frame (Ken Burns); `print: true` keeps it whole
         x0, x1 = {'left': (400, 320), 'right': (320, 400)}.get(move, (360, 360))
         s0, s1 = (1.22, 1.06) if move == 'out' else (1.06, 1.22)
         els.append({'type': 'image', 'asset': p['asset'], 'desc': p['desc'], 'w': 720, 'h': 1280, 'x': [[0, x0], [dur, x1, 'linear']], 'y': 640,
@@ -366,38 +366,56 @@ def b_archive_photo(p, theme, dur):
             'sfx': [{'at': .15, 'name': 'shutter' if full else 'paper_place', 'gain': -18}]}
 
 
-def b_drawing(p, theme, dur):
-    """An opening that hooks: a drawing that draws itself (director/studio/drawings.py), then comes alive — the dial
-    glows, a human torpedo glides past — with the hook's words and a stamp. An illustration, never a photograph."""
-    from . import drawings as D
-    paths, texts = D.SUBJECTS[p.get('subject', 'watch')](p.get('draw_at', .2))
-    glow_at = p.get('glow_at', 2.0)
-    i = __import__('director.studio.sets', fromlist=['uid']).uid('glow')
-    glow = (f'<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560"><defs><radialGradient id="{i}"><stop offset="0" '
-            f'stop-color="{D.LUME}" stop-opacity=".5"/><stop offset="1" stop-color="{D.LUME}" stop-opacity="0"/></radialGradient></defs>'
-            f'<circle cx="280" cy="280" r="250" fill="url(#{i})"/></svg>')
-    y = p.get('y', 560)
-    els = [{'type': 'svg', 'w': 560, 'h': 560, 'svg': glow, 'x': 360, 'y': y, 'still': True, 'z': 2,
-            'opacity': [[0, 0], [glow_at, 0], [glow_at + .8, 1, 'outCubic'], [dur, .75]]},
-           {'type': 'sketch', 'x': 360, 'y': y, 'w': 560, 'h': 560, 'z': 3, 'ink': p.get('ink', '#D9D4C7'), 'paths': paths, 'texts': texts,
-            'scale': [[0, .96], [dur, 1.04, 'inOutCubic']]}]
-    if p.get('torpedo'):
-        t = p['torpedo']; a = t.get('at', 3.0)
-        els.append({'type': 'svg', 'w': 420, 'h': 120, 'svg': D.torpedo_svg(), 'x': [[0, 980], [a, 980], [dur + 1.5, -260, 'linear']],
-                    'y': t.get('y', 900), 'z': 4, 'still': True, 'crop': True})
-    for k, ln in enumerate(p.get('lines', [])):
+def b_blueprint(p, theme, dur):
+    """An opening that hooks with a real drawing from the archive (a patent, a plan, an engineering sheet), never an
+    invented illustration: its lines are laid on blueprint paper and revealed by a scanning light from top to bottom,
+    then a cold glow rises behind it and the hook's words and a stamp arrive. A card says what the drawing is; the
+    source and its public-domain evidence are on screen and in the credits (the asset's licence record)."""
+    sid = __import__('director.studio.sets', fromlist=['uid']).uid
+    navy, line = p.get('paper', '#0C1E30'), p.get('line', '#9CC4E0')
+    aspect = p.get('aspect', 1.2)
+    w = p.get('w', 660); h = round(w / aspect); y = p.get('y', 560)
+    top, r0, r1 = y - h / 2, p.get('reveal_at', 0), p.get('reveal_at', 0) + p.get('reveal', 2.4)   # lines from the first frame
+    glow_at = p.get('glow_at', r1)
+    g, k = sid('bp'), sid('bpg')
+    bg = f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1320"><rect width="760" height="1320" fill="{navy}"/></svg>'
+    grid = (f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1320"><defs><pattern id="{g}" width="40" height="40" patternUnits="userSpaceOnUse">'
+            f'<path d="M40 0H0V40" fill="none" stroke="{line}" stroke-opacity=".10" stroke-width="1"/></pattern></defs>'
+            f'<rect width="760" height="1320" fill="url(#{g})"/><rect x="30" y="30" width="700" height="1260" fill="none" stroke="{line}" stroke-opacity=".25" stroke-width="2"/></svg>')
+    glow = (f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="760"><defs><radialGradient id="{k}"><stop offset="0" stop-color="{p.get("glow", "#BFF5C2")}" '
+            f'stop-opacity=".30"/><stop offset="1" stop-color="{p.get("glow", "#BFF5C2")}" stop-opacity="0"/></radialGradient></defs><circle cx="380" cy="380" r="370" fill="url(#{k})"/></svg>')
+    scan = (f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="40"><rect y="18" width="760" height="3" fill="#E6F4FF"/>'
+            f'<rect y="10" width="760" height="20" fill="#E6F4FF" fill-opacity=".18"/></svg>')
+    drift = [[0, 1.0], [dur, p.get('push', 1.08), 'inOutCubic']]
+    els = [{'type': 'svg', 'w': 760, 'h': 1320, 'svg': bg, 'x': 360, 'y': 640, 'still': True, 'z': 1},
+           {'type': 'svg', 'w': 760, 'h': 760, 'svg': glow, 'x': 360, 'y': y, 'still': True, 'z': 2,
+            'opacity': [[0, 0], [glow_at, 0], [glow_at + 1.0, 1, 'outCubic'], [dur, .8]]},
+           {'type': 'image', 'asset': p['asset'], 'desc': p.get('desc', p['asset']), 'w': w, 'h': h, 'x': 360, 'y': y, 'frame': False,
+            'fit': 'contain', 'still': True, 'z': 3, 'scale': drift},
+           {'type': 'svg', 'w': 760, 'h': h + 80, 'x': 360, 'still': True, 'z': 4, 'crop': True,       # the cover the light lifts
+            'svg': f'<svg xmlns="http://www.w3.org/2000/svg" width="760" height="{h + 80}"><rect width="760" height="{h + 80}" fill="{navy}"/></svg>',
+            'y': [[0, y], [r0, y], [r1, y + h + 80, 'outCubic']]},
+           {'type': 'svg', 'w': 760, 'h': 40, 'svg': scan, 'x': 360, 'still': True, 'z': 5, 'crop': True,
+            'y': [[0, top - 40], [r0, top - 40], [r1, top + h + 40, 'outCubic']], 'opacity': [[0, 0], [r0, 1], [r1 - .2, 1], [r1 + .1, 0]]},
+           {'type': 'svg', 'w': 760, 'h': 1320, 'svg': grid, 'x': 360, 'y': 640, 'still': True, 'z': 6}]
+    for i, ln in enumerate(p.get('lines', [])):
         els.append({'type': 'text', 'text': ln['text'], 'font': 'title', 'size': ln.get('size', 76), 'color': PAPER, 'x': 360,
-                    'y': ln.get('y', 180 + 90 * k), 'w': 640, 'align': 'center', 'z': 10,
+                    'y': ln.get('y', 180 + 90 * i), 'w': 640, 'align': 'center', 'z': 10, 'shadow': True,
                     'in': {'type': ln.get('in', 'rise'), 'at': ln.get('at', glow_at), 'dur': .45}})
     if p.get('stamp'):
         st = p['stamp']
         els.append({'type': 'stamp', 'text': st['text'], 'x': st.get('x', 470), 'y': st.get('y', 760), 'size': st.get('size', 80),
-                    'color': st.get('color', '#E8DCC0'), 'rot': -8, 'z': 12, 'in': {'type': 'slam', 'at': st.get('at', 4.0)}})
-    sfx = [{'at': .2, 'name': 'paper_slide', 'gain': -18}, {'at': glow_at, 'name': 'chime', 'gain': -16}]
-    if p.get('torpedo'): sfx.append({'at': p['torpedo'].get('at', 3.0), 'name': 'bubbles', 'gain': -16})
-    if p.get('stamp'): sfx.append({'at': p['stamp'].get('at', 4.0) + .05, 'name': 'stamp', 'gain': -9})
-    return {'theme': 'tk-black', 'floor': False, 'elements': els, 'sfx': [c for c in sfx if c['at'] < dur],
-            'camera': {'zoom': [[0, 1.0], [dur, 1.05, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640]]}}
+                    'color': st.get('color', '#E8DCC0'), 'rot': -8, 'z': 12, 'in': {'type': 'slam', 'at': st.get('at', glow_at + 1.2)}})
+    if p.get('card'):
+        els.append({'type': 'text', 'text': p['card'], 'font': 'banner', 'size': 26, 'color': navy, 'paper': line, 'x': 360,
+                    'y': p.get('card_y', y + h / 2 + 60), 'w': 600, 'align': 'center', 'z': 11, 'in': {'type': 'fade', 'at': r1 - .4}})
+    if p.get('credit'):
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+                    'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
+    sfx = [{'at': r0, 'name': 'sonar', 'gain': -16}, {'at': glow_at, 'name': 'geiger', 'gain': -20}]
+    if p.get('stamp'): sfx.append({'at': p['stamp'].get('at', glow_at + 1.2) + .05, 'name': 'stamp', 'gain': -9})
+    return {'theme': 'tk-black', 'floor': False, 'elements': els, 'sfx': [c for c in sfx if c['at'] < dur], 'full_frame': True,
+            'camera': {'zoom': [[0, 1.0], [dur, 1.03, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640]]}}
 
 
 def b_spec_card(p, theme, dur):
@@ -471,9 +489,10 @@ BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_time
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
             'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom,
-            'archive_photo': b_archive_photo, 'drawing': b_drawing}
+            'archive_photo': b_archive_photo, 'blueprint': b_blueprint}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
-                'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']]}
+                'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']],
+                'blueprint': lambda p: [p['asset']]}
 
 
 FULL_FRAME = {'map', 'product_macro', 'city_zoom'}       # templates that fill the frame: they are the world themselves (a set adds only its sound)
