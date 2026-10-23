@@ -19,6 +19,7 @@ sources:
   - "[7] Worn & Wound, Military Watches of the World: Italy (Panerai had no watchmaking facility and turned to Rolex; 'highly likely' early Panerai saw service in the Alexandria raid): https://wornandwound.com/military-watches-of-the-world-italy-pt-i/"
   - "[8] Luminor (tritium) replaced radium because radium was too hazardous; the crown-protecting bridge, 1950s: https://www.watchfinder.com/articles/feature-the-incredible-deadly-story and https://wristreview.com/brief-history-panerai-luminor/"
   - "[9] Panerai, History (its own account: the first shop, on the Ponte alle Grazie, Florence, 1860): https://www.panerai.com/en/about-panerai/history.html"
+  - "[11] Undark — Wikipedia (radium paint made by the U.S. Radium Corporation, Orange, New Jersey, 1917–1926; radium and zinc paint first mixed by William J. Hammer, 1902; a different product from Panerai's Radiomir): https://en.wikipedia.org/wiki/Undark"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie}
@@ -69,19 +70,19 @@ lines:
     template: kinetic_type
     banner: راديومير
     params: {lines: [{text: راديومير, size: 110}, {text: يتوهّج ليلًا, size: 60, at: 0.8}], y: 480}
-  - id: l6        # [4]
+  - id: l6        # [4][11] (Undark, not Radiomir: the link is radium itself)
     event: true
     mood: sadness
-    text: غير أن هذا الضوء أخفى سرًّا مظلمًا، ففي أمريكا كانت عاملات شابّات يرسمنه على الساعات.
+    text: غير أن الراديوم نفسه أخفى سرًّا مظلمًا، ففي أمريكا كان طلاء آخر بالراديوم، اسمه أندارك، ترسمه عاملات شابّات على الساعات.
     template: archive_photo
     banner: عاملات الراديوم
-    params: {asset: radium_painters, desc: radium dial painters 1922, card: عاملات شابّات · أمريكا}
+    params: {asset: radium_painters, desc: radium dial painters 1922, card: طلاء أندارك · عاملات شابّات في أمريكا}
   - id: l7        # [4]
     event: true
     mood: sadness
     text: وقيل لهنّ إن الطلاء آمن، كما كانت الإعلانات تَعِد، فكنّ يبلّلن الفرشاة بشفاههنّ.
     template: archive_photo
-    banner: إعلان الطلاء
+    banner: إعلان طلاء أندارك
     params: {asset: undark_ad, desc: Undark advertisement 1921, card: الإعلانات تَعِد بأنه آمن, move: out, pos: '50% 30%'}
   - id: l8        # [4]
     set: radium
@@ -102,8 +103,8 @@ lines:
   - id: l10       # [2][4]
     set: underwater
     mood: tension
-    text: وبينما كان العالم يكتشف خطر هذا الضوء، طلبت البحرية الإيطالية عام 1936 ساعة لغطّاسيها المقاتلين.
-    say: وبينما كان العالم يكتشف خطر هذا الضوء، طلبت البحرية الإيطالية عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين ساعة لغطّاسيها المقاتلين.
+    text: وبينما كان العالم يكتشف خطر الراديوم، طلبت البحرية الإيطالية عام 1936 ساعة لغطّاسيها المقاتلين.
+    say: وبينما كان العالم يكتشف خطر الراديوم، طلبت البحرية الإيطالية عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين ساعة لغطّاسيها المقاتلين.
     template: kinetic_type
     banner: طلب البحرية · 1936
     params: {lines: [{text: ساعة للغطّاسين, size: 92}, {text: البحرية الإيطالية · 1936, size: 52, at: 0.8}], y: 480}
