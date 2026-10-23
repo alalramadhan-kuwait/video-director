@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Local OmniVoice narration for review; no provider API or time stretching.
+"""Local narration (OmniVoice, or VoxCPM2 with --engine voxcpm2); no provider API or time stretching.
+
+Engines (both free and local; the licence of the weights decides what the takes may be used for):
+  omnivoice   k2-fsa/OmniVoice   CC-BY-NC weights: review only, not for publishing
+  voxcpm2     openbmb/VoxCPM2    Apache-2.0 weights: commercial use permitted; Arabic among its 30 languages;
+              the speaker description is given as the documented voice-design prefix «(description)text»
 
 --output take.wav     the whole script in one request (one voice, one file)
 --lines-dir DIR       one file per script line (DIR/<id>.wav + .json), the model loaded once and the same seed and
@@ -16,6 +21,12 @@ import re
 import tempfile
 
 MODEL = 'k2-fsa/OmniVoice'
+ENGINES = {
+    'omnivoice': {'model': MODEL, 'steps': 32, 'source': 'https://huggingface.co/k2-fsa/OmniVoice',
+                  'license_note': 'Upstream pretrained model: CC-BY-NC; non-commercial review only'},
+    'voxcpm2': {'model': 'openbmb/VoxCPM2', 'steps': 10, 'source': 'https://huggingface.co/openbmb/VoxCPM2',
+                'license_note': 'Apache-2.0 weights (openbmb/VoxCPM2): commercial use permitted'},
+}
 
 
 def read_script(path):
@@ -76,18 +87,23 @@ def parser():
     out.add_argument('--output', type=Path, help='New WAV file; existing takes are never replaced')
     out.add_argument('--lines-dir', type=Path, help='One WAV per line in this folder (DIR/<id>.wav); existing lines are kept')
     p.add_argument('--only', default=None, help='With --lines-dir: only these line ids, comma separated')
-    p.add_argument('--model', default=MODEL)
+    p.add_argument('--engine', choices=sorted(ENGINES), default='omnivoice')
+    p.add_argument('--model', default=None, help="The engine's model (default: the engine's own)")
     p.add_argument('--device', choices=['auto', 'mps', 'cuda', 'cpu'], default='auto')
     p.add_argument('--brand', type=Path, help='Brand config (brand/timekeeper.json): voice settings and pronunciation')
     p.add_argument('--language', default=None, help='OmniVoice language ID; arb = Standard Arabic (default)')
     p.add_argument('--instruct', default=None, help='Speaker description (default: the brand config, else male, middle-aged, low pitch)')
     p.add_argument('--seed', type=int, default=1234)
-    p.add_argument('--steps', type=int, default=32)
+    p.add_argument('--steps', type=int, default=None, help='Generation steps (default: 32 OmniVoice, 10 VoxCPM2)')
+    p.add_argument('--cfg', type=float, default=2.0, help='VoxCPM2 guidance (its default 2.0)')
     p.add_argument('--plan', action='store_true', help='Inspect the request without importing or downloading models')
     return p
 
 
 def request(args):
+    eng = ENGINES[args.engine]
+    args.model = args.model or eng['model']
+    args.steps = args.steps or eng['steps']
     if args.output is not None and args.output.suffix.lower() != '.wav':
         raise ValueError('Output must be a .wav file')
     if args.steps < 1 or args.steps > 100:
@@ -97,30 +113,45 @@ def request(args):
     text = spoken(script, lex)
     language = args.language or cfg.get('language') or 'arb'
     instruct = args.instruct or cfg.get('instruct') or 'male, middle-aged, low pitch'
-    return dict(provider='omnivoice', model=args.model, text=text,
+    return dict(provider=args.engine, model=args.model, text=text,
                 text_sha256=hashlib.sha256(text.encode()).hexdigest(),
                 script_sha256=hashlib.sha256(script.encode()).hexdigest(),
                 pronunciation_applied=sorted(k for k in lex if k in script),
                 language=language, instruct=instruct, seed=args.seed,
-                num_step=args.steps, speed=1.0, status='candidate',
-                license_note='Upstream pretrained model: CC-BY-NC; non-commercial review only',
-                source='https://huggingface.co/k2-fsa/OmniVoice')
+                num_step=args.steps, speed=1.0, status='candidate', **({'cfg': args.cfg} if args.engine == 'voxcpm2' else {}),
+                license_note=eng['license_note'], source=eng['source'])
 
 
 def _load(args):
     # Optional heavy dependencies are imported only for actual synthesis.
     import numpy as np
     import torch
-    from omnivoice import OmniVoice
     device = args.device
     if device == 'auto':
         device = 'cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu'
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
-    dtype = torch.float32 if device == 'cpu' else torch.float16
     print(f'Loading {args.model} on {device}', flush=True)
+    if args.engine == 'voxcpm2':
+        from voxcpm import VoxCPM
+        # no denoiser (it is for cleaning a reference recording; voice design needs none); compiling is for CUDA only
+        model = VoxCPM.from_pretrained(args.model, load_denoiser=False, optimize=device == 'cuda', device=device)
+        return model, device
+    from omnivoice import OmniVoice
+    dtype = torch.float32 if device == 'cpu' else torch.float16
     model = OmniVoice.from_pretrained(args.model, device_map=device, dtype=dtype)
     return model, device
+
+
+def _audio(model, args, req):
+    """One request: (waveform, sample rate). VoxCPM2 takes the speaker description as its voice-design prefix."""
+    if args.engine == 'voxcpm2':
+        audio = model.generate(text=f"({req['instruct']}){req['text']}", cfg_value=args.cfg,
+                               inference_timesteps=args.steps, seed=args.seed)
+        return audio, int(model.tts_model.sample_rate)
+    audio = model.generate(text=req['text'], language=req['language'],
+                           instruct=req['instruct'], num_step=args.steps, speed=1.0)[0]
+    return audio, int(model.sampling_rate)
 
 
 def _synth(model, args, req, output):
@@ -130,12 +161,10 @@ def _synth(model, args, req, output):
     import torch
     torch.manual_seed(args.seed)                              # the same seed for every request: one voice
     np.random.seed(args.seed)
-    audio = model.generate(text=req['text'], language=req['language'],
-                           instruct=req['instruct'], num_step=args.steps, speed=1.0)[0]
+    audio, rate = _audio(model, args, req)
     audio = np.asarray(audio)
     if audio.ndim != 1 or not audio.size or not np.isfinite(audio).all():
         raise ValueError('Model returned empty or invalid audio; no take saved')
-    rate = int(model.sampling_rate)
     if rate <= 0:
         raise ValueError('Invalid sample rate')
     output.parent.mkdir(parents=True, exist_ok=True)

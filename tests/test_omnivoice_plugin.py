@@ -102,6 +102,28 @@ class TestOmniVoicePlugin(unittest.TestCase):
         self.script.write_text(json.dumps({'lines': self.texts}, ensure_ascii=False))     # plain lines have no ids
         with self.assertRaises(ValueError): voice.generate(args)
 
+    def test_voxcpm2_engine_uses_its_model_voice_design_prefix_and_licence(self):
+        self.script.write_text(json.dumps({'lines': [{'id': 'l1', 'text': self.texts[0]}]}, ensure_ascii=False))
+        d = self.root / 'vox'
+        args = voice.parser().parse_args(['--script', str(self.script), '--lines-dir', str(d), '--engine', 'voxcpm2',
+                                          '--instruct', 'male, calm narrator'])
+        model = Mock(tts_model=SimpleNamespace(sample_rate=48000)); model.generate.return_value = np.full(4800, 0.1)
+        factory = Mock(return_value=model)
+        torch = SimpleNamespace(manual_seed=Mock(), cuda=SimpleNamespace(is_available=lambda: False),
+                                backends=SimpleNamespace(mps=SimpleNamespace(is_available=lambda: True)))
+        modules = {'torch': torch, 'soundfile': SimpleNamespace(write=lambda path, a, r, subtype: Path(path).write_bytes(b'wav')),
+                   'voxcpm': SimpleNamespace(VoxCPM=SimpleNamespace(from_pretrained=factory))}
+        with patch.dict('sys.modules', modules):
+            r = voice.generate(args)
+        self.assertEqual(r['made'], ['l1'])
+        factory.assert_called_once_with('openbmb/VoxCPM2', load_denoiser=False, optimize=False, device='mps')
+        kw = model.generate.call_args.kwargs
+        self.assertEqual(kw['text'], '(male, calm narrator)' + self.texts[0])        # documented voice design: «(description)text»
+        self.assertEqual((kw['inference_timesteps'], kw['cfg_value'], kw['seed']), (10, 2.0, 1234))
+        rec = json.loads((d / 'l1.json').read_text())
+        self.assertEqual((rec['provider'], rec['model'], rec['sample_rate'], rec['seconds']), ('voxcpm2', 'openbmb/VoxCPM2', 48000, 0.1))
+        self.assertIn('Apache-2.0', rec['license_note']); self.assertIn('commercial use permitted', rec['license_note'])
+
     def test_skill_copies_match(self):
         for name in ['arabic-narration', 'video-director']:
             source = ROOT / 'skills' / name
