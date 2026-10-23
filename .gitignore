@@ -21,3 +21,4 @@ store/
 var/
 .venv/
 examples/explainer/out/
+!films/assets/*.png

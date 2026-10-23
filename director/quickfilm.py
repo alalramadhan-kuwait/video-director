@@ -13,6 +13,9 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              · a historical event (`event: true`) is shown with a historical photograph (archive_photo, archival_collage,
                newspaper_card) so the viewer sees it happened, or says why none exists (`no_photo:`)
              · a change (`change: true`: a new material, a new design) says why it happened (`because:`), in the narration
+             · the opening hooks with a real drawing from the archive (a patent, a plan: `blueprint`), not a photo
+               and never an invented cartoon
+             · a person on screen (`person:` on the photo) is introduced by name and never has words over the face
              · every scene has a related picture (a photo template, a photo behind the words: `photo:`, or a city
                zoom), and the picture is of the time the line speaks of (`year:` on each photo)
              · each scene shows only what is said in it (on-screen words share the narration's words or numbers)
@@ -86,10 +89,18 @@ def story_check(film: dict) -> list[str]:
         out.append('the story has events but no line carries its feeling (mood:)')
     photos = film.get('photos') or {}
     if lines and (lines[0]['template'] in PHOTO_TEMPLATES or lines[0].get('photo')) and not lines[0].get('opening_photo'):
-        out.append(f"{lines[0]['id']}: the opening should hook with a drawing or animation (template drawing), not a photo")
+        out.append(f"{lines[0]['id']}: the opening should hook with a real drawing from the archive (template blueprint) or motion, not a photo")
+    for ln in lines:                                                     # a person on screen is introduced, and seen
+        slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
+        who = (photos.get(slot) or {}).get('person') if slot else None
+        if not who: continue
+        if ln.get('photo'):
+            out.append(f"{ln['id']}: {who} is behind the words (text on a face, no name): show the portrait with archive_photo and their name")
+        elif not any(who in t for t in on_screen(ln)):
+            out.append(f"{ln['id']}: {who} is on screen but not introduced (put the name in the banner or the card)")
     for ln in lines:                                                     # every scene has a related picture, of the right time
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
-        if ln is lines[0]: continue                                      # the opening is drawn
+        if ln is lines[0]: continue                                      # the opening is a drawing from the archive
         if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo'):
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
         py = (photos.get(slot) or {}).get('year') if slot else None
@@ -140,6 +151,7 @@ def photos(film: dict, work: Path) -> dict:
             out[slot] = json.loads(rec.read_text(encoding='utf-8')); continue
         if ph.get('file'):
             src = Path(ph['file']).expanduser()
+            if not src.is_absolute(): src = engine.ROOT / src                # a file kept with the films (films/assets/)
             dst = work / 'assets' / (slot + src.suffix.lower()); shutil.copyfile(src, dst)
             meta = {'credit': ph.get('credit', ''), 'licence': ph.get('licence', 'owner'), 'page': ph.get('page', '')}
         else:
@@ -202,8 +214,8 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
         dur = round(VOICE_AT + t['seconds'] + TAIL + ln.get('pause', 0.25), 2)
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
-            if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo'): params.setdefault('credit', pics[slot]['credit'])
-            if ln['template'] == 'archive_photo' and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
+            if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', pics[slot]['credit'])
+            if ln['template'] in ('archive_photo', 'blueprint') and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
         sc = art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner'))

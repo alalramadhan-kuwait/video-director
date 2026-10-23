@@ -61,7 +61,7 @@ def candidates(query: str, limit=10) -> list[dict]:
             continue
         out.append({'title': p['title'], 'page': ii.get('descriptionurl'), 'url': ii.get('thumburl') or ii.get('url'),
                     'width': ii.get('thumbwidth') or ii['width'], 'height': ii.get('thumbheight') or ii['height'], 'licence': lic,
-                    'licence_url': _text((m.get('LicenseUrl') or {}).get('value')), 'author': _text((m.get('Artist') or {}).get('value'))[:80],
+                    'licence_url': _text((m.get('LicenseUrl') or {}).get('value')), 'author': _author(_text((m.get('Artist') or {}).get('value')))[:80],
                     'name': _text((m.get('ObjectName') or {}).get('value'))[:200],
                     'about': ' '.join(_text((m.get(k) or {}).get('value')) for k in ('ObjectName', 'ImageDescription'))[:600]})
     return out
@@ -93,15 +93,19 @@ def fetch(url: str) -> bytes:
         except urllib.error.HTTPError as e:
             if e.code != 429: raise
             if i == 2:
-                alt = '/thumb/' not in url and thumb(url)                # an unscaled original refused: the standard 500 px one
-                if not alt: raise
+                alt = thumb(url) if '/thumb/' not in url else re.sub(r'/\d+px-', '/500px-', url)   # refused: the standard 500 px one
+                if not alt or alt == url: raise
                 return fetch(alt)
             time.sleep(min(30, int(e.headers.get('Retry-After') or 10)))
     return b''
 
 
 def credit(c: dict) -> str:
-    return f'{c["author"] or "Wikimedia Commons"} · {c["licence"]} · Wikimedia Commons'
+    return f'{_author(c["author"]) or "Wikimedia Commons"} · {c["licence"]} · Wikimedia Commons'
+
+
+def _author(a: str) -> str:
+    return re.sub(r'^File:[^:]+\.(?:jpe?g|png|tiff?)\s*:\s*', '', a or '', flags=re.I)   # a derivative names its source file first
 
 
 def query_for(need: dict) -> str:

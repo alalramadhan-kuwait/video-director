@@ -17,9 +17,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 5. **Feelings** ✓ — name the feeling of the lines that carry it (`mood:` mystery, fear, sadness, tension, joy, wonder).
    **Sadness for human moments always**: people who suffered, were deceived, died, were captured. Make it human:
    who they were, what they were told, what happened to them («قيل لهنّ إنه آمن… فتساقطت أسنانهنّ… ورحلن جميعًا»).
-6. **A strong, honest hook** and a closing line that echoes it. **The opening scene is drawn, not a photo** ✓: a
-   drawing that draws itself and comes alive (`template: drawing`, e.g. the watch whose dial glows while a human
-   torpedo glides past). Photos start with the story; the hook makes the viewer curious first.
+6. **A strong, honest hook** and a closing line that echoes it. **The opening is a real drawing from the archive, not
+   a photo** ✓: a patent, a plan or an engineering sheet by the company or the people in the story, laid on blueprint
+   paper and revealed by a scanning light (`template: blueprint`, e.g. Giuseppe and Maria Panerai's 1961 US patent
+   drawing). **Never an invented cartoon or clip-art drawing**: the owner finds it childish. US patent drawings are
+   public domain (Google Patents: search `inventor:<name>`); keep the patent number and the source in `sources:`.
+   Photos start with the story; the hook makes the viewer curious first.
 
 ## The facts
 7. Every claim has a source in `sources:`; the line names its source numbers.
@@ -42,6 +45,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     more than 15 years from the years said. A modern photo only when the line speaks of today («حتى اليوم»); an old
     photo never illustrates something new. Check who is in a photo: a portrait under a famous name may be someone
     else with the same name (the «Luigi Durand de la Penne» file on Commons is a 19th-century namesake).
+12d. **When a line names what someone made, show that thing**: «صارت تصنع أدوات دقيقة للبحرية» shows the instruments
+    themselves (Panerai's depth gauge, compass, torch), not the city around them. Search Commons for the object with
+    the maker's name («Panerai depth gauge»).
+12e. **A person on screen is introduced and seen** ✓: a portrait carries `person: <name>` on its photo; it is shown
+    with `archive_photo` and the name in the banner or the card, never as a dimmed photo behind words (the words land
+    on the face and the viewer does not know who it is). The narration names them with who they are («العالمة ماري كوري»).
 13. If the exact thing has no free photo, show the nearest true thing and **say what it is** («الجسر الذي كان عليه
     أول محل»), never pretend.
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with
