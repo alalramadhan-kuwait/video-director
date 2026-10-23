@@ -46,6 +46,23 @@ one narration request to reduce speaker changes, and saves a candidate WAV plus 
 settings and measured duration. Existing files cannot be replaced. A seed records the request, but does not
 promise bit-identical output across devices.
 
+## A film's narration, one take per line
+
+For a film file (`films/<name>.yaml`), read each line as its own take so a wrong line can be read again alone and
+the film can use the takes directly. On the owner's Mac, from the repository root, one command does it all (it
+installs the environment on the first run):
+
+```sh
+tools/voice_mac.sh films/panerai.yaml            # every line without a take, into var/voice/panerai/
+tools/voice_mac.sh films/panerai.yaml l5,l9      # read these lines again (old takes are renamed, kept)
+```
+
+Underneath: `tools/voice_script.py` writes the lines as the voice reads them (`say`, years as words), and
+`omnivoice_narrate.py --lines-dir DIR` reads each line with the same seed and speaker description, keeping any
+take already in DIR. The film is then made from those takes, unchanged in speed, each listened to by Whisper:
+`python3 tools/make_film.py films/<name>.yaml <out> --voice-dir DIR`. The film and its `credits.txt` are labelled
+«OmniVoice REVIEW take (CC-BY-NC model) — for review, not for publishing».
+
 Listen to the entire take, especially foreign names, omissions and repetitions. Present the full audio for
 owner approval; successful synthesis is not a pronunciation or naturalness verdict. If it exceeds the film's
 target length, propose a shorter script or longer film. Do not time-stretch the take to force a duration.

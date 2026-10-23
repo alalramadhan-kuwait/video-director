@@ -23,7 +23,9 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
                sentence that prepares the change (`closing: true` for an echo that ends the film)
              · the feeling of the story is named on the lines that carry it (`mood:` mystery, fear, sadness, tension, joy,
                wonder): it changes the light and the sound of the scene (director/studio/moods.py)
-The voice here is the free DRAFT voice; the final narration is OmniVoice on the owner's computer (same file, --voice-dir).
+The voice is the free DRAFT voice unless `voice_dir` is given: a folder of takes read on the owner's computer, one per
+line (OmniVoice: tools/voice_script.py, then omnivoice_narrate.py --lines-dir). Those takes are used as they are (no
+speed change), Whisper still listens to each one, and the film is labelled with the voice and its licence.
 """
 from __future__ import annotations
 import hashlib, json, re, shutil, subprocess, time
@@ -172,13 +174,36 @@ def photos(film: dict, work: Path) -> dict:
     return out
 
 
-def take(line: dict, brand: str, vdir: Path) -> dict:
-    """The line's voice take (cached by what is spoken), what Whisper heard, and the script words timed to it."""
+def voice_script(film: dict) -> list[dict]:
+    """What the voice reads, line by line: {id, text} with `say` (years as words) where the line has one."""
+    return [{'id': ln['id'], 'text': (ln.get('say') or ln['text']).strip()} for ln in film['lines']]
+
+
+def given_take(line: dict, src: Path, vdir: Path) -> tuple[Path, Path]:
+    """A take read elsewhere (src/<id>.wav), copied into the film folder at 24 kHz mono with what Whisper heard in it;
+    cached by the take's own bytes, so a line read again is listened to again."""
+    data = src.read_bytes()
+    key = hashlib.sha256(data).hexdigest()[:10]
+    wav, meta = vdir / f"{line['id']}-given-{key}.wav", vdir / f"{line['id']}-given-{key}.json"
+    if not (wav.is_file() and meta.is_file()):
+        vdir.mkdir(parents=True, exist_ok=True)
+        a = voice.trim(voice.decode(data))
+        out = voice.encode(a, 'wav'); wav.write_bytes(out)
+        meta.write_text(json.dumps({'heard': voice.hear(out), 'seconds': round(len(a) / voice.SR, 3), 'source': str(src)},
+                                   ensure_ascii=False), encoding='utf-8')
+    return wav, meta
+
+
+def take(line: dict, brand: str, vdir: Path, given: Path | None = None) -> dict:
+    """The line's voice take (cached by what is spoken), what Whisper heard, and the script words timed to it.
+    `given` is a folder of takes read elsewhere (one <id>.wav per line), used instead of the draft voice."""
     spoken = B.spoken(line.get('say') or line['text'], brand)
     speed = float((B.load(brand).get('narration') or {}).get('draft_speed', 1.0))   # the free draft voice reads slowly
     key = hashlib.sha256(f'{voice.PROVIDER}|{speed}|{spoken}'.encode()).hexdigest()[:10]
     wav, meta = vdir / f"{line['id']}-{key}.wav", vdir / f"{line['id']}-{key}.json"
-    if not (wav.is_file() and meta.is_file()):
+    if given is not None:
+        wav, meta = given_take(line, given / f"{line['id']}.wav", vdir)
+    elif not (wav.is_file() and meta.is_file()):
         vdir.mkdir(parents=True, exist_ok=True)
         mp3 = voice.synth(spoken)
         if speed != 1.0: mp3 = voice._ff('-i', '-', '-af', f'atempo={speed}', '-f', 'mp3', '-', inp=mp3)
@@ -203,14 +228,31 @@ def loudness(src: Path, dst: Path):
                     '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', str(dst)], check=True)
 
 
-def make(path, out: Path, video=True, scale=1.5) -> dict:
+def voice_label(voice_dir: Path | None) -> tuple[str, str]:
+    """(label, licence) of the narration: the free draft voice, or the takes in voice_dir as their records describe them."""
+    if voice_dir is None:
+        return 'DRAFT VOICE (free) — the final narration is OmniVoice', ''
+    recs = [json.loads(f.read_text(encoding='utf-8')) for f in sorted(Path(voice_dir).glob('*.json'))]
+    lic = {r.get('license_note', '') for r in recs if r.get('license_note')}
+    prov = {r.get('provider', '') for r in recs if r.get('provider')}
+    if 'omnivoice' in prov:
+        return 'OmniVoice REVIEW take (CC-BY-NC model) — for review, not for publishing', '; '.join(sorted(lic))
+    return 'Narration from ' + str(voice_dir), '; '.join(sorted(lic))
+
+
+def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) -> dict:
     film = load(path)
     brand = film.get('brand', 'timekeeper')
     out = Path(out).resolve(); out.mkdir(parents=True, exist_ok=True)
+    if voice_dir is not None:
+        voice_dir = Path(voice_dir).expanduser().resolve()
+        missing = [ln['id'] for ln in film['lines'] if not (voice_dir / f"{ln['id']}.wav").is_file()]
+        if missing:
+            raise FileNotFoundError(f'no take in {voice_dir} for: ' + ', '.join(missing))
     pics = photos(film, out)
     scenes, report = [], {'lines': [], 'photos': pics, 'story': story_check(film)}
     for ln in film['lines']:
-        t = take(ln, brand, out / 'voice')
+        t = take(ln, brand, out / 'voice', given=voice_dir)
         dur = round(VOICE_AT + t['seconds'] + TAIL + ln.get('pause', 0.25), 2)
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
@@ -258,7 +300,9 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
     credits = ['Sources:'] + [f"- {s}" for s in film.get('sources', [])]
     credits += ['Photos:'] + [f"- {v['credit']} ({v['page']})" for v in pics.values() if v.get('credit')]
     if mus: credits += ['Music:', mus['credit']]
+    label, lic = voice_label(voice_dir)
+    credits += ['Narration:', label + (f' ({lic})' if lic else '')]
     (out / 'credits.txt').write_text('\n'.join(credits) + '\n', encoding='utf-8')
-    report['label'] = 'DRAFT VOICE (free) — the final narration is OmniVoice'
+    report['label'] = label
     (out / 'report.json').write_text(json.dumps(report, ensure_ascii=False, indent=1), encoding='utf-8')
     return report

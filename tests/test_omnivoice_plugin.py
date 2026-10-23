@@ -77,6 +77,31 @@ class TestOmniVoicePlugin(unittest.TestCase):
         self.assertEqual(json.loads(self.args.output.with_suffix('.json').read_text()), result)
         self.assertTrue(result['audio_sha256'])
 
+    def test_one_take_per_line_keeps_existing_lines_and_reads_each_line_alone(self):
+        self.script.write_text(json.dumps({'lines': [{'id': f'l{i}', 'text': t} for i, t in enumerate(self.texts, 1)]}, ensure_ascii=False))
+        d = self.root / 'takes'; d.mkdir(); (d / 'l1.wav').write_bytes(b'approved')
+        args = voice.parser().parse_args(['--script', str(self.script), '--lines-dir', str(d), '--plan'])
+        plan = voice.generate(args)
+        self.assertEqual([(q['line'], q['kept'], q['text']) for q in plan['lines']], [('l1', True, self.texts[0]), ('l2', False, self.texts[1])])
+        model = Mock(sampling_rate=24000); model.generate.return_value = [np.full(4800, 0.1)]
+        torch = SimpleNamespace(manual_seed=Mock(), float32='float32', float16='float16',
+                                cuda=SimpleNamespace(is_available=lambda: False), backends=SimpleNamespace(mps=SimpleNamespace(is_available=lambda: False)))
+        modules = {'torch': torch, 'soundfile': SimpleNamespace(write=lambda path, a, r, subtype: Path(path).write_bytes(b'wav')),
+                   'omnivoice': SimpleNamespace(OmniVoice=SimpleNamespace(from_pretrained=Mock(return_value=model)))}
+        args.plan = False
+        with patch.dict('sys.modules', modules):
+            r = voice.generate(args)
+        self.assertEqual((r['made'], r['kept']), (['l2'], ['l1']))
+        self.assertEqual((d / 'l1.wav').read_bytes(), b'approved')                      # an existing take is never replaced
+        self.assertEqual(model.generate.call_args.kwargs['text'], self.texts[1])        # each line is its own request
+        rec = json.loads((d / 'l2.json').read_text())
+        self.assertEqual((rec['line'], rec['seconds'], rec['seed']), ('l2', 0.2, 1234))
+        self.assertIn('CC-BY-NC', rec['license_note'])
+        with self.assertRaises(ValueError):
+            voice.generate(voice.parser().parse_args(['--script', str(self.script), '--lines-dir', str(d), '--only', 'l9']))
+        self.script.write_text(json.dumps({'lines': self.texts}, ensure_ascii=False))     # plain lines have no ids
+        with self.assertRaises(ValueError): voice.generate(args)
+
     def test_skill_copies_match(self):
         for name in ['arabic-narration', 'video-director']:
             source = ROOT / 'skills' / name
