@@ -247,6 +247,8 @@ const t0 = opt.from || 0, t1 = Math.min(opt.to || duration, duration);
 const total = Math.round((t1 - t0) * fps);
 const out = path.resolve(opt.out || 'out.mp4');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pm-frames-'));
+// the frames are removed however the render ends (a failed render once left 2.4 GB behind and filled the disk)
+process.on('exit', () => { if (!opt.keep) { try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (e) {} } });
 console.log(`rendering ${total} frames (${t0}s-${t1}s @ ${fps}fps, ${outW}x${outH}) with ${opt.workers} worker(s)...`);
 const pages = [first];
 for (let k = 1; k < opt.workers; k++) pages.push(await newPage());
