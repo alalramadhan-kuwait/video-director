@@ -185,7 +185,12 @@ async function newPage() {
 async function shot(page, t, file, png) {
   await page.evaluate((tt) => window.PM.setTime(tt), t);
   await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
-  await page.screenshot(png ? { path: file, type: 'png' } : { path: file, type: 'jpeg', quality: 94 });
+  const take = () => page.screenshot(png ? { path: file, type: 'png' } : { path: file, type: 'jpeg', quality: 88 });
+  // a frame Chromium could not capture (a busy or nearly full machine) is tried once more before the render fails
+  try { await take(); } catch (e) {
+    await new Promise((r) => setTimeout(r, 1500));
+    try { await take(); } catch (e2) { e2.message = `frame at ${t.toFixed(2)} s: ` + e2.message; throw e2; }
+  }
 }
 
 // ---------------------------------------------------------------- modes
@@ -249,13 +254,23 @@ const out = path.resolve(opt.out || 'out.mp4');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pm-frames-'));
 // the frames are removed however the render ends (a failed render once left 2.4 GB behind and filled the disk)
 process.on('exit', () => { if (!opt.keep) { try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (e) {} } });
+// the frames need room on disk (about 0.3 MB each at 1080x1920): say so before an hour of work, not at 90 %
+try {
+  const st = fs.statfsSync(tmp), free = st.bavail * st.bsize, need = total * 0.3e6 * opt.scale * opt.scale / 2.25;
+  if (free < need) console.error(`warning: ${(free / 1e9).toFixed(1)} GB free for about ${(need / 1e9).toFixed(1)} GB of frames: free some space or render shorter parts (--from/--to)`);
+} catch (e) {}
 console.log(`rendering ${total} frames (${t0}s-${t1}s @ ${fps}fps, ${outW}x${outH}) with ${opt.workers} worker(s)...`);
 const pages = [first];
 for (let k = 1; k < opt.workers; k++) pages.push(await newPage());
 let done = 0, lastPct = -1;
 const start = Date.now();
+// a page wears out over thousands of frames (Chromium then refuses screenshots near the end of a long film): each
+// worker starts a fresh page every RECYCLE frames
+const RECYCLE = 1200;
 await Promise.all(pages.map(async (p, k) => {
+  let n = 0;
   for (let i = k; i < total; i += pages.length) {
+    if (++n % RECYCLE === 0) { await p.page.context().close(); p = await newPage(); }
     await shot(p.page, t0 + i / fps, path.join(tmp, 'f_' + String(i).padStart(6, '0') + '.jpg'), false);
     done++;
     const pct = Math.floor((done / total) * 10) * 10;
