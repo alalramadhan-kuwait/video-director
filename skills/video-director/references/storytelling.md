@@ -23,6 +23,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
    drawing). **Never an invented cartoon or clip-art drawing**: the owner finds it childish. US patent drawings are
    public domain (Google Patents: search `inventor:<name>`); keep the patent number and the source in `sources:`.
    Photos start with the story; the hook makes the viewer curious first.
+6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
+   people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
+   The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
 
 ## The facts
 7. Every claim has a source in `sources:`; the line names its source numbers.
@@ -51,6 +54,13 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 12e. **A person on screen is introduced and seen** ✓: a portrait carries `person: <name>` on its photo; it is shown
     with `archive_photo` and the name in the banner or the card, never as a dimmed photo behind words (the words land
     on the face and the viewer does not know who it is). The narration names them with who they are («العالمة ماري كوري»).
+12f. **A group in the story is followed to its end**: who they were, what they did, what happened to them and when
+    («خمس عاملات… أطباؤهنّ يقولون إنهنّ يحتضرن… حصلن على تعويض… ورحلن الخمس»), one line for each step, never a
+    clause the viewer can miss. Show the document of the time when there is one (the 1928 newspaper page).
+12g. **Old newspapers are evidence**: Library of Congress, Chronicling America (US papers published before 1930 are
+    public domain). Search the page, crop the headline and the paragraph that proves the line, credit paper and date.
+    When the injury or event itself has no free photograph, say so to the owner and show the newspaper instead;
+    never a modern medical photo of someone else.
 13. If the exact thing has no free photo, show the nearest true thing and **say what it is** («الجسر الذي كان عليه
     أول محل»), never pretend.
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with

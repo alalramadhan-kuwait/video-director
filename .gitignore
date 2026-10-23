@@ -22,3 +22,4 @@ var/
 .venv/
 examples/explainer/out/
 !films/assets/*.png
+!films/assets/*.jpg

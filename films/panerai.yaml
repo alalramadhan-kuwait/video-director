@@ -23,6 +23,7 @@ sources:
   - "[12] Marie Curie discovered radium (with Pierre Curie, 1898): https://en.wikipedia.org/wiki/Radium"
   - "[13] US Patent 2,995,639, Giuseppe and Maria Panerai, filed 28 Aug 1957, granted 8 Aug 1961 (a device for a hermetically sealed box to be immersed under pressure); the drawing is public domain: US patent drawings are not subject to copyright (USPTO terms of use, https://www.uspto.gov/terms-use-uspto-websites): https://patents.google.com/patent/US2995639A"
   - "[14] Panerai diving instruments (depth gauge, compass, torch, knife, watch), probably 1940s–1960s: https://commons.wikimedia.org/wiki/File:Set_of_tools_for_scuba_diving_from_the_Italian_company_Panerai.jpg"
+  - "[15] The Milwaukee Leader, 22 May 1928, p. 1: «5 Radium Victims Lose Court Plea… five former New Jersey factory women whose physicians say they are dying from radium poisoning» (Library of Congress, Chronicling America; published in 1928, public domain in the US): https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
   # the opening: Panerai's own patent drawing (a real drawing from the archive, never an invented one), lines on blueprint
@@ -35,6 +36,8 @@ photos:
   radium_painters: {query: USRadiumGirls Argonne1, year: 1922}
   undark_ad: {query: Undark Radium Girls advertisement 1921, year: 1921}
   grace_fryer: {query: Grace Fryer, year: 1925, person: غريس فراير}
+  radium_victims_1928: {file: films/assets/radium_victims_1928.jpg, year: 1928, licence: Public domain (US newspaper published 1928),
+                        credit: "The Milwaukee Leader · 22 May 1928 · Library of Congress · public domain", page: "https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"}
   mas_plate_1936: {query: Decima Flotiglia MAS remnants National War Museum Malta MAS 452 plate, year: 1936}
   rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926}
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
@@ -49,10 +52,10 @@ lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
   - id: l1        # [1][2][4][13]
     mood: mystery
-    text: قصة بانيراي… ساعة وُلدت من ضوء قاتل، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
+    text: قصة بانيراي… ساعة صُنعت لرجال يعملون في عتمة البحر، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
     template: blueprint
     params: {asset: panerai_patent_1961, desc: Panerai patent drawing 1961, y: 560, reveal: 2.2,
-             lines: [{text: ضوء قاتل…, size: 80, at: 2.4, y: 190}], stamp: {text: سرّ عسكري, at: 3.6, x: 470, y: 690, size: 70},
+             lines: [{text: في عتمة البحر…, size: 76, at: 2.4, y: 190}], stamp: {text: سرّ عسكري, at: 3.6, x: 470, y: 690, size: 70},
              card: رسم من براءة اختراع بانيراي · جهاز محكم تحت الماء}
   - id: l2        # [1][9]
     set: florence
@@ -114,13 +117,21 @@ lines:
     template: kinetic_type
     banner: مات أكثر من خمسين
     params: {lines: [{text: أكثر من 50, size: 120}, {text: بحلول 1927, size: 56, at: 0.8}], y: 480}
-  - id: l9        # [4]
+  - id: l9        # [4][15]
     event: true
     mood: sadness
-    text: وحين رفعت خمسٌ منهنّ قضية، ومنهنّ غريس فراير، حصلن على تعويض… لكنّهنّ رحلن جميعًا.
+    text: وفي 1928، واجهت خمسٌ من هؤلاء العاملات الشركة في المحكمة، وكان أطباؤهنّ يقولون إنهنّ يحتضرن من الراديوم.
+    say: وفي عام ألفٍ وتسعمئةٍ وثمانيةٍ وعشرين، واجهت خمسٌ من هؤلاء العاملات الشركة في المحكمة، وكان أطباؤهنّ يقولون إنهنّ يحتضرن من الراديوم.
+    template: archive_photo
+    params: {asset: radium_victims_1928, desc: Milwaukee Leader 22 May 1928, print: true, w: 400, y: 545, rot: -1, card_y: 870,
+             card: خمس عاملات يقول أطباؤهنّ إنهنّ يحتضرن من الراديوم}
+  - id: l9b       # [4]
+    event: true
+    mood: sadness
+    text: ومنهنّ غريس فراير. حصلت كلّ واحدة منهنّ على تعويض، لكنّ الراديوم كان قد استقرّ في عظامهنّ، فرحلن الخمس جميعًا في السنوات التالية.
     template: archive_photo
     banner: غريس فراير
-    params: {asset: grace_fryer, desc: Grace Fryer, card: واحدة من الخمس اللواتي رفعن القضية}
+    params: {asset: grace_fryer, desc: Grace Fryer, card: غريس فراير · واحدة من الخمس… حصلن على تعويض ورحلن جميعًا}
   # ----------------------------------------------------------------------------------- act 3: the secret mission
   - id: l10       # [2][4]
     set: underwater
@@ -198,6 +209,6 @@ lines:
     set: underwater
     mood: wonder
     closing: true
-    text: هكذا صارت بانيراي، المولودة من ضوء قاتل، من أشهر ساعات العالم اليوم.
+    text: هكذا صارت بانيراي، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.
     template: product_reveal
     params: {asset: luminor_close, desc: Luminor Marina, name: بانيراي, name_size: 60}
