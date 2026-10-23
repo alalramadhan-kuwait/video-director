@@ -69,3 +69,16 @@ class TestStory(unittest.TestCase):
         n = len(tall['elements'])
         sets.dress(tall, 'underwater', 6.0, template='archive_photo')
         self.assertEqual(len(tall['elements']), n)                                          # a full photo is the world itself
+
+
+class TestRulesLiveInThePlugin(unittest.TestCase):
+    def test_the_owner_standards_ship_with_the_plugin_and_the_studio(self):
+        from director.copilot import ai
+        for root in ('skills', '.claude/skills'):
+            rules = (engine.ROOT / root / 'video-director/references/storytelling.md').read_text()
+            for must in ('In order', 'led into', 'Explain why', 'Sadness for human moments', 'historical photograph',
+                         'Each scene shows only what is said', 'Never imply a link', 'city_zoom', 'merge your own pull requests'):
+                self.assertIn(must, rules, (root, must))
+            self.assertIn('references/storytelling.md', (engine.ROOT / root / 'video-director/SKILL.md').read_text())
+        self.assertIn('chronological order', ai.SYSTEM['script'])
+        self.assertIn('only what its own line says', ai.system_prompt('art_brief'))

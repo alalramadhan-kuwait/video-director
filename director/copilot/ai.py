@@ -81,7 +81,11 @@ SYSTEM = {
                       'trustworthy, claims that contradict each other. You did not write it.',
     'script': 'You write a short Arabic (Modern Standard, clear Gulf-friendly) narration script, one sentence group per line, ids h '
               '(the hook), l2, l3 ... Every line lists the research claim ids it relies on. Never state an "avoid" claim except as an '
-              'attributed belief. Also write 3-4 hooks (spoken, on_screen, visual, type, pays_off) and recommend one with reasons.',
+              'attributed belief. Tell the story in chronological order, in acts that lead into each other; open every line '
+              'after the hook with a connective or a sentence that prepares the change; give the reason behind every change; '
+              'name the feeling of the story where it carries one, with sadness for every human moment; say exactly what the '
+              'sources say and never imply a link between two similar things that are not the same. '
+              'Also write 3-4 hooks (spoken, on_screen, visual, type, pays_off) and recommend one with reasons.',
     'fact_check': 'You are an independent fact checker. For every line: verdict supported | attributed | uncertain | unsupported | '
                   'contradicted, the claim ids that support or contradict it, and a short note. Do not rely on keyword matching: read '
                   'what the sentence asserts. When unsure say uncertain.',
@@ -185,7 +189,9 @@ def system_prompt(kind: str) -> str:
     ready = [t for t in art.catalogue() if t['status'] == 'implemented' and t.get('example') is not None]
     lines = [f"- {t['id']} ({', '.join(t['purpose'])}): {t['about']}. Example params: {json.dumps(t['example'], ensure_ascii=False)}"
              for t in ready]
-    return (SYSTEM[kind] + ' Give each scene `concepts`: {template id: params}, for the templates that suit its purpose. '
+    return (SYSTEM[kind] + ' Each scene shows only what its own line says (banners, cards and labels reuse its words); a '
+            'historical event is shown with a historical photograph; a city named in the line arrives with city_zoom. '
+            'Give each scene `concepts`: {template id: params}, for the templates that suit its purpose. '
             'Example words, years and figures below are placeholders: use only this film\'s sourced facts. '
             'A template that needs a photo names an asset slot; never invent the picture.\nTemplates:\n' + '\n'.join(lines))
 

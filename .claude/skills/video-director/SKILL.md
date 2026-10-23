@@ -34,11 +34,19 @@ Fonts, captions, narration voice, watch-name pronunciation, music and logo come 
 The music library is the whole Kevin MacLeod catalogue (1,443 tracks, CC BY 4.0, commercial use with credit),
 filtered by the brand's mood; the owner's own licensed track in `brand/music/` wins if there is one.
 
+## The owner's standards — read first, every film
+**`references/storytelling.md`** holds the rules the owner set through their reviews: the story told in order and
+connected, a sentence that leads into every change of scene, each scene showing only what is said in it, the reason
+behind every change, the feelings named (sadness for every human moment), historical photos for historical events,
+precise wording and no invented links, a world for every scene, a city zoom for every city, colour maps. Apply them all
+without being asked; `tools/make_film.py` checks the checkable ones (`story:` must say «all rules kept»).
+
 ## The steps (all automatic; one approval at the end)
 1. **Research** — trustworthy sources only (museum, archive, patent office, the brand only for its own claims,
-   established references); each claim keeps its source link. Drop or soften what you cannot source.
-2. **Hook + script** — pick the strongest honest hook yourself; Modern Standard Arabic, clear for listening,
-   8–16 lines, one idea per line, ~60–90 s.
+   established references); each claim keeps its source link. Drop or soften what you cannot source. Find the causes
+   (why each change happened), the human stories and their feelings, and the historical photographs.
+2. **Hook + script** — pick the strongest honest hook yourself; Modern Standard Arabic, clear for listening, one idea
+   per line, in chronological acts where each line leads into the next (`references/storytelling.md`).
 3. **Voice** — OmniVoice with the brand settings (`arabic-narration` → `references/omnivoice.md`, pass `--brand`):
    calm, natural documentary delivery, watch names from `brand/pronunciation.json`, natural speed. Listen-check the
    take yourself (Whisper for omissions/repetitions) and regenerate a passage that is wrong.
@@ -46,12 +54,15 @@ filtered by the brand's mood; the owner's own licensed track in `brand/music/` w
    (`motion-graphics`).
 5. **Pictures** — real photos first: `python3 tools/find_photo.py "<what>" --save <dir>`, credited on screen;
    a drawing when none is found.
-6. **Film** — build scenes, check every still yourself (text cut, overlaps, captions covering things, wrong photo),
-   render 1080×1920 with `--crf 24` (≈ 20–26 MB for 2½ minutes), Time Keeper end card, and a music bed from the
-   brand's library: `python3 tools/music.py pick --seconds <film length> --seed <film> --save <dir>`, then
-   `render.mjs ... --music <track> --music-gain -18` (it ducks under the voice by itself) (choose another with `tools/music.py search calm piano` if it does
-   not suit the film). **Send the finished film for approval**, with a one-line list of sources and photo credits and
-   the music credit line (it goes in the post caption).
+6. **Film** — write the film file `films/<name>.yaml` (example: `films/panerai.yaml`): each line's `text` (and `say`
+   when the voice must read it differently, e.g. years as words), its `template` and `params` from
+   `art/catalogue.yaml`, its `banner`, its world (`set`), its `mood`, and `event` / `change` + `because` where they
+   apply; plus `photos` (Commons queries) and `sources`. Then `python3 tools/make_film.py films/<name>.yaml <out>`:
+   it voices, listens (Whisper), times the captions to the voice, draws, checks the story and the layout, adds the
+   ducked music and the end card, keeps the size under the brand's limit and writes `credits.txt`. Fix every `story:`
+   warning, look at every still in `<out>/scenes/` (text cut, overlaps, faint text, wrong photo), then render.
+   **Send the finished film for approval**, with the sources, photo credits and the music credit line (it goes in the
+   post caption).
    The owner approves or comments with time codes («عند 0:42 الخط صغير»); fix only that, resend.
 
 ## Setup in a fresh cloud session (once)

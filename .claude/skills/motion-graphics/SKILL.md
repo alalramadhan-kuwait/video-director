@@ -42,6 +42,15 @@ order of techniques (`art/styles.yaml`); each scene uses the first technique it 
 | `product_reveal` | a real watch photo revealed under a spotlight, name and year | `asset`, `desc`, `name`, `year`, `credit` |
 | `spec_card` | specifications, or two watches compared row by row (sourced figures only) | `title`, `columns`, `rows[{label,values}]`, `source` |
 | `quote_card` | a quotation, who said it, where it was printed | `quote`, `who`, `source` |
+| `archive_photo` | a historical photograph: a tall one fills the frame and the camera drifts, a wide one is a large print; a when-and-where card and the credit | `asset`, `desc`, `card`, `move` (in/out/left/right), `pos` |
+| `city_zoom` | the map flies from the country into a city, then its colours and landmarks rise like a pop-up book, then its name | `city` (an id in `director/studio/cities.py`), `sub` |
+
+**Story worlds and moods** (on any template, from the film file): `set:` draws the world behind the scene with its
+ambience — `underwater`, `sea_night`, `florence`, `workshop`, `radium`, `archive` (`director/studio/sets.py`); a map
+or a full-frame photo gets only its sound. `mood:` adds a light grade under the words and a sound — `mystery`, `fear`,
+`sadness`, `tension`, `joy`, `wonder` (`director/studio/moods.py`). Maps use the colour atlas look by default.
+A city that is not in `cities.py` yet: add it (position, country as the map names it, palette, sound, three skyline
+layers of its landmarks), then render its arrival and look at it.
 
 **The catalogue** — `art/catalogue.yaml` is the list of every template with its purpose and status (implemented /
 experimental / unavailable); only implemented ones are picked for a film. See them all, drawn, with the layout check:
