@@ -335,6 +335,37 @@ def b_city_zoom(p, theme, dur):
     return sc
 
 
+def b_archive_photo(p, theme, dur):
+    """A historical photograph that puts the viewer in the moment: a tall photo fills the frame and the camera drifts
+    across it; a wide one is shown whole as a large print and the camera pushes in. A card says when and where; the
+    author and licence are on screen. The photo is the evidence: it is never retouched or recoloured."""
+    aspect = p.get('aspect', .75)
+    move = p.get('move', 'in')
+    els = []
+    if aspect < 1.0:                                                    # fills the frame (Ken Burns)
+        x0, x1 = {'left': (400, 320), 'right': (320, 400)}.get(move, (360, 360))
+        s0, s1 = (1.22, 1.06) if move == 'out' else (1.06, 1.22)
+        els.append({'type': 'image', 'asset': p['asset'], 'desc': p['desc'], 'w': 720, 'h': 1280, 'x': [[0, x0], [dur, x1, 'linear']], 'y': 640,
+                    'frame': False, 'fit': 'cover', 'pos': p.get('pos', '50% 40%'), 'scale': [[0, s0], [dur, s1, 'linear']]})
+        els.append({'type': 'svg', 'w': 760, 'h': 1320, 'x': 360, 'y': 640, 'still': True, 'z': 5,
+                    'svg': ('<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1320"><rect width="760" height="1320" fill="#000" fill-opacity=".0"/>'
+                            '<rect y="860" width="760" height="460" fill="#000" fill-opacity=".35"/></svg>')})
+        full = True
+    else:                                                               # shown whole, as a large print on the desk
+        els.append({'type': 'photo', 'asset': p['asset'], 'desc': p['desc'], 'label': p.get('label', ''), 'w': p.get('w', 650), 'aspect': aspect,
+                    'x': 360, 'y': p.get('y', 560), 'rot': p.get('rot', -1.5), 'in': {'type': 'drop', 'at': .15}})
+        full = False
+    if p.get('card'):
+        els.append({'type': 'card', 'x': 360, 'y': p.get('card_y', 860 if full else 900), 'w': 520, 'h': 84, 'tex': 'paper', 'label': p['card'],
+                    'title': '', 'body': '', 'style': 'dark', 'z': 20, 'in': {'type': 'drop', 'at': p.get('card_at', .6)}})
+    if p.get('credit'):
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+                    'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
+    cam = {'zoom': [[0, 1.0], [dur, 1.0 if full else 1.1, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640], [dur, 630 if full else 610, 'inOutCubic']]}
+    return {'theme': theme if not full else 'tk-black', 'floor': False, 'elements': els, 'camera': cam, 'full_frame': full,
+            'sfx': [{'at': .15, 'name': 'shutter' if full else 'paper_place', 'gain': -18}]}
+
+
 def b_spec_card(p, theme, dur):
     """Specifications or a comparison: a title and rows of label / value, one column per watch (one or two).
     Only sourced figures belong here; the card draws what it is given and nothing else."""
@@ -405,9 +436,10 @@ BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_time
             'technical_illustration': b_technical_illustration, 'paper_cut': b_paper_cut, 'parallax_25d': b_parallax_25d,
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
-            'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom}
+            'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom,
+            'archive_photo': b_archive_photo}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
-                'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']]}
+                'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']]}
 
 
 FULL_FRAME = {'map', 'product_macro', 'city_zoom'}       # templates that fill the frame: they are the world themselves (a set adds only its sound)

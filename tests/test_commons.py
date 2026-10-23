@@ -72,3 +72,11 @@ class TestFound(Env):
         with self.assertRaises(Refused):
             self.S.act(self.pid, 'cp_asset', {'op': 'found', 'file': 'blobs/x.png', 'page': 'https://commons.wikimedia.org/wiki/File:x',
                                               'licence': 'CC BY-NC 2.0'}, actor='copilot')
+
+
+class TestThumbFallback(unittest.TestCase):
+    def test_an_unscaled_original_maps_to_a_standard_thumbnail(self):
+        from director.copilot import commons as C
+        self.assertEqual(C.thumb('https://upload.wikimedia.org/wikipedia/commons/8/86/HMS_X%2C_A8016.jpg?utm_source=x'),
+                         'https://upload.wikimedia.org/wikipedia/commons/thumb/8/86/HMS_X%2C_A8016.jpg/500px-HMS_X%2C_A8016.jpg')
+        self.assertIsNone(C.thumb('https://example.org/x.jpg'))

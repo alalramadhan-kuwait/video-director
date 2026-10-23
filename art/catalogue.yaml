@@ -31,6 +31,13 @@ templates:
     needs_photo: true
     example: {photos: [{asset: sample_watch, desc: licensed photo, label: صبمارينر · 1953, w: 460, aspect: 1.33, y: 560}],
               tags: [{text: OpaleHorse · CC BY-SA 4.0, size: 22, y: 90, at: 0.3}]}
+  - id: archive_photo
+    status: implemented
+    purpose: [archive, event, document, person_real]
+    name_ar: صورة تاريخية
+    about: a historical photograph that puts the viewer in the moment (a tall one fills the frame and the camera drifts; a wide one is a large print), a when-and-where card and its credit
+    needs_photo: true
+    example: {asset: sample_watch, desc: licensed historical photo, aspect: 1.33, card: صبمارينر · 1953, credit: OpaleHorse · CC BY-SA 4.0 · Wikimedia Commons}
   - id: newspaper_card
     status: implemented
     purpose: [document, archive]
@@ -77,7 +84,7 @@ templates:
     status: implemented
     purpose: [place, city, journey]
     name_ar: الوصول إلى المدينة
-    about: 'the map flies from the country into the city, then the city''s colours and skyline rise like a pop-up book (landmarks), then its name; cities: florence, geneva, vallee_de_joux, kuwait, paris, london, rome, new_york, tokyo, dubai'
+    about: 'the map flies from the country into the city, then the city''s colours and skyline rise like a pop-up book (landmarks), then its name; cities: florence, geneva, vallee_de_joux, kuwait, paris, london, rome, alexandria, new_york, tokyo, dubai'
     example: {city: florence, sub: إيطاليا · 1860}
   # ---------------------------------------------------------------- words
   - id: kinetic_type
@@ -140,6 +147,12 @@ templates:
     name_ar: عوالم القصة
     about: 'set dressing and ambience behind any template, per line `set:` — underwater, sea_night, florence, workshop, radium, archive (director/studio/sets.py)'
     engine: sets.py
+  - id: moods
+    status: implemented
+    purpose: [emotion]
+    name_ar: المشاعر
+    about: 'per line `mood:` — mystery, fear, sadness, tension, joy, wonder: a light grade over the scene and a sound (director/studio/moods.py)'
+    engine: moods.py
   # ---------------------------------------------------------------- not in this studio
   - id: scientific_diagram
     status: unavailable

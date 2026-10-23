@@ -184,6 +184,23 @@ def dubai(c):
     return far, mid, burj + arab + _palm(230, 440, 100, c['near'])
 
 
+def alexandria(c):
+    far = f'<rect x="0" y="380" width="720" height="60" fill="{c["water"]}"/>' + ''.join(
+        f'<rect x="{x}" y="{380 - h}" width="{w}" height="{h}" fill="{c["far"]}"/>' for x, w, h in ((0, 70, 50), (74, 50, 70), (128, 80, 40), (600, 120, 56)))
+    boats = ''.join(f'<path d="M{x} 398 L{x + 50} 398 L{x + 40} 410 L{x + 10} 410 Z" fill="{c["near"]}"/>'
+                    f'<path d="M{x + 24} 396 L{x + 24} 340 L{x + 50} 394 Z" fill="#F6F0E2"/>' for x in (40, 520))
+    mid = boats + _palm(640, 380, 100, c['mid']) + _palm(690, 380, 80, c['mid'])
+    citadel = (f'<rect x="190" y="300" width="330" height="90" fill="{c["near"]}"/><rect x="290" y="210" width="130" height="100" fill="{c["near"]}"/>'
+               + ''.join(f'<rect x="{x}" y="{y - 14}" width="12" height="14" fill="{c["near"]}"/>' for x, y in
+                         [(190 + i * 22, 300) for i in range(16)] + [(290 + i * 20, 210) for i in range(7)])
+               + ''.join(f'<rect x="{x}" y="270" width="46" height="120" fill="{c["near"]}"/><path d="M{x - 4} 272 Q {x + 23} 236 {x + 50} 272 Z" fill="{c["near"]}"/>'
+                         for x in (170, 494))
+               + f'<rect x="347" y="150" width="16" height="62" fill="{c["near"]}"/><path d="M343 152 L355 124 L367 152 Z" fill="{c["near"]}"/>'
+               + _windows(306, 236, 4, 1, 28, 0, 10, 22, c['line'], .55)
+               + f'<path d="M0 440 L0 392 L720 392 L720 440 Z" fill="{c["near"]}"/>')
+    return far, mid, citadel
+
+
 # span is how close the zoom ends (degrees of longitude): inland cities stop where a coast or a neighbour is still in view;
 # country is the Natural Earth name the map highlights; tint is the city's wash; bed is its ambience (make-sfx.py)
 CITIES = {
@@ -205,6 +222,8 @@ CITIES = {
                  'sky': '#DDE2E6', 'far': '#B5BEC6', 'mid': '#7D8994', 'near': '#3E4A56', 'line': '#26303A', 'accent': '#5E8C7E', 'water': '#7F9EAE'},
     'tokyo': {'name_ar': 'طوكيو', 'country': 'Japan', 'lon': 139.6917, 'lat': 35.6895, 'span': 1.6, 'from_span': 20, 'draw': tokyo, 'bed': 'crowd',
               'sky': '#EFE1D6', 'far': '#C9C0BA', 'mid': '#8C8580', 'near': '#4E4846', 'line': '#2F2A28', 'accent': '#B5483C', 'water': '#8FA6B0'},
+    'alexandria': {'name_ar': 'الإسكندرية', 'country': 'Egypt', 'lon': 29.9187, 'lat': 31.2001, 'span': 2.4, 'from_span': 26, 'draw': alexandria, 'bed': 'sea',
+                   'sky': '#EADFC6', 'far': '#C9BB9C', 'mid': '#8C7E62', 'near': '#7A6648', 'line': '#3E3222', 'accent': '#7A6648', 'water': '#7FA4B3'},
     'dubai': {'name_ar': 'دبي', 'country': 'United Arab Emirates', 'lon': 55.2708, 'lat': 25.2048, 'span': 1.6, 'from_span': 20, 'draw': dubai, 'bed': 'wind',
               'sky': '#F3E3C4', 'far': '#E1C79A', 'mid': '#B9A27C', 'near': '#5D5446', 'line': '#3A332A', 'accent': '#5D5446', 'water': '#7FA9BC'},
 }

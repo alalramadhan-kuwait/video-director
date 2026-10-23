@@ -1,0 +1,48 @@
+"""The storytelling rules: historical events shown with historical photos, changes explained, feelings carried."""
+from tests import _guard  # noqa: F401
+import unittest
+
+from director import quickfilm
+from director.studio import art, engine, moods, sets
+
+
+def film(*lines):
+    return {'lines': [{'id': f'l{i}', 'text': 'x', 'template': 'kinetic_type', 'params': {'lines': [{'text': 'x'}]}, **ln}
+                      for i, ln in enumerate(lines, 1)]}
+
+
+class TestStory(unittest.TestCase):
+    def test_an_event_needs_a_historical_photo_or_a_reason(self):
+        self.assertIn('no historical photo', quickfilm.story_check(film({'event': True, 'mood': 'fear'}))[0])
+        self.assertEqual(quickfilm.story_check(film({'event': True, 'mood': 'fear', 'template': 'archive_photo'})), [])
+        self.assertEqual(quickfilm.story_check(film({'event': True, 'mood': 'fear', 'no_photo': 'no photo was ever taken'})), [])
+
+    def test_a_change_needs_its_reason_and_a_story_needs_its_feeling(self):
+        out = quickfilm.story_check(film({'change': True}, {'event': True, 'template': 'archive_photo'}))
+        self.assertTrue(any('without its reason' in o for o in out))
+        self.assertTrue(any('feeling' in o for o in out))
+        self.assertTrue(any('unknown mood' in o for o in quickfilm.story_check(film({'mood': 'happyish'}))))
+
+    def test_the_panerai_film_keeps_every_rule(self):
+        self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])
+
+    def test_every_mood_grades_the_scene_under_the_words_and_has_a_sound(self):
+        kit = (engine.ENGINE / 'scripts/make-sfx.py').read_text()
+        for m in moods.MOODS:
+            sc = moods.dress(art.scene_visual('kinetic_type', {'lines': [{'text': 'x'}]}, 'tk-bone', 5.0), m, 5.0)
+            added = [e for e in sc['elements'] if e.get('z') == moods.Z]
+            self.assertTrue(added, m)                                                   # under the banner (900) and captions (950)
+            sounds = sc.get('beds', []) + [c for c in sc.get('sfx', []) if c['name'] in ('chime',)]
+            self.assertTrue(sounds, m)
+            for c in sounds: self.assertIn(f"save('{c['name']}'", kit, m)
+            self.assertEqual(sc['mood'], m)
+
+    def test_a_tall_photo_fills_the_frame_a_wide_one_is_a_print(self):
+        tall = art.scene_visual('archive_photo', {'asset': 'a', 'desc': 'd', 'aspect': .7, 'card': 'x', 'credit': 'A · PD'}, 'tk-bone', 6.0)
+        wide = art.scene_visual('archive_photo', {'asset': 'a', 'desc': 'd', 'aspect': 1.5}, 'tk-bone', 6.0)
+        self.assertTrue(tall['full_frame']); self.assertEqual(tall['elements'][0]['fit'], 'cover')
+        self.assertFalse(wide['full_frame']); self.assertEqual(wide['elements'][0]['type'], 'photo')
+        self.assertTrue(any(e.get('text') == 'A · PD' for e in tall['elements']))             # the credit on screen
+        n = len(tall['elements'])
+        sets.dress(tall, 'underwater', 6.0, template='archive_photo')
+        self.assertEqual(len(tall['elements']), n)                                          # a full photo is the world itself

@@ -9,17 +9,23 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
   check      the engine's layout check and a still of every scene, which must be looked at before sending
   film       1080x1920, crf 24, the brand's music (ducked under the voice), the Time Keeper end card
   credits    sources, photo credits and the music credit, ready for the post caption
+  story      the storytelling rules, checked on every film (story_check):
+             · a historical event (`event: true`) is shown with a historical photograph (archive_photo, archival_collage,
+               newspaper_card) so the viewer sees it happened, or says why none exists (`no_photo:`)
+             · a change (`change: true`: a new material, a new design) says why it happened (`because:`), in the narration
+             · the feeling of the story is named on the lines that carry it (`mood:` mystery, fear, sadness, tension, joy,
+               wonder): it changes the light and the sound of the scene (director/studio/moods.py)
 The voice here is the free DRAFT voice; the final narration is OmniVoice on the owner's computer (same file, --voice-dir).
 """
 from __future__ import annotations
-import hashlib, json, shutil, subprocess
+import hashlib, json, shutil, subprocess, time
 from pathlib import Path
 
 import yaml
 
 from . import brand as B
 from .copilot import commons
-from .studio import art, checks, engine, sets, voice
+from .studio import art, checks, engine, moods, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
 
@@ -29,6 +35,30 @@ def load(path) -> dict:
         if not art.production_ready(ln['template']):
             raise ValueError(f"{ln['id']}: template {ln['template']!r} is not production-ready (art/catalogue.yaml)")
     return f
+
+
+PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro'}
+
+
+def story_check(film: dict) -> list[str]:
+    """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
+    out, lines = [], film['lines']
+    for ln in lines:
+        if ln.get('event') and ln['template'] not in PHOTO_TEMPLATES and not ln.get('no_photo'):
+            out.append(f"{ln['id']}: a historical event with no historical photo (use archive_photo, or say why: no_photo)")
+        if ln.get('change') and not ln.get('because'):
+            out.append(f"{ln['id']}: a change without its reason (because:)")
+        if ln.get('mood') and ln['mood'] not in moods.MOODS:
+            out.append(f"{ln['id']}: unknown mood {ln['mood']!r} (one of {', '.join(moods.MOODS)})")
+    if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
+        out.append('the story has events but no line carries its feeling (mood:)')
+    return out
+
+
+def _aspect(f: Path) -> float | None:
+    r = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', str(f)],
+                       capture_output=True, text=True).stdout.strip().split(',')
+    return round(int(r[0]) / int(r[1]), 3) if len(r) == 2 and r[1].isdigit() else None
 
 
 def _seconds(p: Path) -> float:
@@ -51,12 +81,18 @@ def photos(film: dict, work: Path) -> dict:
             dst = work / 'assets' / (slot + src.suffix.lower()); shutil.copyfile(src, dst)
             meta = {'credit': ph.get('credit', ''), 'licence': ph.get('licence', 'owner'), 'page': ph.get('page', '')}
         else:
-            c = commons.best(ph['query'], commons.candidates(ph['query']))
-            if not c:
+            try:
+                time.sleep(2)                                                # Commons asks tools to go slowly
+                c = commons.best(ph['query'], commons.candidates(ph['query']))
+                data = c and commons.fetch(c['url'])
+            except OSError as e:                                             # busy or offline: this photo waits, the film goes on
+                out[slot] = {'missing': True, 'query': ph['query'], 'why': str(e)[:120]}; continue
+            if not c or not data:
                 out[slot] = {'missing': True, 'query': ph['query']}; continue
             ext = '.png' if c['url'].lower().split('?')[0].endswith('.png') else '.jpg'
-            (work / 'assets' / (slot + ext)).write_bytes(commons.fetch(c['url']))
+            (work / 'assets' / (slot + ext)).write_bytes(data)
             meta = {'credit': commons.credit(c), 'licence': c['licence'], 'page': c['page'], 'title': c['title']}
+        meta['aspect'] = _aspect(next((work / 'assets').glob(slot + '.[jp]*')))
         rec.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding='utf-8')
         out[slot] = meta
     return out
@@ -98,16 +134,18 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
     brand = film.get('brand', 'timekeeper')
     out = Path(out).resolve(); out.mkdir(parents=True, exist_ok=True)
     pics = photos(film, out)
-    scenes, report = [], {'lines': [], 'photos': pics}
+    scenes, report = [], {'lines': [], 'photos': pics, 'story': story_check(film)}
     for ln in film['lines']:
         t = take(ln, brand, out / 'voice')
         dur = round(VOICE_AT + t['seconds'] + TAIL + ln.get('pause', 0.25), 2)
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
-            if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro'): params.setdefault('credit', pics[slot]['credit'])
+            if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo'): params.setdefault('credit', pics[slot]['credit'])
+            if ln['template'] == 'archive_photo' and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or sets.theme_for(world, film.get('theme', 'tk-bone'))
         sc = sets.dress(art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner')), world, dur, seed=ln['id'], template=ln['template'])
+        moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
         same = scenes and scenes[-1].get('set') == world
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
                   words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']],

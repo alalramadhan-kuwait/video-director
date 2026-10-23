@@ -1,26 +1,38 @@
-# Panerai: the Italian watch whose first models were made by Rolex. Time Keeper, ~70 s, draft voice.
-# Each line has its story world (`set`: director/studio/sets.py) behind the template. Every line names its sources (numbers refer to `sources` below). Years are written as words in `say` so the voice reads them.
-title: بانيراي — ساعة الغطّاسين
+# Panerai: a glowing watch made for secret missions, the deadly light it was born with, and the night in Alexandria.
+# Each line has its story world (`set`, director/studio/sets.py) and, where the story carries a feeling, its `mood`.
+# A historical event (`event: true`) is shown with a historical photograph; a change (`change: true`) says why (`because`).
+# Every line names its sources (numbers refer to `sources`). Years are written as words in `say` so the voice reads them.
+# A claim the sources only believe (the watches on the divers' wrists that night) is said as a belief: «يُقال».
+title: بانيراي — ضوء في عتمة البحر
 brand: timekeeper
 seed: panerai
 theme: tk-bone
 sources:
-  - "[1] Panerai — Wikipedia (founding 1860 Florence; Radiomir radium sights; Rolex made the watches, Panerai the dials; ~1,600 watches 1935–1970; supply to the navy ended 1970; civilian market 1993; Richemont): https://en.wikipedia.org/wiki/Panerai"
+  - "[1] Panerai — Wikipedia (1860 Florence; Radiomir radium sights; Rolex made the watches, Panerai the dials; ~1,600 watches 1935–1970; civilian market 1993): https://en.wikipedia.org/wiki/Panerai"
   - "[2] Phillips auction notes on the Radiomir (1936 prototypes for the Italian Navy; ref. 3646 made by Rolex; used by the navy's combat swimmers): https://www.phillips.com/detail/panerai/97925"
   - "[3] Espacenet GB191512270A (Panerai radium luminous sights patent, 1915): https://worldwide.espacenet.com/patent/search?q=pn%3DGB191512270A"
-  - "[4] Luminor and the crown-protecting bridge, 1950s (several collector histories; dates differ, so only the decade is said): https://wristreview.com/brief-history-panerai-luminor/"
-  - "[5] Vendôme Luxury Group bought Officine Panerai in 1997 (later Richemont): https://wiki.grail-watch.com/index.php/Vend%C3%B4me_Luxury_Group"
+  - "[4] Radium Girls — Wikipedia (dial painters told the paint was harmless, lip-pointing brushes, anaemia, bone fractures, 'radium jaw'; more than 50 dead by 1927): https://en.wikipedia.org/wiki/Radium_Girls"
+  - "[5] Raid on Alexandria (1941) — Wikipedia (19 Dec 1941, Decima Flottiglia MAS, three SLC 'maiali', six men, HMS Valiant and HMS Queen Elizabeth put out of action): https://en.wikipedia.org/wiki/Raid_on_Alexandria_(1941)"
+  - "[6] HMS Queen Elizabeth (1913) — Wikipedia (the Royal Navy kept up the illusion of full operational status while she was repaired): https://en.wikipedia.org/wiki/HMS_Queen_Elizabeth_(1913)"
+  - "[7] Worn & Wound, Military Watches of the World: Italy (Panerai had no watchmaking facility and turned to Rolex; 'highly likely' early Panerai saw service in the Alexandria raid): https://wornandwound.com/military-watches-of-the-world-italy-pt-i/"
+  - "[8] Luminor (tritium) replaced radium because radium was too hazardous; the crown-protecting bridge, 1950s: https://www.watchfinder.com/articles/feature-the-incredible-deadly-story and https://wristreview.com/brief-history-panerai-luminor/"
 photos:
+  florence_1860s: {query: Fratelli Alinari Duomo Firenze c1860s}
+  radium_painters: {query: USRadiumGirls Argonne1}
+  undark_ad: {query: Undark Radium Girls advertisement 1921}
+  slc_torpedo: {query: Siluro lenta corsa Taranto}
+  queen_elizabeth_1942: {query: HMS QUEEN ELIZABETH FLIES ENSIGN HALF MAST}
   crown_guard: {query: CROWN GUARD 29728851024}
   luminor_glow: {query: LUMINOR 30075754506}
   luminor_close: {query: PANERAI 29802698304}
 lines:
-  - id: l1        # [1][2]
+  - id: l1        # [1][2][7]
     set: workshop
-    text: ساعة إيطالية شهيرة، لكن أولى ساعاتها صُنعت في سويسرا، عند رولكس.
+    mood: mystery
+    text: ساعة إيطالية بقيت سرًّا عسكريًا لعقود، وأولى نسخها صنعتها رولكس.
     template: kinetic_type
-    params: {lines: [{text: ساعة إيطالية…, size: 76, in: slam}, {text: صنعتها رولكس؟, size: 76, at: 1.6, in: slam}], y: 480,
-             stamp: {text: بانيراي, at: 2.8, y: 800}}
+    params: {lines: [{text: ساعة إيطالية…, size: 76, in: slam}, {text: بقيت سرًّا عسكريًا, size: 66, at: 1.4, in: slam}], y: 470,
+             stamp: {text: سرّي, at: 2.6, y: 780}}
   - id: l2        # [1]
     set: florence
     text: القصة تبدأ عام 1860 في فلورنسا، حين افتتح جوفاني بانيراي محل ساعات صغيرًا.
@@ -28,67 +40,112 @@ lines:
     template: city_zoom
     banner: فلورنسا · 1860
     params: {city: florence, sub: إيطاليا · 1860}
-  - id: l3        # [1][2]
-    set: sea_night
-    text: ومع الوقت صارت الشركة تورّد أدوات دقيقة للبحرية الإيطالية.
-    template: kinetic_type
-    banner: البحرية الإيطالية
-    params: {lines: [{text: أدوات دقيقة, size: 84}, {text: للبحرية الإيطالية, size: 60, at: 0.6}], y: 470}
+  - id: l3        # [1]
+    event: true
+    text: هكذا كانت فلورنسا في تلك السنوات، ومن ذلك المحل ستخرج أدوات دقيقة للبحرية الإيطالية.
+    template: archive_photo
+    banner: فلورنسا في ستينيات القرن التاسع عشر
+    params: {asset: florence_1860s, desc: Florence cathedral 1860s, card: صورة حقيقية · ستينيات القرن 19, move: in, pos: '55% 40%'}
   - id: l4        # [1][3]
     set: radium
-    text: وفي الحرب العالمية الأولى طوّرت مسحوقًا مضيئًا بالراديوم سمّته راديومير، لتُقرأ أدوات التصويب في الظلام.
+    mood: wonder
+    text: وفي الحرب العالمية الأولى طوّرت الشركة مسحوقًا بالراديوم يتوهّج في الظلام، وسمّته راديومير.
     template: kinetic_type
     banner: راديومير
-    params: {lines: [{text: راديومير, size: 110}, {text: مسحوق مضيء بالراديوم, size: 50, at: 0.8}], y: 480,
-             stamp: {text: يُقرأ في الظلام, at: 2.4, y: 860, size: 60}}
-  - id: l5        # [2]
-    set: underwater
-    text: وفي عام 1936 طلبت البحرية ساعة تتحمّل الغوص، فظهرت النماذج الأولى.
-    say: وفي عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين طلبت البحرية ساعة تتحمّل الغوص، فظهرت النماذج الأولى.
-    template: animated_timeline
-    banner: أول ساعة للبحرية
-    params: {events: [{year: '1860', label: محل ساعات في فلورنسا}, {year: '1915', label: راديومير · مسحوق مضيء}, {year: '1936', label: النماذج الأولى للبحرية, hero: true}]}
-  - id: l6        # [1][2]
-    set: workshop
-    text: لكن العلبة والآلية صنعتهما رولكس، وصنعت بانيراي الميناء المضيء.
-    template: spec_card
-    banner: مَن صنع ماذا؟
-    params: {title: ساعات البحرية الأولى, rows: [{label: العلبة, value: رولكس}, {label: الآلية, value: رولكس}, {label: الميناء المضيء, value: بانيراي}],
-             source: 'المصدر: ويكيبيديا · مزادات فيليبس', y: 470}
-  - id: l7        # [2]
-    set: underwater
-    text: كانت كبيرة وواضحة، لأن من يلبسها غطّاس يعمل تحت الماء في العتمة.
-    template: product_reveal
-    banner: للغطّاسين
-    params: {asset: luminor_glow, desc: Luminor Marina, name: لومينور مارينا · طراز حديث}
-  - id: l8        # [4]
-    set: workshop
-    text: وفي الخمسينيات أُضيف جسر يحمي التاج ويُحكم إغلاقه.
-    template: product_macro
-    banner: جسر حماية التاج
-    params: {asset: crown_guard, desc: crown guard}
-  - id: l9        # [1][4]
+    params: {lines: [{text: راديومير, size: 110}, {text: يتوهّج في الظلام, size: 56, at: 0.8}], y: 480}
+  - id: l5        # [4]
+    event: true
+    mood: sadness
+    text: لكن لهذا الضوء ثمنًا. في أمريكا، كانت عاملات يرسمن أرقام الساعات بالراديوم، ويبلّلن الفرشاة بشفاههن.
+    template: archive_photo
+    banner: عاملات الراديوم · 1922
+    params: {asset: radium_painters, desc: radium dial painters 1922, card: نيوجيرسي · نحو 1922}
+  - id: l6        # [4]
     set: radium
-    text: ولاحقًا حلّت مادة لومينور محلّ الراديوم.
+    mood: fear
+    text: أصيبت كثيرات منهن بفقر الدم وتآكل عظام الفك، ومات أكثر من خمسين بحلول 1927.
+    say: أصيبت كثيرات منهن بفقر الدم وتآكل عظام الفك، ومات أكثر من خمسين بحلول عام ألفٍ وتسعمئةٍ وسبعةٍ وعشرين.
     template: kinetic_type
-    banner: لومينور
-    params: {lines: [{text: لومينور, size: 120}, {text: بدل الراديوم, size: 56, at: 0.7}], y: 520}
-  - id: l10       # [1]
-    set: archive
-    text: وحتى 1970 يُقدَّر ما صُنع بنحو 1600 ساعة فقط، أغلبها للبحرية.
-    say: وحتى عام ألفٍ وتسعمئةٍ وسبعين، يُقدَّر ما صُنع بنحو ألفٍ وستمئة ساعة فقط، أغلبها للبحرية.
-    template: kinetic_type
-    banner: 1935 – 1970
-    params: {lines: [{text: '1600', size: 150}, {text: ساعة تقريبًا · أغلبها للبحرية, size: 46, at: 0.8}], y: 500}
-  - id: l11       # [1][5]
-    set: archive
-    text: وفي 1993 طُرحت للجمهور أول مرة، وبعد أربع سنوات اشترتها مجموعة فاندوم، التي صارت لاحقًا ريشمون.
-    say: وفي عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين طُرحت للجمهور أول مرة، وبعد أربع سنوات اشترتها مجموعة فاندوم، التي صارت لاحقًا ريشمون.
-    template: animated_timeline
-    banner: من البحرية إلى الجمهور
-    params: {events: [{year: '1970', label: آخر توريد للبحرية}, {year: '1993', label: للجمهور أول مرة}, {year: '1997', label: فاندوم · ريشمون لاحقًا, hero: true}]}
-  - id: l12       # —
+    banner: الضوء القاتل
+    params: {lines: [{text: أكثر من 50, size: 120}, {text: ماتوا بحلول 1927, size: 56, at: 0.8}], y: 480}
+  - id: l7        # [4]
+    event: true
+    mood: mystery
+    text: بينما كانت الإعلانات تَعِد بأن الراديوم يخدمك بأمان.
+    template: archive_photo
+    banner: إعلان · 1921
+    params: {asset: undark_ad, desc: Undark advertisement 1921, card: «يخدمك بأمان» · 1921, move: out, pos: '50% 30%'}
+  - id: l8        # [2]
     set: underwater
-    text: ساعة صُنعت لعتمة البحر… وصارت اليوم من أشهر الساعات الكبيرة في العالم.
+    text: وفي 1936 طلبت البحرية الإيطالية ساعة لغطّاسيها المقاتلين، تُقرأ في عتمة البحر.
+    say: وفي عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين طلبت البحرية الإيطالية ساعة لغطّاسيها المقاتلين، تُقرأ في عتمة البحر.
+    template: animated_timeline
+    banner: طلب البحرية
+    params: {events: [{year: '1860', label: محل في فلورنسا}, {year: '1915', label: راديومير · مسحوق مضيء}, {year: '1936', label: ساعة للغطّاسين, hero: true}]}
+  - id: l9        # [1][7]
+    set: workshop
+    change: true
+    because: لم تكن بانيراي تملك مصنعًا للساعات، وكانت رولكس تملك علبة أويستر المقاومة للماء
+    text: ولأن بانيراي لم تكن تملك مصنعًا للساعات، لجأت إلى رولكس، صاحبة علبة أويستر المقاومة للماء.
+    template: spec_card
+    banner: لماذا رولكس؟
+    params: {title: ساعات البحرية الأولى, rows: [{label: العلبة, value: رولكس}, {label: الآلية, value: رولكس}, {label: الميناء المضيء, value: بانيراي}],
+             source: 'المصدر: ويكيبيديا · فيليبس · Worn & Wound', y: 470}
+  - id: l10       # [5]
+    event: true
+    mood: tension
+    text: كان الغطّاسون يركبون طوربيدات بطيئة يسمّونها الخنازير، ويتسلّلون بها ليلًا إلى موانئ العدو.
+    template: archive_photo
+    banner: الطوربيد البشري
+    params: {asset: slc_torpedo, desc: SLC human torpedo in a museum, card: طوربيد «الخنزير» · متحف في تارانتو}
+  - id: l11       # [5]
+    mood: tension
+    text: وفي ديسمبر 1941 تسلّل ستة منهم إلى ميناء الإسكندرية، وأخرجوا بارجتين بريطانيتين من الخدمة.
+    say: وفي ديسمبر عام ألفٍ وتسعمئةٍ وواحدٍ وأربعين تسلّل ستة منهم إلى ميناء الإسكندرية، وأخرجوا بارجتين بريطانيتين من الخدمة.
+    template: city_zoom
+    banner: الإسكندرية · 1941
+    params: {city: alexandria, sub: ليلة 19 ديسمبر 1941}
+  - id: l12       # [6]
+    event: true
+    mood: mystery
+    text: لكن البريطانيين أخفوا الضرر، وأبقوا السفينتين تبدوان سليمتين، كي لا يعرف أحد حجم ضعفهم في البحر.
+    template: archive_photo
+    banner: البارجة كوين إليزابيث
+    params: {asset: queen_elizabeth_1942, desc: HMS Queen Elizabeth at Alexandria 1942, card: الإسكندرية · 20 يناير 1942}
+  - id: l13       # [7]
+    set: underwater
+    mood: mystery
+    text: ويُقال إن ساعات بانيراي كانت على معاصمهم تلك الليلة.
+    template: product_reveal
+    banner: يُقال…
+    params: {asset: luminor_glow, desc: Luminor Marina, name: لومينور مارينا · طراز حديث}
+  - id: l14       # [8]
+    set: workshop
+    change: true
+    because: كي يبقى التاج مضغوطًا على مانع التسرّب فلا يدخل الماء
+    text: وفي الخمسينيات أُضيف جسر يضغط التاج ويُحكم إغلاقه، كي لا يتسرّب الماء.
+    template: product_macro
+    banner: لماذا الجسر؟
+    params: {asset: crown_guard, desc: crown guard}
+  - id: l15       # [1][4][8]
+    set: radium
+    change: true
+    because: الراديوم كان خطرًا، والتريتيوم إشعاعه أضعف بكثير
+    text: ولأن الراديوم كان خطرًا، حلّت محلّه مادة لومينور بالتريتيوم، وإشعاعها أضعف بكثير.
+    template: kinetic_type
+    banner: لماذا تغيّرت المادة؟
+    params: {lines: [{text: لومينور, size: 120}, {text: بدل الراديوم القاتل, size: 54, at: 0.7}], y: 500}
+  - id: l16       # [1]
+    set: archive
+    mood: joy
+    text: وحتى 1970 صُنع منها نحو 1600 ساعة فقط، ثم في 1993 خرجت من السرّية إلى الناس.
+    say: وحتى عام ألفٍ وتسعمئةٍ وسبعين صُنع منها نحو ألفٍ وستمئة ساعة فقط، ثم في عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين خرجت من السرّية إلى الناس.
+    template: animated_timeline
+    banner: من السرّية إلى الناس
+    params: {events: [{year: '1970', label: نحو 1600 ساعة فقط}, {year: '1993', label: للجمهور أول مرة, hero: true}]}
+  - id: l17       # —
+    set: underwater
+    mood: wonder
+    text: ساعة وُلدت في عتمة البحر… وصارت اليوم من أشهر الساعات في العالم.
     template: product_reveal
     params: {asset: luminor_close, desc: Luminor Marina, name: بانيراي, name_size: 60}
