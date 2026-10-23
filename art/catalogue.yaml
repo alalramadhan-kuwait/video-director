@@ -73,6 +73,12 @@ templates:
     about: a map that moves, with pins, routes, labels and a date card
     example: {view_from: {lon: 10.0, lat: 45.0, span: 24}, view: {lon: 11.25, lat: 43.77, span: 8},
               pins: [{id: florence, lon: 11.25, lat: 43.77, label: فلورنسا, at: 1.0}], date: '1860', date_at: 1.8}
+  - id: city_zoom
+    status: implemented
+    purpose: [place, city, journey]
+    name_ar: الوصول إلى المدينة
+    about: 'the map flies from the country into the city, then the city''s colours and skyline rise like a pop-up book (landmarks), then its name; cities: florence, geneva, vallee_de_joux, kuwait, paris, london, rome, new_york, tokyo, dubai'
+    example: {city: florence, sub: إيطاليا · 1860}
   # ---------------------------------------------------------------- words
   - id: kinetic_type
     status: implemented
