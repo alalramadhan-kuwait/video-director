@@ -34,6 +34,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     the author and licence on screen and a card saying when and where. When none exists, say why (`no_photo:`).
     Search Wikimedia Commons in English with the place's or object's own name (e.g. «Alinari Ponte alle Grazie» for
     the bridge of Panerai's first shop).
+12b. **Every scene has a related photo** ✓ — a photo template, or the photo behind the words (`photo:` on a line of
+    words, a stamp or a number), or a city zoom. A scene with no picture is not sent.
+12c. **The photo is of the time the line speaks of** ✓ — every photo carries its `year:` and make_film warns when it is
+    more than 15 years from the years said. A modern photo only when the line speaks of today («حتى اليوم»); an old
+    photo never illustrates something new. Check who is in a photo: a portrait under a famous name may be someone
+    else with the same name (the «Luigi Durand de la Penne» file on Commons is a 19th-century namesake).
 13. If the exact thing has no free photo, show the nearest true thing and **say what it is** («الجسر الذي كان عليه
     أول محل»), never pretend.
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with

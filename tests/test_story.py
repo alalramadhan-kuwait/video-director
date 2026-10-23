@@ -7,14 +7,14 @@ from director.studio import art, engine, moods, sets
 
 
 def film(*lines):
-    return {'lines': [{'id': f'l{i}', 'text': 'x', 'template': 'kinetic_type', 'params': {}, **ln}
+    return {'lines': [{'id': f'l{i}', 'text': 'x', 'template': 'kinetic_type', 'params': {}, 'no_photo': 'test', **ln}
                       for i, ln in enumerate(lines, 1)]}
 
 
 class TestStory(unittest.TestCase):
     def test_an_event_needs_a_historical_photo_or_a_reason(self):
-        self.assertIn('no historical photo', quickfilm.story_check(film({'event': True, 'mood': 'fear'}))[0])
-        self.assertEqual(quickfilm.story_check(film({'event': True, 'mood': 'fear', 'template': 'archive_photo'})), [])
+        self.assertIn('no historical photo', quickfilm.story_check(film({'event': True, 'mood': 'fear', 'no_photo': None}))[0])
+        self.assertEqual(quickfilm.story_check(film({'event': True, 'mood': 'fear', 'template': 'archive_photo', 'params': {'asset': 'p'}}))[:0], [])
         self.assertEqual(quickfilm.story_check(film({'event': True, 'mood': 'fear', 'no_photo': 'no photo was ever taken'})), [])
 
     def test_a_change_needs_its_reason_and_a_story_needs_its_feeling(self):
@@ -45,6 +45,21 @@ class TestStory(unittest.TestCase):
         for first in ('وفي أمريكا', 'غير أن الضوء', 'لكن البحرية', 'ثم انتهت', 'وبينما كان'):
             self.assertEqual(quickfilm.story_check(film({'text': 'البداية'}, {'text': first})), [], first)
         self.assertEqual(quickfilm.story_check(film({'text': 'البداية'}, {'text': 'ساعة وُلدت', 'closing': True})), [])
+
+    def test_every_scene_has_a_picture_of_its_own_time(self):
+        f = film({'text': 'في 1949', 'no_photo': None})
+        self.assertTrue(any('no picture' in o for o in quickfilm.story_check(f)))
+        f = {**film({'text': 'في 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 2016}}}
+        self.assertTrue(any('photo is from about 2016' in o for o in quickfilm.story_check(f)))
+        f = {**film({'text': 'في 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 1956}}}
+        self.assertEqual(quickfilm.story_check(f), [])
+        self.assertEqual(quickfilm.story_check(film({'text': 'x', 'template': 'city_zoom', 'no_photo': None, 'params': {'city': 'kuwait'}})), [])
+
+    def test_words_over_a_photo_stay_readable(self):
+        sc = art.backdrop(art.scene_visual('kinetic_type', {'lines': [{'text': 'x'}]}, 'tk-ink', 5.0), 'w', 5.0, credit='A · PD')
+        self.assertEqual(sc['elements'][0]['asset'], 'w'); self.assertTrue(sc['elements'][0]['behind'])
+        self.assertIn('fill-opacity=".62"', sc['elements'][1]['svg'])
+        self.assertTrue(sc['full_frame']); self.assertTrue(any(e.get('text') == 'A · PD' for e in sc['elements']))
 
     def test_the_panerai_film_keeps_every_rule(self):
         self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])
