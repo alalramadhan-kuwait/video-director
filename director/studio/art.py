@@ -366,6 +366,40 @@ def b_archive_photo(p, theme, dur):
             'sfx': [{'at': .15, 'name': 'shutter' if full else 'paper_place', 'gain': -18}]}
 
 
+def b_drawing(p, theme, dur):
+    """An opening that hooks: a drawing that draws itself (director/studio/drawings.py), then comes alive — the dial
+    glows, a human torpedo glides past — with the hook's words and a stamp. An illustration, never a photograph."""
+    from . import drawings as D
+    paths, texts = D.SUBJECTS[p.get('subject', 'watch')](p.get('draw_at', .2))
+    glow_at = p.get('glow_at', 2.0)
+    i = __import__('director.studio.sets', fromlist=['uid']).uid('glow')
+    glow = (f'<svg xmlns="http://www.w3.org/2000/svg" width="560" height="560"><defs><radialGradient id="{i}"><stop offset="0" '
+            f'stop-color="{D.LUME}" stop-opacity=".5"/><stop offset="1" stop-color="{D.LUME}" stop-opacity="0"/></radialGradient></defs>'
+            f'<circle cx="280" cy="280" r="250" fill="url(#{i})"/></svg>')
+    y = p.get('y', 560)
+    els = [{'type': 'svg', 'w': 560, 'h': 560, 'svg': glow, 'x': 360, 'y': y, 'still': True, 'z': 2,
+            'opacity': [[0, 0], [glow_at, 0], [glow_at + .8, 1, 'outCubic'], [dur, .75]]},
+           {'type': 'sketch', 'x': 360, 'y': y, 'w': 560, 'h': 560, 'z': 3, 'ink': p.get('ink', '#D9D4C7'), 'paths': paths, 'texts': texts,
+            'scale': [[0, .96], [dur, 1.04, 'inOutCubic']]}]
+    if p.get('torpedo'):
+        t = p['torpedo']; a = t.get('at', 3.0)
+        els.append({'type': 'svg', 'w': 420, 'h': 120, 'svg': D.torpedo_svg(), 'x': [[0, 980], [a, 980], [dur + 1.5, -260, 'linear']],
+                    'y': t.get('y', 900), 'z': 4, 'still': True, 'crop': True})
+    for k, ln in enumerate(p.get('lines', [])):
+        els.append({'type': 'text', 'text': ln['text'], 'font': 'title', 'size': ln.get('size', 76), 'color': PAPER, 'x': 360,
+                    'y': ln.get('y', 180 + 90 * k), 'w': 640, 'align': 'center', 'z': 10,
+                    'in': {'type': ln.get('in', 'rise'), 'at': ln.get('at', glow_at), 'dur': .45}})
+    if p.get('stamp'):
+        st = p['stamp']
+        els.append({'type': 'stamp', 'text': st['text'], 'x': st.get('x', 470), 'y': st.get('y', 760), 'size': st.get('size', 80),
+                    'color': st.get('color', '#E8DCC0'), 'rot': -8, 'z': 12, 'in': {'type': 'slam', 'at': st.get('at', 4.0)}})
+    sfx = [{'at': .2, 'name': 'paper_slide', 'gain': -18}, {'at': glow_at, 'name': 'chime', 'gain': -16}]
+    if p.get('torpedo'): sfx.append({'at': p['torpedo'].get('at', 3.0), 'name': 'bubbles', 'gain': -16})
+    if p.get('stamp'): sfx.append({'at': p['stamp'].get('at', 4.0) + .05, 'name': 'stamp', 'gain': -9})
+    return {'theme': 'tk-black', 'floor': False, 'elements': els, 'sfx': [c for c in sfx if c['at'] < dur],
+            'camera': {'zoom': [[0, 1.0], [dur, 1.05, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640]]}}
+
+
 def b_spec_card(p, theme, dur):
     """Specifications or a comparison: a title and rows of label / value, one column per watch (one or two).
     Only sourced figures belong here; the card draws what it is given and nothing else."""
@@ -437,7 +471,7 @@ BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_time
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
             'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom,
-            'archive_photo': b_archive_photo}
+            'archive_photo': b_archive_photo, 'drawing': b_drawing}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']]}
 

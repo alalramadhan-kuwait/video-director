@@ -43,6 +43,7 @@ order of techniques (`art/styles.yaml`); each scene uses the first technique it 
 | `spec_card` | specifications, or two watches compared row by row (sourced figures only) | `title`, `columns`, `rows[{label,values}]`, `source` |
 | `quote_card` | a quotation, who said it, where it was printed | `quote`, `who`, `source` |
 | `archive_photo` | a historical photograph: a tall one fills the frame and the camera drifts, a wide one is a large print; a when-and-where card and the credit | `asset`, `desc`, `card`, `move` (in/out/left/right), `pos` |
+| `drawing` | the opening: a drawing that draws itself stroke by stroke, then comes alive (dial glow, a torpedo gliding past), hook words and a stamp | `subject` (watch), `glow_at`, `lines`, `torpedo`, `stamp` |
 | `city_zoom` | the map flies from the country into a city, then its colours and landmarks rise like a pop-up book, then its name | `city` (an id in `director/studio/cities.py`), `sub` |
 
 **Story worlds and moods** (on any template, from the film file): `set:` draws the world behind the scene with its

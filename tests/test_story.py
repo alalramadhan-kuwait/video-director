@@ -47,11 +47,11 @@ class TestStory(unittest.TestCase):
         self.assertEqual(quickfilm.story_check(film({'text': 'البداية'}, {'text': 'ساعة وُلدت', 'closing': True})), [])
 
     def test_every_scene_has_a_picture_of_its_own_time(self):
-        f = film({'text': 'في 1949', 'no_photo': None})
-        self.assertTrue(any('no picture' in o for o in quickfilm.story_check(f)))
-        f = {**film({'text': 'في 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 2016}}}
+        f = film({'text': 'البداية', 'template': 'drawing'}, {'text': 'وفي 1949', 'no_photo': None})          # the opening is drawn; the rest need a picture
+        self.assertTrue(any('l2: no picture' in o for o in quickfilm.story_check(f)))
+        f = {**film({'text': 'البداية', 'template': 'drawing'}, {'text': 'وفي 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 2016}}}
         self.assertTrue(any('photo is from about 2016' in o for o in quickfilm.story_check(f)))
-        f = {**film({'text': 'في 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 1956}}}
+        f = {**film({'text': 'البداية', 'template': 'drawing'}, {'text': 'وفي 1949', 'photo': 'w'}), 'photos': {'w': {'query': 'q', 'year': 1956}}}
         self.assertEqual(quickfilm.story_check(f), [])
         self.assertEqual(quickfilm.story_check(film({'text': 'x', 'template': 'city_zoom', 'no_photo': None, 'params': {'city': 'kuwait'}})), [])
 
@@ -60,6 +60,16 @@ class TestStory(unittest.TestCase):
         self.assertEqual(sc['elements'][0]['asset'], 'w'); self.assertTrue(sc['elements'][0]['behind'])
         self.assertIn('fill-opacity=".62"', sc['elements'][1]['svg'])
         self.assertTrue(sc['full_frame']); self.assertTrue(any(e.get('text') == 'A · PD' for e in sc['elements']))
+
+    def test_the_opening_is_drawn_not_a_photo(self):
+        out = quickfilm.story_check(film({'text': 'x', 'template': 'archive_photo', 'params': {'asset': 'p'}}))
+        self.assertTrue(any('opening should hook with a drawing' in o for o in out))
+        self.assertFalse(any('opening' in o for o in quickfilm.story_check(film({'text': 'x', 'template': 'drawing'}))))
+        sc = art.scene_visual('drawing', {'subject': 'watch', 'lines': [{'text': 'x'}], 'torpedo': {'at': 2}, 'stamp': {'text': 's'}}, 'tk-ink', 6.0)
+        kinds = [e['type'] for e in sc['elements']]
+        self.assertIn('sketch', kinds); self.assertIn('stamp', kinds)
+        self.assertEqual({c['name'] for c in sc['sfx']} >= {'chime', 'bubbles', 'stamp'}, True)
+        self.assertTrue(art.production_ready('drawing'))
 
     def test_the_panerai_film_keeps_every_rule(self):
         self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])

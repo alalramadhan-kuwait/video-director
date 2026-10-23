@@ -31,8 +31,11 @@ def _glow(color, cx, cy, op):
 
 
 def mystery(dur):
-    fog = {**_svg(f'<rect width="{W}" height="260" y="0" fill="#9AA3A8" fill-opacity=".10"/><rect width="{W}" height="200" y="900" fill="#9AA3A8" fill-opacity=".08"/>'),
-           'x': [[0, 330], [dur, 390]]}
+    i = uid('fog')
+    fog = {**_svg(f'<defs><linearGradient id="{i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9AA3A8" stop-opacity=".10"/>'
+                  f'<stop offset=".3" stop-color="#9AA3A8" stop-opacity="0"/><stop offset=".7" stop-color="#9AA3A8" stop-opacity="0"/>'
+                  f'<stop offset="1" stop-color="#9AA3A8" stop-opacity=".08"/></linearGradient></defs><rect width="{W}" height="{H}" fill="url(#{i})"/>'),
+           'x': [[0, 330], [dur, 390]]}                                    # soft mist at top and bottom, no hard edge
     return [_svg(_vignette('#05070A', .35, .8)), fog], [('drone', -20)], []
 
 

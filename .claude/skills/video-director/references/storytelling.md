@@ -17,7 +17,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 5. **Feelings** ✓ — name the feeling of the lines that carry it (`mood:` mystery, fear, sadness, tension, joy, wonder).
    **Sadness for human moments always**: people who suffered, were deceived, died, were captured. Make it human:
    who they were, what they were told, what happened to them («قيل لهنّ إنه آمن… فتساقطت أسنانهنّ… ورحلن جميعًا»).
-6. **A strong, honest hook** and a closing line that echoes it.
+6. **A strong, honest hook** and a closing line that echoes it. **The opening scene is drawn, not a photo** ✓: a
+   drawing that draws itself and comes alive (`template: drawing`, e.g. the watch whose dial glows while a human
+   torpedo glides past). Photos start with the story; the hook makes the viewer curious first.
 
 ## The facts
 7. Every claim has a source in `sources:`; the line names its source numbers.
