@@ -85,8 +85,11 @@ def story_check(film: dict) -> list[str]:
     if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
         out.append('the story has events but no line carries its feeling (mood:)')
     photos = film.get('photos') or {}
+    if lines and (lines[0]['template'] in PHOTO_TEMPLATES or lines[0].get('photo')) and not lines[0].get('opening_photo'):
+        out.append(f"{lines[0]['id']}: the opening should hook with a drawing or animation (template drawing), not a photo")
     for ln in lines:                                                     # every scene has a related picture, of the right time
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
+        if ln is lines[0]: continue                                      # the opening is drawn
         if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo'):
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
         py = (photos.get(slot) or {}).get('year') if slot else None

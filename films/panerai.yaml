@@ -42,13 +42,11 @@ photos:
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
   - id: l1        # [1][2][4]
-    set: workshop
     mood: mystery
-    photo: luminor_glow
     text: قصة بانيراي… ساعة وُلدت من ضوء قاتل، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
-    template: kinetic_type
-    params: {lines: [{text: ضوء قاتل…, size: 84, in: slam}, {text: وسرّ عسكري, size: 70, at: 1.4, in: slam}], y: 470,
-             stamp: {text: بانيراي, at: 2.8, y: 790, color: "#E8DCC0"}}
+    template: drawing
+    params: {subject: watch, glow_at: 2.0, lines: [{text: ضوء قاتل…, size: 80, at: 2.0, y: 170}], torpedo: {at: 3.2, y: 930},
+             stamp: {text: سرّ عسكري, at: 4.2, x: 360, y: 800, size: 72}}
   - id: l2        # [1][9]
     set: florence
     text: في فلورنسا، عام 1860.
