@@ -18,7 +18,7 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
 The voice here is the free DRAFT voice; the final narration is OmniVoice on the owner's computer (same file, --voice-dir).
 """
 from __future__ import annotations
-import hashlib, json, shutil, subprocess, time
+import hashlib, json, re, shutil, subprocess, time
 from pathlib import Path
 
 import yaml
@@ -52,6 +52,13 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: unknown mood {ln['mood']!r} (one of {', '.join(moods.MOODS)})")
     if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
         out.append('the story has events but no line carries its feeling (mood:)')
+    last = None                                                          # told in order: a year never goes back unless it says so
+    for ln in lines:
+        ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
+        if not ys: continue
+        if last and ys[0] < last[1] and not ln.get('flashback'):
+            out.append(f"{ln['id']}: {ys[0]} comes after {last[1]} ({last[0]}): out of order (or mark it flashback: true)")
+        last = (ln['id'], max(ys))
     return out
 
 
@@ -169,6 +176,14 @@ def make(path, out: Path, video=True, scale=1.5) -> dict:
         extra = ('--crf', B.load(brand).get('export', {}).get('crf', 24)) + (('--music', str(mus['file']), '--music-gain', mus['gain']) if mus else ())
         engine.video(out / 'film.json', out / 'film-raw.mp4', scale=scale, extra=extra)
         loudness(out / 'film-raw.mp4', out / 'film.mp4'); (out / 'film-raw.mp4').unlink()
+        cap = B.load(brand).get('export', {}).get('max_mb')
+        if cap and (out / 'film.mp4').stat().st_size / 1e6 > cap:          # too big to share: the same film, compressed harder
+            crf = int(B.load(brand).get('export', {}).get('crf', 24))
+            for step in (3, 5, 7):
+                subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(out / 'film.mp4'), '-c:v', 'libx264', '-crf', str(crf + step), '-preset', 'slow',
+                                '-pix_fmt', 'yuv420p', '-c:a', 'copy', '-movflags', '+faststart', str(out / 'film-small.mp4')], check=True)
+                if (out / 'film-small.mp4').stat().st_size / 1e6 <= cap: break
+            (out / 'film-small.mp4').replace(out / 'film.mp4'); report['crf'] = crf + step
         report['film'] = str(out / 'film.mp4'); report['size_mb'] = round((out / 'film.mp4').stat().st_size / 1e6, 1)
     credits = ['Sources:'] + [f"- {s}" for s in film.get('sources', [])]
     credits += ['Photos:'] + [f"- {v['credit']} ({v['page']})" for v in pics.values() if v.get('credit')]

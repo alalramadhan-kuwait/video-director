@@ -31,5 +31,5 @@
     "max_bpm": 100,
     "gain_db": -18
   },
-  "export": { "width": 1080, "height": 1920, "crf": 24, "platform": "instagram-reels" }
+  "export": { "width": 1080, "height": 1920, "crf": 24, "max_mb": 26, "platform": "instagram-reels" }
 }
