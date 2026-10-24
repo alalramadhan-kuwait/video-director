@@ -223,8 +223,20 @@ def take(line: dict, brand: str, vdir: Path, given: Path | None = None) -> dict:
 
 
 def loudness(src: Path, dst: Path):
-    """The platform loudness target (-14 LUFS, peaks under -1.5 dBTP), the video stream untouched (as the studio does)."""
-    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(src), '-c:v', 'copy', '-af', 'loudnorm=I=-14:TP=-1.5:LRA=11', '-ar', '48000',
+    """The platform loudness target (-14 LUFS, peaks under -1.5 dBTP), the video stream untouched (as the studio does).
+    Two passes: the film is measured first and normalised with those figures (one pass fell 2.4 LU short on a
+    quieter, more dynamic voice)."""
+    target = 'I=-14:TP=-2:LRA=11'                                  # -2 dBTP so the AAC encode stays under -1.5
+    pre = 'alimiter=limit=0.35:attack=2:release=60:level=false,'      # tame the voice's lone peaks so the gain can be linear
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', str(src), '-af', f'{pre}loudnorm={target}:print_format=json', '-f', 'null', '-'],
+                       capture_output=True, text=True)
+    m = re.search(r'\{[^{}]*"input_i"[^{}]*\}', r.stderr)
+    af = f'{pre}loudnorm={target}'
+    if m:
+        j = json.loads(m.group(0))
+        af += (f":measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}"
+               f":measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true")
+    subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(src), '-c:v', 'copy', '-af', af, '-ar', '48000',
                     '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', str(dst)], check=True)
 
 
