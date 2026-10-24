@@ -117,6 +117,7 @@ class TestOmniVoicePlugin(unittest.TestCase):
         args = voice.parser().parse_args(['--script', str(self.script), '--lines-dir', str(d), '--engine', 'voxcpm2',
                                           '--instruct', 'male, calm narrator'])
         model = Mock(tts_model=SimpleNamespace(sample_rate=48000)); model.generate.return_value = np.full(4800, 0.1)
+        model._generate = lambda text, cfg_value=2.0, inference_timesteps=10, seed=None: None    # a release that takes a seed
         factory = Mock(return_value=model)
         torch = SimpleNamespace(manual_seed=Mock(), cuda=SimpleNamespace(is_available=lambda: False),
                                 backends=SimpleNamespace(mps=SimpleNamespace(is_available=lambda: True)))
@@ -131,6 +132,11 @@ class TestOmniVoicePlugin(unittest.TestCase):
         self.assertEqual((kw['inference_timesteps'], kw['cfg_value'], kw['seed']), (10, 2.0, 1234))
         rec = json.loads((d / 'l1.json').read_text())
         self.assertEqual((rec['provider'], rec['model'], rec['sample_rate'], rec['seconds']), ('voxcpm2', 'openbmb/VoxCPM2', 48000, 0.1))
+        model._generate = lambda text, cfg_value=2.0, inference_timesteps=10: None              # voxcpm 2.0.3 takes none
+        args2 = voice.parser().parse_args(['--script', str(self.script), '--lines-dir', str(self.root / 'vox2'), '--engine', 'voxcpm2'])
+        with patch.dict('sys.modules', modules):
+            voice.generate(args2)
+        self.assertNotIn('seed', model.generate.call_args.kwargs)
         self.assertIn('Apache-2.0', rec['license_note']); self.assertIn('commercial use permitted', rec['license_note'])
 
     def test_skill_copies_match(self):

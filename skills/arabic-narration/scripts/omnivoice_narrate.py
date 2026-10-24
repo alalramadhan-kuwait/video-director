@@ -156,8 +156,11 @@ def _load(args):
 def _audio(model, args, req):
     """One request: (waveform, sample rate). VoxCPM2 takes the speaker description as its voice-design prefix."""
     if args.engine == 'voxcpm2':
-        audio = model.generate(text=f"({req['instruct']}){req['text']}", cfg_value=args.cfg,
-                               inference_timesteps=args.steps, seed=args.seed)
+        import inspect
+        kw = dict(text=f"({req['instruct']}){req['text']}", cfg_value=args.cfg, inference_timesteps=args.steps)
+        if 'seed' in inspect.signature(getattr(model, '_generate', model.generate)).parameters:
+            kw['seed'] = args.seed                            # newer releases take it; 2.0.3 uses the torch seed set above
+        audio = model.generate(**kw)
         return audio, int(model.tts_model.sample_rate)
     audio = model.generate(text=req['text'], language=req['language'],
                            instruct=req['instruct'], num_step=args.steps, speed=1.0)[0]
