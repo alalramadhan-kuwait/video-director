@@ -64,6 +64,15 @@ class TestOmniVoicePlugin(unittest.TestCase):
         self.assertEqual(lex, {'بانيراى': 'بانيراي'})                 # Latin→Arabic dropped, Arabic spelling fixes kept
         self.assertEqual(voice.spoken('ولأن Panerai', lex), 'ولأن Panerai')
 
+    def test_the_brand_locks_the_voice_its_description_and_seed(self):
+        brand = self.root / 'brand3'; brand.mkdir()
+        (brand / 'b.json').write_text(json.dumps({'narration': {'instruct': 'male, elderly, low pitch', 'seed': 42}}))
+        args = voice.parser().parse_args(['--script', str(self.script), '--output', str(self.root / 'x.wav'), '--plan', '--brand', str(brand / 'b.json')])
+        plan = voice.generate(args)
+        self.assertEqual((plan['instruct'], plan['seed']), ('male, elderly, low pitch', 42))
+        args = voice.parser().parse_args(['--script', str(self.script), '--output', str(self.root / 'x.wav'), '--plan', '--seed', '7'])
+        self.assertEqual(voice.generate(args)['seed'], 7)                  # an explicit seed still wins
+
     def test_record_list_input(self):
         self.script.write_text(json.dumps([{'id': str(i), 'text': t} for i,t in enumerate(self.texts)]))
         self.assertEqual(voice.read_script(self.script), '\n'.join(self.texts))
