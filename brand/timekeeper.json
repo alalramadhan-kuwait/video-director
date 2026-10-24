@@ -16,6 +16,10 @@
     "draft_provider": "gtts",
     "language": "arb",
     "instruct": "male, middle-aged, low pitch, calm and natural documentary narration",
+    "engine_pronunciation": {
+      "_note": "Respellings one engine needs on top of pronunciation.json, chosen by listening (Whisper) to the variants. VoxCPM2 shortens the first vowel of بانيراي and misreads the Italian bridge name.",
+      "voxcpm2": {"بانيراي": "بانِيرَاي", "ألّي غراتسيه": "ألِّي غراتْسيِه"}
+    },
     "speed": 1.0,
     "draft_speed": 1.25,
     "pronunciation": "brand/pronunciation.json"

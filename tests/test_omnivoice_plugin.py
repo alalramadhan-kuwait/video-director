@@ -45,6 +45,17 @@ class TestOmniVoicePlugin(unittest.TestCase):
         args.engine = 'voxcpm2'; args.model = args.steps = None                     # VoxCPM2 takes the whole description
         self.assertEqual(voice.generate(args)['instruct'], 'male, middle-aged, low pitch, calm and natural documentary narration')
 
+    def test_an_engine_gets_its_own_respellings_on_top_of_the_brand_list(self):
+        brand = self.root / 'brand'; brand.mkdir()
+        (self.root / 'pron.json').write_text(json.dumps({'Panerai': 'بانيراي'}, ensure_ascii=False))
+        (brand / 'b.json').write_text(json.dumps({'narration': {'pronunciation': 'pron.json',
+            'engine_pronunciation': {'voxcpm2': {'_note': 'x', 'بانيراي': 'بانِيرَاي'}}}}, ensure_ascii=False))
+        self.script.write_text(json.dumps({'lines': [{'id': 'l1', 'text': 'قصة Panerai'}]}, ensure_ascii=False))
+        plan = lambda e: voice.generate(voice.parser().parse_args(['--script', str(self.script), '--lines-dir', str(self.root / e),
+                                                                   '--engine', e, '--brand', str(brand / 'b.json'), '--plan']))['lines'][0]['text']
+        self.assertEqual(plan('voxcpm2'), 'قصة بانِيرَاي')          # the brand name, then the engine's respelling of it
+        self.assertEqual(plan('omnivoice'), 'قصة بانيراي')
+
     def test_record_list_input(self):
         self.script.write_text(json.dumps([{'id': str(i), 'text': t} for i,t in enumerate(self.texts)]))
         self.assertEqual(voice.read_script(self.script), '\n'.join(self.texts))
