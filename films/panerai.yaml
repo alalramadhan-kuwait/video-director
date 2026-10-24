@@ -5,7 +5,7 @@
 # A historical event (`event: true`) is shown with a historical photograph; a change (`change: true`) says why (`because`).
 # Every line names its sources (numbers refer to `sources`). Years are written as words in `say` so the voice reads them.
 # A claim the sources only believe (the watches on the divers' wrists that night) is said as a belief: «يُقال».
-title: بانيراي — ضوء في عتمة البحر
+title: Panerai — ضوء في عتمة البحر
 brand: timekeeper
 seed: panerai
 theme: tk-bone
@@ -32,10 +32,10 @@ photos:
   panerai_tools: {query: Set of tools for scuba diving from the Italian company Panerai, year: 1950}
   panerai_gauge: {query: Panerai depth gauge for scuba diving, year: 1950}
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
-  marie_curie: {query: Marie Curie portrait 1900, year: 1900, person: ماري كوري}
+  marie_curie: {query: Marie Curie portrait 1900, year: 1900, person: Marie Curie}
   radium_painters: {query: USRadiumGirls Argonne1, year: 1922}
   undark_ad: {query: Undark Radium Girls advertisement 1921, year: 1921}
-  grace_fryer: {query: Grace Fryer, year: 1925, person: غريس فراير}
+  grace_fryer: {query: Grace Fryer, year: 1925, person: Grace Fryer}
   radium_victims_1928: {file: films/assets/radium_victims_1928.jpg, year: 1928, licence: Public domain (US newspaper published 1928),
                         credit: "The Milwaukee Leader · 22 May 1928 · Library of Congress · public domain", page: "https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"}
   mas_plate_1936: {query: Decima Flotiglia MAS remnants National War Museum Malta MAS 452 plate, year: 1936}
@@ -52,61 +52,61 @@ lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
   - id: l1        # [1][2][4][13]
     mood: mystery
-    text: قصة بانيراي… ساعة صُنعت لرجال يعملون في عتمة البحر، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
+    text: قصة Panerai… ساعة صُنعت لرجال يعملون في عتمة البحر، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
     template: blueprint
     params: {asset: panerai_patent_1961, desc: Panerai patent drawing 1961, y: 560, reveal: 2.2,
              lines: [{text: في عتمة البحر…, size: 76, at: 2.4, y: 190}], stamp: {text: سرّ عسكري, at: 3.6, x: 470, y: 690, size: 70},
-             card: رسم من براءة اختراع بانيراي · جهاز محكم تحت الماء}
+             card: رسم من براءة اختراع Panerai · جهاز محكم تحت الماء}
   - id: l2        # [1][9]
     set: florence
-    text: في فلورنسا، عام 1860.
-    say: في فلورنسا، عام ألفٍ وثمانمئةٍ وستين.
+    text: في Florence، عام 1860.
+    say: في Florence، عام ألفٍ وثمانمئةٍ وستين.
     template: city_zoom
-    banner: فلورنسا · 1860
-    params: {city: florence, sub: عام 1860}
+    banner: Florence · 1860
+    params: {city: florence, name: Florence, sub: عام 1860}
   - id: l3        # [9]
     event: true
-    text: وهناك، على جسر ألّي غراتسيه، افتتح جوفاني بانيراي أول محل له للساعات.
+    text: وهناك، على جسر Ponte alle Grazie، افتتح Giovanni Panerai أول محل له للساعات.
     template: archive_photo
-    banner: جسر ألّي غراتسيه
+    banner: جسر Ponte alle Grazie
     params: {asset: first_shop_bridge, desc: Ponte alle Grazie 19th century, card: على هذا الجسر · أول محل}
   - id: l4        # [1][9]
     event: true
-    text: ومن هذا المحل الصغير في فلورنسا كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.
+    text: ومن هذا المحل الصغير في Florence كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.
     template: archive_photo
-    banner: أدوات بانيراي للبحرية
+    banner: أدوات Panerai للبحرية
     params: {asset: panerai_tools, desc: Panerai diving instruments, print: true, w: 580, y: 580,
-             card: بوصلة ومقياس عمق ومصباح · أدوات بانيراي من منتصف القرن العشرين}
+             card: بوصلة ومقياس عمق ومصباح · أدوات Panerai من منتصف القرن العشرين}
   # ----------------------------------------------------------------------------------- act 2: the light and its price
   - id: l5        # [1][3][14]
     mood: tension
     text: لكن البحرية احتاجت أن ترى أجهزتها في عتمة الليل، وتحت الماء.
     template: archive_photo
     banner: أجهزة تُقرأ في العتمة
-    params: {asset: panerai_gauge, desc: Panerai depth gauge, card: مقياس عمق من أجهزة بانيراي للبحرية, move: in, pos: '50% 0%'}
+    params: {asset: panerai_gauge, desc: Panerai depth gauge, card: مقياس عمق من أجهزة Panerai للبحرية, move: in, pos: '50% 0%'}
   - id: l5b       # [1][3][12]
     set: radium
     mood: wonder
     event: true
     change: true
     because: احتاجت البحرية أن ترى أجهزتها ليلًا
-    text: فطوّرت بانيراي، من الراديوم الذي اكتشفته العالمة ماري كوري، مسحوقًا يتوهّج سمّته راديومير.
+    text: فطوّرت Panerai، من الراديوم الذي اكتشفته العالمة Marie Curie، مسحوقًا يتوهّج سمّته Radiomir.
     template: archive_photo
-    banner: راديومير · من راديوم ماري كوري
-    params: {asset: marie_curie, desc: Marie Curie portrait 1900, card: ماري كوري · العالمة التي اكتشفت الراديوم, move: in, pos: '50% 30%'}
+    banner: Radiomir · من راديوم Marie Curie
+    params: {asset: marie_curie, desc: Marie Curie portrait 1900, card: Marie Curie · العالمة التي اكتشفت الراديوم, move: in, pos: '50% 30%'}
   - id: l6        # [4][11] (Undark, not Radiomir: the link is radium itself)
     event: true
     mood: sadness
-    text: غير أن الراديوم نفسه أخفى سرًّا مظلمًا، ففي أمريكا كان طلاء آخر بالراديوم، اسمه أندارك، ترسمه عاملات شابّات على الساعات.
+    text: غير أن الراديوم نفسه أخفى سرًّا مظلمًا، ففي أمريكا كان طلاء آخر بالراديوم، اسمه Undark، ترسمه عاملات شابّات على الساعات.
     template: archive_photo
     banner: عاملات الراديوم
-    params: {asset: radium_painters, desc: radium dial painters 1922, card: طلاء أندارك · عاملات شابّات في أمريكا}
+    params: {asset: radium_painters, desc: radium dial painters 1922, card: طلاء Undark · عاملات شابّات في أمريكا}
   - id: l7        # [4]
     event: true
     mood: sadness
     text: وقيل لهنّ إن الطلاء آمن، كما كانت الإعلانات تَعِد، فكنّ يبلّلن الفرشاة بشفاههنّ.
     template: archive_photo
-    banner: إعلان طلاء أندارك
+    banner: إعلان طلاء Undark
     params: {asset: undark_ad, desc: Undark advertisement 1921, card: الإعلانات تَعِد بأنه آمن, move: out, pos: '50% 30%'}
   - id: l8        # [4]
     set: radium
@@ -128,10 +128,10 @@ lines:
   - id: l9b       # [4]
     event: true
     mood: sadness
-    text: ومنهنّ غريس فراير. حصلت كلّ واحدة منهنّ على تعويض، لكنّ الراديوم كان قد استقرّ في عظامهنّ، فرحلن الخمس جميعًا في السنوات التالية.
+    text: ومنهنّ Grace Fryer. حصلت كلّ واحدة منهنّ على تعويض، لكنّ الراديوم كان قد استقرّ في عظامهنّ، فرحلن الخمس جميعًا في السنوات التالية.
     template: archive_photo
-    banner: غريس فراير
-    params: {asset: grace_fryer, desc: Grace Fryer, card: غريس فراير · واحدة من الخمس… حصلن على تعويض ورحلن جميعًا}
+    banner: Grace Fryer
+    params: {asset: grace_fryer, desc: Grace Fryer, card: Grace Fryer · واحدة من الخمس… حصلن على تعويض ورحلن جميعًا}
   # ----------------------------------------------------------------------------------- act 3: the secret mission
   - id: l10       # [2][4]
     set: underwater
@@ -145,12 +145,12 @@ lines:
   - id: l11       # [1][7]
     set: workshop
     change: true
-    because: لم تكن بانيراي تملك مصنعًا للساعات
+    because: لم تكن Panerai تملك مصنعًا للساعات
     photo: rolex_oyster_1926
-    text: ولأن بانيراي لا تملك مصنعًا للساعات، لجأت إلى رولكس صاحبة ساعة أويستر المقاومة للماء، فصنعت رولكس العلبة والآلية، وصنعت بانيراي الميناء المضيء.
+    text: ولأن Panerai لا تملك مصنعًا للساعات، لجأت إلى Rolex صاحبة ساعة Oyster المقاومة للماء، فصنعت Rolex العلبة والآلية، وصنعت Panerai الميناء المضيء.
     template: spec_card
-    banner: لماذا رولكس؟
-    params: {title: صنعت رولكس وصنعت بانيراي, rows: [{label: العلبة, value: رولكس}, {label: الآلية, value: رولكس}, {label: الميناء المضيء, value: بانيراي}], y: 470}
+    banner: لماذا Rolex؟
+    params: {title: صنعت Rolex وصنعت Panerai, rows: [{label: العلبة, value: Rolex}, {label: الآلية, value: Rolex}, {label: الميناء المضيء, value: Panerai}], y: 470}
   - id: l12       # [5]
     event: true
     mood: tension
@@ -170,12 +170,12 @@ lines:
     mood: mystery
     text: لكن الستة أُسروا، وأخفى البريطانيون الضرر، فبدت البارجتان سليمتين، كي لا يعرف أحد حجم ضعفهم.
     template: archive_photo
-    banner: البارجة كوين إليزابيث
+    banner: البارجة HMS Queen Elizabeth
     params: {asset: queen_elizabeth_1942, desc: HMS Queen Elizabeth at Alexandria 1942, card: تبدو سليمة… لكنها ليست كذلك}
   - id: l15       # [7]
     event: true
     mood: mystery
-    text: ويُقال إن ساعات بانيراي كانت على معاصم هؤلاء الغطّاسين تلك الليلة، إلى جانب بوصلاتهم المضيئة.
+    text: ويُقال إن ساعات Panerai كانت على معاصم هؤلاء الغطّاسين تلك الليلة، إلى جانب بوصلاتهم المضيئة.
     template: archive_photo
     banner: يُقال…
     params: {asset: slc_compass, desc: SLC compass, card: بوصلة من طوربيدات الغطّاسين · متحف مالطا}
@@ -185,11 +185,11 @@ lines:
     mood: joy
     change: true
     because: الراديوم كان خطرًا، والتريتيوم إشعاعه أضعف بكثير
-    text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت بانيراي عام 1949 مادة أخفّ إشعاعًا سمّتها لومينور، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
-    say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت بانيراي عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا سمّتها لومينور، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
+    text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام 1949 مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
+    say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
     template: archive_photo
-    banner: لومينور · 1949
-    params: {asset: egiziano_1956, desc: Panerai Egiziano 1956, card: ساعة بانيراي من الخمسينيات · ما زال عليها الراديوم}
+    banner: Luminor · 1949
+    params: {asset: egiziano_1956, desc: Panerai Egiziano 1956, card: ساعة Panerai من الخمسينيات · ما زال عليها الراديوم}
   - id: l17       # [8]
     set: workshop
     change: true
@@ -209,6 +209,6 @@ lines:
     set: underwater
     mood: wonder
     closing: true
-    text: هكذا صارت بانيراي، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.
+    text: هكذا صارت Panerai، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.
     template: product_reveal
-    params: {asset: luminor_close, desc: Luminor Marina, name: بانيراي, name_size: 60}
+    params: {asset: luminor_close, desc: Luminor Marina, name: Panerai, name_size: 60}

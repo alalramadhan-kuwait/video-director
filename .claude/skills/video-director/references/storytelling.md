@@ -34,6 +34,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 9. **Never imply a link that does not exist.** Two similar things are named apart: the American dial painters used
    Undark, not Panerai's Radiomir; the link is radium itself. Before writing «the same light/the same watch», check
    that it is literally the same.
+9b. **Foreign names and English words in English letters** ✓ — in the script, on screen and to the voice, as in the
+    Gérald Genta films: «Panerai», «Rolex», «Oyster», «Marie Curie», «Ponte alle Grazie», «Florence»; the voice reads
+    them as they are (`narration.keep_latin` in the brand config). Arab places keep their Arabic name (الإسكندرية).
+    Mind the article: an Arabic «ال» before a Latin word is lost when spoken; keep that word Arabic in that line.
 10. A claim the sources only believe or call likely is said as a belief: «يُقال…».
 11. Contested dates: say only the part all sources agree on (the decade).
 

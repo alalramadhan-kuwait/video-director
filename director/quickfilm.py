@@ -13,6 +13,7 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              · a historical event (`event: true`) is shown with a historical photograph (archive_photo, archival_collage,
                newspaper_card) so the viewer sees it happened, or says why none exists (`no_photo:`)
              · a change (`change: true`: a new material, a new design) says why it happened (`because:`), in the narration
+             · foreign names and English words are written in Latin letters (Panerai, Rolex), as the voice says them
              · the opening hooks with a real drawing from the archive (a patent, a plan: `blueprint`), not a photo
                and never an invented cartoon
              · a person on screen (`person:` on the photo) is introduced by name and never has words over the face
@@ -89,6 +90,14 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: unknown mood {ln['mood']!r} (one of {', '.join(moods.MOODS)})")
     if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
         out.append('the story has events but no line carries its feeling (mood:)')
+    nar = (B.load(film.get('brand', 'timekeeper')).get('narration') or {})
+    if nar.get('keep_latin'):                                            # foreign names in Latin letters (as Gérald Genta)
+        arabic = {v: k for k, v in B.lexicon(film.get('brand', 'timekeeper')).items() if re.search(r'[A-Za-z]', k) and not re.search(r'[A-Za-z]', v)}
+        for ln in lines:
+            said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
+            for v, k in arabic.items():
+                if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
+                    out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
     photos = film.get('photos') or {}
     if lines and (lines[0]['template'] in PHOTO_TEMPLATES or lines[0].get('photo')) and not lines[0].get('opening_photo'):
         out.append(f"{lines[0]['id']}: the opening should hook with a real drawing from the archive (template blueprint) or motion, not a photo")
