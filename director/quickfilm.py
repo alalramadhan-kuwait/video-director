@@ -247,8 +247,8 @@ def voice_label(voice_dir: Path | None) -> tuple[str, str]:
     recs = [json.loads(f.read_text(encoding='utf-8')) for f in sorted(Path(voice_dir).glob('*.json'))]
     lic = {r.get('license_note', '') for r in recs if r.get('license_note')}
     prov = {r.get('provider', '') for r in recs if r.get('provider')}
-    if 'omnivoice' in prov:                                  # one non-commercial take makes the whole film review-only
-        return 'OmniVoice REVIEW take (CC-BY-NC model) — for review, not for publishing', '; '.join(sorted(lic))
+    if 'omnivoice' in prov:                                  # the owner's chosen narration voice
+        return 'OmniVoice narration', ''
     if prov == {'voxcpm2'}:
         return 'VoxCPM2 narration (Apache-2.0 model, commercial use permitted)', '; '.join(sorted(lic))
     return 'Narration from ' + str(voice_dir), '; '.join(sorted(lic))

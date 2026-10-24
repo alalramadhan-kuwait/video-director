@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Read a film's narration on your own Mac, one take per line (free and local; nothing is sent anywhere).
-#   tools/voice_mac.sh films/panerai.yaml                    OmniVoice (CC-BY-NC model: for review, not for publishing)
-#   tools/voice_mac.sh --engine voxcpm2 films/panerai.yaml   VoxCPM2 (Apache-2.0 model: may be published)
+#   tools/voice_mac.sh films/panerai.yaml                    OmniVoice, the owner's narration voice
+#   tools/voice_mac.sh --engine voxcpm2 films/panerai.yaml   VoxCPM2 (the alternative engine)
 #   tools/voice_mac.sh films/panerai.yaml l5,l9              read only these lines again (old takes are renamed, kept)
 #   tools/voice_mac.sh --compare films/panerai.yaml          three test lines with both voices, to choose by ear
 # Each engine installs itself on its first run (Python 3.12, several GB with its model; once only).

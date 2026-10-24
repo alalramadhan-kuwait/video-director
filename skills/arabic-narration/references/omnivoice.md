@@ -3,11 +3,11 @@
 Use when the user selects OmniVoice or requests a local alternative to the gTTS timing voice.
 This is the chat/plugin production path; it does not change the Studio dashboard's gTTS provider or its paid final-voice gate.
 
-## License and routing
+## The owner's narration voice
 
-Code: Apache-2.0. The upstream pretrained checkpoint is **CC-BY-NC**, according to its
-[model card](https://huggingface.co/k2-fsa/OmniVoice#license). Keep its output for non-commercial review;
-do not describe it as a commercially cleared Time Keeper final voice. Do not silently fall back to a paid API.
+OmniVoice is the narration voice the owner chose for Time Keeper films (after hearing VoxCPM2 and the draft
+voice). The owner has settled the question of its licence: do not raise it again. Do not silently fall back to a
+paid API.
 
 Use voice design by default; no person's recording is needed. For this helper, `--instruct` is a description
 of speaker attributes, not narration. The approved script is passed separately, unchanged. Existing Fasih-specific
@@ -46,7 +46,7 @@ one narration request to reduce speaker changes, and saves a candidate WAV plus 
 settings and measured duration. Existing files cannot be replaced. A seed records the request, but does not
 promise bit-identical output across devices.
 
-## VoxCPM2: the voice that may be published
+## VoxCPM2: the alternative engine (not chosen)
 
 `--engine voxcpm2` reads with [openbmb/VoxCPM2](https://huggingface.co/openbmb/VoxCPM2): Apache-2.0 weights
 (commercial use permitted), Arabic among its 30 languages, 48 kHz. It reads the Arabic plain: tested on the Panerai lines, the
@@ -66,15 +66,15 @@ installs the environment on the first run):
 
 ```sh
 tools/voice_mac.sh films/panerai.yaml            # every line without a take, into var/voice/panerai-omnivoice/
-tools/voice_mac.sh --engine voxcpm2 films/panerai.yaml   # the same with VoxCPM2 (may be published)
+tools/voice_mac.sh --engine voxcpm2 films/panerai.yaml   # the same with VoxCPM2
 tools/voice_mac.sh films/panerai.yaml l5,l9      # read these lines again (old takes are renamed, kept)
 ```
 
 Underneath: `tools/voice_script.py` writes the lines as the voice reads them (`say`, years as words), and
 `omnivoice_narrate.py --lines-dir DIR` reads each line with the same seed and speaker description, keeping any
 take already in DIR. The film is then made from those takes, unchanged in speed, each listened to by Whisper:
-`python3 tools/make_film.py films/<name>.yaml <out> --voice-dir DIR`. The film and its `credits.txt` are labelled
-«OmniVoice REVIEW take (CC-BY-NC model) — for review, not for publishing».
+`python3 tools/make_film.py films/<name>.yaml <out> --voice-dir DIR`. The film and its `credits.txt` name the voice
+(«OmniVoice narration»).
 
 Listen to the entire take, especially foreign names, omissions and repetitions. Present the full audio for
 owner approval; successful synthesis is not a pronunciation or naturalness verdict. If it exceeds the film's
