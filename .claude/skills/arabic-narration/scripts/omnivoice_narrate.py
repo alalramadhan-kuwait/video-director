@@ -80,6 +80,12 @@ def brand_settings(path):
     return cfg, lex
 
 
+def engine_lexicon(cfg, engine):
+    """Respellings one engine needs on top of the brand's pronunciation (narration.engine_pronunciation.<engine>);
+    applied after it, so a name the brand list produces can be respelled again for that engine."""
+    return {k: v for k, v in ((cfg.get('engine_pronunciation') or {}).get(engine) or {}).items() if not k.startswith('_')}
+
+
 def spoken(text, lex):
     """What the voice is given: watch names as they are said (longest first, whole words). Captions keep the script."""
     for k in sorted(lex, key=len, reverse=True):
@@ -118,6 +124,7 @@ def request(args):
     if args.steps < 1 or args.steps > 100:
         raise ValueError('Steps must be between 1 and 100')
     cfg, lex = brand_settings(args.brand)
+    lex = {**lex, **engine_lexicon(cfg, args.engine)}
     script = read_script(args.script) if args.lines_dir is None else '\n'.join(r['text'] for r in read_records(args.script))
     text = spoken(script, lex)
     language = args.language or cfg.get('language') or 'arb'
@@ -208,6 +215,7 @@ def _synth(model, args, req, output):
 def generate_lines(args):
     """One take per line in args.lines_dir; lines that already have a take (or its record) are kept."""
     cfg, lex = brand_settings(args.brand)
+    lex = {**lex, **engine_lexicon(cfg, args.engine)}
     recs = read_records(args.script)
     if args.only:
         want = {x.strip() for x in args.only.split(',') if x.strip()}
