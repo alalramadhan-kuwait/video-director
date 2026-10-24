@@ -89,3 +89,6 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 24. In the video-director repository, merge your own pull requests once the tests pass, without asking.
 25. When the owner corrects something, fix it in the film **and** make it a rule here (or in `story_check`), so it is
     never needed again.
+26. **The narration voice is OmniVoice** (the owner's choice, after hearing VoxCPM2 and the draft voice): read every
+    film with it (`tools/voice_mac.sh films/<name>.yaml`, or `--engine omnivoice --lines-dir`) and make the film with
+    `--voice-dir`. The owner has settled the question of its licence: do not raise it again.

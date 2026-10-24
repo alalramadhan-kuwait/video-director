@@ -67,12 +67,12 @@ class TestQuickFilm(unittest.TestCase):
         (given / 'l1.wav').write_bytes(tone(3.0))                            # the line read again is a new take
         self.assertNotEqual(quickfilm.take(FILM['lines'][0], 'timekeeper', self.d / 'voice', given=given)['wav'], t['wav'])
         label, lic = quickfilm.voice_label(given)
-        self.assertIn('REVIEW', label); self.assertIn('not for publishing', label); self.assertIn('CC-BY-NC', lic)
+        self.assertEqual(label, 'OmniVoice narration')
         vox = self.d / 'vox'; vox.mkdir()
         (vox / 'l1.json').write_text(json.dumps({'provider': 'voxcpm2', 'license_note': 'Apache-2.0 weights: commercial use permitted'}))
         self.assertIn('commercial use permitted', quickfilm.voice_label(vox)[0])
-        (vox / 'l2.json').write_text(json.dumps({'provider': 'omnivoice', 'license_note': 'CC-BY-NC'}))      # one review-only take
-        self.assertIn('not for publishing', quickfilm.voice_label(vox)[0])
+        (vox / 'l2.json').write_text(json.dumps({'provider': 'omnivoice', 'license_note': 'CC-BY-NC'}))      # mixed: OmniVoice
+        self.assertEqual(quickfilm.voice_label(vox)[0], 'OmniVoice narration')
         with self.assertRaises(FileNotFoundError) as e:                      # every line needs its take
             quickfilm.make(self._file(FILM), self.d / 'out', video=False, voice_dir=given)
         self.assertIn('l2', str(e.exception))

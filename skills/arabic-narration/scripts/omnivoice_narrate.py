@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Local narration (OmniVoice, or VoxCPM2 with --engine voxcpm2); no provider API or time stretching.
 
-Engines (both free and local; the licence of the weights decides what the takes may be used for):
-  omnivoice   k2-fsa/OmniVoice   CC-BY-NC weights: review only, not for publishing
+Engines (both free and local; each take's record keeps the model's own licence note as provenance):
+  omnivoice   k2-fsa/OmniVoice   the owner's narration voice
   voxcpm2     openbmb/VoxCPM2    Apache-2.0 weights: commercial use permitted; Arabic among its 30 languages;
               read plain by default: an English «(description)» prefix made its Arabic worse (names broken,
               the year garbled; --voice-design turns it on). With --lines-dir, one line's take (--reference, the
