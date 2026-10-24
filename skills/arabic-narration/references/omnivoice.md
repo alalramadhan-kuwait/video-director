@@ -49,8 +49,11 @@ promise bit-identical output across devices.
 ## VoxCPM2: the voice that may be published
 
 `--engine voxcpm2` reads with [openbmb/VoxCPM2](https://huggingface.co/openbmb/VoxCPM2): Apache-2.0 weights
-(commercial use permitted), Arabic among its 30 languages, 48 kHz. The brand's speaker description is given as its
-documented voice-design prefix «(description)text». Its own environment: `requirements-voxcpm2.txt`. The project
+(commercial use permitted), Arabic among its 30 languages, 48 kHz. It reads the Arabic plain: tested on the Panerai lines, the
+English voice-design prefix «(description)text» broke names and garbled the year, and plain text fixed it
+(`--voice-design` turns the prefix back on). The first line's take is the voice reference for every other line
+(`--reference`, default `first`), so the film keeps one voice; reading only some lines needs the reference take
+in the folder. Foreign names may still need a respelling in `brand/pronunciation.json` («ألّي غراتسيه» was misread). Its own environment: `requirements-voxcpm2.txt`. The project
 documents CUDA; on Apple Silicon it is tried on MPS and may be slow; listen before trusting it. Choose by ear:
 `tools/voice_mac.sh --compare films/<name>.yaml` reads three test lines (the hook, a foreign name, a year in words)
 with both engines into `var/voice/compare-<name>/`.
