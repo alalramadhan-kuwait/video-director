@@ -77,6 +77,8 @@ def brand_settings(path):
         lp = path.parent.parent / cfg['pronunciation']        # paths in the config are relative to the repository root
         if lp.is_file():
             lex = {k: v for k, v in json.loads(lp.read_text(encoding='utf-8')).items() if not k.startswith('_')}
+    if cfg.get('keep_latin'):                                 # foreign names stay in Latin letters and are read as they are
+        lex = {k: v for k, v in lex.items() if not re.search(r'[A-Za-z]', k)}
     return cfg, lex
 
 

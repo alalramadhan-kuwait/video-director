@@ -76,6 +76,15 @@ class TestStory(unittest.TestCase):
         self.assertEqual({c['name'] for c in sc['sfx']} >= {'sonar', 'stamp'}, True)
         self.assertTrue(art.production_ready('blueprint')); self.assertNotIn('drawing', art.BUILDERS)   # the cartoon drawing is gone
 
+    def test_foreign_names_are_written_in_english_letters(self):
+        f = {'brand': 'timekeeper', **film({'text': 'قصة بانيراي', 'template': 'blueprint', 'params': {'asset': 'd'}},
+                                           {'text': 'ولجأت إلى Rolex', 'banner': 'رولكس', 'no_photo': 'x'})}
+        out = quickfilm.story_check(f)
+        self.assertTrue(any('l1: write «بانيراي» in English letters (Panerai)' in o for o in out))
+        self.assertTrue(any('l2: write «رولكس» in English letters (Rolex)' in o for o in out))   # on screen too
+        ok = {'brand': 'timekeeper', **film({'text': 'قصة Panerai', 'template': 'blueprint', 'params': {'asset': 'd'}})}
+        self.assertFalse(any('English letters' in o for o in quickfilm.story_check(ok)))
+
     def test_a_person_is_introduced_and_never_under_words(self):
         ph = {'p': {'query': 'q', 'year': 1900, 'person': 'ماري كوري'}}
         under = {**film({'text': 'x', 'template': 'blueprint', 'params': {'asset': 'd'}}, {'text': 'وفي ذلك', 'photo': 'p'}), 'photos': ph}

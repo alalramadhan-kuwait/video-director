@@ -56,6 +56,14 @@ class TestOmniVoicePlugin(unittest.TestCase):
         self.assertEqual(plan('voxcpm2'), 'قصة بانِيرَاي')          # the brand name, then the engine's respelling of it
         self.assertEqual(plan('omnivoice'), 'قصة بانيراي')
 
+    def test_keep_latin_leaves_foreign_names_for_the_voice_to_read(self):
+        brand = self.root / 'brand2'; brand.mkdir()
+        (self.root / 'pron2.json').write_text(json.dumps({'Panerai': 'بانيراي', 'بانيراى': 'بانيراي'}, ensure_ascii=False))
+        (brand / 'b.json').write_text(json.dumps({'narration': {'pronunciation': 'pron2.json', 'keep_latin': True}}))
+        cfg, lex = voice.brand_settings(brand / 'b.json')
+        self.assertEqual(lex, {'بانيراى': 'بانيراي'})                 # Latin→Arabic dropped, Arabic spelling fixes kept
+        self.assertEqual(voice.spoken('ولأن Panerai', lex), 'ولأن Panerai')
+
     def test_record_list_input(self):
         self.script.write_text(json.dumps([{'id': str(i), 'text': t} for i,t in enumerate(self.texts)]))
         self.assertEqual(voice.read_script(self.script), '\n'.join(self.texts))
