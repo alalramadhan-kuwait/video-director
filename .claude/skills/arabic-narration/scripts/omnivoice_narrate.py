@@ -108,7 +108,7 @@ def parser():
     p.add_argument('--brand', type=Path, help='Brand config (brand/timekeeper.json): voice settings and pronunciation')
     p.add_argument('--language', default=None, help='OmniVoice language ID; arb = Standard Arabic (default)')
     p.add_argument('--instruct', default=None, help='Speaker description (default: the brand config, else male, middle-aged, low pitch)')
-    p.add_argument('--seed', type=int, default=1234)
+    p.add_argument('--seed', type=int, default=None, help="Voice seed (default: the brand's narration.seed, else 1234)")
     p.add_argument('--steps', type=int, default=None, help='Generation steps (default: 32 OmniVoice, 10 VoxCPM2)')
     p.add_argument('--cfg', type=float, default=2.0, help='VoxCPM2 guidance (its default 2.0)')
     p.add_argument('--voice-design', action='store_true', help='VoxCPM2: prefix the speaker description «(…)» (worse for Arabic)')
@@ -127,6 +127,8 @@ def request(args):
         raise ValueError('Steps must be between 1 and 100')
     cfg, lex = brand_settings(args.brand)
     lex = {**lex, **engine_lexicon(cfg, args.engine)}
+    if args.seed is None:                                     # the brand's locked voice: its speaker description and seed
+        args.seed = int(cfg.get('seed', 1234))
     script = read_script(args.script) if args.lines_dir is None else '\n'.join(r['text'] for r in read_records(args.script))
     text = spoken(script, lex)
     language = args.language or cfg.get('language') or 'arb'
