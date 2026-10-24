@@ -4,7 +4,9 @@
 Engines (both free and local; the licence of the weights decides what the takes may be used for):
   omnivoice   k2-fsa/OmniVoice   CC-BY-NC weights: review only, not for publishing
   voxcpm2     openbmb/VoxCPM2    Apache-2.0 weights: commercial use permitted; Arabic among its 30 languages;
-              the speaker description is given as the documented voice-design prefix «(description)text»
+              read plain by default: an English «(description)» prefix made its Arabic worse (names broken,
+              the year garbled; --voice-design turns it on). With --lines-dir, one line's take (--reference, the
+              first line by default) is the voice reference for all the others, so the film keeps one voice
 
 --output take.wav     the whole script in one request (one voice, one file)
 --lines-dir DIR       one file per script line (DIR/<id>.wav + .json), the model loaded once and the same seed and
@@ -101,6 +103,8 @@ def parser():
     p.add_argument('--seed', type=int, default=1234)
     p.add_argument('--steps', type=int, default=None, help='Generation steps (default: 32 OmniVoice, 10 VoxCPM2)')
     p.add_argument('--cfg', type=float, default=2.0, help='VoxCPM2 guidance (its default 2.0)')
+    p.add_argument('--voice-design', action='store_true', help='VoxCPM2: prefix the speaker description «(…)» (worse for Arabic)')
+    p.add_argument('--reference', default='first', help="VoxCPM2 with --lines-dir: the line whose take is the voice for the others ('first', an id, or 'none')")
     p.add_argument('--plan', action='store_true', help='Inspect the request without importing or downloading models')
     return p
 
@@ -128,7 +132,8 @@ def request(args):
                 script_sha256=hashlib.sha256(script.encode()).hexdigest(),
                 pronunciation_applied=sorted(k for k in lex if k in script),
                 language=language, instruct=instruct, seed=args.seed,
-                num_step=args.steps, speed=1.0, status='candidate', **({'cfg': args.cfg} if args.engine == 'voxcpm2' else {}),
+                num_step=args.steps, speed=1.0, status='candidate',
+                **({'cfg': args.cfg, 'voice_design': bool(args.voice_design)} if args.engine == 'voxcpm2' else {}),
                 license_note=eng['license_note'], source=eng['source'], **({'instruct_dropped': dropped} if dropped else {}))
 
 
@@ -154,10 +159,14 @@ def _load(args):
 
 
 def _audio(model, args, req):
-    """One request: (waveform, sample rate). VoxCPM2 takes the speaker description as its voice-design prefix."""
+    """One request: (waveform, sample rate). VoxCPM2 reads the text plain, or after its voice-design prefix, and
+    speaks like the reference take when the request names one."""
     if args.engine == 'voxcpm2':
         import inspect
-        kw = dict(text=f"({req['instruct']}){req['text']}", cfg_value=args.cfg, inference_timesteps=args.steps)
+        text = f"({req['instruct']}){req['text']}" if args.voice_design else req['text']
+        kw = dict(text=text, cfg_value=args.cfg, inference_timesteps=args.steps)
+        if req.get('reference_wav'):
+            kw.update(prompt_wav_path=req['reference_wav'], prompt_text=req['reference_text'])
         if 'seed' in inspect.signature(getattr(model, '_generate', model.generate)).parameters:
             kw['seed'] = args.seed                            # newer releases take it; 2.0.3 uses the torch seed set above
         audio = model.generate(**kw)
@@ -220,12 +229,25 @@ def generate_lines(args):
     todo = [q for q in plan if not q['kept']]
     if not todo:
         return {'lines_dir': str(args.lines_dir), 'made': [], 'kept': [q['line'] for q in plan]}
+    ref = None                                                 # VoxCPM2: one line's take is the voice of all the others
+    if args.engine == 'voxcpm2' and args.reference != 'none':
+        allrecs = read_records(args.script)
+        rid = allrecs[0]['id'] if args.reference == 'first' else args.reference
+        rr = next((r for r in allrecs if r['id'] == rid), None)
+        if rr is None:
+            raise ValueError(f'Unknown reference line: {rid}')
+        ref = {'id': rid, 'wav': args.lines_dir / f'{rid}.wav', 'text': spoken(rr['text'], lex)}
+        if not ref['wav'].exists() and not any(q['line'] == rid for q in todo):
+            raise ValueError(f'The reference line {rid} has no take yet: read it first (--only {rid})')
+        todo.sort(key=lambda q: q['line'] != rid)              # the reference line is read first, plain
     model, device = _load(args)
     made = []
     for i, q in enumerate(todo, 1):
         print(f"[{i}/{len(todo)}] {q['line']}", flush=True)
         q = {k: v for k, v in q.items() if k != 'kept'}
         q['device'] = device
+        if ref and q['line'] != ref['id']:
+            q.update(reference=ref['id'], reference_wav=str(ref['wav']), reference_text=ref['text'])
         made.append(_synth(model, args, q, args.lines_dir / f"{q['line']}.wav"))
     return {'lines_dir': str(args.lines_dir), 'made': [m['line'] for m in made], 'kept': [q['line'] for q in plan if q['kept']],
             'seconds': round(sum(m['seconds'] for m in made), 1)}
