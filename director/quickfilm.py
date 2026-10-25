@@ -7,7 +7,11 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
   captions   the script's words timed to what Whisper heard, so captions follow the voice
   scenes     the catalogue template draws each line; only production-ready templates are accepted
   check      the engine's layout check and a still of every scene, which must be looked at before sending
-  film       1080x1920, crf 24, the brand's music (ducked under the voice), the Time Keeper end card
+  film       1080x1920, crf 24, the brand's music (ducked under the voice, shifted so the cuts land on its beats),
+             the Time Keeper end card
+  platform   the film's `platform:` (else the brand's): its caption height, its length limit, words kept clear of the
+             app's buttons (checked as drawn), a separate cover where the app asks for one, parts for a chat
+  hook       `hook: {text, em, dur}`: the hook written big over the first 1.5-3 s, the captions held back meanwhile
   credits    sources, photo credits and the music credit, ready for the post caption
   story      the storytelling rules, checked on every film (story_check):
              · a historical event (`event: true`) is shown with a historical photograph (archive_photo, archival_collage,
@@ -29,12 +33,12 @@ line (OmniVoice: tools/voice_script.py, then omnivoice_narrate.py --lines-dir). 
 speed change), Whisper still listens to each one, and the film is labelled with the voice and its licence.
 """
 from __future__ import annotations
-import hashlib, json, re, shutil, subprocess, time
+import hashlib, html, json, re, shutil, subprocess, time
 from pathlib import Path
 
 import yaml
 
-from . import brand as B
+from . import beats, platforms, brand as B
 from .copilot import commons
 from .studio import art, checks, engine, moods, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
@@ -129,6 +133,14 @@ def story_check(film: dict) -> list[str]:
         first = (checks.words(ln['text']) or [''])[0]
         if ln.get('closing') or first in LEADS or (first[:1] in 'وف' and len(first) > 2): continue
         out.append(f"{ln['id']}: begins without leading in from {prev['id']} (open with وبينما، لكن، ثم، وبعد… or a sentence that prepares the change)")
+    hook = film.get('hook')
+    if hook and lines:                                                   # the hook is the story's own words, not a teaser it never keeps
+        st = lambda t: {checks.stem(w) for w in checks.words(t) if len(checks.stem(w)) >= 3 or w.isdigit()}
+        said = st(' '.join(ln['text'] + ' ' + ln.get('say', '') for ln in lines[:2]))
+        mine = st(hook['text'].replace('|', ' '))
+        near = lambda x: any(x == y or (len(x) >= 4 and len(y) >= 4 and x[:4] == y[:4]) for y in said)
+        if mine and sum(map(near, mine)) / len(mine) < 0.6:          # most of its words are the narration's own
+            out.append(f"hook «{hook['text']}»: not said in the opening lines (take it from what the narration says)")
     last = None                                                          # told in order: a year never goes back unless it says so
     for ln in lines:
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
@@ -137,6 +149,35 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: {ys[0]} comes after {last[1]} ({last[0]}): out of order (or mark it flashback: true)")
         last = (ln['id'], max(ys))
     return out
+
+
+def hook_seconds(hook: dict) -> float:
+    n = len(checks.words(hook['text'].replace('|', ' ')))
+    return float(hook.get('dur') or min(3.0, max(1.6, 0.9 + 0.25 * n)))
+
+
+def hook_card(sc: dict, hook: dict) -> float:
+    """The hook written big over the opening (from video-ad-editor's hook card): a few words from the story, readable
+    from the first frame, gone after `dur` seconds. The captions wait until it has gone: two texts at once and the viewer
+    reads neither. `em` words are in the brand's gold; «|» breaks the line. Returns the hook's length in seconds."""
+    dur = hook_seconds(hook)
+    dark = art.ink_for(sc.get('theme')) == art.PAPER
+    body = html.escape(hook['text'])
+    for e in hook.get('em') or []:
+        body = body.replace(html.escape(e), f'<span style="color:{art.GOLD}">{html.escape(e)}</span>')
+    body = body.replace('|', '<br>')
+    longest = max(len(l.strip()) for l in hook['text'].split('|'))
+    size = hook.get('size') or max(36, min(58, int(600 / (0.5 * longest))))      # each line fits on one line
+    ink = art.PAPER if dark else art.INK
+    band = 'background:rgba(5,9,16,.78);' if dark else 'background:rgba(243,240,232,.86);'
+    sc['elements'].append({'type': 'html', 'w': 660, 'h': 300, 'x': 360, 'y': hook.get('y', 400), 'z': 60, 'still': True,
+                           'html': (f'<div style="width:660px;height:300px;display:flex;align-items:center;justify-content:center">'
+                                    f'<div style="{band}border-radius:18px;padding:18px 26px;text-align:center;direction:rtl;'
+                                    f'font-family:Cairo,sans-serif;font-weight:800;font-size:{size}px;line-height:1.35;color:{ink};white-space:nowrap">'
+                                    f'{body}</div></div>'),
+                           'in': {'type': 'rise', 'at': 0.05, 'dur': .4}, 'out': {'type': 'fade', 'at': round(dur - .3, 2), 'dur': .3}})
+    sc['words'] = [w for w in sc.get('words', []) if w[0] >= dur]
+    return dur
 
 
 def _aspect(f: Path) -> float | None:
@@ -263,6 +304,19 @@ def voice_label(voice_dir: Path | None) -> tuple[str, str]:
     return 'Narration from ' + str(voice_dir), '; '.join(sorted(lic))
 
 
+def split(film: Path, cuts: list[tuple[float, float]], mb: float) -> list[Path]:
+    """The film in parts (film-part1.mp4 …), each re-encoded at the bitrate that keeps it under `mb` megabytes."""
+    out = []
+    for i, (a, b) in enumerate(cuts, 1):
+        dst = film.with_name(f'{film.stem}-part{i}.mp4')
+        kbps = int(mb * 8e6 * 0.92 / (b - a) / 1000) - 160                  # 8 % margin for the container; 160k audio
+        subprocess.run(['ffmpeg', '-v', 'error', '-y', '-ss', f'{a:.3f}', '-to', f'{b:.3f}', '-i', str(film), '-c:v', 'libx264',
+                        '-b:v', f'{kbps}k', '-maxrate', f'{kbps}k', '-bufsize', f'{2 * kbps}k', '-preset', 'slow', '-pix_fmt', 'yuv420p',
+                        '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', str(dst)], check=True)
+        out.append(dst)
+    return out
+
+
 def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) -> dict:
     film = load(path)
     brand = film.get('brand', 'timekeeper')
@@ -273,7 +327,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
         if missing:
             raise FileNotFoundError(f'no take in {voice_dir} for: ' + ', '.join(missing))
     pics = photos(film, out)
-    scenes, report = [], {'lines': [], 'photos': pics, 'story': story_check(film)}
+    plat_id, plat = platforms.of(film, B.load(brand))
+    scenes, report = [], {'lines': [], 'photos': pics, 'story': story_check(film), 'platform': plat['name']}
     for ln in film['lines']:
         t = take(ln, brand, out / 'voice', given=voice_dir)
         dur = round(VOICE_AT + t['seconds'] + TAIL + ln.get('pause', 0.25), 2)
@@ -294,19 +349,37 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                   transition=ln.get('transition', 'cut' if not scenes else ('slide' if same else 'fade')))     # a new world fades in
         scenes.append(sc)
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': ln['template']})
-    sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style(brand), 'scenes': scenes + _endcard(out)}
+    hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
+    sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),
+          'scenes': scenes + _endcard(out)}
+    seconds = round(sum(s['dur'] for s in sb['scenes']), 1)
+    mus = B.music(brand, seconds=seconds, seed=film.get('seed') or Path(path).stem, title=film.get('music'))
+    report['music'] = mus and {k: mus[k] for k in ('title', 'licence', 'source', 'credit')}
+    if mus:                                                              # the cuts land on the music's beats
+        cuts = [round(sum(s['dur'] for s in sb['scenes'][:i]), 3) for i in range(1, len(sb['scenes']))]
+        al = beats.align(Path(mus['file']), cuts, seconds, out / 'music-aligned.flac')
+        mus['file'] = al['file']
+        punched = 0
+        if film.get('beats') == 'punch':                                 # a small push on the scenes that start on a beat
+            punched = sum(beats.punch(sc) for sc, ok in zip(sb['scenes'][1:], al['on_beat']) if ok)
+        report['beats'] = {'offset': al['offset'], 'on_beat': al['hits'], 'cuts': al['cuts'], 'punched': punched}
     (out / 'film.json').write_text(json.dumps(sb, ensure_ascii=False, indent=1), encoding='utf-8')
     report['layout'] = [l for l in engine.check(sb, out) if l.startswith('scene ')]
+    safe = engine.safe(sb, out, platforms.zones(plat)) if plat['zones'] else []
+    report['safe'] = [l for l in safe if l.startswith('safe HARD')]
+    report['safe_caution'] = sum(1 for l in safe if l.startswith('safe caution'))
+    report['length'] = platforms.length_warning(plat, seconds)
     starts = [sum(s['dur'] for s in scenes[:i]) for i in range(len(scenes))]
     shots = engine.stills(sb, out, [round(st + s['dur'] * .7, 2) for st, s in zip(starts, scenes)], scale=0.5)
     (out / 'scenes').mkdir(exist_ok=True)
     report['stills'] = []
     for s, f in zip(scenes, shots):
         dst = out / 'scenes' / f"{s['id']}.png"; shutil.copyfile(f, dst); report['stills'].append(str(dst))
-    seconds = round(sum(s['dur'] for s in sb['scenes']), 1)
-    mus = B.music(brand, seconds=seconds, seed=film.get('seed') or Path(path).stem, title=film.get('music'))
-    report['music'] = mus and {k: mus[k] for k in ('title', 'licence', 'source', 'credit')}
     report['seconds'] = seconds
+    if plat['cover']:                                                    # the app asks for a cover: the hook, or the opening
+        t = (hook_end - .15) if hook_end else scenes[0]['dur'] * .7
+        f = engine.stills(sb, out, [round(t, 2)], scale=1.5)[0]           # in out/: the storyboard's paths are relative to it
+        shutil.copyfile(f, out / 'cover.png'); report['cover'] = str(out / 'cover.png')
     if video:
         extra = ('--crf', B.load(brand).get('export', {}).get('crf', 24)) + (('--music', str(mus['file']), '--music-gain', mus['gain']) if mus else ())
         engine.video(out / 'film.json', out / 'film-raw.mp4', scale=scale, extra=extra)
@@ -320,6 +393,10 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                 if (out / 'film-small.mp4').stat().st_size / 1e6 <= cap: break
             (out / 'film-small.mp4').replace(out / 'film.mp4'); report['crf'] = crf + step
         report['film'] = str(out / 'film.mp4'); report['size_mb'] = round((out / 'film.mp4').stat().st_size / 1e6, 1)
+        if plat['parts']:                                                # a chat: parts cut between scenes, each under its limit
+            starts = [sum(s['dur'] for s in sb['scenes'][:i]) for i in range(len(sb['scenes']))]
+            report['parts'] = [str(p) for p in split(out / 'film.mp4', platforms.parts(starts, [s['dur'] for s in sb['scenes']],
+                                                                                        plat['part_seconds']), plat['part_mb'])]
     credits = ['Sources:'] + [f"- {s}" for s in film.get('sources', [])]
     credits += ['Photos:'] + [f"- {v['credit']} ({v['page']})" for v in pics.values() if v.get('credit')]
     if mus: credits += ['Music:', mus['credit']]

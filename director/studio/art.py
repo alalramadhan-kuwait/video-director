@@ -28,6 +28,8 @@ from . import engine
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / 'art/techniques.yaml'
 INK, PAPER, GOLD = '#111111', '#F3F0E8', '#C9A35F'
+CREDIT_Y = 130           # a photo's credit line: below the apps' top bar (y < 100 at 720x1280) and above the banner (215),
+                         # pinned to the screen (depth 0) so the scene's camera push never carries it under the bar
 DRAWING_NOTE = 'رسم توضيحي مبسّط للمبدأ — ليس مخططًا هندسيًا للشركة'
 
 
@@ -254,7 +256,7 @@ def b_product_macro(p, theme, dur):
           'fit': 'cover', 'scale': [[0, 1.0], [dur, 1.12, 'inOutCubic']]}
     els = [el]
     if p.get('credit'):                                   # the author and licence on screen (CC BY / BY-SA ask for it)
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     return {'theme': theme, 'floor': False, 'elements': els}
 
@@ -359,7 +361,7 @@ def b_archive_photo(p, theme, dur):
         els.append({'type': 'card', 'x': 360, 'y': p.get('card_y', 860 if full else 900), 'w': 520, 'h': 84, 'tex': 'paper', 'label': p['card'],
                     'title': '', 'body': '', 'style': 'dark', 'z': 20, 'in': {'type': 'drop', 'at': p.get('card_at', .6)}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     cam = {'zoom': [[0, 1.0], [dur, 1.0 if full else 1.1, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640], [dur, 630 if full else 610, 'inOutCubic']]}
     return {'theme': theme if not full else 'tk-black', 'floor': False, 'elements': els, 'camera': cam, 'full_frame': full,
@@ -410,7 +412,7 @@ def b_blueprint(p, theme, dur):
         els.append({'type': 'text', 'text': p['card'], 'font': 'banner', 'size': 26, 'color': navy, 'paper': line, 'x': 360,
                     'y': p.get('card_y', y + h / 2 + 60), 'w': 600, 'align': 'center', 'z': 11, 'in': {'type': 'fade', 'at': r1 - .4}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     sfx = [{'at': r0, 'name': 'sonar', 'gain': -16}, {'at': glow_at, 'name': 'geiger', 'gain': -20}]
     if p.get('stamp'): sfx.append({'at': p['stamp'].get('at', glow_at + 1.2) + .05, 'name': 'stamp', 'gain': -9})
@@ -479,7 +481,7 @@ def b_product_reveal(p, theme, dur):
         els.append({'type': 'text', 'text': p['year'], 'font': 'mono', 'size': 30, 'color': ink, 'opacity': .75, 'x': 360, 'y': 960,
                     'in': {'type': 'fade', 'at': 1.3}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .7, 'x': 360, 'y': 90,
+        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .7, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
     return {'theme': theme, 'floor': False, 'elements': els}
 
@@ -604,7 +606,7 @@ def backdrop(sc: dict, asset: str, dur: float, credit: str = '', move: str = 'in
                        'behind': True, 'scale': [[0, s0], [dur, s1, 'linear']]},
                       {'type': 'svg', 'w': 760, 'h': 1320, 'svg': shade, 'x': 360, 'y': 640, 'behind': True, 'still': True}] + sc['elements']
     if credit:
-        sc['elements'].append({'type': 'text', 'text': credit[:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': 90,
+        sc['elements'].append({'type': 'text', 'text': credit[:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                                'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     sc['full_frame'] = True
     return sc

@@ -7,6 +7,9 @@
 # A claim the sources only believe (the watches on the divers' wrists that night) is said as a belief: «يُقال».
 title: Panerai — ضوء في عتمة البحر
 brand: timekeeper
+platform: reels
+# the hook written big over the drawing's first seconds (its words are the opening line's own)
+hook: {text: ساعة صُنعت لعتمة البحر|وعاشت سرًّا عسكريًا, em: [سرًّا عسكريًا], dur: 2.3}
 seed: panerai
 theme: tk-bone
 sources:

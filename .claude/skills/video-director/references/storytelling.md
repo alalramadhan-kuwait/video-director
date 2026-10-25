@@ -86,11 +86,21 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 18c. **One hero per scene, sounds on moments**: one main picture in a scene (a second only to support it). A sound
     marks something that happens (a number lands, a stamp, a new scene), never every word: about 15 a minute at most,
     and half a second of quiet before the most important line.
+18d. **The hook is written big in the first two seconds** ✓ (`hook: {text, em, dur}` in the film file, from video-ad-editor):
+    a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
+    line. The captions wait until it has gone: two texts at once and the viewer reads neither.
+18e. **Cuts land on the music's beats** ✓: make_film shifts the music (later in its track, or a moment's late entry)
+    so the most scene changes fall on a beat; nothing in the film moves. `beats: punch` adds a small camera push to the
+    scenes that start on a beat.
 
 ## Delivery
 19. Look at every still in `<out>/scenes/` before sending (text cut, overlaps, a stamp too faint on a dark scene);
     for a quick look at many scenes, one contact sheet of about six frames costs less than six separate images.
 20. 1080×1920, about −14 LUFS, at most `export.max_mb` (26 MB) — make_film compresses harder by itself if needed.
+20b. **Where it is posted decides the delivery** ✓ (`platform:` in the film file, else the brand's `export.platform`;
+    `director/platforms.py`): Reels and Shorts up to 3 minutes for sure, TikTok up to 10 (1–3 is best), WhatsApp in
+    parts under 16 MB cut between scenes. No words under the app's buttons: make_film checks every 0.2 s as drawn and
+    must say «nothing under the app's buttons». Reels and TikTok get a separate `cover.png` (the hook's frame).
 21. Send the film with its sources, photo credits and music credit (`credits.txt`). The draft voice is labelled as a
     draft; the final narration is OmniVoice.
 
