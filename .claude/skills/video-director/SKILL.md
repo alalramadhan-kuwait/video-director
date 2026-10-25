@@ -53,7 +53,7 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
 4. **Look** — the brand's default look (`paper-story`); another only if the subject clearly calls for it
    (`motion-graphics`).
 5. **Pictures** — real photos first: `python3 tools/find_photo.py "<what>" --save <dir>`, credited on screen;
-   a drawing when none is found.
+   a drawing of a person when none is found; a watch is never drawn, only its real photo (rule 12h).
 6. **Film** — write the film file `films/<name>.yaml` (example: `films/panerai.yaml`): each line's `text` (and `say`
    when the voice must read it differently, e.g. years as words), its `template` and `params` from
    `art/catalogue.yaml`, its `banner`, its world (`set`), its `mood`, and `event` / `change` + `because` where they

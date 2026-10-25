@@ -76,8 +76,8 @@ templates:
     status: implemented
     purpose: [product, person_real, archive, detail]
     name_ar: قصاصة ورقية
-    about: the whole watch or person cut out of its photo and laid on the scene's paper (paper edge, shadow), never cropped; drawn in the same paper style when no photo shows it whole, and labelled as a drawing
-    example: {drawn: {kind: radiomir}, card: ساعة للغطّاسين · 1936}
+    about: the whole watch or person cut out of its photo and laid on the scene's paper (paper edge, shadow), never cropped; a person no photo shows whole is drawn in the same paper style and labelled as a drawing; a watch is never drawn (its photo is shown uncut)
+    example: {drawn: {kind: scientist}, card: Marie Curie · العالمة التي اكتشفت الراديوم}
   - id: watch_movement
     status: implemented
     purpose: [mechanism, product]
