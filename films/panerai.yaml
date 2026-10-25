@@ -33,6 +33,7 @@ photos:
   grace_fryer: {query: Grace Fryer, year: 1925, person: Grace Fryer}
   radium_victims_1928: {file: films/assets/radium_victims_1928.jpg, year: 1928, licence: Public domain (US newspaper published 1928),
                         credit: "The Milwaukee Leader · 22 May 1928 · Library of Congress · public domain", page: "https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"}
+  navy_diver: {query: Teseo tesei tuta, year: 1941, person: Giorgio Giobbe}
   rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926}
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
   slc_compass: {query: Decima Flotiglia MAS remnants Malta SLC compass, year: 1941}
@@ -117,8 +118,8 @@ lines:
     say: وبينما كان العالم يكتشف خطر الراديوم، طلبت البحرية الإيطالية عام ألفٍ وتسعمئةٍ وستةٍ وثلاثين ساعة لغطّاسيها المقاتلين.
     template: paper_cutout
     banner: طلب البحرية · 1936
-    # no free photo of the 1936 prototype: drawn in the paper style, labelled as a drawing (rule 12h)
-    params: {drawn: {kind: radiomir}, card: ساعة للغطّاسين · البحرية الإيطالية · 1936}
+    # no free photo of the 1936 watch (Commons has only a homage), and a watch is never drawn: the divers it was for
+    params: {asset: navy_diver, desc: Giorgio Giobbe in a diving suit, card: Giorgio Giobbe · من غطّاسي البحرية الإيطالية}
   - id: l11       # [1][7]
     set: workshop
     change: true
@@ -173,5 +174,5 @@ lines:
     closing: true
     text: هكذا صارت Panerai، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.
     template: paper_cutout
-    # the close-up cuts the watch at its edges: drawn whole instead (rule 12h)
-    params: {asset: luminor_close, desc: Luminor Marina, drawn: {kind: luminor}, card: Panerai · من أشهر ساعات العالم اليوم}
+    # the close-up cuts the watch at its edges: shown as its photo, uncut (a watch is never drawn, rule 12h)
+    params: {asset: luminor_close, desc: Luminor Marina, card: Panerai · من أشهر ساعات العالم اليوم}

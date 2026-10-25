@@ -68,10 +68,16 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 12h. **Watches and people as paper cut-outs, always whole** ✓ (the owner's choice, `paper_cutout`): the watch, the
     instrument or the person is cut out of its licensed photo (`tools/cutout_photo.py`, free and local) and laid on the
     scene's paper with a paper edge and a shadow, never cropped by the frame; the credit adds «cut out». A portrait may
-    stop at the shoulders, as photographed. When no free photo shows it whole (the photo itself cuts it, or none
-    exists), it is **drawn in the same paper style** (`drawn:` — a radiomir, luminor, oyster or round watch; a man in a
-    suit, a woman in a dress, a dial painter, a diver, a scientist), faceless and never a cartoon, labelled on screen as
-    a drawing. A drawing is never evidence: an `event:` still needs a real photo or a reason (`no_photo:`).
+    stop at the shoulders, as photographed. When no free photo shows a **person** whole, the person is **drawn in the
+    same paper style** (`drawn:` — a man in a suit, a woman in a dress, a dial painter, a diver, a scientist),
+    faceless and never a cartoon, labelled on screen as a drawing. A drawing is never evidence: an `event:` still needs
+    a real photo or a reason (`no_photo:`).
+    **A watch is never drawn** ✓ (the owner: the films are for collectors, who know every case, lug, crown, dial and
+    hand; a drawing gets them wrong and costs the account its trust). A watch is shown only in its real photograph:
+    cut out when the photo shows it whole, otherwise the photo itself, uncut (`archive_photo`). With no photo of the
+    exact watch, find one (Commons searches by model and year: «Marina Militare 1936 watch») or show the nearest true
+    thing and say what it is (rule 13). Simplified principle diagrams of a mechanism (`watch_movement`, a screw crown)
+    are not pictures of a watch and stay labelled as principles.
 13. If the exact thing has no free photo, show the nearest true thing and **say what it is** («الجسر الذي كان عليه
     أول محل»), never pretend.
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with

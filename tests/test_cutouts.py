@@ -1,5 +1,5 @@
-"""Paper cut-outs (rule 12h): the whole subject cut out of its photo, or drawn in the paper style when no photo shows
-it whole; a drawing is labelled and is never evidence."""
+"""Paper cut-outs (rule 12h): the whole subject cut out of its photo; a person no photo shows whole is drawn in the
+paper style, labelled, and never evidence; a watch is never drawn (the films are for collectors)."""
 from tests import _guard  # noqa: F401
 import json, os, shutil, subprocess, sys, tempfile, unittest
 from pathlib import Path
@@ -9,32 +9,34 @@ from director.studio import art, drawn, engine
 
 
 class TestDrawn(unittest.TestCase):
-    def test_every_kind_draws_paper_pieces_with_western_digits(self):
-        for k in ('radiomir', 'luminor', 'oyster', 'round'):
-            svg, w, h = drawn.watch(k, uid='t')
-            self.assertTrue(svg.startswith('<svg') and 'feDropShadow' in svg, k)
-            self.assertNotRegex(svg, '[٠-٩]')
-        self.assertIn('>12<', drawn.watch('radiomir')[0]); self.assertIn('>XII<', drawn.watch('oyster')[0])
+    def test_people_are_drawn_and_watches_cannot_be(self):
         for k in drawn.DRESS:
             svg, w, h = drawn.person(k, uid='p')
+            self.assertTrue(svg.startswith('<svg') and 'feDropShadow' in svg, k)
             self.assertEqual((w, h), (300, 900), k)
+        self.assertFalse(hasattr(drawn, 'watch'))
 
-    def test_the_template_cuts_out_or_draws_and_labels_the_drawing(self):
+    def test_the_template_cuts_out_draws_a_person_and_refuses_a_drawn_watch(self):
         sc = art.scene_visual('paper_cutout', {'asset': 'w', 'aspect': 0.5, 'credit': 'A · CC BY-SA 4.0 · cut out'}, 'tk-bone', 4)
         cut = next(e for e in sc['elements'] if e['type'] == 'cutout')
         self.assertEqual((cut['asset'], cut['aspect']), ('w_cut', 0.5))
         self.assertLessEqual(cut['h'] * cut['aspect'], 600)
-        sc = art.scene_visual('paper_cutout', {'drawn': {'kind': 'radiomir'}, 'card': 'x'}, 'tk-bone', 4)
+        sc = art.scene_visual('paper_cutout', {'drawn': {'kind': 'scientist'}, 'card': 'x'}, 'tk-bone', 4)
         self.assertTrue(any(e['type'] == 'svg' for e in sc['elements']))
         self.assertTrue(any(e.get('text') == art.DRAWN_NOTE for e in sc['elements']))
+        for p in ({'drawn': {'kind': 'radiomir'}}, {}):
+            with self.assertRaises(ValueError):
+                art.scene_visual('paper_cutout', p, 'tk-bone', 4)
 
-    def test_a_drawing_is_a_picture_but_never_evidence(self):
+    def test_a_drawing_is_a_picture_but_never_evidence_and_never_a_watch(self):
         base = {'brand': 'timekeeper', 'lines': [{'id': 'l1', 'text': 'في Florence، عام 1860.', 'template': 'city_zoom', 'params': {'city': 'florence'}}]}
         f = json.loads(json.dumps(base))
-        f['lines'].append({'id': 'l2', 'text': 'وصنعت ساعة للغطّاسين.', 'template': 'paper_cutout', 'params': {'drawn': {'kind': 'radiomir'}}})
+        f['lines'].append({'id': 'l2', 'text': 'وكانت عالمة.', 'template': 'paper_cutout', 'params': {'drawn': {'kind': 'scientist'}}})
         self.assertEqual([m for m in quickfilm.story_check(f) if m.startswith('l2')], [])
         f['lines'][1]['event'] = True
         self.assertTrue(any('historical event' in m for m in quickfilm.story_check(f)))
+        f['lines'][1].update(event=False, params={'drawn': {'kind': 'radiomir'}})
+        self.assertTrue(any(m.startswith('l2') and 'never drawn' in m for m in quickfilm.story_check(f)))
 
 
 def _rembg():

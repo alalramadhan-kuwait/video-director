@@ -87,10 +87,14 @@ def _says(screen: str, narration: str) -> bool:
 def story_check(film: dict) -> list[str]:
     """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
     out, lines = [], film['lines']
+    drawn_people = __import__('director.studio.drawn', fromlist=['DRESS']).DRESS
     for ln in lines:
         drawn = ln['template'] == 'paper_cutout' and not (ln.get('params') or {}).get('asset')      # a drawing, not evidence
         if ln.get('event') and (ln['template'] not in PHOTO_TEMPLATES or drawn) and not ln.get('photo') and not ln.get('no_photo'):
             out.append(f"{ln['id']}: a historical event with no historical photo (use archive_photo, or say why: no_photo)")
+        kind = ((ln.get('params') or {}).get('drawn') or {}).get('kind')
+        if kind and kind not in drawn_people:
+            out.append(f"{ln['id']}: a watch is never drawn ({kind!r}): show its real photo (asset:); only a person may be drawn")
         if ln.get('change') and not ln.get('because'):
             out.append(f"{ln['id']}: a change without its reason (because:)")
         if ln.get('mood') and ln['mood'] not in moods.MOODS:
@@ -364,35 +368,43 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
             if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', pics[slot]['credit'])
             if ln['template'] in ('archive_photo', 'blueprint') and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
-        if ln['template'] == 'paper_cutout' and params.get('asset'):           # the whole subject, cut out (rule 12h)
+        template = ln['template']
+        if template == 'paper_cutout' and params.get('asset'):                # the whole subject, cut out (rule 12h)
             slot = params['asset']
             person = bool((film.get('photos') or {}).get(slot, {}).get('person'))
             c = cutout(slot, out, person) if not pics.get(slot, {}).get('missing') else {'whole': False, 'why': 'no photo'}
+            why = c.get('cut_sides') or c.get('why')
             if c.get('whole'):
                 params.update(aspect=c['aspect'], person=person)
                 if pics.get(slot, {}).get('credit'): params.setdefault('credit', pics[slot]['credit'] + ' · cut out')
-            elif params.get('drawn'):                                        # no photo shows it whole: drawn in our style
-                params.pop('asset'); report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({c.get('cut_sides') or c.get('why')}): drawn")
-            else:
-                report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({c.get('cut_sides') or c.get('why')}): give it a drawn: fallback")
+            elif person and params.get('drawn'):                             # no photo shows the person whole: drawn in our style
+                params.pop('asset'); report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): drawn")
+            elif person:
+                report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): give it a drawn: fallback")
                 params.update(aspect=c.get('aspect', .75), person=person)
+            else:                                                            # a watch is never drawn: its real photo, uncut
+                template = 'archive_photo'
+                params = {k: v for k, v in params.items() if k in ('asset', 'desc', 'card')}
+                if pics.get(slot, {}).get('credit'): params['credit'] = pics[slot]['credit']
+                if pics.get(slot, {}).get('aspect'): params['aspect'] = pics[slot]['aspect']
+                report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): shown as its photo, uncut")
         if params.get('land_on'):                                            # a number lands when the voice says it (rule 18b)
             hit = next((w for w in t['words'] if w['w'] == str(params['land_on'])), None)
             params.pop('land_on')
             if hit: params['land'] = round(VOICE_AT + hit['s'], 2)
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
-        sc = art.scene_visual(ln['template'], params, theme, dur, banner=ln.get('banner'))
+        sc = art.scene_visual(template, params, theme, dur, banner=ln.get('banner'))
         if ln.get('photo'):                                                  # a scene of words gets its related photo behind
             art.backdrop(sc, ln['photo'], dur, credit=pics.get(ln['photo'], {}).get('credit', ''))
-        sc = sets.dress(sc, world, dur, seed=ln['id'], template=ln['template'])
+        sc = sets.dress(sc, world, dur, seed=ln['id'], template=template)
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
         same = scenes and scenes[-1].get('set') == world
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
                   words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']],
                   transition=ln.get('transition', 'cut' if not scenes else ('slide' if same else 'fade')))     # a new world fades in
         scenes.append(sc)
-        report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': ln['template']})
+        report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': template})
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
     ending = _endcard(out)
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),

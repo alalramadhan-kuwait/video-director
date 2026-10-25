@@ -570,16 +570,17 @@ def b_compare_bars(p, theme, dur):
             'camera': _cam(dur, 1.0, 1.03)}
 
 
-DRAWN_NOTE = 'رسم توضيحي بأسلوب Time Keeper — لا توجد صورة كاملة'
+DRAWN_NOTE = 'رسم توضيحي بأسلوب Time Keeper — لا توجد صورة كاملة'                    # people only
 
 
 def b_paper_cutout(p, theme, dur):
     """The paper cut-out look (rule 12h, the owner's choice): the whole watch or the whole person, cut out of its photo
     (tools/cutout_photo.py) and laid on the paper of the scene with a paper edge and a shadow, never cropped. When no
-    photo shows it whole, it is drawn in the same paper style (director/studio/drawn.py) and labelled as a drawing."""
+    photo shows a person whole, the person is drawn in the same paper style (director/studio/drawn.py) and labelled as
+    a drawing. A watch is never drawn: the films are for collectors (quickfilm shows its photo uncut instead)."""
     from . import drawn
     ink = ink_for(theme)
-    person = bool(p.get('person') or (p.get('drawn') or {}).get('person'))
+    person = bool(p.get('person') or (p.get('drawn') or {}).get('kind') in drawn.DRESS)
     bottom = p.get('bottom', 880)
     h = p.get('h', 700 if person else 560)
     els = []
@@ -593,8 +594,9 @@ def b_paper_cutout(p, theme, dur):
             els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360,
                         'y': CREDIT_Y, 'depth': 0, 'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     else:
-        d = p.get('drawn') or {'kind': 'radiomir'}
-        svg, w0, h0 = (drawn.person if person else drawn.watch)(d.get('kind', 'man_suit' if person else 'radiomir'), uid=sets_uid('dr'))
+        if not person:
+            raise ValueError('paper_cutout: a watch is never drawn (rule 12h): give it its real photo (asset:)')
+        svg, w0, h0 = drawn.person(p['drawn']['kind'], uid=sets_uid('dr'))
         h = min(h, bottom - 300); k = h / h0
         w = w0 * k
         svg = svg.replace(f'width="{w0}" height="{h0}"', f'width="{w:.0f}" height="{h:.0f}"', 1)
