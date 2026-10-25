@@ -39,6 +39,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--from') opt.from = +next();
   else if (a === '--to') opt.to = +next();
   else if (a === '--crf') opt.crf = +next();
+  else if (a === '--chunk') opt.chunk = +next();
   else if (a === '--every') opt.every = +next();
   else if (a === '--still') opt.still = next().split(',').map(Number);
   else if (a === '--sheet') opt.sheet = true;
@@ -297,11 +298,13 @@ const out = path.resolve(opt.out || 'out.mp4');
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'pm-frames-'));
 // the frames are removed however the render ends (a failed render once left 2.4 GB behind and filled the disk)
 process.on('exit', () => { if (!opt.keep) { try { fs.rmSync(tmp, { recursive: true, force: true }); } catch (e) {} } });
-// the frames need room on disk (about 0.3 MB each at 1080x1920): say so before an hour of work, not at 90 %
+// the frames are encoded in chunks of CHUNK and removed as each chunk is done, so a long film never needs more than
+// one chunk of frames on disk (about 0.6 MB each at 1080x1920: a whole 3-minute film is about 3 GB of frames)
+const CHUNK = opt.chunk || 900;
 try {
-  const st = fs.statfsSync(tmp), free = st.bavail * st.bsize, need = total * 0.3e6 * opt.scale * opt.scale / 2.25;
-  if (free < need) console.error(`warning: ${(free / 1e9).toFixed(1)} GB free for about ${(need / 1e9).toFixed(1)} GB of frames: free some space or render shorter parts (--from/--to)`);
-} catch (e) {}
+  const st = fs.statfsSync(tmp), free = st.bavail * st.bsize, need = Math.min(total, CHUNK) * 0.6e6 * opt.scale * opt.scale / 2.25 * 1.3;
+  if (free < need) die(`only ${(free / 1e9).toFixed(1)} GB free for about ${(need / 1e9).toFixed(1)} GB of frames: free some space first`);
+} catch (e) { if (String(e.message).includes('GB free')) throw e; }
 console.log(`rendering ${total} frames (${t0}s-${t1}s @ ${fps}fps, ${outW}x${outH}) with ${opt.workers} worker(s)...`);
 const pages = [first];
 for (let k = 1; k < opt.workers; k++) pages.push(await newPage());
@@ -310,21 +313,33 @@ const start = Date.now();
 // a page wears out over thousands of frames (Chromium then refuses screenshots near the end of a long film): each
 // worker starts a fresh page every RECYCLE frames
 const RECYCLE = 1200;
-await Promise.all(pages.map(async (p, k) => {
-  let n = 0;
-  for (let i = k; i < total; i += pages.length) {
-    if (++n % RECYCLE === 0) { await p.page.context().close(); p = await newPage(); }
-    await shot(p.page, t0 + i / fps, path.join(tmp, 'f_' + String(i).padStart(6, '0') + '.jpg'), false);
-    done++;
-    const pct = Math.floor((done / total) * 10) * 10;
-    if (pct !== lastPct) { lastPct = pct; console.log(`  ${pct}%  (${((Date.now() - start) / 1000).toFixed(0)}s)`); }
-  }
-}));
+const shotCount = pages.map(() => 0), parts = [];
+for (let c0 = 0; c0 < total; c0 += CHUNK) {
+  const c1 = Math.min(total, c0 + CHUNK);
+  await Promise.all(pages.map(async (p, k) => {
+    for (let i = c0 + k; i < c1; i += pages.length) {
+      if (++shotCount[k] % RECYCLE === 0) { await pages[k].page.context().close(); pages[k] = await newPage(); }
+      await shot(pages[k].page, t0 + i / fps, path.join(tmp, 'f_' + String(i).padStart(6, '0') + '.jpg'), false);
+      done++;
+      const pct = Math.floor((done / total) * 10) * 10;
+      if (pct !== lastPct) { lastPct = pct; console.log(`  ${pct}%  (${((Date.now() - start) / 1000).toFixed(0)}s)`); }
+    }
+  }));
+  const part = path.join(tmp, 'part_' + String(parts.length).padStart(3, '0') + '.mp4');
+  const pe = spawnSync(ffmpeg, ['-y', '-v', 'error', '-framerate', String(fps), '-start_number', String(c0), '-i', path.join(tmp, 'f_%06d.jpg'),
+    '-frames:v', String(c1 - c0), '-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', String(opt.crf), '-preset', 'medium', '-r', String(fps), part], { stdio: 'inherit' });
+  if (pe.status !== 0) die('ffmpeg encode failed (frames ' + c0 + '-' + c1 + ')');
+  parts.push(part);
+  if (!opt.keep) for (let i = c0; i < c1; i++) fs.rmSync(path.join(tmp, 'f_' + String(i).padStart(6, '0') + '.jpg'), { force: true });
+}
 await browser.close();
+const video = path.join(tmp, 'video.mp4');
+fs.writeFileSync(path.join(tmp, 'parts.txt'), parts.map((f) => `file '${f}'`).join('\n'));
+if (spawnSync(ffmpeg, ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', path.join(tmp, 'parts.txt'), '-c', 'copy', video], { stdio: 'inherit' }).status !== 0) die('ffmpeg could not join the parts');
 
 // ---------------------------------------------------------------- encode + audio
 const D = total / fps;
-const args = ['-y', '-v', 'error', '-framerate', String(fps), '-i', path.join(tmp, 'f_%06d.jpg')];
+const args = ['-y', '-v', 'error', '-i', video];
 const vg = opt.voiceGain != null ? opt.voiceGain : (sb.audio && sb.audio.voiceGain) || 0;
 const duck = !opt.noDuck && !(sb.audio && sb.audio.duck === false), duckRatio = 6;
 const mg = opt.musicGain != null ? opt.musicGain : (sb.audio && sb.audio.musicGain != null ? sb.audio.musicGain : -18);
@@ -384,7 +399,7 @@ if (srcs.length || music) {
   chains.push(labels.length === 1 ? `${labels[0]}anull[a]` : `${labels.join('')}amix=inputs=${labels.length}:duration=longest:normalize=0,loudnorm=I=-18:TP=-2:LRA=11[a]`);
   args.push('-filter_complex', chains.join(';'), '-map', '0:v', '-map', '[a]');
 }
-args.push('-c:v', 'libx264', '-pix_fmt', 'yuv420p', '-crf', String(opt.crf), '-preset', 'medium', '-r', String(fps), '-movflags', '+faststart');
+args.push('-c:v', 'copy', '-movflags', '+faststart');                      // the parts are already encoded
 if (srcs.length || music) args.push('-c:a', 'aac', '-b:a', '160k');
 args.push('-t', D.toFixed(3), out);
 const enc = spawnSync(ffmpeg, args, { stdio: 'inherit' });
