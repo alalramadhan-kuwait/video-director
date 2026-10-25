@@ -79,9 +79,17 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 17. **Maps are in colour** (the atlas look): the story's country in gold.
 18. **Effects and sounds**: templates carry their own sounds; music from the library is ducked under the voice; one
     credit line for the music goes in the post caption.
+18b. **A number is shown as the number** (learned from video-ad-editor): a count or a measure → `stat_counter`, «X of
+    every N» → `part_of_whole`, a rise or a fall → `trend_chart`, then and now → `compare_bars`. The number lands on the
+    word that says it (`land` = when the voice says it). Only sourced figures, with their `source`; never invent a
+    number to fill a chart.
+18c. **One hero per scene, sounds on moments**: one main picture in a scene (a second only to support it). A sound
+    marks something that happens (a number lands, a stamp, a new scene), never every word: about 15 a minute at most,
+    and half a second of quiet before the most important line.
 
 ## Delivery
-19. Look at every still in `<out>/scenes/` before sending (text cut, overlaps, a stamp too faint on a dark scene).
+19. Look at every still in `<out>/scenes/` before sending (text cut, overlaps, a stamp too faint on a dark scene);
+    for a quick look at many scenes, one contact sheet of about six frames costs less than six separate images.
 20. 1080×1920, about −14 LUFS, at most `export.max_mb` (26 MB) — make_film compresses harder by itself if needed.
 21. Send the film with its sources, photo credits and music credit (`credits.txt`). The draft voice is labelled as a
     draft; the final narration is OmniVoice.

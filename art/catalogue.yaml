@@ -72,6 +72,33 @@ templates:
     example: {title: صبمارينر مقابل لومينور, columns: [Submariner 1953, Luminor 1950],
               rows: [{label: العمق, values: [100 م, 200 م]}, {label: القطر, values: [37 مم, 47 مم]}, {label: المادة, values: [فولاذ, فولاذ]}],
               source: 'المصدر: أرشيف الشركتين'}
+  # ---------------------------------------------------------------- numbers (vendor/motion-kit, from video-ad-editor, MIT)
+  - id: stat_counter
+    status: implemented
+    purpose: [number, hook]
+    name_ar: عدّاد رقم
+    about: one sourced number runs up on rolling digits and lands with a small burst on the spoken number (`land`)
+    example: {title: عمق الاختبار, value: 200, suffix: ' م', label: تحت سطح البحر, land: 1.8, source: 'مثال للعرض — ليس رقمًا موثّقًا'}
+  - id: part_of_whole
+    status: implemented
+    purpose: [number, proportion]
+    name_ar: كم من كل كم
+    about: «X of every N» — N small figures fill in, then X of them light up in gold on the spoken number
+    example: {title: خمس من كل مئة, total: 100, hot: 5, land: 1.9, source: 'مثال للعرض — ليس رقمًا موثّقًا'}
+  - id: trend_chart
+    status: implemented
+    purpose: [trend, number]
+    name_ar: منحنى يرتسم
+    about: a line draws itself through sourced values (a rise or a fall), first and last labels under it
+    example: {title: الإنتاج عبر السنين, values: [2, 3, 3, 5, 9, 16, 30], from_label: '1950', to_label: '2020',
+              source: 'مثال للعرض — ليس رقمًا موثّقًا'}
+  - id: compare_bars
+    status: implemented
+    purpose: [comparison, number]
+    name_ar: مقارنة أعمدة
+    about: two to four bars side by side, each with its sourced value, unit and label; one can be marked in gold
+    example: {title: عمق المقاومة, items: [{label: '1936', value: 30, unit: م}, {label: '1950', value: 200, unit: م, hot: true}],
+              source: 'مثال للعرض — ليس رقمًا موثّقًا'}
   # ---------------------------------------------------------------- places
   - id: map
     status: implemented
