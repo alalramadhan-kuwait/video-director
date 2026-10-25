@@ -18,7 +18,6 @@ sources:
   - "[3] Espacenet GB191512270A (Panerai radium luminous sights patent, 1915): https://worldwide.espacenet.com/patent/search?q=pn%3DGB191512270A"
   - "[4] Radium Girls — Wikipedia (young women dial painters told the paint was harmless, lip-pointing brushes, tooth loss, anaemia, 'radium jaw'; more than 50 dead by 1927; five sued, settled in 1928, all five dead by the 1930s): https://en.wikipedia.org/wiki/Radium_Girls"
   - "[5] Raid on Alexandria (1941) — Wikipedia (19 Dec 1941, Decima Flottiglia MAS, three SLC 'maiali', six men, HMS Valiant and HMS Queen Elizabeth put out of action): https://en.wikipedia.org/wiki/Raid_on_Alexandria_(1941)"
-  - "[6] HMS Queen Elizabeth (1913) — Wikipedia (the Royal Navy kept up the illusion of full operational status while she was repaired): https://en.wikipedia.org/wiki/HMS_Queen_Elizabeth_(1913)"
   - "[7] Worn & Wound, Military Watches of the World: Italy (Panerai had no watchmaking facility and turned to Rolex; 'highly likely' early Panerai saw service in the Alexandria raid): https://wornandwound.com/military-watches-of-the-world-italy-pt-i/"
   - "[8] Luminor (tritium) replaced radium because radium was too hazardous; the crown-protecting bridge, 1950s: https://www.watchfinder.com/articles/feature-the-incredible-deadly-story and https://wristreview.com/brief-history-panerai-luminor/"
   - "[9] Panerai, History (its own account: the first shop, on the Ponte alle Grazie, Florence, 1860): https://www.panerai.com/en/about-panerai/history.html"
@@ -37,7 +36,6 @@ photos:
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
   marie_curie: {query: Marie Curie portrait 1900, year: 1900, person: Marie Curie}
   radium_painters: {query: USRadiumGirls Argonne1, year: 1922}
-  undark_ad: {query: Undark Radium Girls advertisement 1921, year: 1921}
   grace_fryer: {query: Grace Fryer, year: 1925, person: Grace Fryer}
   radium_victims_1928: {file: films/assets/radium_victims_1928.jpg, year: 1928, licence: Public domain (US newspaper published 1928),
                         credit: "The Milwaukee Leader · 22 May 1928 · Library of Congress · public domain", page: "https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"}
@@ -45,11 +43,8 @@ photos:
   rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926}
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
   slc_compass: {query: Decima Flotiglia MAS remnants Malta SLC compass, year: 1941}
-  queen_elizabeth_1942: {query: HMS QUEEN ELIZABETH FLIES ENSIGN HALF MAST, year: 1942}
   egiziano_1956: {query: Egiziano panerai2, year: 1956}
   marina_militare_1990s: {query: Panerai Marina Militare 5218, year: 1995}
-  crown_guard: {query: CROWN GUARD 29728851024, year: 2016}
-  luminor_glow: {query: LUMINOR 30075754506, year: 2016}
   luminor_close: {query: PANERAI 29802698304, year: 2016}
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
@@ -104,13 +99,6 @@ lines:
     template: archive_photo
     banner: عاملات الراديوم
     params: {asset: radium_painters, desc: radium dial painters 1922, card: طلاء Undark · عاملات شابّات في أمريكا}
-  - id: l7        # [4]
-    event: true
-    mood: sadness
-    text: وقيل لهنّ إن الطلاء آمن، كما كانت الإعلانات تَعِد، فكنّ يبلّلن الفرشاة بشفاههنّ.
-    template: archive_photo
-    banner: إعلان طلاء Undark
-    params: {asset: undark_ad, desc: Undark advertisement 1921, card: الإعلانات تَعِد بأنه آمن, move: out, pos: '50% 30%'}
   - id: l8        # [4]
     set: radium
     mood: sadness
@@ -168,13 +156,6 @@ lines:
     template: city_zoom
     banner: الإسكندرية · 1941
     params: {city: alexandria, sub: ديسمبر 1941}
-  - id: l14       # [5][6]
-    event: true
-    mood: mystery
-    text: لكن الستة أُسروا، وأخفى البريطانيون الضرر، فبدت البارجتان سليمتين، كي لا يعرف أحد حجم ضعفهم.
-    template: archive_photo
-    banner: البارجة HMS Queen Elizabeth
-    params: {asset: queen_elizabeth_1942, desc: HMS Queen Elizabeth at Alexandria 1942, card: تبدو سليمة… لكنها ليست كذلك}
   - id: l15       # [7]
     event: true
     mood: mystery
@@ -193,14 +174,6 @@ lines:
     template: archive_photo
     banner: Luminor · 1949
     params: {asset: egiziano_1956, desc: Panerai Egiziano 1956, card: ساعة Panerai من الخمسينيات · ما زال عليها الراديوم}
-  - id: l17       # [8]
-    set: workshop
-    change: true
-    because: كي يبقى التاج مضغوطًا على مانع التسرّب فلا يدخل الماء
-    text: ومنذ الخمسينيات يضغط جسرٌ التاجَ ويُحكم إغلاقه كي لا يتسرّب الماء، وما زال هذا الجسر علامتها حتى اليوم.
-    template: product_macro
-    banner: جسر التاج اليوم
-    params: {asset: crown_guard, desc: crown guard}
   - id: l18       # [1]
     mood: joy
     text: وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة، إلى أن خرجت أخيرًا إلى الناس عام 1993.
