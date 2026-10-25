@@ -57,10 +57,11 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
 6. **Film** — write the film file `films/<name>.yaml` (example: `films/panerai.yaml`): each line's `text` (and `say`
    when the voice must read it differently, e.g. years as words), its `template` and `params` from
    `art/catalogue.yaml`, its `banner`, its world (`set`), its `mood`, and `event` / `change` + `because` where they
-   apply; plus `photos` (Commons queries) and `sources`. Then `python3 tools/make_film.py films/<name>.yaml <out>`:
+   apply; plus `photos` (Commons queries), `sources`, the `platform` and the written `hook`. Then `python3 tools/make_film.py films/<name>.yaml <out>`:
    it voices, listens (Whisper), times the captions to the voice, draws, checks the story and the layout, adds the
-   ducked music and the end card, keeps the size under the brand's limit and writes `credits.txt`. Fix every `story:`
-   warning, look at every still in `<out>/scenes/` (text cut, overlaps, faint text, wrong photo), then render.
+   ducked music (its beats under the cuts) and the end card, keeps the size under the brand's limit, checks the words
+   against the platform's buttons, makes the cover or the parts the platform needs and writes `credits.txt`. Fix every
+   `story:` and `safe zones:` warning, look at every still in `<out>/scenes/` (text cut, overlaps, faint text, wrong photo), then render.
    **Send the finished film for approval**, with the sources, photo credits and the music credit line (it goes in the
    post caption).
    The owner approves or comments with time codes («عند 0:42 الخط صغير»); fix only that, resend.

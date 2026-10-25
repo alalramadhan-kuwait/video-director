@@ -68,6 +68,20 @@ def check(sb: dict, workdir: Path) -> list[str]:
     return lines
 
 
+def safe(sb: dict, workdir: Path, zones: list[dict]) -> list[str]:
+    """Words under a platform's buttons (zones in storyboard pixels, director/platforms.py): one line per run of
+    samples, `safe HARD ...` for a zone the app covers and `safe caution ...` for its caution band; the last line sums up."""
+    workdir.mkdir(parents=True, exist_ok=True)
+    p = workdir / '_safe.json'; p.write_text(json.dumps(sb, ensure_ascii=False), encoding='utf-8')
+    z = workdir / '_zones.json'; z.write_text(json.dumps(zones, ensure_ascii=False), encoding='utf-8')
+    r = subprocess.run(['node', str(RENDER), str(p.resolve()), '--safe', str(z.resolve())], capture_output=True, text=True, env=_env(),
+                       cwd=str(workdir), timeout=1800)
+    lines = [l for l in r.stdout.splitlines() if l.strip()]
+    if r.returncode not in (0, 1) or not lines or 'buttons' not in lines[-1]:
+        raise RuntimeError(f'safe-zone check failed ({r.returncode}): ' + '\n'.join((r.stdout + r.stderr).splitlines()[-8:]))
+    return lines
+
+
 def video(sb_path: Path, out: Path, scale=1.0, workers=4, extra=(), progress=None) -> str:
     """Render the film. `progress(pct)` is called each time the renderer passes another 10 % of the frames."""
     import re as _re

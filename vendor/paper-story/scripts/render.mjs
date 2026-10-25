@@ -4,6 +4,7 @@
  *
  *   node render.mjs <storyboard.json> -o out.mp4 [--scale 1.5] [--audio vo.mp3] [--music bed.mp3]
  *   node render.mjs <storyboard.json> --still 2.5,9 -o stills/       one PNG per time (fast QA)
+ *   node render.mjs <storyboard.json> --safe zones.json               words inside a platform's button zones (director/platforms.py)
  *   node render.mjs <storyboard.json> --check                        lists every face a banner, card or picture covers,
  *                                                                     and every bubble or word hidden under the banner
  *   node render.mjs <storyboard.json> --sheet [--every 2] -o sheet.png   contact sheet of the whole video
@@ -41,6 +42,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--still') opt.still = next().split(',').map(Number);
   else if (a === '--sheet') opt.sheet = true;
   else if (a === '--check') opt.check = true;
+  else if (a === '--safe') opt.safe = next();
   else if (a === '--keep-frames') opt.keep = true;
   else if (a === '--review') opt.review = true;
   else if (a === '--final') opt.final = true;
@@ -226,6 +228,26 @@ if (opt.check) {
   console.log(faults.length - cuts ? (faults.length - cuts) + ' overlap(s) or picture(s) on the captions' : 'no print over another, nothing on the captions');
   for (const e of soft) console.log(`note: scene ${e.scene + 1}  ` + SAY.soft(e));
   process.exit(seen.size || faults.length ? 1 : 0);
+}
+
+if (opt.safe) {
+  // words inside the platform's button zones (zones file from director/platforms.py), every 0.2 s; a run shorter
+  // than 0.6 s is something passing through (an entrance), not a fault
+  const zones = JSON.parse(fs.readFileSync(path.resolve(opt.safe), 'utf8'));
+  const hits = [];
+  for (let t = 0.05; t < duration; t += 0.2) hits.push(...(await first.page.evaluate(([tt, z]) => window.PM.safeZones(tt, z), [t, zones])));
+  await browser.close();
+  const runs = [], open = new Map();
+  for (const h of hits) {
+    const k = h.zone + '|' + h.scene + '|' + h.what, e = open.get(k);
+    if (e && h.t - e.to < 0.25) { if (h.t > e.to) e.n++; e.to = h.t; e.pct = Math.max(e.pct, h.pct); }     // n counts samples, not boxes
+    else { const r = { ...h, from: h.t, to: h.t, n: 1 }; runs.push(r); open.set(k, r); }
+  }
+  const found = runs.filter((e) => e.n >= 3);
+  for (const e of found) console.log(`safe ${e.hard ? 'HARD' : 'caution'}  scene ${e.scene + 1}  ${e.from.toFixed(1)}-${e.to.toFixed(1)}s  ${e.what} in the ${e.zone} zone (${e.pct}%)`);
+  const hard = found.filter((e) => e.hard).length;
+  console.log(hard ? hard + ' word(s) under the app\'s buttons' : 'nothing under the app\'s buttons');
+  process.exit(hard ? 1 : 0);
 }
 
 if (opt.still || opt.sheet) {
