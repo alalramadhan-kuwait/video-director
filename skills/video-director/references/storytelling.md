@@ -108,6 +108,13 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     at least 4.5:1 against what is really behind it (3:1 for large text), no words crossing other words, frame one a
     finished picture, no still stretch longer than 0.8 s before the end card. The spoken caption word lights up in the
     brand gold.
+19c. **A fresh critic reviews the finished film** (`tools/critic.py`, from the "awesome Opus 5.5 videos" prompts): the
+    builder never judges its own work. `pack <out>` makes the round's folder (a frame a second, six frames around every
+    cut, the measurements, a brief); a new agent that has seen none of the building reads only that folder and writes
+    `findings.json` (ranked problems with time codes, «ship» or «one more pass»). Fix the worst first, render, `record`
+    the round, then `pack` again for a new critic, which checks every previous problem as fixed, partly fixed or still
+    there. Never tell a critic what was fixed. Up to three rounds unless the owner asks for more (each critic costs
+    tokens); tell the owner the last verdict with the film.
 20. 1080×1920, about −14 LUFS, at most `export.max_mb` (26 MB) — make_film compresses harder by itself if needed.
 20b. **Where it is posted decides the delivery** ✓ (`platform:` in the film file, else the brand's `export.platform`;
     `director/platforms.py`): Reels and Shorts up to 3 minutes for sure, TikTok up to 10 (1–3 is best), WhatsApp in

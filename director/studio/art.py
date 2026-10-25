@@ -439,7 +439,7 @@ def b_spec_card(p, theme, dur):
         y, at = y0 + i * rh, p.get('at', .6) + i * p.get('stagger', .35)
         els.append({'type': 'shape', 'kind': 'rect', 'w': 640, 'h': 2, 'x': 360, 'y': y + rh / 2 - 6, 'color': ink, 'opacity': .18,
                     'in': {'type': 'fade', 'at': at}})
-        els.append({'type': 'text', 'text': r['label'], 'font': 'cap', 'size': 28, 'color': ink, 'opacity': .7, 'x': 360 if two else 520,
+        els.append({'type': 'text', 'text': r['label'], 'font': 'cap', 'size': 28, 'color': ink, 'opacity': .92, 'x': 360 if two else 520,
                     'y': y, 'w': 160 if two else 220, 'align': 'center' if two else 'right', 'in': {'type': 'fade', 'at': at}})
         vals = r.get('values') or [r.get('value', '')]
         for v, x in zip(vals, XS if two else (200,)):

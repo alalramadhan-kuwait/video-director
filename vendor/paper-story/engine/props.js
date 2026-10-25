@@ -18,7 +18,7 @@
     d.style.color = o.color || '#1b1a18';
     d.style.left = (o.x || 0) + 'px';
     d.style.top = (o.y || 0) + 'px';
-    d.style.unicodeBidi = 'plaintext';
+    PM.bidi(d, str);
     if (o.w) { d.style.width = o.w + 'px'; d.style.whiteSpace = 'pre-wrap'; d.style.lineHeight = String(o.lh || 1.12); }
     if (o.align) d.style.textAlign = o.align;
     if (o.center) { d.style.display = 'flex'; d.style.alignItems = 'center'; d.style.justifyContent = 'center'; d.style.textAlign = 'center'; }
@@ -478,8 +478,9 @@
     const t = PM.div('txt');
     t.textContent = sp.text || '';
     const fam = { banner: 'var(--f-banner)', cap: 'var(--f-cap)', title: 'var(--f-title)', mono: 'var(--f-mono)', ui: 'var(--f-ui)' }[sp.font || 'title'];
-    Object.assign(t.style, { position: 'relative', fontFamily: fam, fontSize: (sp.size || 90) + 'px', fontWeight: sp.weight || (sp.font === 'title' || !sp.font ? 400 : 800), color: sp.color || '#F6EEDD', unicodeBidi: 'plaintext',
+    Object.assign(t.style, { position: 'relative', fontFamily: fam, fontSize: (sp.size || 90) + 'px', fontWeight: sp.weight || (sp.font === 'title' || !sp.font ? 400 : 800), color: sp.color || '#F6EEDD',
       letterSpacing: (sp.ls == null ? 0.02 : sp.ls) + 'em', textTransform: sp.upper === false ? 'none' : (sp.font === 'title' || !sp.font ? 'uppercase' : 'none'), textAlign: sp.align || 'center' });
+    PM.bidi(t, sp.text);
     if (sp.w) { t.style.width = sp.w + 'px'; t.style.whiteSpace = 'pre-wrap'; t.style.lineHeight = String(sp.lh || 1.05); }
     if (sp.outline) t.style.webkitTextStroke = sp.outline;
     t.style.textShadow = sp.shadow === false ? 'none' : '3px 5px 0 rgba(0,0,0,.28)';

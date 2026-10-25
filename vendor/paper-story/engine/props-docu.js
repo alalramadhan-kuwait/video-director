@@ -13,7 +13,8 @@
     const d = PM.div('txt');
     d.textContent = str;
     Object.assign(d.style, { fontFamily: FONT[o.font || 'ui'], fontSize: (o.size || 22) + 'px', fontWeight: o.weight || 800, color: o.color || INK,
-      left: (o.x || 0) + 'px', top: (o.y || 0) + 'px', unicodeBidi: 'plaintext', lineHeight: String(o.lh || 1.15) });
+      left: (o.x || 0) + 'px', top: (o.y || 0) + 'px', lineHeight: String(o.lh || 1.15) });
+    PM.bidi(d, str);
     if (o.w) { d.style.width = o.w + 'px'; d.style.whiteSpace = 'pre-wrap'; }
     if (o.h) d.style.height = o.h + 'px';
     if (o.align) d.style.textAlign = o.align;

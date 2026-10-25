@@ -166,9 +166,10 @@ lines:
     mood: joy
     text: وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة، إلى أن خرجت أخيرًا إلى الناس عام 1993.
     say: وبقيت سرًّا، فحتى عام ألفٍ وتسعمئةٍ وسبعين لم يُصنع منها إلا نحو ألفٍ وستمئة ساعة، إلى أن خرجت أخيرًا إلى الناس عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين.
-    template: product_reveal
+    template: stat_counter
+    photo: marina_militare_1990s
     banner: إلى الناس · 1993
-    params: {asset: marina_militare_1990s, desc: Panerai Marina Militare 1990s, name: خرجت إلى الناس, year: '1993'}
+    params: {title: حتى 1970, value: 1600, label: ساعة فقط, land_on: '1600', source: 'المصدر: Panerai · Wikipedia'}
   - id: l19       # —
     set: underwater
     mood: wonder
