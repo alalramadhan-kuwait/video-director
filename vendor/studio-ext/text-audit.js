@@ -46,7 +46,7 @@
         out.push({ id: ids.get(own), text: text.slice(0, 40), scene: sc, caption: own.classList.contains('cap'),
                    box: [b.left, b.top, b.right, b.bottom].map((v) => +v.toFixed(1)), color: rgb(cs.color).slice(0, 3),
                    size: parseFloat(cs.fontSize) * (b.height / Math.max(1, parseFloat(cs.lineHeight) || b.height)),
-                   px: parseFloat(cs.fontSize), weight: +cs.fontWeight || 400, alpha: +a.toFixed(2), paper: paper(el) });
+                   px: parseFloat(cs.fontSize), weight: +cs.fontWeight || 400, alpha: +a.toFixed(2), paper: paper(el), dir: cs.direction });
       }
     }
     return out;

@@ -62,6 +62,9 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    ducked music (its beats under the cuts) and the end card, keeps the size under the brand's limit, checks the words
    against the platform's buttons, makes the cover or the parts the platform needs and writes `credits.txt`. Fix every
    `story:` and `safe zones:` warning, look at every still in `<out>/scenes/` (text cut, overlaps, faint text, wrong photo), then render.
+   Then the critic loop (`references/storytelling.md` rule 19c): `python3 tools/critic.py pack <out>`, a fresh agent
+   reads the round folder and writes findings, fix the worst problems, render, `record`, repeat until «ship» (at most
+   three rounds).
    **Send the finished film for approval**, with the sources, photo credits and the music credit line (it goes in the
    post caption).
    The owner approves or comments with time codes («عند 0:42 الخط صغير»); fix only that, resend.

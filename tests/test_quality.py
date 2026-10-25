@@ -65,6 +65,18 @@ class TestOnRenders(unittest.TestCase):
         self.assertEqual(len(got), 1)
         self.assertAlmostEqual(got[0]['t'], 2.0, delta=0.2)
 
+    def test_mixed_arabic_and_latin_reads_right_to_left_and_a_latin_name_is_one_caption(self):
+        sc = art.scene_visual('kinetic_type', {'lines': [{'text': 'Radiomir · من راديوم Marie Curie', 'size': 40}]}, 'tk-bone', 3.0)
+        sc.update(dur=3.0, banner='Radiomir · من راديوم Marie Curie',
+                  words=[[0.2, 'على'], [0.5, 'جسر'], [0.8, 'Ponte'], [1.0, 'alle'], [1.2, 'Grazie']])
+        sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style('timekeeper'), 'scenes': [sc]}
+        with tempfile.TemporaryDirectory() as d:
+            f = quality.textmap(sb, Path(d), [2.0])[0]
+        mixed = [w for w in f['words'] if 'Marie' in w['text']]
+        self.assertTrue(mixed and all(w['dir'] == 'rtl' for w in mixed), mixed)           # the banner and the line
+        caps = [w['text'] for w in f['words'] if w['caption']]
+        self.assertIn('Ponte alle Grazie', caps); self.assertNotIn('alle', caps)
+
     def test_the_spoken_caption_word_is_gold(self):
         from PIL import Image
         sc = art.scene_visual('kinetic_type', {'lines': []}, 'tk-bone', 3.0)

@@ -69,6 +69,13 @@
     return d;
   }
   PM.div = div;
+  // words with any Arabic in them are an Arabic paragraph: right to left, the Latin names inside keep their own order.
+  // ("plaintext" took the direction from the first letter, so «Radiomir · من راديوم Marie Curie» came out backwards.)
+  function bidi(el, text) {
+    if (/[\u0600-\u06FF]/.test(text || '')) { el.style.direction = 'rtl'; el.style.unicodeBidi = 'isolate'; }
+    else el.style.unicodeBidi = 'plaintext';
+  }
+  PM.bidi = bidi;
 
   // ------------------------------------------------------------------ textures
   const texCache = {};
@@ -390,7 +397,7 @@
     strip.style.backgroundImage = tex('paper');
     strip.style.backgroundSize = '256px 256px';
     const span = document.createElement('span');
-    span.style.unicodeBidi = 'plaintext';
+    bidi(span, text);
     span.textContent = text;
     strip.appendChild(span);
     let size = (S.style.banner && S.style.banner.size) || 33;
@@ -462,7 +469,15 @@
     capsRoot = div('', { position: 'absolute', left: 0, top: 0, width: '100%', height: '100%', zIndex: 950, pointerEvents: 'none' });
     groups = [];
     scenes.forEach((sc, si) => {
-      const ws = parseCaptions(sc.spec);
+      // a run of Latin words (a name) is one tag, so «Ponte alle Grazie» reads left to right inside the Arabic row
+      // (tag by tag, right to left, it came out «Grazie alle Ponte»)
+      const latin = (w) => /[A-Za-z]/.test(w) && !AR.test(w) && w !== '|';
+      const ws = [];
+      for (const w of parseCaptions(sc.spec)) {
+        const last = ws[ws.length - 1];
+        if (last && latin(last.w) && latin(w.w) && !last.w.endsWith('|') && w.t - last.tEnd < 0.6) { last.w += ' ' + w.w; last.tEnd = w.t; }
+        else ws.push({ ...w, tEnd: w.t });
+      }
       let cur = null;
       const flush = () => { if (cur && cur.words.length) groups.push(cur); cur = null; };
       let prevT = -9;
