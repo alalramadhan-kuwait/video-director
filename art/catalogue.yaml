@@ -72,6 +72,13 @@ templates:
     example: {title: صبمارينر مقابل لومينور, columns: [Submariner 1953, Luminor 1950],
               rows: [{label: العمق, values: [100 م, 200 م]}, {label: القطر, values: [37 مم, 47 مم]}, {label: المادة, values: [فولاذ, فولاذ]}],
               source: 'المصدر: أرشيف الشركتين'}
+  - id: watch_movement
+    status: implemented
+    purpose: [mechanism, product]
+    name_ar: كيف تعمل الساعة
+    about: a mechanical movement drawn in code and running (barrel, gear train, escape wheel, pallet fork, balance and hairspring), then its parts lift apart with their names; a simplified principle
+    theme: tk-ink
+    example: {title: قلب الساعة الميكانيكية, explode_at: 2.4}
   # ---------------------------------------------------------------- numbers (vendor/motion-kit, from video-ad-editor, MIT)
   - id: stat_counter
     status: implemented

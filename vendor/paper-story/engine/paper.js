@@ -515,6 +515,13 @@
     return capsRoot;
   }
 
+  function lightTag(el) {                           // a caption tag on a light paper (dark themes swap the tag colours)
+    if (el._light == null) {
+      const m = (getComputedStyle(el).backgroundColor.match(/\d+(\.\d+)?/g) || [0, 0, 0]).map(Number);
+      el._light = 0.2126 * m[0] + 0.7152 * m[1] + 0.0722 * m[2] > 140;
+    }
+    return el._light;
+  }
   function setCaptions(t) {
     groups.forEach((g, gi) => {
       const next = groups[gi + 1];
@@ -524,10 +531,17 @@
       const on = t >= g.t0 && t < endT;
       g.el.style.display = on ? 'flex' : 'none';
       if (!on) return;
+      // style.caption.active: the word being spoken in that colour (activeLight on a light tag), until the next word starts
+      const cap = S.style.caption || {};
+      const spoken = cap.active ? g.words.filter((w) => w.t <= t).pop() : null;
       g.words.forEach((w) => {
         const p = clamp((t - w.t) / 0.16);
         if (t < w.t) { w.el.style.visibility = 'hidden'; return; }
         w.el.style.visibility = 'visible';
+        if (cap.active) {
+          if (w._ink == null) w._ink = w.el.style.color || '';
+          w.el.style.color = w === spoken ? (lightTag(w.el) ? cap.activeLight || cap.active : cap.active) : w._ink;
+        }
         const k = E.outBack(p);
         w.el.style.transform = 'translateY(' + (w._dyv != null ? w._dyv : (w._dyv = w.el._dy)) + 'px) rotate(' + w.el._rot + 'deg) scale(' + (0.55 + 0.45 * k).toFixed(3) + ')';
         w.el.style.opacity = clamp(p * 4);

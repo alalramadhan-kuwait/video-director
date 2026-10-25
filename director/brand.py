@@ -26,7 +26,8 @@ def style(base: dict, brand: str | None = None) -> dict:
     st.setdefault('banner', {})
     if fonts.get('banner'): st['banner']['font'] = fonts['banner']
     st['caption'] = {**st.get('caption', {}), **({'font': fonts['caption']} if fonts.get('caption') else {}),
-                     **{k: cap[k] for k in ('bg', 'ink') if cap.get(k)}}
+                     **{k: cap[k] for k in ('bg', 'ink', 'active') if cap.get(k)},
+                     **({'activeLight': cap['active_on_light']} if cap.get('active_on_light') else {})}
     return st
 
 
