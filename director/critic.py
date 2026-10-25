@@ -127,7 +127,8 @@ time codes on top), and the cut sheets {', '.join(cuts)} (six frames around ever
 The owner's rules are in `{RULES}` (in the repository): judge against them.
 
 **Look for, by time code:** words cut by the frame, unreadable or tiny text, text over faces, a picture that does not
-match what is said, a photo of the wrong time, anything that looks broken or unfinished, a cut that jumps (size,
+match what is said, a watch that is not the model named or labelled (read its dial: collectors notice at once), a
+photo of the wrong time, anything that looks broken or unfinished, a cut that jumps (size,
 direction or subject do not match), a scene that holds too long or too short to read, sameness (the same layout again
 and again), the opening and the ending (do they hook and close?), the brand's look (black, white, gold; no invented
 colours), and anything a first-time viewer would not understand with the sound off.

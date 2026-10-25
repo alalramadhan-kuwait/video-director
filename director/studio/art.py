@@ -17,7 +17,7 @@ Support levels shown to the user (support_matrix):
   prototype                 a sample exists; not yet in the production engine
 """
 from __future__ import annotations
-import copy, json, math
+import copy, json, math, re
 from pathlib import Path
 
 import yaml
@@ -256,7 +256,7 @@ def b_product_macro(p, theme, dur):
           'fit': 'cover', 'scale': [[0, 1.0], [dur, 1.12, 'inOutCubic']]}
     els = [el]
     if p.get('credit'):                                   # the author and licence on screen (CC BY / BY-SA ask for it)
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
+        els.append({'type': 'text', 'text': short_credit(p['credit']), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     return {'theme': theme, 'floor': False, 'elements': els}
 
@@ -361,7 +361,7 @@ def b_archive_photo(p, theme, dur):
         els.append({'type': 'card', 'x': 360, 'y': p.get('card_y', 860 if full else 900), 'w': 520, 'h': 84, 'tex': 'paper', 'label': p['card'],
                     'title': '', 'body': '', 'style': 'dark', 'z': 20, 'in': {'type': 'drop', 'at': p.get('card_at', .6)}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
+        els.append({'type': 'text', 'text': short_credit(p['credit']), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     cam = {'zoom': [[0, 1.0], [dur, 1.0 if full else 1.1, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640], [dur, 630 if full else 610, 'inOutCubic']]}
     return {'theme': theme if not full else 'tk-black', 'floor': False, 'elements': els, 'camera': cam, 'full_frame': full,
@@ -412,7 +412,7 @@ def b_blueprint(p, theme, dur):
         els.append({'type': 'text', 'text': p['card'], 'font': 'banner', 'size': 26, 'color': navy, 'paper': line, 'x': 360,
                     'y': p.get('card_y', y + h / 2 + 60), 'w': 600, 'align': 'center', 'z': 11, 'in': {'type': 'fade', 'at': r1 - .4}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
+        els.append({'type': 'text', 'text': short_credit(p['credit']), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     sfx = [{'at': r0, 'name': 'sonar', 'gain': -16}, {'at': glow_at, 'name': 'geiger', 'gain': -20}]
     if p.get('stamp'): sfx.append({'at': p['stamp'].get('at', glow_at + 1.2) + .05, 'name': 'stamp', 'gain': -9})
@@ -481,7 +481,7 @@ def b_product_reveal(p, theme, dur):
         els.append({'type': 'text', 'text': p['year'], 'font': 'mono', 'size': 30, 'color': ink, 'opacity': .75, 'x': 360, 'y': 960,
                     'in': {'type': 'fade', 'at': 1.3}})
     if p.get('credit'):
-        els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .7, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
+        els.append({'type': 'text', 'text': short_credit(p['credit']), 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .7, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                     'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
     return {'theme': theme, 'floor': False, 'elements': els}
 
@@ -570,6 +570,15 @@ def b_compare_bars(p, theme, dur):
             'camera': _cam(dur, 1.0, 1.03)}
 
 
+def short_credit(t: str, most: int = 110) -> str:
+    """A photo credit that fits its two lines without cutting a word: the watch, the author and the licence stay; the
+    archive's name shortens first («Wikimedia Commons» to «Commons»), then the author's long place names."""
+    if len(t) > most: t = t.replace('Wikimedia Commons', 'Commons')
+    if len(t) > most: t = re.sub(r' from [^·]+?(?= ·)', '', t)                # «Daniel Zimmermann from Bayern, …» to the name
+    if len(t) > most: t = t[:most].rsplit(' ', 1)[0] + '…'
+    return t
+
+
 DRAWN_NOTE = 'رسم توضيحي بأسلوب Time Keeper — لا توجد صورة كاملة'                    # people only
 
 
@@ -591,7 +600,7 @@ def b_paper_cutout(p, theme, dur):
                     'x': 360, 'y': bottom, 'edge': 3, 'rot': p.get('tilt', -1.5), 'in': {'type': 'drop', 'at': .15},
                     'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']]})
         if p.get('credit'):
-            els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360,
+            els.append({'type': 'text', 'text': short_credit(p['credit']), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360,
                         'y': CREDIT_Y, 'depth': 0, 'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     else:
         if not person:
@@ -666,7 +675,7 @@ def backdrop(sc: dict, asset: str, dur: float, credit: str = '', move: str = 'in
                        'behind': True, 'scale': [[0, s0], [dur, s1, 'linear']]},
                       {'type': 'svg', 'w': 760, 'h': 1320, 'svg': shade, 'x': 360, 'y': 640, 'behind': True, 'still': True}] + sc['elements']
     if credit:
-        sc['elements'].append({'type': 'text', 'text': credit[:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
+        sc['elements'].append({'type': 'text', 'text': short_credit(credit), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
                                'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
     sc['full_frame'] = True
     return sc

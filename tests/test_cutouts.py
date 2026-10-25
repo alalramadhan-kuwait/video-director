@@ -39,6 +39,54 @@ class TestDrawn(unittest.TestCase):
         self.assertTrue(any(m.startswith('l2') and 'never drawn' in m for m in quickfilm.story_check(f)))
 
 
+class TestTheNamedModelIsTheModelShown(unittest.TestCase):
+    """Rule 12i: in the watch community a model that does not match its picture is a big thing."""
+    def _film(self, line, **photo):
+        return {'brand': 'timekeeper', 'photos': {'w': {'query': 'x', **photo}},
+                'lines': [{'id': 'l1', 'text': 'في Florence، عام 1860.', 'template': 'city_zoom', 'params': {'city': 'florence'}},
+                          {'id': 'l2', 'template': 'archive_photo', **line}]}
+
+    def _faults(self, film):
+        return [m for m in quickfilm.story_check(film) if m.startswith('l2') and ('names' in m)]
+
+    def test_a_radiomir_under_the_word_luminor_is_caught(self):
+        f = self._film({'text': 'ثم سجّلت Panerai مادة سمّتها Luminor.', 'banner': 'Luminor · 1949', 'params': {'asset': 'w', 'card': 'Luminor'}},
+                       watch='Panerai Radiomir 8 giorni')
+        self.assertTrue(any('Luminor' in m and 'Radiomir' in m for m in self._faults(f)), quickfilm.story_check(f))
+
+    def test_the_right_model_passes_and_the_longest_name_wins(self):
+        f = self._film({'text': 'ثم جاءت Royal Oak Offshore.', 'params': {'asset': 'w', 'card': 'Royal Oak Offshore'}},
+                       watch='Audemars Piguet Royal Oak Offshore 25721')
+        self.assertEqual(self._faults(f), [])
+        f = self._film({'text': 'ثم جاءت Royal Oak Offshore.', 'params': {'asset': 'w'}}, watch='Audemars Piguet Royal Oak 5402')
+        self.assertTrue(self._faults(f))
+
+    def test_a_photo_under_a_named_model_must_say_what_it_shows(self):
+        f = self._film({'text': 'ثم جاءت Submariner.', 'params': {'asset': 'w'}})
+        self.assertTrue(any("say what photo 'w' shows" in m for m in self._faults(f)))
+        f = self._film({'text': 'ثم جاءت Submariner.', 'params': {'asset': 'w'}}, not_a_watch=True)
+        self.assertEqual(self._faults(f), [])
+
+    def test_the_watch_is_named_on_screen_with_its_credit(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d); (d / 'assets').mkdir()
+            from PIL import Image
+            Image.new('RGB', (40, 30)).save(d / 'assets' / 'w.jpg')
+            (d / 'assets' / 'w.licence.json').write_text(json.dumps({'credit': 'A · CC BY 2.0', 'licence': 'CC BY 2.0'}))
+            pics = quickfilm.photos({'photos': {'w': {'query': 'x', 'watch': 'Rolex Oyster · 1926'}}}, d)
+        self.assertEqual(pics['w']['credit'], 'Rolex Oyster · 1926 · A · CC BY 2.0')
+
+    def test_a_long_credit_keeps_the_watch_author_and_licence_whole(self):
+        t = art.short_credit('Panerai Luminor Marina PAM 111 · modern · Daniel Zimmermann from Bayern, Deutschland (Germany) · CC BY 2.0 · Wikimedia Commons')
+        self.assertEqual(t, 'Panerai Luminor Marina PAM 111 · modern · Daniel Zimmermann · CC BY 2.0 · Commons')
+        self.assertEqual(art.short_credit('Clyde94 · CC BY-SA 4.0 · Wikimedia Commons'), 'Clyde94 · CC BY-SA 4.0 · Wikimedia Commons')
+
+    def test_the_panerai_film_keeps_the_rule(self):
+        import yaml
+        film = yaml.safe_load((engine.ROOT / 'films' / 'panerai.yaml').read_text(encoding='utf-8'))
+        self.assertEqual([m for m in quickfilm.story_check(film) if 'names' in m], [])
+
+
 def _rembg():
     py = os.environ.get('VD_CUTOUT_PYTHON', sys.executable)
     return subprocess.run([py, '-c', 'import rembg'], capture_output=True).returncode == 0

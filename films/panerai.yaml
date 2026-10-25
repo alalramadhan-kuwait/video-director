@@ -25,8 +25,8 @@ sources:
   - "[15] The Milwaukee Leader, 22 May 1928, p. 1: «5 Radium Victims Lose Court Plea… five former New Jersey factory women whose physicians say they are dying from radium poisoning» (Library of Congress, Chronicling America; published in 1928, public domain in the US): https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
-  panerai_tools: {query: Set of tools for scuba diving from the Italian company Panerai, year: 1950}
-  panerai_gauge: {query: Panerai depth gauge for scuba diving, year: 1950}
+  panerai_tools: {query: Set of tools for scuba diving from the Italian company Panerai, year: 1950, not_a_watch: true}   # instruments; its watches are not named
+  panerai_gauge: {query: Panerai depth gauge for scuba diving, year: 1950, not_a_watch: true}
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
   marie_curie: {query: Marie Curie portrait 1900, year: 1900, person: Marie Curie}
   radium_painters: {query: USRadiumGirls Argonne1, year: 1922}
@@ -34,12 +34,11 @@ photos:
   radium_victims_1928: {file: films/assets/radium_victims_1928.jpg, year: 1928, licence: Public domain (US newspaper published 1928),
                         credit: "The Milwaukee Leader · 22 May 1928 · Library of Congress · public domain", page: "https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"}
   navy_diver: {query: Teseo tesei tuta, year: 1941, person: Giorgio Giobbe}
-  rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926}
+  rolex_oyster_1926: {query: Rolex Oyster del 1926 primo orologio impermeabile, year: 1926, watch: Rolex Oyster · 1926}
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
   slc_compass: {query: Decima Flotiglia MAS remnants Malta SLC compass, year: 1941}
-  egiziano_1956: {query: Egiziano panerai2, year: 1956}
-  marina_militare_1990s: {query: Panerai Marina Militare 5218, year: 1995}
-  luminor_close: {query: PANERAI 29802698304, year: 2016}
+  marina_militare_1990s: {query: Panerai Marina Militare 5218, year: 1995, watch: Panerai Luminor Marina Militare 5218-202/A}
+  luminor_close: {query: PANERAI 29802698304, year: 2016, watch: Panerai Luminor Marina PAM 111 · modern}
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
   # the film opens where the story begins, Florence in 1860 (the owner did not like the teaser opening on the patent drawing)
@@ -127,7 +126,8 @@ lines:
     text: ولأن Panerai لا تملك مصنعًا للساعات، لجأت إلى Rolex صاحبة ساعة Oyster المقاومة للماء، فصنعت Rolex العلبة والآلية، وصنعت Panerai الميناء المضيء.
     template: paper_cutout
     banner: لماذا Rolex؟
-    params: {asset: rolex_oyster_1926, desc: Rolex Oyster 1926, card: صنعت Rolex العلبة والآلية · وصنعت Panerai الميناء المضيء}
+    # the photo is a Rolex, not the Panerai Rolex made: the card says so (rule 12i)
+    params: {asset: rolex_oyster_1926, desc: Rolex Oyster 1926, card: Rolex Oyster · ساعة Rolex المقاومة للماء}
   - id: l12       # [5]
     event: true
     mood: tension
@@ -157,9 +157,11 @@ lines:
     because: الراديوم كان خطرًا، والتريتيوم إشعاعه أضعف بكثير
     text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام 1949 مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
     say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
-    template: paper_cutout
+    template: kinetic_type
     banner: Luminor · 1949
-    params: {asset: egiziano_1956, desc: Panerai Egiziano 1956, card: ساعة Panerai من الخمسينيات · ما زال عليها الراديوم}
+    # the line names Luminor: no free photo shows a 1950s Panerai with Luminor, and another model would mislead (rule 12i)
+    no_photo: لا توجد صورة حرّة لساعة Panerai بمادة Luminor من الخمسينيات
+    params: {lines: [{text: Luminor, size: 110}, {text: مادة أخفّ إشعاعًا · 1949, size: 48, at: 0.8}], y: 480}
   - id: l18       # [1]
     mood: joy
     text: وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة، إلى أن خرجت أخيرًا إلى الناس عام 1993.
@@ -175,4 +177,4 @@ lines:
     text: هكذا صارت Panerai، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.
     template: paper_cutout
     # the close-up cuts the watch at its edges: shown as its photo, uncut (a watch is never drawn, rule 12h)
-    params: {asset: luminor_close, desc: Luminor Marina, card: Panerai · من أشهر ساعات العالم اليوم}
+    params: {asset: luminor_close, desc: Luminor Marina, card: Luminor Marina · طراز حديث من أشهر ساعات اليوم}
