@@ -36,6 +36,7 @@
     for (const cv of stage.querySelectorAll('canvas')) {
       if (alpha(cv) < 0.15) continue;
       const r = cv.getBoundingClientRect(), kx = cv.width / r.width, ky = cv.height / r.height, X = cv.getContext('2d');
+      if (!X) continue;                                        // a canvas drawn by WebGL has no 2D pixels to read
       for (const z of zones) {
         const x0 = Math.max(z.x, r.left), y0 = Math.max(z.y, r.top), x1 = Math.min(z.x + z.w, r.right), y1 = Math.min(z.y + z.h, r.bottom);
         if (x1 <= x0 || y1 <= y0) continue;

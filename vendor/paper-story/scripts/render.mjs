@@ -4,6 +4,7 @@
  *
  *   node render.mjs <storyboard.json> -o out.mp4 [--scale 1.5] [--audio vo.mp3] [--music bed.mp3]
  *   node render.mjs <storyboard.json> --still 2.5,9 -o stills/       one PNG per time (fast QA)
+ *   node render.mjs <storyboard.json> --textmap 0,0.5,1 -o dir        the words on screen and the frame without them (quality bar)
  *   node render.mjs <storyboard.json> --safe zones.json               words inside a platform's button zones (director/platforms.py)
  *   node render.mjs <storyboard.json> --check                        lists every face a banner, card or picture covers,
  *                                                                     and every bubble or word hidden under the banner
@@ -43,6 +44,7 @@ for (let i = 0; i < argv.length; i++) {
   else if (a === '--sheet') opt.sheet = true;
   else if (a === '--check') opt.check = true;
   else if (a === '--safe') opt.safe = next();
+  else if (a === '--textmap') opt.textmap = next().split(',').map(Number);
   else if (a === '--keep-frames') opt.keep = true;
   else if (a === '--review') opt.review = true;
   else if (a === '--final') opt.final = true;
@@ -228,6 +230,25 @@ if (opt.check) {
   console.log(faults.length - cuts ? (faults.length - cuts) + ' overlap(s) or picture(s) on the captions' : 'no print over another, nothing on the captions');
   for (const e of soft) console.log(`note: scene ${e.scene + 1}  ` + SAY.soft(e));
   process.exit(seen.size || faults.length ? 1 : 0);
+}
+
+if (opt.textmap) {
+  // the words on screen at each time (PM.textAudit) and the same frame with every word hidden, so the quality check can
+  // measure each word against what is really behind it: <out>/textmap.json and <out>/bare_<i>.png
+  const dir = path.resolve(opt.out || 'textmap'); fs.mkdirSync(dir, { recursive: true });
+  const all = [];
+  for (const [i, t] of opt.textmap.entries()) {
+    const words = await first.page.evaluate((tt) => window.PM.textAudit(tt), t);
+    await first.page.addStyleTag({ content: '#stage, #stage * { color: transparent !important; text-shadow: none !important; -webkit-text-stroke: 0 !important }' });
+    await first.page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
+    await first.page.screenshot({ path: path.join(dir, 'bare_' + i + '.png'), type: 'png' });
+    await first.page.evaluate(() => document.querySelectorAll('style').forEach((s) => { if (s.textContent.includes('color: transparent !important')) s.remove(); }));
+    all.push({ t, words });
+  }
+  fs.writeFileSync(path.join(dir, 'textmap.json'), JSON.stringify(all));
+  await browser.close();
+  console.log('textmap: ' + all.length + ' frame(s) in ' + dir);
+  process.exit(0);
 }
 
 if (opt.safe) {

@@ -11,6 +11,8 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              the Time Keeper end card
   platform   the film's `platform:` (else the brand's): its caption height, its length limit, words kept clear of the
              app's buttons (checked as drawn), a separate cover where the app asks for one, parts for a chat
+  quality    measured, not judged by eye (director/quality.py): every word's contrast against what is behind it,
+             no words crossing words, a finished first frame, no frozen stretch in the film
   hook       `hook: {text, em, dur}`: the hook written big over the first 1.5-3 s, the captions held back meanwhile
   credits    sources, photo credits and the music credit, ready for the post caption
   story      the storytelling rules, checked on every film (story_check):
@@ -38,7 +40,7 @@ from pathlib import Path
 
 import yaml
 
-from . import beats, platforms, brand as B
+from . import beats, platforms, quality, brand as B
 from .copilot import commons
 from .studio import art, checks, engine, moods, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
@@ -369,6 +371,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     report['safe'] = [l for l in safe if l.startswith('safe HARD')]
     report['safe_caution'] = sum(1 for l in safe if l.startswith('safe caution'))
     report['length'] = platforms.length_warning(plat, seconds)
+    report['quality'] = quality.check(sb, out, seconds)                  # contrast, words over words, a finished first frame
     starts = [sum(s['dur'] for s in scenes[:i]) for i in range(len(scenes))]
     shots = engine.stills(sb, out, [round(st + s['dur'] * .7, 2) for st, s in zip(starts, scenes)], scale=0.5)
     (out / 'scenes').mkdir(exist_ok=True)
@@ -393,6 +396,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                 if (out / 'film-small.mp4').stat().st_size / 1e6 <= cap: break
             (out / 'film-small.mp4').replace(out / 'film.mp4'); report['crf'] = crf + step
         report['film'] = str(out / 'film.mp4'); report['size_mb'] = round((out / 'film.mp4').stat().st_size / 1e6, 1)
+        report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sb['scenes'][-1]['dur']))   # no still stretch in the finished film
         if plat['parts']:                                                # a chat: parts cut between scenes, each under its limit
             starts = [sum(s['dur'] for s in sb['scenes'][:i]) for i in range(len(sb['scenes']))]
             report['parts'] = [str(p) for p in split(out / 'film.mp4', platforms.parts(starts, [s['dur'] for s in sb['scenes']],

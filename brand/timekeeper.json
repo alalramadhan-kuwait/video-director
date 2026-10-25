@@ -9,7 +9,8 @@
     "banner": "\"Inter Tight\",\"Cairo\",system-ui,sans-serif",
     "caption": "\"Cairo\",\"Inter Tight\",system-ui,sans-serif"
   },
-  "captions": { "bg": "#111111", "ink": "#FFFFFF", "size": 40 },
+  "captions": { "bg": "#111111", "ink": "#FFFFFF", "size": 40, "active": "#C9A35F", "active_on_light": "#6E5023",
+    "_active": "The word being spoken lights up in the brand gold (a darker gold on a light caption tag, so it stays above 4.5:1)." },
   "safe_area": { "_why": "Instagram/TikTok vertical: keep text clear of the app's top bar and bottom controls (in 720x1280 units).", "top": 150, "bottom": 300, "side": 48 },
   "narration": {
     "provider": "omnivoice",

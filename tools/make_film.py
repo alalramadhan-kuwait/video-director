@@ -19,6 +19,7 @@ for slot, p in r['photos'].items():
     print(f"photo {slot}: " + ('MISSING — ' + p['query'] if p.get('missing') else p['credit']))
 print('story:', 'all rules kept' if not r['story'] else '\n  ' + '\n  '.join(r['story']))
 print('layout:', 'no faults' if not r['layout'] else '\n  ' + '\n  '.join(r['layout']))
+print('quality:', 'contrast, overlaps, first frame and motion all pass' if not r.get('quality') else '\n  ' + '\n  '.join(r['quality']))
 print(f"platform: {r['platform']}" + (f"  ⚠ {r['length']}" if r.get('length') else ''))
 print('safe zones:', 'nothing under the app\'s buttons' if not r['safe'] else '\n  ' + '\n  '.join(r['safe']),
       f"({r['safe_caution']} in the caution band)" if r.get('safe_caution') else '')

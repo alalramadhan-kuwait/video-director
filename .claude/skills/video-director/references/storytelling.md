@@ -70,6 +70,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with
     that line's narration. Never a recap timeline of other lines, never a modern product under a historical claim
     (label modern watches «طراز حديث» and use them only where the line talks about the watch itself).
+14b. **A quotation is the exact words** (`quote_card`; from the "awesome Opus 5.5 videos" prompts): copied from the
+    source, never paraphrased inside quotation marks; words left out are marked «[…]», never joined silently; who said
+    it and where it was printed sit apart from the words (`who`, `source`), and the card stays on long enough to read
+    (about a second for every three words, plus one).
 
 ## The look and the sound
 15. **A world for every scene** (`set:`): underwater, sea_night, florence, workshop, radium, archive. A map or a
@@ -92,10 +96,18 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 18e. **Cuts land on the music's beats** ✓: make_film shifts the music (later in its track, or a moment's late entry)
     so the most scene changes fall on a beat; nothing in the film moves. `beats: punch` adds a small camera push to the
     scenes that start on a beat.
+18f. **How a watch works is shown running** (`watch_movement`, from the "awesome Opus 5.5 videos" prompts): when a line
+    explains the mechanism (the mainspring, the balance, the escapement), the movement drawn in code turns and ticks and
+    then lifts apart with its names. 3D only where it explains something physical, and always labelled as a simplified
+    principle, never as the brand's own calibre.
 
 ## Delivery
 19. Look at every still in `<out>/scenes/` before sending (text cut, overlaps, a stamp too faint on a dark scene);
     for a quick look at many scenes, one contact sheet of about six frames costs less than six separate images.
+19b. **The quality bar is measured** ✓ (`director/quality.py`, make_film's `quality:` line must say all pass): every word
+    at least 4.5:1 against what is really behind it (3:1 for large text), no words crossing other words, frame one a
+    finished picture, no still stretch longer than 0.8 s before the end card. The spoken caption word lights up in the
+    brand gold.
 20. 1080×1920, about −14 LUFS, at most `export.max_mb` (26 MB) — make_film compresses harder by itself if needed.
 20b. **Where it is posted decides the delivery** ✓ (`platform:` in the film file, else the brand's `export.platform`;
     `director/platforms.py`): Reels and Shorts up to 3 minutes for sure, TikTok up to 10 (1–3 is best), WhatsApp in

@@ -570,13 +570,29 @@ def b_compare_bars(p, theme, dur):
             'camera': _cam(dur, 1.0, 1.03)}
 
 
+def b_watch_movement(p, theme, dur):
+    """How a mechanical watch works, drawn in code (vendor/studio-ext/movement3d.js, three.js): the mainspring in its
+    barrel turns the gear train to the escape wheel and pallet fork, which the balance wheel and hairspring release one
+    beat at a time; then the parts lift apart in layers with their names. Always labelled as a simplified principle,
+    never as a maker's engineering drawing (rule: technical drawings draw only what the research supports)."""
+    theme = theme if ink_for(theme) == PAPER else 'tk-ink'          # metal reads on a dark ground
+    els = [{'type': 'movement3d', 'explode_at': p.get('explode_at', 2.4), 'labels': p.get('labels', True), 'spin': p.get('spin', 8),
+            'still': True, 'depth': 0, **({'parts': p['parts']} if p.get('parts') else {})},
+           {'type': 'text', 'text': p.get('note', DRAWING_NOTE), 'font': 'cap', 'size': 18, 'color': PAPER, 'opacity': .75, 'x': 360,
+            'y': CREDIT_Y, 'w': 600, 'align': 'center', 'depth': 0, 'in': {'type': 'fade', 'at': .3}}]
+    if p.get('title'):
+        els.append({'type': 'text', 'text': p['title'], 'font': 'title', 'size': p.get('title_size', 46), 'color': PAPER, 'x': 360, 'y': 330,
+                    'w': 640, 'align': 'center', 'depth': 0, 'in': {'type': 'rise', 'at': .1, 'dur': .45}})
+    return {'theme': theme, 'floor': False, 'elements': els}
+
+
 BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_timeline, 'map': b_map,
             'technical_illustration': b_technical_illustration, 'paper_cut': b_paper_cut, 'parallax_25d': b_parallax_25d,
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
             'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom,
             'archive_photo': b_archive_photo, 'blueprint': b_blueprint,
-            'stat_counter': b_stat_counter, 'part_of_whole': b_part_of_whole, 'trend_chart': b_trend_chart, 'compare_bars': b_compare_bars}
+            'watch_movement': b_watch_movement, 'stat_counter': b_stat_counter, 'part_of_whole': b_part_of_whole, 'trend_chart': b_trend_chart, 'compare_bars': b_compare_bars}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']],
                 'blueprint': lambda p: [p['asset']]}
@@ -634,6 +650,8 @@ def _sounds(tech, p, sc, dur):
         if tech == 'product_reveal': cue(1.0, 'shutter', -20)
     elif tech == 'quote_card':
         cue(.3, 'paper_place', -16)
+    elif tech == 'watch_movement':                  # the movement running, then the parts lifting apart
+        cue(0, 'watch_run', -20); cue(p.get('explode_at', 2.4), 'whoosh', -18)
     elif tech == 'stat_counter':                     # ticks while the digits roll, one firm click as the number lands
         land, run = p.get('land', 1.8), p.get('dur', 1.5)
         cue(max(.1, land - run), 'tick_pair', -20); cue(land, 'click', -11)
