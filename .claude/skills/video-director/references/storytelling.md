@@ -17,12 +17,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 5. **Feelings** ✓ — name the feeling of the lines that carry it (`mood:` mystery, fear, sadness, tension, joy, wonder).
    **Sadness for human moments always**: people who suffered, were deceived, died, were captured. Make it human:
    who they were, what they were told, what happened to them («قيل لهنّ إنه آمن… فتساقطت أسنانهنّ… ورحلن جميعًا»).
-6. **A strong, honest hook** and a closing line that echoes it. **The opening is a real drawing from the archive, not
-   a photo** ✓: a patent, a plan or an engineering sheet by the company or the people in the story, laid on blueprint
-   paper and revealed by a scanning light (`template: blueprint`, e.g. Giuseppe and Maria Panerai's 1961 US patent
-   drawing). **Never an invented cartoon or clip-art drawing**: the owner finds it childish. US patent drawings are
-   public domain (Google Patents: search `inventor:<name>`); keep the patent number and the source in `sources:`.
-   Photos start with the story; the hook makes the viewer curious first.
+6. **The film opens where the story begins** ✓ — its first place and year, flown into with `city_zoom` («في Florence،
+   عام 1860»), then the story in order. The owner did not like a teaser opening that sums the film up over a drawing
+   (Panerai, the patent on blueprint paper): no summary before the story, never a photo first. The closing line may
+   still echo what the story became. A real drawing from the archive (`template: blueprint`, e.g. a US patent drawing,
+   public domain) belongs where the story reaches it; **never an invented cartoon or clip-art drawing**: the owner
+   finds it childish.
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
@@ -86,8 +86,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 18c. **One hero per scene, sounds on moments**: one main picture in a scene (a second only to support it). A sound
     marks something that happens (a number lands, a stamp, a new scene), never every word: about 15 a minute at most,
     and half a second of quiet before the most important line.
-18d. **The hook is written big in the first two seconds** ✓ (`hook: {text, em, dur}` in the film file, from video-ad-editor):
-    a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
+18d. **A written hook, when the opening has no words of its own** (`hook: {text, em, dur}` in the film file, from
+    video-ad-editor; a city zoom's name is already the hook): a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
     line. The captions wait until it has gone: two texts at once and the viewer reads neither.
 18e. **Cuts land on the music's beats** ✓: make_film shifts the music (later in its track, or a moment's late entry)
     so the most scene changes fall on a beat; nothing in the film moves. `beats: punch` adds a small camera push to the

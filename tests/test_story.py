@@ -61,9 +61,9 @@ class TestStory(unittest.TestCase):
         self.assertIn('fill-opacity=".62"', sc['elements'][1]['svg'])
         self.assertTrue(sc['full_frame']); self.assertTrue(any(e.get('text') == 'A · PD' for e in sc['elements']))
 
-    def test_the_opening_is_a_drawing_from_the_archive_not_a_photo(self):
+    def test_the_opening_is_never_a_photo_and_a_drawing_is_allowed(self):
         out = quickfilm.story_check(film({'text': 'x', 'template': 'archive_photo', 'params': {'asset': 'p'}}))
-        self.assertTrue(any('opening should hook with a real drawing from the archive' in o for o in out))
+        self.assertTrue(any('open where the story begins' in o for o in out))
         self.assertFalse(any('opening' in o for o in quickfilm.story_check(film({'text': 'x', 'template': 'blueprint', 'params': {'asset': 'd'}}))))
         sc = art.scene_visual('blueprint', {'asset': 'd', 'aspect': 1.2, 'lines': [{'text': 'x'}], 'stamp': {'text': 's'}, 'card': 'c',
                                             'credit': 'G. Panerai · PD'}, 'tk-ink', 6.0)

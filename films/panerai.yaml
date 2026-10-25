@@ -8,8 +8,6 @@
 title: Panerai — ضوء في عتمة البحر
 brand: timekeeper
 platform: reels
-# the hook written big over the drawing's first seconds (its words are the opening line's own)
-hook: {text: ساعة صُنعت لعتمة البحر|وعاشت سرًّا عسكريًا, em: [سرًّا عسكريًا], dur: 2.3}
 seed: panerai
 theme: tk-bone
 sources:
@@ -23,14 +21,10 @@ sources:
   - "[9] Panerai, History (its own account: the first shop, on the Ponte alle Grazie, Florence, 1860): https://www.panerai.com/en/about-panerai/history.html"
   - "[11] Undark — Wikipedia (radium paint made by the U.S. Radium Corporation, Orange, New Jersey, 1917–1926; radium and zinc paint first mixed by William J. Hammer, 1902; a different product from Panerai's Radiomir): https://en.wikipedia.org/wiki/Undark"
   - "[12] Marie Curie discovered radium (with Pierre Curie, 1898): https://en.wikipedia.org/wiki/Radium"
-  - "[13] US Patent 2,995,639, Giuseppe and Maria Panerai, filed 28 Aug 1957, granted 8 Aug 1961 (a device for a hermetically sealed box to be immersed under pressure); the drawing is public domain: US patent drawings are not subject to copyright (USPTO terms of use, https://www.uspto.gov/terms-use-uspto-websites): https://patents.google.com/patent/US2995639A"
   - "[14] Panerai diving instruments (depth gauge, compass, torch, knife, watch), probably 1940s–1960s: https://commons.wikimedia.org/wiki/File:Set_of_tools_for_scuba_diving_from_the_Italian_company_Panerai.jpg"
   - "[15] The Milwaukee Leader, 22 May 1928, p. 1: «5 Radium Victims Lose Court Plea… five former New Jersey factory women whose physicians say they are dying from radium poisoning» (Library of Congress, Chronicling America; published in 1928, public domain in the US): https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
-  # the opening: Panerai's own patent drawing (a real drawing from the archive, never an invented one), lines on blueprint
-  panerai_patent_1961: {file: films/assets/panerai_patent_1961.png, year: 1961, licence: Public domain (US patent drawing),
-                        credit: "G. & M. Panerai · US Patent 2,995,639 (1961) · public domain", page: "https://patents.google.com/patent/US2995639A"}
   panerai_tools: {query: Set of tools for scuba diving from the Italian company Panerai, year: 1950}
   panerai_gauge: {query: Panerai depth gauge for scuba diving, year: 1950}
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
@@ -48,13 +42,7 @@ photos:
   luminor_close: {query: PANERAI 29802698304, year: 2016}
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
-  - id: l1        # [1][2][4][13]
-    mood: mystery
-    text: قصة Panerai… ساعة صُنعت لرجال يعملون في عتمة البحر، وعاشت سرًّا عسكريًا، وتبدأ في مدينة واحدة.
-    template: blueprint
-    params: {asset: panerai_patent_1961, desc: Panerai patent drawing 1961, y: 560, reveal: 2.2,
-             lines: [{text: في عتمة البحر…, size: 76, at: 2.4, y: 190}], stamp: {text: سرّ عسكري, at: 3.6, x: 470, y: 690, size: 70},
-             card: رسم من براءة اختراع Panerai · جهاز محكم تحت الماء}
+  # the film opens where the story begins, Florence in 1860 (the owner did not like the teaser opening on the patent drawing)
   - id: l2        # [1][9]
     set: florence
     text: في Florence، عام 1860.

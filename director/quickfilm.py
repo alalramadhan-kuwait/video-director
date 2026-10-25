@@ -18,8 +18,8 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
                newspaper_card) so the viewer sees it happened, or says why none exists (`no_photo:`)
              · a change (`change: true`: a new material, a new design) says why it happened (`because:`), in the narration
              · foreign names and English words are written in Latin letters (Panerai, Rolex), as the voice says them
-             · the opening hooks with a real drawing from the archive (a patent, a plan: `blueprint`), not a photo
-               and never an invented cartoon
+             · the film opens where the story begins (its place and year: `city_zoom`), never a photo first and
+               never an invented cartoon
              · a person on screen (`person:` on the photo) is introduced by name and never has words over the face
              · every scene has a related picture (a photo template, a photo behind the words: `photo:`, or a city
                zoom), and the picture is of the time the line speaks of (`year:` on each photo)
@@ -104,7 +104,7 @@ def story_check(film: dict) -> list[str]:
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
     photos = film.get('photos') or {}
     if lines and (lines[0]['template'] in PHOTO_TEMPLATES or lines[0].get('photo')) and not lines[0].get('opening_photo'):
-        out.append(f"{lines[0]['id']}: the opening should hook with a real drawing from the archive (template blueprint) or motion, not a photo")
+        out.append(f"{lines[0]['id']}: open where the story begins (city_zoom of its place and year), not on a photo")
     for ln in lines:                                                     # a person on screen is introduced, and seen
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
         who = (photos.get(slot) or {}).get('person') if slot else None
