@@ -484,12 +484,97 @@ def b_product_reveal(p, theme, dur):
     return {'theme': theme, 'floor': False, 'elements': els}
 
 
+# ---------------------------------------------------------------- numbers drawn by the motion kit
+# vendor/motion-kit (video-ad-editor's motion-kit.js, MIT) draws on a full-frame canvas in 1080x1920 design pixels, so
+# these builders place it in those units: the safe band y 380-980 of the 720x1280 storyboard is y 570-1470 there, and
+# the right edge stays left of x 950 (the app's like and share buttons). Words stay engine text, in the brand's fonts.
+# Only sourced figures: each template draws the number it is given and shows its source line.
+K = 1.5                                         # storyboard pixels to kit pixels
+
+
+def _kit(theme, draw):
+    dark = ink_for(theme) == PAPER
+    return {'type': 'kit', 'draw': draw, 'still': True,
+            'colors': {'ink': ink_for(theme), 'acc': GOLD, 'clay': '#8A6A3A', 'mut': '#A8A49A' if dark else '#6E6A62'}}
+
+
+def _title(p, theme, y=400):
+    return [{'type': 'text', 'text': p['title'], 'font': 'title', 'size': p.get('title_size', 46), 'color': ink_for(theme), 'x': 360,
+             'y': y, 'w': 640, 'align': 'center', 'in': {'type': 'rise', 'at': .1, 'dur': .45}}] if p.get('title') else []
+
+
+def _source(p, theme, y=935):
+    return [{'type': 'text', 'text': p['source'], 'font': 'cap', 'size': 20, 'color': ink_for(theme), 'opacity': .6, 'x': 360, 'y': y,
+             'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .9}}] if p.get('source') else []
+
+
+def b_stat_counter(p, theme, dur):
+    """One number that runs up on rolling digits and lands with a small burst at `land` (put it on the spoken number)."""
+    land, run = p.get('land', 1.8), p.get('dur', 1.5)
+    pre, suf = p.get('prefix', ''), p.get('suffix', '')
+    if any('\u0600' <= ch <= '\u06ff' for ch in suf):    # the digits are drawn left to right: an Arabic unit read after the
+        pre, suf = suf.strip() + ' ' + pre, ''               # number (٢٠٠ م) sits on the number's left
+    draw = [{'fn': 'odometer', 's': max(0.1, land - run), 'dur': run, 'val': p['value'], 'cx': 540, 'cy': 960,
+             'size': p.get('size', 210), 'prefix': pre, 'suffix': suf}]
+    els = _title(p, theme, 470) + [_kit(theme, draw)]
+    if p.get('label'):
+        els.append({'type': 'text', 'text': p['label'], 'font': 'banner', 'size': 36, 'color': ink_for(theme), 'x': 360, 'y': 735,
+                    'w': 600, 'align': 'center', 'in': {'type': 'rise', 'at': land + .15}})
+    return {'theme': theme, 'floor': False, 'elements': els + _source(p, theme, 840), 'camera': _cam(dur, 1.0, 1.03)}
+
+
+def b_part_of_whole(p, theme, dur):
+    """«X of every N»: N small figures fill in, then X of them light up in gold at `land` (the spoken number)."""
+    n, cols = int(p.get('total', 100)), int(p.get('cols', 10))
+    rows = -(-n // cols)
+    w = 720; h = min(720, w / cols * rows)
+    draw = [{'fn': 'iconArray', 's': .3, 'box': {'x': 540 - w / 2, 'y': 650, 'w': w, 'h': h}, 'total': n, 'hot': int(p['hot']),
+             'cols': cols, 'fill': p.get('fill', 1.2), 'hotAt': p.get('land', 1.9), 'hotColor': GOLD, 'pick': p.get('pick', 'random')}]
+    return {'theme': theme, 'floor': False, 'elements': _title(p, theme) + [_kit(theme, draw)] + _source(p, theme, (650 + h) / K + 25),
+            'camera': _cam(dur, 1.0, 1.03)}
+
+
+def _resample(vals, n=48):
+    """Sourced values (any scale) as 0..1 heights along the line, resampled so the stroke draws smoothly."""
+    lo, hi = min(0, min(vals)), max(vals)
+    span = (hi - lo) or 1
+    out = []
+    for i in range(n + 1):
+        x = i / n * (len(vals) - 1)
+        a = int(x); b = min(a + 1, len(vals) - 1)
+        out.append(round(((vals[a] + (vals[b] - vals[a]) * (x - a)) - lo) / span * .92, 4))
+    return out
+
+
+def b_trend_chart(p, theme, dur):
+    """A line that draws itself through the sourced values (a rise, a fall), with the first and last labels under it."""
+    box = {'x': 160, 'y': 680, 'w': 760, 'h': 520}
+    draw = [{'fn': 'lineChart', 's': p.get('at', .5), 'dur': p.get('draw', 1.6), 'box': box, 'points': _resample(p['values']),
+             'max': p.get('max', ''), 'grid': True}]
+    els = _title(p, theme) + [_kit(theme, draw)]
+    ink = ink_for(theme)
+    for key, x in (('from_label', 160 / K + 20), ('to_label', 920 / K - 20)):
+        if p.get(key):
+            els.append({'type': 'text', 'text': p[key], 'font': 'mono', 'size': 26, 'color': ink, 'opacity': .75, 'x': x,
+                        'y': (box['y'] + box['h']) / K + 30, 'in': {'type': 'fade', 'at': p.get('at', .5) + .2}})
+    return {'theme': theme, 'floor': False, 'elements': els + _source(p, theme, 880), 'camera': _cam(dur, 1.0, 1.03)}
+
+
+def b_compare_bars(p, theme, dur):
+    """Two to four bars side by side (right to left), each with its sourced value, unit and label; `hot` marks one in gold."""
+    items = [{'l': it['label'], 'v': it['value'], 'u': it.get('unit', ''), 'hot': bool(it.get('hot'))} for it in p['items']]
+    draw = [{'fn': 'compareBars', 's': p.get('at', .5), 'box': {'x': 160, 'y': 680, 'w': 760, 'h': 660}, 'items': items}]
+    return {'theme': theme, 'floor': False, 'elements': _title(p, theme) + [_kit(theme, draw)] + _source(p, theme, 945),
+            'camera': _cam(dur, 1.0, 1.03)}
+
+
 BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_timeline, 'map': b_map,
             'technical_illustration': b_technical_illustration, 'paper_cut': b_paper_cut, 'parallax_25d': b_parallax_25d,
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
             'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom,
-            'archive_photo': b_archive_photo, 'blueprint': b_blueprint}
+            'archive_photo': b_archive_photo, 'blueprint': b_blueprint,
+            'stat_counter': b_stat_counter, 'part_of_whole': b_part_of_whole, 'trend_chart': b_trend_chart, 'compare_bars': b_compare_bars}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']],
                 'blueprint': lambda p: [p['asset']]}
@@ -547,6 +632,15 @@ def _sounds(tech, p, sc, dur):
         if tech == 'product_reveal': cue(1.0, 'shutter', -20)
     elif tech == 'quote_card':
         cue(.3, 'paper_place', -16)
+    elif tech == 'stat_counter':                     # ticks while the digits roll, one firm click as the number lands
+        land, run = p.get('land', 1.8), p.get('dur', 1.5)
+        cue(max(.1, land - run), 'tick_pair', -20); cue(land, 'click', -11)
+    elif tech == 'part_of_whole':
+        cue(p.get('land', 1.9), 'click', -13)
+    elif tech == 'trend_chart':
+        cue(p.get('at', .5), 'whoosh', -20)
+    elif tech == 'compare_bars':
+        for j, _ in enumerate(p.get('items', [])): cue(p.get('at', .5) + j * .35 + .1, 'paper_place', -15)
 
 
 def scene_visual(tech, params, theme, dur, banner=None):

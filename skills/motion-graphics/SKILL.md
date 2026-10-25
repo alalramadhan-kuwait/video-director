@@ -45,6 +45,16 @@ order of techniques (`art/styles.yaml`); each scene uses the first technique it 
 | `archive_photo` | a historical photograph: a tall one fills the frame and the camera drifts, a wide one is a large print; a when-and-where card and the credit. A portrait has the person's name in the banner or card | `asset`, `desc`, `card`, `move` (in/out/left/right), `pos`, `print: true` (keep a tall photo whole) |
 | `blueprint` | the opening: a real drawing from the archive (a patent, a plan) on blueprint paper, revealed by a scanning light, a cold glow, hook words, a stamp, a card naming the drawing; never an invented cartoon | `asset`, `lines`, `stamp`, `card`, `reveal`, `glow_at` |
 | `city_zoom` | the map flies from the country into a city, then its colours and landmarks rise like a pop-up book, then its name | `city` (an id in `director/studio/cities.py`), `sub` |
+| `stat_counter` | one sourced number on rolling digits that lands with a small burst on the spoken number | `value`, `prefix`/`suffix` (an Arabic unit goes on the left), `label`, `land`, `source` |
+| `part_of_whole` | «X of every N»: N small figures fill in, X light up in gold | `total`, `hot`, `cols`, `land`, `title`, `source` |
+| `trend_chart` | a line that draws itself through sourced values | `values`, `from_label`, `to_label`, `title`, `source` |
+| `compare_bars` | two to four bars with their values and units, one in gold | `items[{label,value,unit,hot}]`, `title`, `source` |
+
+The four number templates are drawn by `vendor/motion-kit` (video-ad-editor's `motion-kit.js`, MIT, by Majed
+Alzaabi) through the engine's `kit` element (`vendor/motion-kit/kit-element.js`): a full-frame canvas in 1080×1920
+design pixels, each component a pure function of the scene time. Its other components (`statCard`, `statGrid`,
+`kinetic`, `timeline`, `stamp`, `techFrame`, `burst`, `shake`) can be called from a scene the same way:
+`{"type": "kit", "draw": [{"fn": "statCard", "s": 0.4, "box": {...}, ...}]}`.
 
 **Story worlds and moods** (on any template, from the film file): `set:` draws the world behind the scene with its
 ambience — `underwater`, `sea_night`, `florence`, `workshop`, `radium`, `archive` (`director/studio/sets.py`); a map
