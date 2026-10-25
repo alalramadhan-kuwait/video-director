@@ -38,7 +38,7 @@ photos:
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
   slc_compass: {query: Decima Flotiglia MAS remnants Malta SLC compass, year: 1941}
   marina_militare_1990s: {query: Panerai Marina Militare 5218, year: 1995, watch: Panerai Luminor Marina Militare 5218-202/A}
-  luminor_close: {query: PANERAI 29802698304, year: 2016, watch: Panerai Luminor Marina PAM 111 · modern}
+  luminor_glow: {query: LUMINOR 30075754506, year: 2016, watch: Panerai Luminor Marina PAM 111 · modern}   # the whole case, its lume glowing
 lines:
   # ----------------------------------------------------------------------------------- act 1: the shop on the bridge
   # the film opens where the story begins, Florence in 1860 (the owner did not like the teaser opening on the patent drawing)
@@ -176,5 +176,6 @@ lines:
     closing: true
     text: هكذا صارت Panerai، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.
     template: paper_cutout
-    # the close-up cuts the watch at its edges: shown as its photo, uncut (a watch is never drawn, rule 12h)
-    params: {asset: luminor_close, desc: Luminor Marina, card: Luminor Marina · طراز حديث من أشهر ساعات اليوم}
+    # the whole case with its lume glowing in the dark (the close-up cut the case at its edges); the strap runs off the
+    # photo, so it is shown as the photo, uncut (rule 12h)
+    params: {asset: luminor_glow, desc: Luminor Marina glowing, card: Luminor Marina · طراز حديث من أشهر ساعات اليوم}
