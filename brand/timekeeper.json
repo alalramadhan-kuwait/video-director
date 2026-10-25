@@ -1,7 +1,10 @@
 {
   "_note": "The one place for Time Keeper's identity. Every step reads it: scene captions and banners, narration, music, logo and end card, export. Change it here, not in code.",
   "name": "Time Keeper",
-  "logo": { "file": "vendor/paper-story/tk-logo-512.png", "end_card": true },
+  "logo": {
+    "file": "vendor/paper-story/tk-logo-512.png",
+    "end_card": true
+  },
   "fonts": {
     "_why": "Clean and modern for luxury watches, already embedded in the renderer (OFL licence): Cairo for Arabic, Inter Tight for Latin.",
     "arabic": "Cairo",
@@ -9,9 +12,20 @@
     "banner": "\"Inter Tight\",\"Cairo\",system-ui,sans-serif",
     "caption": "\"Cairo\",\"Inter Tight\",system-ui,sans-serif"
   },
-  "captions": { "bg": "#111111", "ink": "#FFFFFF", "size": 40, "active": "#C9A35F", "active_on_light": "#6E5023",
-    "_active": "The word being spoken lights up in the brand gold (a darker gold on a light caption tag, so it stays above 4.5:1)." },
-  "safe_area": { "_why": "Instagram/TikTok vertical: keep text clear of the app's top bar and bottom controls (in 720x1280 units).", "top": 150, "bottom": 300, "side": 48 },
+  "captions": {
+    "bg": "#111111",
+    "ink": "#FFFFFF",
+    "size": 40,
+    "active": "#C9A35F",
+    "active_on_light": "#6E5023",
+    "_active": "The word being spoken lights up in the brand gold (a darker gold on a light caption tag, so it stays above 4.5:1)."
+  },
+  "safe_area": {
+    "_why": "Instagram/TikTok vertical: keep text clear of the app's top bar and bottom controls (in 720x1280 units).",
+    "top": 150,
+    "bottom": 300,
+    "side": 48
+  },
   "narration": {
     "provider": "omnivoice",
     "draft_provider": "gtts",
@@ -21,22 +35,115 @@
     "_keep_latin": "Foreign names and English words are written in Latin letters in the script and on screen, and the voice reads them as they are (as in the Gérald Genta films): the local engines skip the Latin-to-Arabic entries of pronunciation.json; the free draft voice still uses them.",
     "engine_pronunciation": {
       "_note": "Respellings one engine needs on top of pronunciation.json, chosen by listening (Whisper) to the variants. VoxCPM2 shortens the first vowel of بانيراي and misreads the Italian bridge name.",
-      "voxcpm2": {"بانيراي": "بانِيرَاي", "ألّي غراتسيه": "ألِّي غراتْسيِه"}
+      "voxcpm2": {
+        "بانيراي": "بانِيرَاي",
+        "ألّي غراتسيه": "ألِّي غراتْسيِه"
+      }
     },
     "speed": 1.0,
     "draft_speed": 1.25,
     "pronunciation": "brand/pronunciation.json"
   },
+  "watch_models": {
+    "_note": "model names the story check looks for: a line that names one must show that very model, or no watch (storytelling rule 12i)",
+    "names": [
+      "Radiomir",
+      "Luminor",
+      "Egiziano",
+      "Mare Nostrum",
+      "Marina Militare",
+      "Submersible",
+      "Oyster",
+      "Submariner",
+      "Daytona",
+      "GMT-Master",
+      "Datejust",
+      "Explorer",
+      "Sea-Dweller",
+      "Day-Date",
+      "Royal Oak",
+      "Royal Oak Offshore",
+      "Nautilus",
+      "Aquanaut",
+      "Calatrava",
+      "Speedmaster",
+      "Seamaster",
+      "Reverso",
+      "Santos",
+      "Tank",
+      "Fifty Fathoms",
+      "Big Bang",
+      "Overseas",
+      "Lange 1",
+      "Navitimer",
+      "Carrera",
+      "Monaco"
+    ]
+  },
   "music": {
     "_why": "Subtle cinematic bed: at gain_db in pauses, ducked about 9 dB more while the voice speaks. A track is used only with its commercial licence record next to it (same name, .licence.json); otherwise there is no music. The owner's own track in the library wins; else the film picks from the whole catalogue by mood (prefer/avoid) and length, and its credit goes with the film.",
     "library": "brand/music",
-    "catalogs": ["brand/music/incompetech.json"],
-    "prefer": ["Calming", "Relaxed", "Uplifting", "Mysterious", "Somber"],
-    "avoid": ["Humorous", "Bouncy", "Grooving", "Driving", "Action", "Aggressive", "Intense", "Dark", "Eerie", "Unnerving", "Suspenseful", "Ren Faire", "Medieval"],
-    "instruments": ["Piano", "Strings", "Cello", "Synth", "Harp"],
-    "avoid_words": ["funeral", "christmas", "hymn", "grace", "church", "ghost", "horror", "zombie", "halloween", "lute", "organ", "drum kit", "bagpipe", "accordion", "banjo", "kazoo", "ukulele", "vocals", "solo voice"],
+    "catalogs": [
+      "brand/music/incompetech.json"
+    ],
+    "prefer": [
+      "Calming",
+      "Relaxed",
+      "Uplifting",
+      "Mysterious",
+      "Somber"
+    ],
+    "avoid": [
+      "Humorous",
+      "Bouncy",
+      "Grooving",
+      "Driving",
+      "Action",
+      "Aggressive",
+      "Intense",
+      "Dark",
+      "Eerie",
+      "Unnerving",
+      "Suspenseful",
+      "Ren Faire",
+      "Medieval"
+    ],
+    "instruments": [
+      "Piano",
+      "Strings",
+      "Cello",
+      "Synth",
+      "Harp"
+    ],
+    "avoid_words": [
+      "funeral",
+      "christmas",
+      "hymn",
+      "grace",
+      "church",
+      "ghost",
+      "horror",
+      "zombie",
+      "halloween",
+      "lute",
+      "organ",
+      "drum kit",
+      "bagpipe",
+      "accordion",
+      "banjo",
+      "kazoo",
+      "ukulele",
+      "vocals",
+      "solo voice"
+    ],
     "max_bpm": 100,
     "gain_db": -18
   },
-  "export": { "width": 1080, "height": 1920, "crf": 24, "max_mb": 26, "platform": "instagram-reels" }
+  "export": {
+    "width": 1080,
+    "height": 1920,
+    "crf": 24,
+    "max_mb": 26,
+    "platform": "instagram-reels"
+  }
 }

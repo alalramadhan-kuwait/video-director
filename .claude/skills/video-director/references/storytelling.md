@@ -75,9 +75,17 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     **A watch is never drawn** ✓ (the owner: the films are for collectors, who know every case, lug, crown, dial and
     hand; a drawing gets them wrong and costs the account its trust). A watch is shown only in its real photograph:
     cut out when the photo shows it whole, otherwise the photo itself, uncut (`archive_photo`). With no photo of the
-    exact watch, find one (Commons searches by model and year: «Marina Militare 1936 watch») or show the nearest true
-    thing and say what it is (rule 13). Simplified principle diagrams of a mechanism (`watch_movement`, a screw crown)
-    are not pictures of a watch and stay labelled as principles.
+    exact watch, find one (Commons by model and reference; read the description: a «homage» or replica is refused) or
+    show the nearest true thing that is not a watch and say what it is (rule 13). Simplified principle diagrams of a
+    mechanism (`watch_movement`, a screw crown) are not pictures of a watch and stay labelled as principles.
+12i. **The watch shown is the model that is named** ✓ (the owner: in the watch community a model that does not match
+    its picture is a big thing). Every watch photo says what it is (`watch:` on the photo — brand, model and reference,
+    read from the dial in the picture and from its source page, never from the file name alone), and that name goes on
+    screen with its credit. A line whose narration, banner or card names a model (`watch_models` in the brand, `models:`
+    in the film) shows that very model or no watch at all: never a Radiomir under «Luminor», never a Rolex Oyster under
+    words about the Panerai that Rolex made, never a modern reference for a historical one unless it says «طراز حديث».
+    The name of a material is not a licence either: Luminor the lume is still the word Luminor on screen. When the
+    photo's identity cannot be checked, it is not used.
 13. If the exact thing has no free photo, show the nearest true thing and **say what it is** («الجسر الذي كان عليه
     أول محل»), never pretend.
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with

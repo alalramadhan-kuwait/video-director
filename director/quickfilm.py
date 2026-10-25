@@ -131,6 +131,22 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: the photo is from about {py} but the line speaks of {', '.join(map(str, ys))}")
         if slot and slot not in photos:
             out.append(f"{ln['id']}: photo slot {slot!r} is not in photos:")
+    models = sorted(set((B.load(film.get('brand', 'timekeeper')).get('watch_models') or {}).get('names', []) + film.get('models', [])), key=len, reverse=True)
+    for ln in lines:                                                     # a model that is named is the model that is shown (rule 12i)
+        slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
+        ph = (photos.get(slot) or {}) if slot else {}
+        if not slot or ph.get('person') or ph.get('not_a_watch'): continue
+        named, rest = [], ' '.join([ln['text']] + on_screen(ln))
+        for m in models:                                                 # the longest name first: «Royal Oak Offshore» is not «Royal Oak»
+            if re.search(r'(?<![A-Za-z])' + re.escape(m) + r'(?![A-Za-z])', rest, re.I):
+                named.append(m); rest = re.sub(re.escape(m), ' ', rest, flags=re.I)
+        shows = ph.get('watch')
+        if named and not shows:
+            out.append(f"{ln['id']}: names {', '.join(named)}: say what photo {slot!r} shows (watch: brand, model, reference; or not_a_watch: true)")
+            continue
+        wrong = [m for m in named if m.lower() not in (shows or '').lower()]
+        if wrong:
+            out.append(f"{ln['id']}: names {', '.join(wrong)} but the photo shows {shows}: collectors see it at once (show that very model, or no watch)")
     for ln in lines:                                                     # each scene shows what is being said in it
         said = ln['text'] + ' ' + ln.get('say', '')
         for t in on_screen(ln):
@@ -228,6 +244,9 @@ def photos(film: dict, work: Path) -> dict:
         meta['aspect'] = _aspect(next((work / 'assets').glob(slot + '.[jp]*')))
         rec.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding='utf-8')
         out[slot] = meta
+    for slot, ph in (film.get('photos') or {}).items():                   # a watch is named on screen as the model it is (rule 12i)
+        if ph.get('watch') and not out[slot].get('missing'):
+            out[slot] = {**out[slot], 'credit': ph['watch'] + ' · ' + out[slot].get('credit', '')}
     return out
 
 
