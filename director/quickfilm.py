@@ -356,8 +356,9 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
         scenes.append(sc)
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': ln['template']})
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
+    ending = _endcard(out)
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),
-          'scenes': scenes + _endcard(out)}
+          'scenes': scenes + ending}
     seconds = round(sum(s['dur'] for s in sb['scenes']), 1)
     mus = B.music(brand, seconds=seconds, seed=film.get('seed') or Path(path).stem, title=film.get('music'))
     report['music'] = mus and {k: mus[k] for k in ('title', 'licence', 'source', 'credit')}
@@ -400,7 +401,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                 if (out / 'film-small.mp4').stat().st_size / 1e6 <= cap: break
             (out / 'film-small.mp4').replace(out / 'film.mp4'); report['crf'] = crf + step
         report['film'] = str(out / 'film.mp4'); report['size_mb'] = round((out / 'film.mp4').stat().st_size / 1e6, 1)
-        report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sb['scenes'][-1]['dur']))   # no still stretch in the finished film
+        report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sum(s['dur'] for s in ending)))   # no still stretch in the finished film
         if plat['parts']:                                                # a chat: parts cut between scenes, each under its limit
             starts = [sum(s['dur'] for s in sb['scenes'][:i]) for i in range(len(sb['scenes']))]
             report['parts'] = [str(p) for p in split(out / 'film.mp4', platforms.parts(starts, [s['dur'] for s in sb['scenes']],

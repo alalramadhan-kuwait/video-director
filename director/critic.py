@@ -94,7 +94,7 @@ def pack(out: Path, purpose: str = '') -> Path:
         d.rmdir()
     (rd / '_c').rmdir()
     measures = {'seconds': round(seconds, 1), 'platform': rep.get('platform'), 'length': rep.get('length'), 'size_mb': rep.get('size_mb'),
-                **loudness(film), 'frozen': quality.runs(quality.frozen(film, ending=sb['scenes'][-1]['dur'])),
+                **loudness(film), 'frozen': quality.runs(quality.frozen(film, ending=sum(s['dur'] for s in sb['scenes'][len(rep.get('lines', [])):]))),
                 'quality': rep.get('quality', []), 'safe_zones': rep.get('safe', []), 'story': rep.get('story', []), 'layout': rep.get('layout', []),
                 'beats': rep.get('beats'), 'voice': rep.get('label'),
                 'scenes': [{'n': i + 1, 'id': s.get('id'), 'start': round(st, 2), 'end': round(st + s['dur'], 2),

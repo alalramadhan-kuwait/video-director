@@ -485,7 +485,9 @@
         if (w.w === '|') { flush(); continue; }
         const word = w.w.endsWith('|') ? w.w.slice(0, -1) : w.w;
         const brk = w.w.endsWith('|');
-        if (cur && (cur.words.length >= (sc.spec.maxWords || S.maxWords) || w.t - prevT > 1.1)) flush();
+        // a caption row holds a few words and about 22 letters, so a long name never pushes it off the screen
+        const letters = cur ? cur.words.reduce((n, x) => n + x.text.length + 1, 0) + word.length : 0;
+        if (cur && (cur.words.length >= (sc.spec.maxWords || S.maxWords) || letters > (S.captionLetters || 22) || w.t - prevT > 1.1)) flush();
         if (!cur) cur = { scene: si, words: [], t0: sc.start + w.t };
         cur.words.push({ t: sc.start + w.t, text: word });
         prevT = w.t;

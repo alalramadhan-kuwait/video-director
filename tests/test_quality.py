@@ -72,6 +72,9 @@ class TestOnRenders(unittest.TestCase):
         sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style('timekeeper'), 'scenes': [sc]}
         with tempfile.TemporaryDirectory() as d:
             f = quality.textmap(sb, Path(d), [2.0])[0]
+            from director import platforms
+            safe = engine.safe(sb, Path(d), platforms.zones(platforms.get('reels')[1]))
+        self.assertIn("nothing under the app's buttons", safe[-1])                    # the long name keeps its row on screen
         mixed = [w for w in f['words'] if 'Marie' in w['text']]
         self.assertTrue(mixed and all(w['dir'] == 'rtl' for w in mixed), mixed)           # the banner and the line
         caps = [w['text'] for w in f['words'] if w['caption']]
