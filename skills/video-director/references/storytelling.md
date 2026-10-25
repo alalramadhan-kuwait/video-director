@@ -101,6 +101,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     `director/platforms.py`): Reels and Shorts up to 3 minutes for sure, TikTok up to 10 (1–3 is best), WhatsApp in
     parts under 16 MB cut between scenes. No words under the app's buttons: make_film checks every 0.2 s as drawn and
     must say «nothing under the app's buttons». Reels and TikTok get a separate `cover.png` (the hook's frame).
+    **A film longer than its platform allows is cut to fit before it is sent** (the owner, on Panerai at 3:22 for
+    Reels): drop whole lines whose neighbours still lead into each other, never the reason for a change or the end of
+    a group the story follows (12f), and drop the photos and sources only those lines used.
 21. Send the film with its sources, photo credits and music credit (`credits.txt`). The draft voice is labelled as a
     draft; the final narration is OmniVoice.
 
