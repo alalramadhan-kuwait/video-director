@@ -17,6 +17,7 @@ for ln in r['lines']:
     if ln['not_heard']: print(f"{ln['id']}: not heard → {' '.join(ln['not_heard'])}   (heard: {ln['heard']})")
 for slot, p in r['photos'].items():
     print(f"photo {slot}: " + ('MISSING — ' + p['query'] if p.get('missing') else p['credit']))
+for d in r.get('drawn', []): print('cut-out:', d)
 print('story:', 'all rules kept' if not r['story'] else '\n  ' + '\n  '.join(r['story']))
 print('layout:', 'no faults' if not r['layout'] else '\n  ' + '\n  '.join(r['layout']))
 print('quality:', 'contrast, overlaps, first frame and motion all pass' if not r.get('quality') else '\n  ' + '\n  '.join(r['quality']))

@@ -72,6 +72,7 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
 ## Setup in a fresh cloud session (once)
 ```bash
 pip install numpy pyyaml gTTS faster-whisper imageio-ffmpeg     # ffmpeg, node and Chromium are usually there
+python3 -m venv var/cutenv && var/cutenv/bin/pip install "rembg[cpu]"   # the paper cut-outs (export VD_CUTOUT_PYTHON=var/cutenv/bin/python)
 python3 vendor/paper-story/scripts/make-sfx.py                  # the paper sound kit (made locally, free)
 npm i --prefix ~/.cache/paper-story playwright-core             # only if render.mjs says playwright-core is missing
 ```
