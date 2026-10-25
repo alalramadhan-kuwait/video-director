@@ -570,6 +570,48 @@ def b_compare_bars(p, theme, dur):
             'camera': _cam(dur, 1.0, 1.03)}
 
 
+DRAWN_NOTE = 'رسم توضيحي بأسلوب Time Keeper — لا توجد صورة كاملة'
+
+
+def b_paper_cutout(p, theme, dur):
+    """The paper cut-out look (rule 12h, the owner's choice): the whole watch or the whole person, cut out of its photo
+    (tools/cutout_photo.py) and laid on the paper of the scene with a paper edge and a shadow, never cropped. When no
+    photo shows it whole, it is drawn in the same paper style (director/studio/drawn.py) and labelled as a drawing."""
+    from . import drawn
+    ink = ink_for(theme)
+    person = bool(p.get('person') or (p.get('drawn') or {}).get('person'))
+    bottom = p.get('bottom', 880)
+    h = p.get('h', 700 if person else 560)
+    els = []
+    if p.get('asset'):
+        aspect = p.get('aspect', 0.75)
+        h = min(h, 600 / aspect, bottom - 300)                          # whole on screen: below the banner, clear of the sides
+        els.append({'type': 'cutout', 'asset': p['asset'] + '_cut', 'desc': p.get('desc', p['asset']), 'h': round(h), 'aspect': aspect,
+                    'x': 360, 'y': bottom, 'edge': 3, 'rot': p.get('tilt', -1.5), 'in': {'type': 'drop', 'at': .15},
+                    'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']]})
+        if p.get('credit'):
+            els.append({'type': 'text', 'text': p['credit'][:120], 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360,
+                        'y': CREDIT_Y, 'depth': 0, 'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
+    else:
+        d = p.get('drawn') or {'kind': 'radiomir'}
+        svg, w0, h0 = (drawn.person if person else drawn.watch)(d.get('kind', 'man_suit' if person else 'radiomir'), uid=sets_uid('dr'))
+        h = min(h, bottom - 300); k = h / h0
+        w = w0 * k
+        svg = svg.replace(f'width="{w0}" height="{h0}"', f'width="{w:.0f}" height="{h:.0f}"', 1)
+        els.append({'type': 'svg', 'svg': svg, 'w': round(w), 'h': round(h), 'x': 360, 'y': bottom - h / 2, 'rot': p.get('tilt', -1.5),
+                    'in': {'type': 'drop', 'at': .15}, 'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']]})
+        els.append({'type': 'text', 'text': p.get('note', DRAWN_NOTE), 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .75, 'x': 360,
+                    'y': CREDIT_Y, 'depth': 0, 'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
+    if p.get('card'):
+        els.append({'type': 'text', 'text': p['card'], 'font': 'banner', 'size': 26, 'color': PAPER, 'paper': INK, 'x': 360, 'y': bottom + 52,
+                     'w': 600, 'align': 'center', 'in': {'type': 'rise', 'at': .7}})
+    return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.02)}
+
+
+def sets_uid(prefix):
+    return __import__('director.studio.sets', fromlist=['uid']).uid(prefix)
+
+
 def b_watch_movement(p, theme, dur):
     """How a mechanical watch works, drawn in code (vendor/studio-ext/movement3d.js, three.js): the mainspring in its
     barrel turns the gear train to the escape wheel and pallet fork, which the balance wheel and hairspring release one
@@ -592,10 +634,10 @@ BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_time
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
             'spec_card': b_spec_card, 'quote_card': b_quote_card, 'product_reveal': b_product_reveal, 'city_zoom': b_city_zoom,
             'archive_photo': b_archive_photo, 'blueprint': b_blueprint,
-            'watch_movement': b_watch_movement, 'stat_counter': b_stat_counter, 'part_of_whole': b_part_of_whole, 'trend_chart': b_trend_chart, 'compare_bars': b_compare_bars}
+            'watch_movement': b_watch_movement, 'paper_cutout': b_paper_cutout, 'stat_counter': b_stat_counter, 'part_of_whole': b_part_of_whole, 'trend_chart': b_trend_chart, 'compare_bars': b_compare_bars}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']],
-                'blueprint': lambda p: [p['asset']]}
+                'blueprint': lambda p: [p['asset']], 'paper_cutout': lambda p: [p['asset']] if p.get('asset') else []}
 
 
 FULL_FRAME = {'map', 'product_macro', 'city_zoom'}       # templates that fill the frame: they are the world themselves (a set adds only its sound)
@@ -650,6 +692,8 @@ def _sounds(tech, p, sc, dur):
         if tech == 'product_reveal': cue(1.0, 'shutter', -20)
     elif tech == 'quote_card':
         cue(.3, 'paper_place', -16)
+    elif tech == 'paper_cutout':
+        cue(.2, 'paper_place', -12)
     elif tech == 'watch_movement':                  # the movement running, then the parts lifting apart
         cue(0, 'watch_run', -20); cue(p.get('explode_at', 2.4), 'whoosh', -18)
     elif tech == 'stat_counter':                     # ticks while the digits roll, one firm click as the number lands

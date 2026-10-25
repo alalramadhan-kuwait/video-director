@@ -54,7 +54,7 @@ def load(path) -> dict:
     return f
 
 
-PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro'}
+PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro', 'paper_cutout'}
 
 
 SCREEN = ('text', 'title', 'body', 'label', 'value', 'values', 'name', 'sub', 'card', 'quote', 'who', 'header', 'banner', 'lines',
@@ -88,7 +88,8 @@ def story_check(film: dict) -> list[str]:
     """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
     out, lines = [], film['lines']
     for ln in lines:
-        if ln.get('event') and ln['template'] not in PHOTO_TEMPLATES and not ln.get('photo') and not ln.get('no_photo'):
+        drawn = ln['template'] == 'paper_cutout' and not (ln.get('params') or {}).get('asset')      # a drawing, not evidence
+        if ln.get('event') and (ln['template'] not in PHOTO_TEMPLATES or drawn) and not ln.get('photo') and not ln.get('no_photo'):
             out.append(f"{ln['id']}: a historical event with no historical photo (use archive_photo, or say why: no_photo)")
         if ln.get('change') and not ln.get('because'):
             out.append(f"{ln['id']}: a change without its reason (because:)")
@@ -118,7 +119,7 @@ def story_check(film: dict) -> list[str]:
     for ln in lines:                                                     # every scene has a related picture, of the right time
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
         if ln is lines[0]: continue                                      # the opening is a drawing from the archive
-        if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo'):
+        if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo') and not (ln.get('params') or {}).get('drawn'):
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
         py = (photos.get(slot) or {}).get('year') if slot else None
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
@@ -223,6 +224,31 @@ def photos(film: dict, work: Path) -> dict:
         meta['aspect'] = _aspect(next((work / 'assets').glob(slot + '.[jp]*')))
         rec.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding='utf-8')
         out[slot] = meta
+    return out
+
+
+def cutout(slot: str, work: Path, person: bool = False) -> dict:
+    """The subject of a photo cut out of its background (tools/cutout_photo.py, rembg, free and local), cached as
+    assets/<slot>_cut.png with its record. `whole` says whether the photo shows it whole (a portrait may stop at the
+    shoulders). The tool runs with VD_CUTOUT_PYTHON (a Python with rembg installed), else this Python."""
+    import os, sys
+    rec = work / 'assets' / f'{slot}_cut.json'
+    if rec.is_file():
+        return json.loads(rec.read_text(encoding='utf-8'))
+    src = next((f for f in (work / 'assets').glob(slot + '.*') if f.suffix.lower() in ('.jpg', '.jpeg', '.png', '.webp')), None)
+    if src is None:
+        return {'whole': False, 'why': 'no photo'}
+    py = os.environ.get('VD_CUTOUT_PYTHON', sys.executable)
+    r = subprocess.run([py, str(engine.ROOT / 'tools/cutout_photo.py'), str(src), str(work / 'assets' / f'{slot}_cut.png')] + (['--person'] if person else []),
+                       capture_output=True, text=True)
+    line = (r.stdout.strip().splitlines() or ['{}'])[-1]
+    try:
+        out = json.loads(line)
+    except ValueError:
+        return {'whole': False, 'why': (r.stderr or r.stdout)[-300:]}
+    if person and out.get('cut_sides') == ['bottom']:
+        out['whole'] = True                                   # a portrait: the person as photographed, cut at the waist
+    rec.write_text(json.dumps(out, ensure_ascii=False), encoding='utf-8')
     return out
 
 
@@ -338,6 +364,18 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
             if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', pics[slot]['credit'])
             if ln['template'] in ('archive_photo', 'blueprint') and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
+        if ln['template'] == 'paper_cutout' and params.get('asset'):           # the whole subject, cut out (rule 12h)
+            slot = params['asset']
+            person = bool((film.get('photos') or {}).get(slot, {}).get('person'))
+            c = cutout(slot, out, person) if not pics.get(slot, {}).get('missing') else {'whole': False, 'why': 'no photo'}
+            if c.get('whole'):
+                params.update(aspect=c['aspect'], person=person)
+                if pics.get(slot, {}).get('credit'): params.setdefault('credit', pics[slot]['credit'] + ' · cut out')
+            elif params.get('drawn'):                                        # no photo shows it whole: drawn in our style
+                params.pop('asset'); report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({c.get('cut_sides') or c.get('why')}): drawn")
+            else:
+                report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({c.get('cut_sides') or c.get('why')}): give it a drawn: fallback")
+                params.update(aspect=c.get('aspect', .75), person=person)
         if params.get('land_on'):                                            # a number lands when the voice says it (rule 18b)
             hit = next((w for w in t['words'] if w['w'] == str(params['land_on'])), None)
             params.pop('land_on')

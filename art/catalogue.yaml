@@ -72,6 +72,12 @@ templates:
     example: {title: صبمارينر مقابل لومينور, columns: [Submariner 1953, Luminor 1950],
               rows: [{label: العمق, values: [100 م, 200 م]}, {label: القطر, values: [37 مم, 47 مم]}, {label: المادة, values: [فولاذ, فولاذ]}],
               source: 'المصدر: أرشيف الشركتين'}
+  - id: paper_cutout
+    status: implemented
+    purpose: [product, person_real, archive, detail]
+    name_ar: قصاصة ورقية
+    about: the whole watch or person cut out of its photo and laid on the scene's paper (paper edge, shadow), never cropped; drawn in the same paper style when no photo shows it whole, and labelled as a drawing
+    example: {drawn: {kind: radiomir}, card: ساعة للغطّاسين · 1936}
   - id: watch_movement
     status: implemented
     purpose: [mechanism, product]
