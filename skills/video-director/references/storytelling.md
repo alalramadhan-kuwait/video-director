@@ -42,8 +42,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 11. Contested dates: say only the part all sources agree on (the decade).
 
 ## The pictures
-12. **A historical event is shown with a historical photograph** ✓ (`event: true` → `archive_photo`), licensed, with
-    the author and licence on screen and a card saying when and where. When none exists, say why (`no_photo:`).
+12. **A historical event is shown with a historical photograph** ✓ (`event: true` → `archive_photo`), credited,
+    with its author and licence (or its source, rule 12j) on screen and a card saying when and where. When none exists, say why (`no_photo:`).
     Search Wikimedia Commons in English with the place's or object's own name (e.g. «Alinari Ponte alle Grazie» for
     the bridge of Panerai's first shop).
 12b. **Every scene has a related photo** ✓ — a photo template, or the photo behind the words (`photo:` on a line of
@@ -66,7 +66,7 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     When the injury or event itself has no free photograph, say so to the owner and show the newspaper instead;
     never a modern medical photo of someone else.
 12h. **Watches and people as paper cut-outs, always whole** ✓ (the owner's choice, `paper_cutout`): the watch, the
-    instrument or the person is cut out of its licensed photo (`tools/cutout_photo.py`, free and local) and laid on the
+    instrument or the person is cut out of its real photo (`tools/cutout_photo.py`, free and local) and laid on the
     scene's paper with a paper edge and a shadow, never cropped by the frame; the credit adds «cut out». A portrait may
     stop at the shoulders, as photographed. When no free photo shows a **person** whole, the person is **drawn in the
     same paper style** (`drawn:` — a man in a suit, a woman in a dress, a dial painter, a diver, a scientist),
@@ -86,6 +86,13 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     words about the Panerai that Rolex made, never a modern reference for a historical one unless it says «طراز حديث».
     The name of a material is not a licence either: Luminor the lume is still the word Luminor on screen. When the
     photo's identity cannot be checked, it is not used.
+12j. **Real photos, credited, from wherever they are best** ✓ (the owner relaxed the licence rule): a free licence
+    first (Commons); otherwise the real photo from the maker, an auction house, a museum, a dealer or a watch site,
+    credited on screen with where it is from («via thetimebum.com») and recorded in the film file (`url:` the image,
+    `page:` where it is shown, `credit:`; or a file the owner sends, kept in `films/private/` with `licence: credited`).
+    Prefer the photo that shows the subject whole and clear over a free one that cuts it. Never committed to this
+    public repository (downloaded at build time, or private); never a replica or homage, never
+    generated, never a photo of one thing passed off as another (rule 12i).
 13. If the exact thing has no free photo, show the nearest true thing and **say what it is** («الجسر الذي كان عليه
     أول محل»), never pretend.
 14. **Each scene shows only what is said in it** ✓: every banner, card, row and label shares words or numbers with
