@@ -16,7 +16,7 @@ r = quickfilm.make(a.film, Path(a.out), video=not a.stills_only, voice_dir=a.voi
 for ln in r['lines']:
     if ln['not_heard']: print(f"{ln['id']}: not heard → {' '.join(ln['not_heard'])}   (heard: {ln['heard']})")
 for slot, p in r['photos'].items():
-    print(f"photo {slot}: " + ('MISSING — ' + p['query'] if p.get('missing') else p['credit']))
+    print(f"photo {slot}: " + ('MISSING — ' + p['query'] if p.get('missing') else p['credit']) + ('   [credited, not a free licence]' if p.get('credited') else ''))
 for d in r.get('drawn', []): print('cut-out:', d)
 print('story:', 'all rules kept' if not r['story'] else '\n  ' + '\n  '.join(r['story']))
 print('layout:', 'no faults' if not r['layout'] else '\n  ' + '\n  '.join(r['layout']))

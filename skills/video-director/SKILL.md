@@ -14,15 +14,18 @@ description: >-
 
 The owner talks to you from an iPhone. Run the whole film yourself and ask for **one approval: the finished film,
 before publishing**. Reply in Arabic (Kuwaiti is fine), short: **what is done, what remains, what you need from them.**
-Never send long reports or ask for approval of intermediate steps. Stop and ask only for: paid generation, a picture
-whose licence is uncertain, or a fact you cannot source.
+Never send long reports or ask for approval of intermediate steps. Stop and ask only for: paid generation, or a fact
+you cannot source.
 
 ## Rules that never bend
 - **No paid generation or spending without an explicit yes in this chat**: no ElevenLabs, no paid image or video
   models, no paid AI budget. Free tools only by default.
-- **Never treat a picture as licensed without evidence.** A photo is used only when its own page states a free
-  licence (public domain, CC0, CC BY, CC BY-SA) — `tools/find_photo.py` checks this — or the owner says it is theirs.
-  Credit the author and licence on screen. Never a replica, homage or fake watch. Never invent a historical photo.
+- **Real photos, always credited** (the owner relaxed the licence rule; rule 12j). First a free licence (Commons,
+  `tools/find_photo.py`); when none shows the right thing well, a real photo from the maker, an auction house, a
+  museum, a dealer or a watch site is fine, with its source on screen («via …») and its page recorded (`url:`,
+  `page:`, `credit:`); the owner's own photos too. The build lists the credited ones so the owner sees them before
+  publishing. Such photos are downloaded at build time and never committed to this public repository. Never a
+  replica, homage or fake watch, never a generated or invented picture, never a photo passed off as something else.
 - **Facts need sources.** Every claim in the script maps to a source; a popular but false claim is only said as a
   belief («يُقال…»), never as fact.
 - **Never publish** without the owner's approval of the finished film. A requested change makes a new version; keep the old one.

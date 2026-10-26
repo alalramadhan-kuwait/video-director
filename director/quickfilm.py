@@ -203,6 +203,15 @@ def hook_card(sc: dict, hook: dict) -> float:
     return dur
 
 
+def _upright(f: Path):
+    """A phone photo stores its turn in EXIF and the pixels sideways: turn the pixels so every tool sees it upright."""
+    from PIL import Image, ImageOps
+    with Image.open(f) as im:
+        if (im.getexif() or {}).get(0x0112, 1) == 1: return
+        up = ImageOps.exif_transpose(im)
+    up.save(f, quality=95) if f.suffix.lower() in ('.jpg', '.jpeg') else up.save(f)
+
+
 def _aspect(f: Path) -> float | None:
     r = subprocess.run(['ffprobe', '-v', 'error', '-select_streams', 'v:0', '-show_entries', 'stream=width,height', '-of', 'csv=p=0', str(f)],
                        capture_output=True, text=True).stdout.strip().split(',')
@@ -215,8 +224,10 @@ def _seconds(p: Path) -> float:
 
 
 def photos(film: dict, work: Path) -> dict:
-    """Each photo slot as work/assets/<slot>.<ext>: the owner's own file, or a Commons file whose page states a free
-    licence. A slot that cannot be filled is reported; the template then shows its «real photo needed» panel."""
+    """Each photo slot as work/assets/<slot>.<ext>: the owner's own file, a Commons file whose page states a free
+    licence, or a credited photo from another page (`url:` with `page:` and `credit:`; the owner's choice, rule 12j:
+    downloaded at build time, never kept in the public repository). A slot that cannot be filled is reported; the
+    template then shows its «real photo needed» panel."""
     (work / 'assets').mkdir(parents=True, exist_ok=True)
     out = {}
     for slot, ph in (film.get('photos') or {}).items():
@@ -226,9 +237,22 @@ def photos(film: dict, work: Path) -> dict:
             out[slot] = json.loads(rec.read_text(encoding='utf-8')); continue
         if ph.get('file'):
             src = Path(ph['file']).expanduser()
-            if not src.is_absolute(): src = engine.ROOT / src                # a file kept with the films (films/assets/)
+            if not src.is_absolute(): src = engine.ROOT / src                # films/assets/ (free) or films/private/ (never in git)
+            if not src.is_file():
+                out[slot] = {'missing': True, 'query': str(ph['file'])}; continue
             dst = work / 'assets' / (slot + src.suffix.lower()); shutil.copyfile(src, dst)
             meta = {'credit': ph.get('credit', ''), 'licence': ph.get('licence', 'owner'), 'page': ph.get('page', '')}
+            if ph.get('licence') == 'credited': meta['credited'] = True
+        elif ph.get('url'):                                                  # a credited photo from its page (rule 12j)
+            if not (ph.get('page') and ph.get('credit')):
+                raise ValueError(f"photo {slot}: a photo from the web needs its page: and its credit: (rule 12j)")
+            try:
+                data = commons.fetch(ph['url'])
+            except OSError as e:
+                out[slot] = {'missing': True, 'query': ph['url'], 'why': str(e)[:120]}; continue
+            ext = '.png' if ph['url'].lower().split('?')[0].endswith('.png') else '.jpg'
+            (work / 'assets' / (slot + ext)).write_bytes(data)
+            meta = {'credit': ph['credit'], 'licence': ph.get('licence', 'credited (the owner\'s choice)'), 'page': ph['page'], 'credited': True}
         else:
             try:
                 time.sleep(2)                                                # Commons asks tools to go slowly
@@ -241,6 +265,7 @@ def photos(film: dict, work: Path) -> dict:
             ext = '.png' if c['url'].lower().split('?')[0].endswith('.png') else '.jpg'
             (work / 'assets' / (slot + ext)).write_bytes(data)
             meta = {'credit': commons.credit(c), 'licence': c['licence'], 'page': c['page'], 'title': c['title']}
+        _upright(next((work / 'assets').glob(slot + '.[jp]*')))
         meta['aspect'] = _aspect(next((work / 'assets').glob(slot + '.[jp]*')))
         rec.write_text(json.dumps(meta, ensure_ascii=False, indent=1), encoding='utf-8')
         out[slot] = meta

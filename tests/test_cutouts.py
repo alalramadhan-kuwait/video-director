@@ -87,6 +87,36 @@ class TestTheNamedModelIsTheModelShown(unittest.TestCase):
         self.assertEqual([m for m in quickfilm.story_check(film) if 'names' in m], [])
 
 
+class TestCreditedPhotos(unittest.TestCase):
+    """Rule 12j: a real photo from wherever it is best, credited; never in the public repository."""
+    def test_a_web_photo_needs_its_page_and_credit(self):
+        with tempfile.TemporaryDirectory() as d:
+            with self.assertRaises(ValueError):
+                quickfilm.photos({'photos': {'w': {'url': 'https://example.com/w.jpg'}}}, Path(d))
+
+    def test_the_owners_file_is_credited_and_a_missing_one_waits(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d); Image.new('RGB', (40, 30)).save(d / 'mine.jpg')
+            pics = quickfilm.photos({'photos': {'w': {'file': str(d / 'mine.jpg'), 'licence': 'credited', 'credit': 'product photo'},
+                                                'gone': {'file': str(d / 'nowhere.jpg'), 'licence': 'credited', 'credit': 'x'}}}, d / 'work')
+        self.assertTrue(pics['w']['credited']); self.assertEqual(pics['w']['credit'], 'product photo')
+        self.assertTrue(pics['gone']['missing'])
+
+    def test_a_phone_photo_is_turned_upright(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / 'p.jpg'
+            im = Image.new('RGB', (60, 20)); ex = im.getexif(); ex[0x0112] = 6; im.save(f, exif=ex)
+            quickfilm._upright(f)
+            with Image.open(f) as up:
+                self.assertEqual(up.size, (20, 60))
+
+    def test_private_photos_never_enter_git(self):
+        r = subprocess.run(['git', 'check-ignore', 'films/private/pam111.jpg'], cwd=engine.ROOT, capture_output=True, text=True)
+        self.assertEqual(r.returncode, 0)
+
+
 def _rembg():
     py = os.environ.get('VD_CUTOUT_PYTHON', sys.executable)
     return subprocess.run([py, '-c', 'import rembg'], capture_output=True).returncode == 0
