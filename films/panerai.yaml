@@ -77,6 +77,8 @@ lines:
     change: true
     because: احتاجت البحرية أن ترى أجهزتها ليلًا
     text: فطوّرت Panerai، من الراديوم الذي اكتشفته العالمة Marie Curie، مسحوقًا يتوهّج سمّته Radiomir.
+    # the owner heard «سمّته» said wrong (studio, voice test): full vowels and a breath before it
+    say: فطوّرت Panerai، من الراديوم الذي اكتشفته العالمة Marie Curie، مسحوقًا يتوهّج، سَمَّتْهُ Radiomir.
     template: paper_cutout
     banner: Radiomir · من راديوم Marie Curie
     params: {asset: marie_curie, desc: Marie Curie portrait 1900, card: Marie Curie · العالمة التي اكتشفت الراديوم}
@@ -158,7 +160,7 @@ lines:
     change: true
     because: الراديوم كان خطرًا، والتريتيوم إشعاعه أضعف بكثير
     text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام 1949 مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
-    say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
+    say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا، سَمَّتْهَا Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
     template: kinetic_type
     banner: Luminor · 1949
     # the line names Luminor: no free photo shows a 1950s Panerai with Luminor, and another model would mislead (rule 12i)
