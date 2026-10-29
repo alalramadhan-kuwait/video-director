@@ -8,6 +8,8 @@
 title: Panerai — ضوء في عتمة البحر
 brand: timekeeper
 platform: reels
+# Genta's voice reads slower than the draft: the silences between lines shorten so the film keeps every word in 180 s
+gap: {tail: 0.3, pause: 0}
 seed: panerai
 theme: tk-bone
 sources:
