@@ -23,3 +23,6 @@ var/
 examples/explainer/out/
 !films/assets/*.png
 !films/assets/*.jpg
+
+# the studio app's own icons (drawn in code, not media)
+!studio-app/*.png

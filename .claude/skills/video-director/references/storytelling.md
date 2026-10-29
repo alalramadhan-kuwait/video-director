@@ -150,7 +150,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     must say «nothing under the app's buttons». Reels and TikTok get a separate `cover.png` (the hook's frame).
     **A film longer than its platform allows is cut to fit before it is sent** (the owner, on Panerai at 3:22 for
     Reels): drop whole lines whose neighbours still lead into each other, never the reason for a change or the end of
-    a group the story follows (12f), and drop the photos and sources only those lines used.
+    a group the story follows (12f), and drop the photos and sources only those lines used. When only a few seconds
+    are over (a slower final voice), shorten the silences first (`gap: {tail, pause}` in the film file) before any line.
 21. Send the film with its sources, photo credits and music credit (`credits.txt`). The draft voice is labelled as a
     draft; the final narration is OmniVoice.
 

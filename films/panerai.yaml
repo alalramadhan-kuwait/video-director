@@ -8,6 +8,8 @@
 title: Panerai — ضوء في عتمة البحر
 brand: timekeeper
 platform: reels
+# Genta's voice reads slower than the draft: the silences between lines shorten so the film keeps every word in 180 s
+gap: {tail: 0.3, pause: 0}
 seed: panerai
 theme: tk-bone
 sources:
@@ -25,7 +27,9 @@ sources:
   - "[15] The Milwaukee Leader, 22 May 1928, p. 1: «5 Radium Victims Lose Court Plea… five former New Jersey factory women whose physicians say they are dying from radium poisoning» (Library of Congress, Chronicling America; published in 1928, public domain in the US): https://www.loc.gov/resource/sn83045293/1928-05-22/ed-1/?sp=1"
   - "[10] Luminor name registered 1949 (tritium); radium dials on navy watches until the mid-1960s: https://wristreview.com/brief-history-panerai-luminor/"
 photos:
-  panerai_tools: {query: Set of tools for scuba diving from the Italian company Panerai, year: 1950, not_a_watch: true}   # instruments; its watches are not named
+  # cropped to the compass, the knife and the torch: the photo's watches are not identified, so they are not shown (rule 12i)
+  panerai_tools: {file: films/assets/panerai_tools_crop.jpg, licence: Public domain, credit: "Piero7 · Public domain · Wikimedia Commons · cropped",
+                  page: "https://commons.wikimedia.org/wiki/File:Set_of_tools_for_scuba_diving_from_the_Italian_company_Panerai.jpg", year: 1950, not_a_watch: true}
   panerai_gauge: {query: Panerai depth gauge for scuba diving, year: 1950, not_a_watch: true}
   first_shop_bridge: {query: Alinari Ponte Rubaconte Ponte alle Grazie, year: 1870}
   marie_curie: {query: Marie Curie portrait 1900, year: 1900, person: Marie Curie}
@@ -38,6 +42,7 @@ photos:
   slc_torpedo: {query: Siluro lenta corsa Taranto, year: 1941}
   slc_compass: {query: Decima Flotiglia MAS remnants Malta SLC compass, year: 1941}
   marina_militare_1990s: {query: Panerai Marina Militare 5218, year: 1995, watch: Panerai Luminor Marina Militare 5218-202/A}
+  luminor_glow: {query: LUMINOR 30075754506, year: 2016, watch: Panerai Luminor Marina PAM 111 · modern}   # Luminor glowing, on a modern watch
   # the owner's pick: the whole watch on white (rule 12j). Kept in films/private/ (never in git); source to be named
   pam111: {file: films/private/pam111.jpg, licence: credited, credit: product photo, year: 2016,
            watch: Panerai Luminor Marina PAM 111 · modern}
@@ -62,7 +67,7 @@ lines:
     text: ومن هذا المحل الصغير في Florence كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.
     template: paper_cutout
     banner: أدوات Panerai للبحرية
-    params: {asset: panerai_tools, desc: Panerai diving instruments, card: بوصلة ومقياس عمق ومصباح · أدوات Panerai للبحرية}
+    params: {asset: panerai_tools, desc: Panerai diving instruments, card: بوصلة وسكّين ومصباح · أدوات Panerai للبحرية}
   # ----------------------------------------------------------------------------------- act 2: the light and its price
   - id: l5        # [1][3][14]
     mood: tension
@@ -123,15 +128,23 @@ lines:
     banner: طلب البحرية · 1936
     # no free photo of the 1936 watch (Commons has only a homage), and a watch is never drawn: the divers it was for
     params: {asset: navy_diver, desc: Giorgio Giobbe in a diving suit, card: Giorgio Giobbe · من غطّاسي البحرية الإيطالية}
-  - id: l11       # [1][7]
+  - id: l11a      # [1][7]
     set: workshop
     change: true
     because: لم تكن Panerai تملك مصنعًا للساعات
-    text: ولأن Panerai لا تملك مصنعًا للساعات، لجأت إلى Rolex صاحبة ساعة Oyster المقاومة للماء، فصنعت Rolex العلبة والآلية، وصنعت Panerai الميناء المضيء.
+    # one recording, two scenes cut at its pause: the Oyster while Rolex is named, who made what after it (the critic,
+    # round 3: a Rolex Oyster under words about the Panerai that Rolex made, rule 12i)
+    text: ولأن Panerai لا تملك مصنعًا للساعات، لجأت إلى Rolex صاحبة ساعة Oyster المقاومة للماء،
     template: paper_cutout
     banner: لماذا Rolex؟
-    # the photo is a Rolex, not the Panerai Rolex made: the card says so (rule 12i)
     params: {asset: rolex_oyster_1926, desc: Rolex Oyster 1926, card: Rolex Oyster · ساعة Rolex المقاومة للماء}
+  - id: l11b      # [1][7]
+    set: workshop
+    text: فصنعت Rolex العلبة والآلية، وصنعت Panerai الميناء المضيء.
+    template: kinetic_type
+    banner: صنعت Rolex · وصنعت Panerai
+    no_photo: لا توجد صورة حرّة لساعة 1936 التي صنعتها Rolex لـ Panerai، ولا تُرسم ساعة
+    params: {lines: [{text: Rolex, size: 84}, {text: العلبة والآلية, size: 46, at: 0.5}, {text: Panerai, size: 84, at: 2.6}, {text: الميناء المضيء, size: 46, at: 3.1}], y: 420}
   - id: l12       # [5]
     event: true
     mood: tension
@@ -161,21 +174,20 @@ lines:
     because: الراديوم كان خطرًا، والتريتيوم إشعاعه أضعف بكثير
     text: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام 1949 مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
     say: ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام ألفٍ وتسعمئةٍ وتسعةٍ وأربعين مادة أخفّ إشعاعًا، سَمَّتْهَا Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.
-    template: kinetic_type
+    template: archive_photo
     banner: Luminor · 1949
-    # the line names Luminor: no free photo shows a 1950s Panerai with Luminor, and another model would mislead (rule 12i)
-    no_photo: لا توجد صورة حرّة لساعة Panerai بمادة Luminor من الخمسينيات
-    params: {lines: [{text: Luminor, size: 110}, {text: مادة أخفّ إشعاعًا · 1949, size: 48, at: 0.8}], y: 480}
+    # the material glowing, on a modern Luminor labelled as one (the critic, round 3: 15.7 s of type with no picture)
+    params: {asset: luminor_glow, desc: Luminor glowing on a PAM 111, card: توهّج Luminor · على ساعة حديثة}
   - id: l18       # [1]
     mood: joy
     text: وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة، إلى أن خرجت أخيرًا إلى الناس عام 1993.
     say: وبقيت سرًّا، فحتى عام ألفٍ وتسعمئةٍ وسبعين لم يُصنع منها إلا نحو ألفٍ وستمئة ساعة، إلى أن خرجت أخيرًا إلى الناس عام ألفٍ وتسعمئةٍ وثلاثةٍ وتسعين.
     template: stat_counter
     photo: marina_militare_1990s
-    banner: إلى الناس · 1993
+    banner: ساعات البحرية بقيت سرًّا · حتى 1993
     params: {title: حتى 1970, value: 1600, label: ساعة فقط, land_on: '1600', source: 'المصدر: Panerai · Wikipedia'}
   - id: l19       # —
-    set: underwater
+    theme: tk-ink
     mood: wonder
     closing: true
     text: هكذا صارت Panerai، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.

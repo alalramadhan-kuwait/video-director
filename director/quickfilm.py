@@ -127,7 +127,8 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
         py = (photos.get(slot) or {}).get('year') if slot else None
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
-        if py and ys and min(abs(py - y) for y in ys) > 15:
+        modern = 'modern' in ((photos.get(slot) or {}).get('watch') or '') and any('حديث' in t for t in on_screen(ln))   # said so on screen
+        if py and ys and min(abs(py - y) for y in ys) > 15 and not modern:
             out.append(f"{ln['id']}: the photo is from about {py} but the line speaks of {', '.join(map(str, ys))}")
         if slot and slot not in photos:
             out.append(f"{ln['id']}: photo slot {slot!r} is not in photos:")
@@ -407,7 +408,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     scenes, report = [], {'lines': [], 'photos': pics, 'story': story_check(film), 'platform': plat['name']}
     for ln in film['lines']:
         t = take(ln, brand, out / 'voice', given=voice_dir)
-        dur = round(VOICE_AT + t['seconds'] + TAIL + ln.get('pause', 0.25), 2)
+        gap = film.get('gap') or {}                                          # a slower voice keeps its words, the silences shorten
+        dur = round(VOICE_AT + t['seconds'] + gap.get('tail', TAIL) + ln.get('pause', gap.get('pause', 0.25)), 2)
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
             if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', pics[slot]['credit'])

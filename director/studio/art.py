@@ -506,7 +506,7 @@ def _title(p, theme, y=400):
 
 
 def _source(p, theme, y=935):
-    return [{'type': 'text', 'text': p['source'], 'font': 'cap', 'size': 20, 'color': ink_for(theme), 'opacity': .6, 'x': 360, 'y': y,
+    return [{'type': 'text', 'text': p['source'], 'font': 'cap', 'size': 20, 'color': PAPER, 'paper': INK, 'x': 360, 'y': y,   # readable over a photo too
              'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .9}}] if p.get('source') else []
 
 
@@ -590,7 +590,7 @@ def b_paper_cutout(p, theme, dur):
     from . import drawn
     ink = ink_for(theme)
     person = bool(p.get('person') or (p.get('drawn') or {}).get('kind') in drawn.DRESS)
-    bottom = p.get('bottom', 880)
+    bottom = p.get('bottom', 860)                                       # the card clears the caption row
     h = p.get('h', 700 if person else 560)
     els = []
     if p.get('asset'):
