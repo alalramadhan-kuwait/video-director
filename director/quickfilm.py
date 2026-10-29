@@ -127,7 +127,8 @@ def story_check(film: dict) -> list[str]:
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
         py = (photos.get(slot) or {}).get('year') if slot else None
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
-        if py and ys and min(abs(py - y) for y in ys) > 15:
+        modern = 'modern' in ((photos.get(slot) or {}).get('watch') or '') and any('حديث' in t for t in on_screen(ln))   # said so on screen
+        if py and ys and min(abs(py - y) for y in ys) > 15 and not modern:
             out.append(f"{ln['id']}: the photo is from about {py} but the line speaks of {', '.join(map(str, ys))}")
         if slot and slot not in photos:
             out.append(f"{ln['id']}: photo slot {slot!r} is not in photos:")

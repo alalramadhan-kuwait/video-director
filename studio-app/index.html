@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ستوديو بانيراي</title>
+<meta name="theme-color" content="#0D0C0A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TK Studio">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Reem+Kufi:wght@600&display=swap">
+<style>
+html,body{margin:0;height:100%}
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+
+/* layout: a phone app. A dive-bezel dial is the hero of the stages tab; everything else is quiet black, paper and gold, with a tab bar at the thumb */
+:root{
+  --case:#0D0C0A; --dial:#171512; --dial2:#1F1C18; --rim:#2C2822; --paper:#F3F0E8; --steel:#A39E94; --gold:#C9A35F; --on-gold:#0D0C0A;
+  --ok:#8FC79B; --warn:#E3B65C; --bad:#F08A7E;
+  --display:'Reem Kufi','IBM Plex Sans Arabic',system-ui,sans-serif; --body:'IBM Plex Sans Arabic',system-ui,-apple-system,sans-serif;
+  --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace; color-scheme:dark;
+  --tabh:64px;
+}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--case:#F3F0E8;--dial:#FBFAF6;--dial2:#EEE9DE;--rim:#D9D1C1;--paper:#15130F;--steel:#5F594F;--gold:#8A6A33;--on-gold:#FBFAF6;--ok:#1E7445;--warn:#875A00;--bad:#A8382C;color-scheme:light}}
+:root[data-theme="light"]{--case:#F3F0E8;--dial:#FBFAF6;--dial2:#EEE9DE;--rim:#D9D1C1;--paper:#15130F;--steel:#5F594F;--gold:#8A6A33;--on-gold:#FBFAF6;--ok:#1E7445;--warn:#875A00;--bad:#A8382C;color-scheme:light}
+[hidden]{display:none!important}
+html{background:var(--case)}
+body{background:var(--case);color:var(--paper);font:400 16px/1.65 var(--body)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--case)}
+*{box-sizing:border-box}
+.app{max-width:640px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 calc(var(--tabh) + 28px + env(safe-area-inset-bottom,0px))}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--case);padding-block:14px 12px;border-bottom:1px solid var(--rim);display:grid;gap:2px}
+.brand{font:500 11px/1 var(--mono);letter-spacing:.22em;color:var(--gold)}
+h1{font:600 22px/1.25 var(--display);margin:0;text-wrap:balance}
+h2{font:600 20px/1.3 var(--display);margin:0;text-wrap:balance}
+h3{font:600 16px/1.4 var(--display);margin:0;color:var(--steel)}
+p{margin:0}
+.sub{color:var(--steel);font-size:15px}
+section[id^="tab-"]{display:grid;gap:18px;padding-block:18px 0}
+bdi{unicode-bidi:isolate;white-space:nowrap}
+/* the dial */
+#dial{position:relative;width:min(100%,340px);margin:4px auto 0;aspect-ratio:1/1;max-width:100%}
+.bezel{width:100%;height:100%;display:block;overflow:visible}
+.bezel .rim{fill:var(--dial);stroke:var(--rim);stroke-width:1.5}
+.bezel .tk{stroke:var(--rim);stroke-width:1.2}.bezel .tk.big{stroke:var(--steel);stroke-width:2}
+.bezel .arc0{fill:none;stroke:var(--dial2);stroke-width:6}
+.bezel .arc{fill:none;stroke:var(--gold);stroke-width:6;stroke-linecap:round;transition:stroke-dasharray .8s ease}
+.mk circle{fill:var(--dial);stroke:var(--rim);stroke-width:1.5}.mk text{font:600 12px var(--mono);fill:var(--steel);text-anchor:middle}
+.mk.done circle{fill:var(--gold);stroke:var(--gold)}.mk.done text{fill:var(--on-gold)}
+.mk.now circle{fill:var(--dial);stroke:var(--paper);stroke-width:2.5}.mk.now text{fill:var(--paper)}
+.mk[role="button"]{cursor:pointer}.mk.view circle{stroke-width:3.5}
+.mk[role="button"]:focus-visible{outline:none}.mk[role="button"]:focus-visible circle{stroke:var(--gold);stroke-width:4}
+.pip{fill:var(--paper);filter:drop-shadow(0 0 4px color-mix(in srgb,var(--paper) 60%,transparent))}
+.hand{fill:var(--gold);filter:drop-shadow(0 0 3px var(--gold));transform-origin:120px 120px;transform-box:view-box;animation:sweep 60s linear infinite}
+.hub{fill:var(--gold)}
+@keyframes sweep{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.hand{animation:none}.bezel .arc{transition:none}}
+.dialc{position:absolute;inset:30%;display:grid;place-content:center;justify-items:center;text-align:center;gap:2px;pointer-events:none}
+.dn{font:500 28px/1 var(--mono);color:var(--paper);font-variant-numeric:tabular-nums}.dn span{font-size:14px;color:var(--steel)}
+.dl{font:600 19px/1.25 var(--display)}
+.ds{font-size:13px;font-weight:600;color:var(--steel)}.ds.s-working{color:var(--gold)}.ds.s-ready{color:var(--warn)}.ds.s-done{color:var(--ok)}
+/* stage list under the dial */
+ol.prog{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ol.prog button{font:inherit;width:100%;display:grid;gap:1px;justify-items:center;padding:7px 2px;border:1px solid var(--rim);background:transparent;color:var(--steel);cursor:pointer;min-height:56px}
+ol.prog .pn{font:500 12px var(--mono)}ol.prog .pl{font-size:13px;font-weight:600;line-height:1.3}ol.prog .ps{font-size:11px}
+ol.prog li.done button{color:var(--paper)}ol.prog li.done .pn{color:var(--gold)}
+ol.prog li.now button{border-color:var(--paper);color:var(--paper)}
+ol.prog li.view button{background:var(--dial2)}
+ol.prog button:disabled{opacity:.45;cursor:default}
+/* Claude now */
+.now{border:1px solid var(--rim);background:var(--dial);padding:14px;display:grid;gap:8px}
+.nowh{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:15px}.nowt{font-weight:500;line-height:1.6}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--steel);flex:none}.dot.on{background:var(--gold);box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 22%,transparent);animation:pulse 1.8s infinite}
+@keyframes pulse{50%{opacity:.4}}@media (prefers-reduced-motion:reduce){.dot.on{animation:none}}
+.track{height:4px;background:var(--dial2)}.track span{display:block;height:100%;background:var(--gold);width:0;transition:width .5s}
+.now .wait{color:var(--warn)}
+.log summary{font-size:14px;cursor:pointer;color:var(--steel)}.log ul{margin:8px 0 0;padding-inline-start:18px;display:grid;gap:4px;font-size:14px}
+.fallback{border:1.5px solid var(--warn);padding:14px;display:grid;gap:8px}.fallback .lt{font-weight:700}
+.fallback .msg{padding:10px;background:var(--dial2);line-height:1.7;user-select:all;-webkit-user-select:all}
+/* stage panel */
+#stage{display:grid;gap:14px}
+.cards,.tests{display:grid;gap:12px}
+.card{border:1px solid var(--rim);background:var(--dial);padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.card.chosen{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+.card.ref{background:var(--dial2)}
+.ch{display:flex;justify-content:space-between;gap:10px;align-items:baseline;flex-wrap:wrap}
+.cl{font-weight:600;line-height:1.75;font-size:17px}
+.pill{font-size:12px;font-weight:600;padding:1px 8px;border:1px solid currentColor}
+.p-approved{color:var(--ok)}.p-candidate{color:var(--steel)}.p-improve{color:var(--warn)}.p-rejected{color:var(--bad)}.p-reference{color:var(--gold)}
+audio,video{width:100%;max-width:100%;display:block}
+video{max-width:min(100%,380px);margin-inline:auto;background:#000;aspect-ratio:9/16}
+.cost{color:var(--gold)}
+.btn{font:600 16px/1.2 var(--body);min-height:46px;padding:11px 18px;border:1px solid var(--paper);background:var(--paper);color:var(--case);cursor:pointer;text-align:center}
+.btn.ghost{background:transparent;color:var(--paper);border-color:var(--rim)}
+.btn.big{width:100%;min-height:54px;font-size:17px;background:var(--gold);border-color:var(--gold);color:var(--on-gold)}
+.btn:disabled{opacity:.5;cursor:default}
+.btn:focus-visible,.link:focus-visible,ol.prog button:focus-visible,.w:focus-visible,.tabbar button:focus-visible,.chips button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.go{display:grid;gap:10px}
+.acts{display:flex;gap:16px;flex-wrap:wrap}
+.link{font:inherit;font-size:14px;background:none;border:0;padding:4px 0;color:var(--steel);text-decoration:underline;text-underline-offset:4px;cursor:pointer}
+.imp{display:grid;gap:8px}
+textarea,.how input{font:inherit;font-size:16px;width:100%;padding:10px;border:1px solid var(--rim);background:var(--dial2);color:var(--paper);min-width:0}
+details.change{border-top:1px solid var(--rim);padding-top:12px;display:grid;gap:10px}
+details.change summary{cursor:pointer;font-weight:600;color:var(--steel)}
+details.change[open]{gap:10px}
+.okline{font-weight:700;color:var(--ok)}
+ol.lines{margin:0;padding-inline-start:0;list-style:none;display:grid;gap:10px}ol.lines li{line-height:1.8;border-bottom:1px solid var(--rim);padding-bottom:10px}
+.lid{font:500 12px var(--mono);color:var(--gold);margin-inline-end:6px}
+ul.notes{margin:0;padding-inline-start:18px;display:grid;gap:4px;color:var(--steel)}
+.loading{display:flex;gap:14px;align-items:flex-start;padding:16px;border:1px solid var(--rim);background:var(--dial)}.loading .lt{font-weight:600}
+.loading > div{display:grid;gap:6px;min-width:0}
+.spin{width:22px;height:22px;border-radius:50%;border:2px solid var(--rim);border-top-color:var(--gold);flex:none;animation:spin 1s linear infinite}
+.spin.idle{animation:none;border-top-color:var(--steel)}
+@keyframes spin{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+/* words to tap */
+.pron{display:grid;gap:8px}.words{display:flex;flex-wrap:wrap;gap:6px}
+.w{font:inherit;font-size:17px;min-height:42px;padding:4px 11px;border:1px solid var(--rim);background:var(--dial2);color:var(--paper);cursor:pointer}
+.w.bad{border-color:var(--bad);color:var(--bad);text-decoration:underline wavy;text-underline-offset:5px}
+.w.sent{border-style:dashed;color:var(--steel)}
+.how{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}.how span{font-weight:600;color:var(--bad)}
+/* voices tab */
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{font:inherit;font-size:14px;padding:6px 12px;border:1px solid var(--rim);background:transparent;color:var(--steel);cursor:pointer}
+.chips button.on{border-color:var(--gold);color:var(--paper)}
+/* film tab */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+@media (min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+h3.act{grid-column:1/-1;border-top:1px solid var(--rim);padding-top:14px;color:var(--gold)}
+.scene{display:grid;gap:6px;align-content:start;min-width:0}
+.scene img{width:100%;height:auto;aspect-ratio:9/16;object-fit:cover;background:var(--dial2);border:1px solid var(--rim)}
+.scene p{font-size:14px;line-height:1.7}
+.meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.num{font:500 12px var(--mono);color:var(--gold)}.tag{font-size:12px;color:var(--steel);border:1px solid var(--rim);padding:0 6px}
+/* tab bar at the thumb */
+.tabbar{position:fixed;inset:auto 0 0;z-index:25;background:color-mix(in srgb,var(--case) 92%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-top:1px solid var(--rim);
+  padding-bottom:env(safe-area-inset-bottom,0px);padding-left:max(8px,env(safe-area-inset-left,0px));padding-right:max(8px,env(safe-area-inset-right,0px))}
+.tabbar .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);height:var(--tabh)}
+.tabbar button{font:inherit;font-size:12px;font-weight:600;background:none;border:0;color:var(--steel);display:grid;justify-items:center;align-content:center;gap:3px;cursor:pointer}
+.tabbar svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.tabbar button[aria-selected="true"]{color:var(--gold)}
+#toast{position:fixed;inset-inline:16px;bottom:calc(var(--tabh) + 14px + env(safe-area-inset-bottom,0px));background:var(--paper);color:var(--case);padding:12px 16px;font-weight:600;z-index:40;max-width:560px;margin:0 auto}
+
+.toprow{display:flex;justify-content:space-between;align-items:center;gap:12px}.out{font-size:13px;padding:0}
+#gate{min-height:100%;display:grid;place-items:center;padding-block:40px}
+.gatebox{width:min(100%,380px);display:grid;gap:16px;text-align:center;justify-items:center}
+.gatebox svg{width:120px;height:120px}
+.gatebox form{width:100%;display:grid;gap:10px;text-align:start}
+.gatebox label{font-size:14px;color:var(--steel)}
+.gatebox input{font:inherit;font-size:18px;width:100%;padding:12px;border:1px solid var(--rim);background:var(--dial);color:var(--paper);min-width:0;letter-spacing:.04em}
+.gatebox input:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
+.gerr{color:var(--bad);font-weight:600;min-height:1.6em}
+.offline{position:fixed;inset:auto 0 calc(var(--tabh) + env(safe-area-inset-bottom,0px));z-index:24;background:var(--warn);color:var(--case);text-align:center;font-size:13px;font-weight:600;padding:4px 12px}
+
+</style>
+</head>
+<body>
+<div class="app" dir="rtl" lang="ar">
+<header class="top"><div class="toprow"><span class="brand">TIME KEEPER · STUDIO</span><button type="button" class="link out" id="logout" hidden>خروج</button></div><h1>Panerai · ضوء في عتمة البحر</h1></header>
+<section id="tab-stages" aria-label="المراحل"><div id="dial"></div><ol class="prog" id="progress"></ol>
+<div id="now" class="now" aria-live="polite"></div><div id="fallback" class="fallback" hidden role="alert"></div>
+<div id="stage"><p class="sub">جاري التحميل…</p></div></section>
+<section id="tab-library" hidden aria-label="الأصوات"><h2>مكتبة الأصوات</h2><p class="sub">كل صوت جرّبناه وحالته. اللي «لا يُرشّح» ما يطلع لك في مرحلة الصوت. <span id="libcount"></span></p>
+<div class="chips"><button type="button" class="on" data-filter="all">الكل</button><button type="button" data-filter="approved">معتمد</button><button type="button" data-filter="candidate">للتجربة</button><button type="button" data-filter="improve">يحتاج تحسين</button><button type="button" data-filter="rejected">لا يُرشّح</button><button type="button" data-filter="reference">مرجع</button></div>
+<div class="cards" id="lib"></div></section>
+<section id="tab-details" hidden aria-label="الفلم"><h2>آخر نسخة</h2><div id="latest"><p class="sub">جاري التحميل…</p></div>
+<h2>المشاهد</h2><div class="grid"><h3 class="act">الفصل الأول · المحل على الجسر</h3><article class="scene"><img data-m="shots/l2.jpg" alt="مشهد 1" loading="lazy" width="300" height="534"><div class="meta"><span class="num">01</span><span class="tag">المدينة</span></div><p>في Florence، عام 1860.</p></article><article class="scene"><img data-m="shots/l3.jpg" alt="مشهد 2" loading="lazy" width="300" height="534"><div class="meta"><span class="num">02</span><span class="tag">صورة تاريخية</span></div><p>وهناك، على جسر Ponte alle Grazie، افتتح Giovanni Panerai أول محل له للساعات.</p></article><article class="scene"><img data-m="shots/l4.jpg" alt="مشهد 3" loading="lazy" width="300" height="534"><div class="meta"><span class="num">03</span><span class="tag">قصاصة ورقية</span></div><p>ومن هذا المحل الصغير في Florence كبرت العائلة، حتى صارت تصنع أدوات دقيقة للبحرية الإيطالية.</p></article><h3 class="act">الفصل الثاني · الضوء وثمنه</h3><article class="scene"><img data-m="shots/l5.jpg" alt="مشهد 4" loading="lazy" width="300" height="534"><div class="meta"><span class="num">04</span><span class="tag">قصاصة ورقية</span><span class="tag">توتر</span></div><p>لكن البحرية احتاجت أن ترى أجهزتها في عتمة الليل، وتحت الماء.</p></article><article class="scene"><img data-m="shots/l5b.jpg" alt="مشهد 5" loading="lazy" width="300" height="534"><div class="meta"><span class="num">05</span><span class="tag">قصاصة ورقية</span><span class="tag">دهشة</span></div><p>فطوّرت Panerai، من الراديوم الذي اكتشفته العالمة Marie Curie، مسحوقًا يتوهّج سمّته Radiomir.</p></article><article class="scene"><img data-m="shots/l6.jpg" alt="مشهد 6" loading="lazy" width="300" height="534"><div class="meta"><span class="num">06</span><span class="tag">صورة تاريخية</span><span class="tag">حزن</span></div><p>غير أن الراديوم نفسه أخفى سرًّا مظلمًا، ففي أمريكا كان طلاء آخر بالراديوم، اسمه Undark، ترسمه عاملات شابّات على الساعات.</p></article><article class="scene"><img data-m="shots/l8.jpg" alt="مشهد 7" loading="lazy" width="300" height="534"><div class="meta"><span class="num">07</span><span class="tag">كتابة متحركة</span><span class="tag">حزن</span></div><p>ثم تساقطت أسنانهنّ، وتآكلت فكوكهنّ، ومات أكثر من خمسين بحلول 1927.</p></article><article class="scene"><img data-m="shots/l9.jpg" alt="مشهد 8" loading="lazy" width="300" height="534"><div class="meta"><span class="num">08</span><span class="tag">صورة تاريخية</span><span class="tag">حزن</span></div><p>وفي 1928، واجهت خمسٌ من هؤلاء العاملات الشركة في المحكمة، وكان أطباؤهنّ يقولون إنهنّ يحتضرن من الراديوم.</p></article><article class="scene"><img data-m="shots/l9b.jpg" alt="مشهد 9" loading="lazy" width="300" height="534"><div class="meta"><span class="num">09</span><span class="tag">قصاصة ورقية</span><span class="tag">حزن</span></div><p>ومنهنّ Grace Fryer. حصلت كلّ واحدة منهنّ على تعويض، لكنّ الراديوم كان قد استقرّ في عظامهنّ، فرحلن الخمس جميعًا في السنوات التالية.</p></article><h3 class="act">الفصل الثالث · المهمة السرية</h3><article class="scene"><img data-m="shots/l10.jpg" alt="مشهد 10" loading="lazy" width="300" height="534"><div class="meta"><span class="num">10</span><span class="tag">قصاصة ورقية</span><span class="tag">توتر</span></div><p>وبينما كان العالم يكتشف خطر الراديوم، طلبت البحرية الإيطالية عام 1936 ساعة لغطّاسيها المقاتلين.</p></article><article class="scene"><img data-m="shots/l11.jpg" alt="مشهد 11" loading="lazy" width="300" height="534"><div class="meta"><span class="num">11</span><span class="tag">قصاصة ورقية</span></div><p>ولأن Panerai لا تملك مصنعًا للساعات، لجأت إلى Rolex صاحبة ساعة Oyster المقاومة للماء، فصنعت Rolex العلبة والآلية، وصنعت Panerai الميناء المضيء.</p></article><article class="scene"><img data-m="shots/l12.jpg" alt="مشهد 12" loading="lazy" width="300" height="534"><div class="meta"><span class="num">12</span><span class="tag">صورة تاريخية</span><span class="tag">توتر</span></div><p>وكانت لرجال يعملون في العتمة، غطّاسون يركبون طوربيدات يسمّونها الخنازير، ويتسلّلون ليلًا إلى موانئ العدو.</p></article><article class="scene"><img data-m="shots/l13.jpg" alt="مشهد 13" loading="lazy" width="300" height="534"><div class="meta"><span class="num">13</span><span class="tag">المدينة</span><span class="tag">توتر</span></div><p>وفي ديسمبر 1941، تسلّل ستة منهم إلى ميناء الإسكندرية، وعطّلوا بارجتين بريطانيتين.</p></article><article class="scene"><img data-m="shots/l15.jpg" alt="مشهد 14" loading="lazy" width="300" height="534"><div class="meta"><span class="num">14</span><span class="tag">صورة تاريخية</span><span class="tag">غموض</span></div><p>ويُقال إن ساعات Panerai كانت على معاصم هؤلاء الغطّاسين تلك الليلة، إلى جانب بوصلاتهم المضيئة.</p></article><h3 class="act">الفصل الرابع · بعد الحرب</h3><article class="scene"><img data-m="shots/l16.jpg" alt="مشهد 15" loading="lazy" width="300" height="534"><div class="meta"><span class="num">15</span><span class="tag">كتابة متحركة</span><span class="tag">فرح</span></div><p>ثم انتهت الحرب، ولأن الراديوم قاتل، سجّلت Panerai عام 1949 مادة أخفّ إشعاعًا سمّتها Luminor، وإن بقي الراديوم في بعض موانئها حتى الستينيات.</p></article><article class="scene"><img data-m="shots/l18.jpg" alt="مشهد 16" loading="lazy" width="300" height="534"><div class="meta"><span class="num">16</span><span class="tag">رقم</span><span class="tag">فرح</span></div><p>وبقيت سرًّا، فحتى 1970 لم يُصنع منها إلا نحو 1600 ساعة، إلى أن خرجت أخيرًا إلى الناس عام 1993.</p></article><article class="scene"><img data-m="shots/l19.jpg" alt="مشهد 17" loading="lazy" width="300" height="534"><div class="meta"><span class="num">17</span><span class="tag">قصاصة ورقية</span><span class="tag">دهشة</span></div><p>هكذا صارت Panerai، التي صُنعت لرجال يعملون في عتمة البحر، من أشهر ساعات العالم اليوم.</p></article></div></section>
+</div>
+<nav class="tabbar" role="tablist" dir="rtl"><div class="in">
+<button type="button" role="tab" data-tab="stages" aria-selected="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/></svg>المراحل</button>
+<button type="button" role="tab" data-tab="library" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 7v10M12 4v16M16 8v8M20 11v2"/></svg>الأصوات</button>
+<button type="button" role="tab" data-tab="details" aria-selected="false"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="1.5"/><path d="M10 9l5 3-5 3z"/></svg>الفلم</button></div></nav>
+<div id="toast" hidden role="status"></div>
+<div id="offline" class="offline" hidden>ما في اتصال. أحاول مرة ثانية…</div>
+<script>
+// The studio's link to its server (the `studio` Edge Function in the Time Keeper Supabase project): sign-in, the documents,
+// signed links to the private media, and the events both ways. The studio code below talks to it as it talked to claude.ai.
+const STUDIO = (() => {
+  const URL_ = 'https://ttshgrujnycapugrmyxs.supabase.co/functions/v1/studio', KEY = 'tk_studio_token';
+  const get = () => { try { return localStorage.getItem(KEY); } catch (e) { return null; } };
+  const put = (t) => { try { t ? localStorage.setItem(KEY, t) : localStorage.removeItem(KEY); } catch (e) { /* private mode: sign in each visit */ } };
+  let token = get(), docs = {}, media = {}, mediaAt = 0, timer = null;
+  const subs = [], csubs = [], last = {};
+  const S = { events: [], db: null };
+  async function api(action, body = {}) {
+    const r = await fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+      body: JSON.stringify({ action, ...body }) });
+    const j = await r.json().catch(() => ({}));
+    if (r.status === 401 && !['login', 'claim'].includes(action)) { put(null); token = null; location.reload(); }
+    if (!r.ok) { const e = new Error(j.error || ('HTTP ' + r.status)); e.code = j.error; e.left = j.left; e.until = j.until; throw e; }
+    return j;
+  }
+  S.api = api;
+  S.M = (p) => (p && media[p]) || p;
+  S.fixMedia = (root) => root.querySelectorAll('[data-m]').forEach((el) => { const u = media[el.dataset.m]; if (u && el.getAttribute('src') !== u) el.src = u; });
+  S.unread = () => S.events.filter((e) => e.who === 'owner' && !e.seen_at).length;      // Claude marks them read when it looks
+  S.lastMine = () => (S.events.find((e) => e.who === 'owner') || {}).at;
+  async function poll() {
+    try {
+      const j = await api('state');
+      if (!mediaAt || Date.now() - mediaAt > 5 * 3600e3) { media = j.media || {}; mediaAt = Date.now(); }  // links stay the same while they last
+      else for (const [k, v] of Object.entries(j.media || {})) if (!media[k]) media[k] = v;
+      S.events = j.events || [];
+      docs = {};
+      for (const d of j.docs || []) (docs[d.collection] ||= {})[d.id] = d;
+      document.getElementById('offline').hidden = true;
+      for (const s of subs) {
+        const d = docs[s.c]?.[s.id], key = s.c + '/' + s.id, sig = d ? d.version + ':' + d.updated_at : 'none';
+        if (last[key] !== sig) { last[key] = sig; s.cb({ exists: !!d, data: () => d?.data }); }
+      }
+      for (const s of csubs) {
+        const all = Object.values(docs[s.c] || {}), sig = all.map((d) => d.id + d.version).join(',');
+        if (last['c:' + s.c] !== sig) { last['c:' + s.c] = sig; s.cb({ docs: all.map((d) => ({ id: d.id, data: () => d.data })) }); }
+      }
+      if (typeof link === 'function' && state) link();
+      S.fixMedia(document);
+      if (S.events.some((e) => e.who === 'claude' && !e.seen_at) && document.visibilityState === 'visible') api('seen').catch(() => {});
+    } catch (e) { document.getElementById('offline').hidden = false; }
+  }
+  function schedule() { clearTimeout(timer); timer = setTimeout(async () => { await poll(); schedule(); }, document.visibilityState === 'visible' ? 8000 : 60000); }
+  document.addEventListener('visibilitychange', () => { if (token && document.visibilityState === 'visible') { poll(); schedule(); } });
+  S.db = {
+    doc(path) {
+      const [c, id] = path.split('/');
+      return {
+        onSnapshot(cb) { subs.push({ c, id, cb }); },
+        async update(patch) { await api('write', { collection: c, id, patch }); delete last[c + '/' + id]; await poll(); },
+      };
+    },
+    collection(c) { return { onSnapshot(cb) { csubs.push({ c, cb }); } }; },
+  };
+  S.start = async (boot) => {
+    if (!token) return gate();
+    const out = document.getElementById('logout');
+    out.hidden = false;
+    out.addEventListener('click', () => { put(null); location.reload(); });
+    boot(); await poll(); schedule();
+  };
+  function gate() {
+    const app = document.querySelector('.app'), tabs = document.querySelector('.tabbar');
+    app.hidden = true; tabs.hidden = true;
+    const g = document.createElement('div'); g.id = 'gate'; g.className = 'app'; g.dir = 'rtl'; g.lang = 'ar';
+    const ticks = Array.from({ length: 12 }, (_, k) => {
+      const a = k / 12 * 2 * Math.PI - Math.PI / 2;
+      return `<line x1="${(60 + 44 * Math.cos(a)).toFixed(1)}" y1="${(60 + 44 * Math.sin(a)).toFixed(1)}" x2="${(60 + 52 * Math.cos(a)).toFixed(1)}" y2="${(60 + 52 * Math.sin(a)).toFixed(1)}" stroke="${k ? 'var(--steel)' : 'var(--gold)'}" stroke-width="${k ? 2 : 4}"/>`;
+    }).join('');
+    const dial = `<svg viewBox="0 0 120 120" aria-hidden="true"><circle cx="60" cy="60" r="56" fill="var(--dial)" stroke="var(--rim)" stroke-width="2"/>${ticks}<polygon points="60,22 66,34 54,34" fill="var(--paper)"/><circle cx="60" cy="60" r="4" fill="var(--gold)"/></svg>`;
+    let first = false;
+    const view = () => `<div class="gatebox">${dial}<span class="brand">TIME KEEPER · STUDIO</span><h1>${first ? 'أول دخول' : 'ستوديو الأفلام'}</h1>
+      <p class="sub">${first ? 'اكتب الرمز اللي أعطاك إياه Claude، واختر رمز دخول لك (6 أحرف أو أكثر).' : 'اكتب رمز الدخول.'}</p>
+      <form id="gf">${first ? '<label for="gcode">رمز Claude</label><input id="gcode" autocomplete="one-time-code" autocapitalize="characters" spellcheck="false" required placeholder="XXXX-XXXX-XXXX" dir="ltr">' : ''}
+        <label for="gpass">${first ? 'رمز الدخول الجديد' : 'رمز الدخول'}</label><input id="gpass" type="password" autocomplete="${first ? 'new-password' : 'current-password'}" minlength="6" required dir="ltr">
+        <p class="gerr" id="gerr" role="alert"></p><button class="btn big" type="submit">${first ? 'ادخل وثبّت الرمز' : 'ادخل'}</button></form>
+      <button type="button" class="link" id="gswap">${first ? 'عندي رمز دخول' : 'أول مرة؟ عندي رمز من Claude'}</button></div>`;
+    const draw = () => {
+      g.innerHTML = view();
+      g.querySelector('#gswap').addEventListener('click', () => { first = !first; draw(); });
+      g.querySelector('#gf').addEventListener('submit', async (ev) => {
+        ev.preventDefault();
+        const err = g.querySelector('#gerr'), btn = g.querySelector('button[type=submit]');
+        err.textContent = ''; btn.disabled = true;
+        try {
+          const pass = g.querySelector('#gpass').value, device = (navigator.userAgent.match(/iPhone|iPad|Android|Mac|Windows/) || ['device'])[0];
+          const j = first ? await api('claim', { code: g.querySelector('#gcode').value, pass, device }) : await api('login', { pass, device });
+          put(j.token); token = j.token; location.reload();
+        } catch (e) {
+          err.textContent = e.code === 'locked' ? 'محاولات كثيرة. جرّب بعد ربع ساعة.' : e.code === 'short' ? 'الرمز لازم 6 أحرف أو أكثر.'
+            : e.code === 'wrong' ? (first ? 'رمز Claude غلط.' : 'رمز الدخول غلط.') + (e.left ? ' باقي ' + e.left + ' محاولات.' : '') : 'ما قدرت أتصل. تأكد من الإنترنت.';
+        } finally { btn.disabled = false; }
+      });
+    };
+    draw();
+    document.body.insertBefore(g, app);
+  }
+  return S;
+})();
+const M = STUDIO.M;
+
+(() => {
+const STAGES = [
+  { id: 'language', name: 'اللغة' }, { id: 'voice', name: 'الصوت' }, { id: 'script', name: 'النص' },
+  { id: 'voice_test', name: 'تجربة الصوت' }, { id: 'narration', name: 'تسجيل السرد' }, { id: 'film', name: 'الفلم' },
+  { id: 'publish', name: 'الموافقة' }];
+const LANGS = [
+  { id: 'fusha', name: 'الفصحى', file: 'lang/fusha.mp3', desc: 'لغة الأخبار والوثائقيات، كاملة القواعد. النص الحالي مكتوب فيها.' },
+  { id: 'white', name: 'العربية البيضاء', file: 'lang/white.mp3', desc: 'بين الفصحى واللهجة: سهلة ومفهومة لكل العرب.' },
+  { id: 'kuwaiti', name: 'اللهجة الكويتية', file: 'lang/kuwaiti.mp3', desc: 'قريبة من الناس هني. تنقرأ بوضع Gulf Arabic في OmniVoice.' }];
+const WORKING = {
+  voice: (s) => 'أسجّل عينات الأصوات ب' + langName(s) + '…', script: (s) => 'أكتب النص ب' + langName(s) + '…',
+  voice_test: () => 'أسجّل ثلاث جمل من النص بصوت «' + voiceName() + '» عشان تسمعه قبل الفلم كامل…',
+  narration: () => 'أسجّل السرد كامل بالصوت المعتمد «' + voiceName() + '»، وأفحص كل مشهد بـ Whisper…', film: () => 'أركّب الفلم بالصوت المعتمد…',
+  language: () => 'أجهّز العينات…', publish: () => 'أجهّز الفلم النهائي…' };
+const VSTATUS = { approved: 'معتمد', candidate: 'للتجربة', improve: 'يحتاج تحسين', rejected: 'لا يُرشّح', reference: 'مرجع' };
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let db = null, comments = null, state = null, voices = [], viewing = null, picks = {}, busy = false;
+let flags = {};                                                    // the owner's taps on mispronounced words: {line: {index: how}}
+const langName = (s) => (LANGS.find((l) => l.id === (s?.stages?.language?.choice)) || LANGS[0]).name;
+const stageOf = (id) => (state?.stages || {})[id] || { status: 'waiting' };
+const chosenVoice = () => voices.find((v) => v.id === (stageOf('voice_test').choice || stageOf('voice').choice));
+const voiceName = () => chosenVoice()?.label || stageOf('voice').choice || 'الصوت المختار';
+const paid = (v) => v?.engine === 'elevenlabs';
+
+let canSend = 'web', lastSendError = null;
+function refreshCanSend() { link(); }
+// A message is a row in the studio's own database (the `studio` Edge Function): kept, and read by Claude at its next look.
+async function notify(text) {
+  try {
+    await STUDIO.api('write', { collection: 'film', id: 'panerai', patch: { inbox: { text, at: new Date().toISOString(), sent: true, seen: null } }, note: text, kind: 'message' });
+    toast('انحفظت ووصلت لـ Claude ✓');
+    return true;
+  } catch (e) { lastSendError = e?.message || 'error'; fallback(text); return false; }
+}
+function fallback(text) {
+  const n = $('#fallback'); if (!n) return;
+  n.innerHTML = `<p class="lt">ما انحفظت${lastSendError ? ' (' + esc(lastSendError) + ')' : ''}.</p>
+    <p class="sub">تأكد من الإنترنت وجرّب مرة ثانية، أو انسخها وأرسلها لـ Claude في المحادثة:</p>
+    <p class="msg">${esc(text)}</p><div class="acts"><button type="button" class="btn ghost" id="copymsg">انسخ الرسالة</button>
+    <button type="button" class="link" id="hidefb">سكّر</button></div>`;
+  n.hidden = false;
+  n.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  n.querySelector('#copymsg').addEventListener('click', async () => { try { await navigator.clipboard.writeText(text); toast('انسخت ✓'); } catch (e) { toast('ما قدرت أنسخ: اضغط مطوّل على الرسالة وانسخها.'); } });
+  n.querySelector('#hidefb').addEventListener('click', () => (n.hidden = true));
+}
+const ago = (iso) => { const m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+  return !iso ? '' : m < 1 ? 'الحين' : m < 60 ? 'قبل ' + m + ' دقيقة' : m < 1440 ? 'قبل ' + Math.round(m / 60) + ' ساعة' : 'قبل ' + Math.round(m / 1440) + ' يوم'; };
+const LINK = { web: 'رسائلك تنحفظ هني ويقراها Claude أول ما يشيّك. إذا تبيه يبدأ الحين، اكتب له في المحادثة «شيّك الاستوديو».', available: 'رسائلك من هني توصل Claude مباشرة.', no_session: 'Claude مو فاتح الجلسة الحين: رسائلك تنحفظ هني ويشوفها أول ما يرجع.',
+  writers_only: 'تقدر تعلّق بس، الإرسال لـ Claude للمحرّرين.', off: 'الإرسال لـ Claude مو متاح من هالعرض: رسائلك تنحفظ هني ويشوفها أول ما يشيّك.' };
+function link() {                                                   // what Claude is doing now, and whether a tap reaches him
+  const box = $('#now'); if (!box || !state) return;
+  const now = state.now || {}, log = (STUDIO.events.length ? STUDIO.events.slice(0, 6).map((e) => ({ at: e.at, text: (e.who === 'owner' ? 'أنت: ' : '') + (e.text || '') })) : (state.log || []).slice(-5).reverse());
+  const pct = now.total ? Math.round(100 * (now.done || 0) / now.total) : null;
+  box.innerHTML = `<div class="nowh"><span class="dot${now.busy ? ' on' : ''}" aria-hidden="true"></span><b>Claude ${now.busy ? 'يشتغل الحين' : 'واقف'}</b>
+      ${now.at ? `<span class="sub">· ${ago(now.at)}</span>` : ''}</div>
+    ${now.text ? `<p class="nowt">${esc(now.text)}</p>` : ''}
+    ${now.video ? `<video controls preload="metadata" playsinline src="${esc(M(now.video))}"></video>${now.video_note ? `<p class="sub">${esc(now.video_note)}</p>` : ''}` : ''}
+    ${pct !== null ? `<div class="track"><span style="width:${pct}%"></span></div><p class="sub">${now.done} من ${now.total}${now.eta ? ' · يخلص تقريبًا ' + esc(now.eta) : ''}</p>` : ''}
+    ${STUDIO.unread() ? `<p class="sub wait">${STUDIO.unread() === 1 ? 'رسالتك' : STUDIO.unread() + ' رسائل'} (${ago(STUDIO.lastMine())}) محفوظة، وبانتظار Claude يقراها.</p>` : ''}
+    ${log.length ? '<details class="log"><summary>آخر اللي صار</summary><ul>' + log.map((l) => `<li><span class="sub">${ago(l.at)}</span> ${esc(l.text)}</li>`).join('') + '</ul></details>' : ''}
+    <p class="sub">${LINK[canSend] || LINK.off}</p>`;
+}
+function toast(t) { const n = $('#toast'); n.textContent = t; n.hidden = false; clearTimeout(n._t); n._t = setTimeout(() => (n.hidden = true), 6000); }
+
+async function write(patch) { if (!db) return; await db.doc('film/panerai').update({ ...patch, updated: new Date().toISOString() }); }
+
+async function confirmStage(id, choice, summary, btn) {
+  if (busy) return; busy = true; btn && (btn.disabled = true);
+  const i = STAGES.findIndex((s) => s.id === id), next = STAGES[i + 1];
+  try {
+    const patch = { stages: { [id]: { status: 'done', choice: choice ?? null, note: null } } };
+    if (next) { patch.stage = next.id; patch.stages[next.id] = { status: 'requested', note: null }; } else patch.stage = id;
+    const told = next ? notify('تأكيد مرحلة «' + STAGES[i].name + '»: ' + summary + '. ابدأ مرحلة «' + next.name + '».', btn) : null;
+    await write(patch);
+    viewing = next ? next.id : id;
+    await told;
+  } catch (e) { toast('ما انحفظ. جرّب مرة ثانية أو قولي في المحادثة.'); }
+  finally { busy = false; btn && (btn.disabled = false); }
+}
+async function requestChange(id, note, btn) {
+  if (!note.trim()) { toast('اكتب وش تبي يتعدّل.'); return; }
+  if (busy) return; busy = true; btn.disabled = true;
+  try {
+    const told = notify('تعديل في مرحلة «' + STAGES.find((s) => s.id === id).name + '»: ' + note, btn);
+    await write({ stage: id, stages: { [id]: { status: 'requested', note } } });
+    await told;
+  } catch (e) { toast('ما انحفظ. جرّب مرة ثانية.'); }
+  finally { busy = false; btn.disabled = false; }
+}
+async function voiceAction(v, status, btn, note) {
+  if (!db) return;
+  try {
+    const told = status === 'improve' ? notify('طلب تحسين الصوت «' + v.label + '»: ' + note, btn) : null;
+    await db.doc('voices/' + v.id).update({ status, note: note ?? v.note ?? null, updated: new Date().toISOString() });
+    await told;
+  } catch (e) { toast('ما انحفظ. جرّب مرة ثانية.'); }
+}
+
+function dial() {                                                   // the stages as a dive bezel: done in gold, now the lume pip
+  const box = $('#dial'); if (!box || !state) return;
+  const cur = state.stage || 'language', n = STAGES.length, C = 120, R = 86, circ = 2 * Math.PI * R;
+  const done = STAGES.filter((s) => stageOf(s.id).status === 'done').length;
+  const at = (i, r) => { const a = (i / n) * 2 * Math.PI - Math.PI / 2; return [C + r * Math.cos(a), C + r * Math.sin(a)]; };
+  let ticks = '';
+  for (let k = 0; k < 60; k++) {
+    const a = (k / 60) * 2 * Math.PI - Math.PI / 2, big = k % 5 === 0, r1 = big ? 101 : 105;
+    ticks += `<line x1="${(C + r1 * Math.cos(a)).toFixed(1)}" y1="${(C + r1 * Math.sin(a)).toFixed(1)}" x2="${(C + 112 * Math.cos(a)).toFixed(1)}" y2="${(C + 112 * Math.sin(a)).toFixed(1)}" class="${big ? 'tk big' : 'tk'}"/>`;
+  }
+  const marks = STAGES.map((s, i) => {
+    const st = stageOf(s.id).status, [x, y] = at(i, R), isNow = s.id === cur && st !== 'done', open = st !== 'waiting' || s.id === cur;
+    const cls = st === 'done' ? 'mk done' : isNow ? 'mk now' : 'mk';
+    const pip = isNow ? (() => { const [px, py] = at(i, 66), a = (i / n) * 360; return `<polygon class="pip" points="0,-9 7,5 -7,5" transform="translate(${px.toFixed(1)} ${py.toFixed(1)}) rotate(${a + 180})"/>`; })() : '';
+    return `<g class="${cls}${viewing === s.id ? ' view' : ''}"${open ? ` role="button" tabindex="0" data-stage="${s.id}" aria-label="${s.name}"` : ''}>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="13"/><text x="${x.toFixed(1)}" y="${(y + 4.5).toFixed(1)}">${i + 1}</text></g>${pip}`;
+  }).join('');
+  const s = STAGES.find((x) => x.id === cur), st = stageOf(cur).status, i = STAGES.indexOf(s);
+  const label = st === 'done' ? 'تمّ' : st === 'working' ? 'جاري التنفيذ' : st === 'requested' ? 'بانتظار Claude' : 'بانتظارك';
+  box.innerHTML = `<svg viewBox="0 0 240 240" class="bezel" aria-hidden="false" role="group" aria-label="المراحل">
+      <circle cx="120" cy="120" r="116" class="rim"/>${ticks}
+      <circle cx="120" cy="120" r="${R}" class="arc0"/>
+      <circle cx="120" cy="120" r="${R}" class="arc" stroke-dasharray="${(circ * done / n).toFixed(1)} ${circ.toFixed(1)}" transform="rotate(-90 120 120)"/>
+      ${marks}${state.now?.busy ? '<g class="hand"><circle cx="120" cy="34" r="4"/></g>' : ''}
+    </svg><div class="dialc"><span class="dn" dir="ltr">${i + 1}<span>/${n}</span></span><span class="dl">${s.name}</span><span class="ds s-${st}">${label}</span></div>`;
+  box.querySelectorAll('[data-stage]').forEach((g) => {
+    const go = () => { viewing = g.dataset.stage; render(); };
+    g.addEventListener('click', go); g.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); go(); } });
+  });
+}
+function progress() {
+  dial();
+  const cur = state?.stage || 'language';
+  $('#progress').innerHTML = STAGES.map((s, i) => {
+    const st = stageOf(s.id).status, cls = st === 'done' ? 'done' : s.id === cur ? 'now' : '';
+    const label = st === 'done' ? 'تمّ' : s.id === cur ? (st === 'working' ? 'جاري التنفيذ' : st === 'requested' ? 'بانتظار Claude' : 'بانتظارك') : '';
+    return `<li class="${cls}${viewing === s.id ? ' view' : ''}"><button type="button" data-stage="${s.id}" ${st === 'waiting' && s.id !== cur ? 'disabled' : ''}>
+      <span class="pn">${i + 1}</span><span class="pl">${s.name}</span><span class="ps">${label}</span></button></li>`;
+  }).join('');
+  $('#progress').querySelectorAll('button').forEach((b) => b.addEventListener('click', () => { viewing = b.dataset.stage; render(); }));
+}
+
+const splitWords = (t) => String(t || '').split(/\s+/).filter(Boolean);
+const bare = (w) => w.replace(/[،,.؛:!?«»"()]/g, '') || w;
+function wordPicker(line) {                                        // every word is a button: tap the ones said wrong
+  const mine = flags[line.id] || {}, sent = ((state?.pron || {})[line.id] || {}).words || [], ws = splitWords(line.text);
+  const chips = ws.map((w, i) => {
+    const on = i in mine, was = sent.some((x) => x.i === i);
+    return `<button type="button" class="w${on ? ' bad' : was ? ' sent' : ''}" data-line="${esc(line.id)}" data-wi="${i}" aria-pressed="${on}"><bdi>${esc(bare(w))}</bdi></button>`;
+  }).join('');
+  const rows = Object.keys(mine).map(Number).sort((a, b) => a - b).map((i) => `<label class="how"><span><bdi>${esc(bare(ws[i]))}</bdi></span>
+    <input type="text" data-howline="${esc(line.id)}" data-howi="${i}" value="${esc(mine[i])}" placeholder="كيف تنقال؟ (اختياري)"></label>`).join('');
+  return `<div class="pron"><p class="sub">في كلمة نطقها غلط؟ اضغط عليها.</p><div class="words">${chips}</div>${rows}
+    ${sent.length ? `<p class="sub">وصلتني: ${sent.map((x) => '«<bdi>' + esc(x.w) + '</bdi>»').join('، ')}</p>` : ''}</div>`;
+}
+function flaggedLines(lines) { return lines.filter((l) => Object.keys(flags[l.id] || {}).length); }
+function sendBox(lines) {
+  const fl = flaggedLines(lines), n = fl.reduce((k, l) => k + Object.keys(flags[l.id]).length, 0);
+  if (!n) return '';
+  const chars = fl.reduce((k, l) => k + l.text.length, 0);
+  return `<div class="go"><button type="button" class="btn big" id="sendpron">أرسل الكلمات الغلط (${n})</button>
+    <p class="sub cost">أصلّح نطقها وأعيد تسجيل ${fl.length === 1 ? 'الجملة اللي فيها' : 'الجمل اللي فيها'} بس (تقريبًا ${chars.toLocaleString('en-US')} حرف)، وتسمعها هني.</p></div>`;
+}
+async function sendPron(id, lines, btn) {
+  if (busy) return; busy = true; btn.disabled = true;
+  const pron = {}, said = [];
+  for (const l of flaggedLines(lines)) {
+    const ws = splitWords(l.text), old = ((state?.pron || {})[l.id] || {}).words || [];
+    const words = Object.keys(flags[l.id]).map(Number).sort((a, b) => a - b).map((i) => ({ i, w: bare(ws[i]), how: (flags[l.id][i] || '').trim() || null }));
+    pron[l.id] = { words: [...old.filter((o) => !words.some((w) => w.i === o.i)), ...words], sent: new Date().toISOString() };
+    said.push(l.id + ': ' + words.map((w) => '«' + w.w + '»' + (w.how ? ' (تنقال: ' + w.how + ')' : '')).join('، '));
+  }
+  const note = 'كلمات نطقها غلط — ' + said.join(' / ');
+  try {
+    const told = notify('نطق غلط في مرحلة «' + STAGES.find((s) => s.id === id).name + '»: ' + said.join(' / ') + '. صلّح النطق وأعد تسجيل هالجمل بس.', btn);
+    await write({ pron, stage: id, stages: { [id]: { status: 'requested', note } } });
+    flags = {};
+    await told;
+  } catch (e) { toast('ما انحفظ. جرّب مرة ثانية.'); }
+  finally { busy = false; btn.disabled = false; }
+}
+
+function changeBox(id) {
+  return `<details class="change"><summary>اطلب تعديل</summary><textarea id="note-${id}" rows="3" placeholder="وش تبي يتغيّر؟ مثلًا: المشهد 6 الاسم مو واضح"></textarea>
+    <button type="button" class="btn ghost" data-change="${id}">أرسل التعديل</button></details>`;
+}
+function loading(id) {
+  const s = stageOf(id);
+  return `<div class="loading"><span class="spin" aria-hidden="true"></span><div><p class="lt">${esc((WORKING[id] || (() => 'جاري التنفيذ…'))(state))}</p>
+    ${s.note ? `<p class="sub">طلبك: ${esc(s.note)}</p>` : ''}${s.message ? `<p class="sub">${esc(s.message)}</p>` : ''}
+    ${s.progress?.total ? `<div class="track"><span style="width:${Math.round(100 * (s.progress.done || 0) / s.progress.total)}%"></span></div>
+      <p class="sub">${s.progress.done || 0} من ${s.progress.total}${s.progress.step ? ' · ' + esc(s.progress.step) : ''}</p>` : ''}
+    <p class="sub">تقدر تسكّر الصفحة، وبتلقى النتيجة هني أول ما تخلص.</p></div></div>`;
+}
+function voiceCard(v, selectable) {
+  const chosen = picks.voice === v.id;
+  return `<div class="card${chosen ? ' chosen' : ''}${v.status === 'reference' ? ' ref' : ''}">
+    <div class="ch"><span class="cl">${esc(v.label)}</span><span class="pill p-${v.status}">${VSTATUS[v.status] || v.status}</span></div>
+    ${v.desc ? `<p class="sub">${esc(v.desc)}</p>` : ''}
+    <audio controls preload="none" src="${esc(M(v.file))}"></audio>
+    ${v.note ? `<p class="sub">ملاحظة: ${esc(v.note)}</p>` : ''}
+    ${paid(v) ? '<p class="sub cost">مدفوع: ينخصم من رصيد ElevenLabs (حرف بحرف). التجربة أول، وبعدها الفلم كامل بموافقتك.</p>' : ''}
+    ${selectable ? `<button type="button" class="btn${chosen ? '' : ' ghost'}" data-pickv="${v.id}">${chosen ? 'هذا صوتك ✓' : 'اختر هذا الصوت'}</button>` : ''}
+    ${v.status !== 'reference' ? `<div class="acts"><button type="button" class="link" data-vact="approved" data-v="${v.id}">اعتمد</button>
+      <button type="button" class="link" data-vact="rejected" data-v="${v.id}">لا ترشحه مرة ثانية</button>
+      <button type="button" class="link" data-vimp="${v.id}">اطلب تحسين</button></div>
+      <div class="imp" id="imp-${v.id}" hidden><textarea rows="2" placeholder="وش اللي مو واضح؟ مثلًا: الأسماء الأجنبية، السرعة، النبرة"></textarea>
+      <button type="button" class="btn ghost" data-vsend="${v.id}">أرسل طلب التحسين</button></div>` : ''}
+  </div>`;
+}
+
+function panel(id) {
+  const s = stageOf(id), name = STAGES.find((x) => x.id === id).name, r = s.result || {};
+  let h = `<h2>${STAGES.findIndex((x) => x.id === id) + 1}. ${name}</h2>`;
+  if (s.status === 'waiting') return h + '<p class="sub">هذي المرحلة تبدأ بعد اللي قبلها.</p>';
+  if (s.status === 'working') return h + loading(id);
+  if (s.status === 'requested') return h + `<div class="loading"><span class="spin idle" aria-hidden="true"></span><div><p class="lt">طلبك انحفظ، وبانتظار Claude يبدأ.</p>
+    ${s.note ? `<p class="sub">طلبك: ${esc(s.note)}</p>` : ''}<p class="sub">أول ما يبدأ يتغيّر هذا إلى «جاري التنفيذ» وتشوف التقدم هني.</p></div></div>`;
+  const done = s.status === 'done';
+  if (id === 'language') {
+    const sel = picks.language || s.choice;
+    h += '<p class="sub">نفس الجملتين بثلاث طرق وبنفس الصوت. اختر طريقة السرد.</p><div class="cards">' + LANGS.map((l) => `
+      <div class="card${sel === l.id ? ' chosen' : ''}"><div class="ch"><span class="cl">${l.name}</span></div><p class="sub">${l.desc}</p>
+      <audio controls preload="none" src="${esc(M(l.file))}"></audio>${done ? '' : `<button type="button" class="btn${sel === l.id ? '' : ' ghost'}" data-pickl="${l.id}">${sel === l.id ? 'اخترتها ✓' : 'اختر هذي'}</button>`}</div>`).join('') + '</div>';
+    if (done) h += `<p class="okline">اخترت ${esc(LANGS.find((l) => l.id === s.choice)?.name)}.</p>`;
+    else h += `<div class="go"><button type="button" class="btn big" id="go" ${sel ? '' : 'disabled'}>تأكيد وكمّل للصوت</button></div>`;
+    return h;
+  }
+  if (id === 'voice') {
+    const lang = stageOf('language').choice || 'fusha';
+    const ref = voices.filter((v) => v.status === 'reference');
+    const list = voices.filter((v) => v.language === lang && v.status !== 'reference' && v.status !== 'rejected')
+      .sort((a, b) => (a.status === 'approved' ? -1 : 0) - (b.status === 'approved' ? -1 : 0) || (a.order ?? 99) - (b.order ?? 99));
+    const sel = picks.voice || s.choice;
+    picks.voice = sel;
+    h += '<p class="sub">اسمع، واختر صوت. اللي ما يعجبك علّمه «لا ترشحه» وما يطلع لك مرة ثانية، أو اطلب تحسينه.</p>';
+    if (ref.length) h += '<h3>صوت فلم Gérald Genta</h3><div class="cards">' + ref.map((v) => voiceCard(v, !done)).join('') + '</div><h3>أصوات OmniVoice ب' + langName(state) + '</h3>';
+    h += '<div class="cards">' + (list.map((v) => voiceCard(v, !done)).join('') || '<p class="sub">ما في أصوات بهذي اللغة بعد.</p>') + '</div>';
+    if (done) h += `<p class="okline">اخترت «<bdi>${esc(voices.find((v) => v.id === s.choice)?.label || s.choice)}</bdi>».</p>`;
+    else h += `<div class="go"><button type="button" class="btn big" id="go" ${sel ? '' : 'disabled'}>تأكيد الصوت وكمّل للنص</button></div>${changeBox(id)}`;
+    return h;
+  }
+  if (id === 'script') {
+    h += '<p class="sub">النص كامل باللغة اللي اخترتها. الأسماء الأجنبية بالإنجليزي.</p><ol class="lines">' +
+      (r.lines || []).map((l) => `<li><span class="lid">${esc(l.id)}</span> ${esc(l.text)}</li>`).join('') + '</ol>';
+    return h + (done ? '<p class="okline">النص معتمد.</p>' : `<div class="go"><button type="button" class="btn big" id="go">اعتمد النص وجرّب الصوت عليه</button></div>${changeBox(id)}`);
+  }
+  if (id === 'voice_test') {
+    const v = voices.find((x) => x.id === (r.voice || stageOf('voice').choice));
+    h += `<p class="sub">جمل من نص الفلم نفسه بصوت «<bdi>${esc(v?.label || r.voice || '')}</bdi>». اسمعها، وإذا الصوت تمام اعتمده، والفلم كامل ينسجّل فيه.</p>`;
+    h += '<div class="tests">' + (r.samples || []).map((x) => `<div class="card"><p class="cl">${esc(x.text)}</p>
+      <audio controls preload="none" src="${esc(M(x.file))}"></audio>${x.note ? `<p class="sub">${esc(x.note)}</p>` : ''}${done ? '' : wordPicker(x)}</div>`).join('') + '</div>';
+    if (!done) h += sendBox(r.samples || []);
+    if (r.chars) h += `<p class="sub cost">التجربة استهلكت ${Number(r.chars).toLocaleString('en-US')} حرف.${r.full_chars ? ' الفلم كامل تقريبًا ' + Number(r.full_chars).toLocaleString('en-US') + ' حرف.' : ''}</p>`;
+    if (done) return h + `<p class="okline">الصوت المعتمد: «<bdi>${esc(v?.label || s.choice)}</bdi>».</p>`;
+    return h + `<div class="go"><button type="button" class="btn big" id="go">اعتمد الصوت وسجّل الفلم كامل</button>
+      <button type="button" class="btn ghost" id="other">جرّب صوت ثاني</button></div>${changeBox(id)}`;
+  }
+  if (id === 'narration') {
+    h += `<p class="sub">السرد كامل بالصوت المعتمد «<bdi>${esc(voiceName())}</bdi>».</p>${r.audio ? `<audio controls preload="none" src="${esc(M(r.audio))}"></audio>` : ''}
+      ${(r.lines || []).length ? '<div class="tests">' + r.lines.map((x) => `<div class="card"><p class="cl">${esc(x.text)}</p>
+        ${x.file ? `<audio controls preload="none" src="${esc(M(x.file))}"></audio>` : ''}${done ? '' : wordPicker(x)}</div>`).join('') + '</div>' + (done ? '' : sendBox(r.lines)) : ''}
+      ${(r.notes || []).length ? '<ul class="notes">' + r.notes.map((n) => `<li>${esc(n)}</li>`).join('') + '</ul>' : ''}`;
+    return h + (done ? '<p class="okline">السرد معتمد.</p>' : `<div class="go"><button type="button" class="btn big" id="go">اعتمد السرد وركّب الفلم</button></div>${changeBox(id)}`);
+  }
+  if (id === 'film') {
+    h += `${r.video ? `<video controls preload="metadata" playsinline src="${esc(M(r.video))}"></video>` : ''}${r.facts ? `<p class="sub">${esc(r.facts)}</p>` : ''}`;
+    return h + (done ? '<p class="okline">الفلم معتمد.</p>' : `<div class="go"><button type="button" class="btn big" id="go">الفلم تمام، كمّل للموافقة</button></div>${changeBox(id)}`);
+  }
+  if (id === 'publish') {
+    const fr = stageOf('film').result || {};
+    h += `${fr.video ? `<video controls preload="metadata" playsinline src="${esc(M(fr.video))}"></video>` : ''}<p class="sub">آخر خطوة: موافقتك على الفلم النهائي قبل النشر. بعدها أجهّز لك نص المنشور والحقوق.</p>`;
+    return h + (done ? '<p class="okline">معتمد للنشر ✓</p>' : `<div class="go"><button type="button" class="btn big" id="go">أوافق على النشر</button></div>${changeBox(id)}`);
+  }
+  return h;
+}
+
+function render() {
+  if (!state) return;
+  if (!viewing) viewing = state.stage || 'language';
+  progress();
+  link();
+  const id = viewing, s = stageOf(id);
+  $('#stage').innerHTML = panel(id);
+  const go = $('#go');
+  if (go) go.addEventListener('click', () => {
+    if (id === 'language') confirmStage(id, picks.language, 'اللغة ' + LANGS.find((l) => l.id === picks.language).name, go);
+    else if (id === 'voice') { const v = voices.find((x) => x.id === picks.voice);
+      confirmStage(id, picks.voice, 'الصوت «' + (v?.label || picks.voice) + '»' + (paid(v) ? ' (مدفوع، ElevenLabs: موافق على التجربة ثم الفلم)' : ''), go); }
+    else if (id === 'voice_test') { const v = voices.find((x) => x.id === ((stageOf(id).result || {}).voice || stageOf('voice').choice));
+      if (v) voiceAction(v, 'approved', go);
+      confirmStage(id, v?.id, 'الصوت المعتمد «' + (v?.label || '') + '»' + (paid(v) ? '، سجّل الفلم كامل فيه (مدفوع، ElevenLabs)' : ''), go); }
+    else confirmStage(id, null, 'معتمد', go);
+  });
+  const other = $('#other');
+  if (other) other.addEventListener('click', async () => {                       // back to the voices, nothing to generate
+    try { await write({ stage: 'voice', stages: { voice: { status: 'ready', choice: null }, voice_test: { status: 'waiting' } } });
+      picks.voice = null; viewing = 'voice'; } catch (e) { toast('ما انحفظ. جرّب مرة ثانية.'); }
+  });
+  $('#stage').querySelectorAll('[data-wi]').forEach((b) => b.addEventListener('click', () => {
+    const m = (flags[b.dataset.line] ||= {}), i = Number(b.dataset.wi);
+    if (i in m) delete m[i]; else m[i] = '';
+    render();
+    const inp = $('#stage').querySelector(`[data-howline="${b.dataset.line}"][data-howi="${i}"]`);
+    if (inp) inp.focus({ preventScroll: true });
+  }));
+  $('#stage').querySelectorAll('[data-howi]').forEach((inp) => inp.addEventListener('input', () => {
+    (flags[inp.dataset.howline] ||= {})[Number(inp.dataset.howi)] = inp.value;
+  }));
+  const sp = $('#sendpron');
+  if (sp) sp.addEventListener('click', () => sendPron(id, id === 'narration' ? (s.result?.lines || []) : (s.result?.samples || []), sp));
+  $('#stage').querySelectorAll('[data-pickl]').forEach((b) => b.addEventListener('click', () => { picks.language = b.dataset.pickl; render(); }));
+  $('#stage').querySelectorAll('[data-pickv]').forEach((b) => b.addEventListener('click', () => { picks.voice = b.dataset.pickv; render(); }));
+  $('#stage').querySelectorAll('[data-change]').forEach((b) => b.addEventListener('click', () => requestChange(b.dataset.change, $('#note-' + b.dataset.change).value, b)));
+  bindVoiceActs($('#stage'));
+  library();
+}
+function bindVoiceActs(root) {
+  root.querySelectorAll('[data-vact]').forEach((b) => b.addEventListener('click', () => voiceAction(voices.find((v) => v.id === b.dataset.v), b.dataset.vact, b)));
+  root.querySelectorAll('[data-vimp]').forEach((b) => b.addEventListener('click', () => { const n = root.querySelector('#imp-' + b.dataset.vimp); if (n) n.hidden = !n.hidden; }));
+  root.querySelectorAll('[data-vsend]').forEach((b) => b.addEventListener('click', () => {
+    const t = root.querySelector('#imp-' + b.dataset.vsend + ' textarea').value;
+    if (!t.trim()) { toast('اكتب وش يحتاج تحسين.'); return; }
+    voiceAction(voices.find((v) => v.id === b.dataset.vsend), 'improve', b, t);
+  }));
+}
+function filmTab() {                                               // the newest cut, wherever the work has got to
+  const v = stageOf('film').result?.video || state?.now?.video, box = $('#latest');
+  if (!box) return;
+  box.innerHTML = v ? `<video controls preload="metadata" playsinline src="${esc(M(v))}"></video><p class="sub">${esc(stageOf('film').result?.facts || state?.now?.video_note || '')}</p>`
+    : '<p class="sub">ما في نسخة بعد. أول ما تتركّب تطلع هني.</p>';
+}
+let filter = 'all';
+function library() {
+  const box = $('#lib');
+  const groups = ['approved', 'candidate', 'improve', 'rejected', 'reference'];
+  const shown = voices.filter((v) => filter === 'all' || v.status === filter)
+    .sort((a, b) => groups.indexOf(a.status) - groups.indexOf(b.status) || (a.order ?? 99) - (b.order ?? 99));
+  $('#libcount').textContent = voices.length + ' صوت';
+  box.innerHTML = shown.map((v) => voiceCard({ ...v, label: v.label + (v.language ? ' · ' + (LANGS.find((l) => l.id === v.language)?.name || v.language) : '') }, false)).join('') || '<p class="sub">ما في أصوات هني.</p>';
+  bindVoiceActs(box);
+}
+
+document.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => {
+  document.querySelectorAll('[data-tab]').forEach((x) => x.setAttribute('aria-selected', String(x === b)));
+  ['stages', 'library', 'details'].forEach((t) => ($('#tab-' + t).hidden = t !== b.dataset.tab));
+  window.scrollTo({ top: 0 });
+  if (b.dataset.tab === 'details') { filmTab(); STUDIO.fixMedia(document); }
+}));
+document.querySelectorAll('[data-filter]').forEach((b) => b.addEventListener('click', () => {
+  filter = b.dataset.filter; document.querySelectorAll('[data-filter]').forEach((x) => x.classList.toggle('on', x === b)); library();
+}));
+
+STUDIO.start(() => {
+  db = STUDIO.db; comments = null;
+  refreshCanSend();
+  setInterval(link, 60000);                                          // «قبل X دقيقة» stays true
+  if (!db) { $('#stage').innerHTML = '<p class="sub">المراحل تحتاج تفتح الصفحة وأنت مسجّل دخول في claude.ai. تقدر تشوف الفلم الحالي في «تفاصيل الفلم».</p>'; return; }
+  db.doc('film/panerai').onSnapshot((s) => { state = s.exists ? s.data() : null; if (!state) $('#stage').innerHTML = '<p class="sub">جاري التجهيز…</p>'; render(); },
+    () => { $('#stage').innerHTML = '<p class="sub">ما قدرت أقرأ المراحل الحين. حدّث الصفحة.</p>'; });
+  db.collection('voices').onSnapshot((q) => { voices = q.docs.map((d) => ({ id: d.id, ...d.data() })); render(); library(); }, () => {});
+});
+})();
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+</script>
+</body>
+</html>
