@@ -166,6 +166,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     presents a watch for the first time (a launch, a fair, an auction lot), its print stands under a velvet cloth drawn
     in code and the cloth is pulled away on the watch's name: `reveal: {on: Antiqua}`. A swish plays as it lifts; pair
     it with a close shot on the same word.
+    Not over a live clip: on Halter part 1 the owner said «شيل الستارة» (the cloth read as a red block hiding the
+    moving Basel crowd). Use it only on a drawn or still scene, and let the clip carry the moment otherwise.
 18l. **AI video clips bring people and places to life, never a watch** (the owner approved short generated clips:
     Seedance 2.5 on Higgsfield, 720p, 9:16, about 5 s, no audio). People and places only: a watch is never generated;
     a watch is always its real photo. The narration, captions and banner stay; the clip is only the picture:
