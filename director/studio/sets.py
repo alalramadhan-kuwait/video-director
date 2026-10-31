@@ -605,16 +605,16 @@ def waiting_years(dur, rng):
     els.append(_el(wall, behind=True, depth=.3))
     board = ('<rect x="0" y="12" width="170" height="222" rx="6" fill="#4A3B2F"/><rect x="6" y="18" width="158" height="210" rx="4" fill="#3A2E25"/>'
              '<circle cx="85" cy="6" r="6" fill="#8C7A5A"/><path d="M85 6 L40 14 M85 6 L130 14" stroke="#8C7A5A" stroke-width="2"/>')
-    els.append({**_el(board, 170, 236, 640, 622), 'behind': True, 'depth': .6})
+    els.append({**_el(board, 170, 236, 575, 382), 'behind': True, 'depth': .6, 'scale': .8})   # up and in: clear of the app's buttons
     years = list(range(2003, 2011)); step = max(.3, dur * .55 / len(years))
     for k, y in reversed(list(enumerate(years))):                # 2003 on top, the first to fall
         t = .5 + k * step; last = y == years[-1]
         page = (f'<rect width="150" height="190" rx="4" fill="#F3F0E8"/><rect width="150" height="36" rx="4" fill="#8E3B2F"/>'
                 + ''.join(f'<circle cx="{x}" cy="12" r="4" fill="#2A2C31"/>' for x in (45, 105))
                 + f'<text x="75" y="125" font-family="Inter Tight,Cairo,sans-serif" font-size="46" font-weight="700" text-anchor="middle" fill="#111">{y}</text>')
-        fall = {} if last else {'y': [[0, 640], [t, 640], [t + .7, 1450, 'inCubic']], 'rot': [[0, 0], [t, 0], [t + .7, round(rng.uniform(-25, 25), 1)]]}
+        fall = {} if last else {'y': [[0, 400], [t, 400], [t + .7, 1450, 'inCubic']], 'rot': [[0, 0], [t, 0], [t + .7, round(rng.uniform(-25, 25), 1)]]}
         under = {} if k == 0 else {'opacity': [[0, 0], [round(.5 + (k - 1) * step, 2), 0], [round(.5 + (k - 1) * step + .05, 2), 1]]}
-        els.append({**_el(page, 150, 190, 640, 640), 'behind': True, 'depth': .6, **fall, **under})   # 2010 stays; a page shows once the one above it falls
+        els.append({**_el(page, 150, 190, 575, 400), 'behind': True, 'depth': .6, 'scale': .8, **fall, **under})   # 2010 stays; a page shows once the one above it falls
     els += _motes(rng, 10, '#F3D9A4', dur, y0=400, y1=900, rise=30, op=.3, x0=480, x1=720)
     return {'theme': 'tk-ink', 'elements': els, 'beds': [('room', -32)], 'sfx': []}
 

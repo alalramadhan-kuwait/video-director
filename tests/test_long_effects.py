@@ -25,5 +25,14 @@ class TestLongEffects(unittest.TestCase):
         self.assertGreater(short['gain'], long_['gain'] + 8)
 
 
+    def test_a_strike_with_a_long_tail_is_still_a_hit(self):
+        d = Path(tempfile.mkdtemp())
+        tone(d / 'tower_strike.wav', 4)
+        sc = [{'sfx': [{'at': 0, 'name': 'tower_strike', 'gain': -10}]}]
+        mix.levels(sc, {0: -20.0}, sfx_dir=d)
+        peak = mix.level(str(d / 'tower_strike.wav'), 'peak')
+        self.assertLess(-20 + 3 - (peak + sc[0]['sfx'][0]['gain']), 7)     # 3-6 dB under the voice's peaks
+
+
 if __name__ == '__main__':
     unittest.main()
