@@ -104,7 +104,10 @@ class TestStory(unittest.TestCase):
         out = quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml'))
         # Panerai (Oct 2026) opened on Florence 1860 with no hook and lost two in three viewers in two seconds: the film is
         # kept as posted, and the check now names that one lesson for every film after it (rule 6)
-        self.assertEqual(len(out), 1, out); self.assertIn('open on a hook', out[0])
+        # and, since the owner asked for simple sentences (rule 9c), the four long ones it would now be asked to split
+        rest = [m for m in out if 'split it into short sentences' not in m]
+        self.assertEqual(len(rest), 1, out); self.assertIn('open on a hook', rest[0])
+        self.assertEqual(sorted(m.split(':')[0] for m in out if m not in rest), ['l16', 'l18', 'l6', 'l9b'])
 
     def test_a_reel_opens_on_a_hook_the_film_pays_off(self):
         base = lambda first: {'platform': 'reels', 'lines': [{'id': 'l1', 'template': 'kinetic_type', 'params': {}, 'no_photo': 't', **first},
@@ -136,6 +139,13 @@ class TestStory(unittest.TestCase):
                      'وحين جفّت الطلبات صنع ساعة.', 'مدير الساعات آنذاك.', 'في طليعة عصرٍ جديد.'):
             self.assertTrue(mine(one(hard)), hard)
         self.assertEqual(mine(one('أمضى عشر سنوات يصلّح الساعات القديمة لشركات الساعات، ودوره كبير في الظلام.')), [])
+
+    def test_a_long_sentence_is_split(self):
+        one = lambda text: {'lines': [{'id': 'l1', 'text': text, 'template': 'kinetic_type', 'params': {}, 'no_photo': 't'}]}
+        mine = lambda f: [m for m in quickfilm.story_check(f) if 'short sentences' in m]
+        long = 'طلب منه Max Büsser، مدير قسم الساعات في شركة المجوهرات Harry Winston، ساعةً تحمل اسم Halter واسم الشركة معًا، فصمّم Opus 3، وعُرضت عام 2003.'
+        self.assertTrue(mine(one(long)))
+        self.assertEqual(mine(one('طلب منه Max Büsser ساعةً جديدة. وكان Büsser مدير الساعات في Harry Winston. فصمّم Opus 3.')), [])
 
     def test_every_mood_grades_the_scene_under_the_words_and_has_a_sound(self):
         kit = (engine.ENGINE / 'scripts/make-sfx.py').read_text()
