@@ -14,6 +14,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
    «ثم انتهت الحرب…». Only the final echo may stand alone (`closing: true`).
 4. **Explain why** ✓ — every change (a new material, a new design, a new partner) says its reason (`change: true` +
    `because:`), in the narration itself: why Rolex, why the crown bridge, why radium was replaced.
+   The same for a fact the listener cannot place: say what it means (not «he bought his first tower clock at eleven»
+   but what that tells us about the boy), or leave it out.
 5. **Feelings** ✓ — name the feeling of the lines that carry it (`mood:` mystery, fear, sadness, tension, joy, wonder).
    **Sadness for human moments always**: people who suffered, were deceived, died, were captured. Make it human:
    who they were, what they were told, what happened to them («قيل لهنّ إنه آمن… فتساقطت أسنانهنّ… ورحلن جميعًا»).
@@ -32,6 +34,11 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
    film's numbers (skip rate, average watch time, the retention curve), write down what they show — where people
    left and why — as a rule here and a line in the hooks log, and apply it to the next film. Panerai's: the drop is
    in the first two seconds, so the hook is the work; length came second (aim for 60–90 s on Reels).
+6d. **Three readers, a filter and a vote, before the owner sees a script** ✓ (the owner, after «اشترى أول ساعة برج»
+    left them asking what that meant and why). After every script: a reader who knows nothing of the watch world, one
+    with medium knowledge and an expert read it as the viewer gets it; one filter applies or drops each concern
+    (checking facts against the research); the three vote that it reads as one chain of events with nothing left open.
+    How: `references/reader-panel.md`. At most three rounds.
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
