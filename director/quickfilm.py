@@ -84,7 +84,7 @@ PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'produ
 
 SCREEN = ('text', 'title', 'body', 'label', 'value', 'values', 'name', 'sub', 'card', 'quote', 'who', 'header', 'banner', 'lines',
           'rows', 'events', 'stamp', 'labels', 'pins', 'year', 'columns')
-LEADS = {'ثم', 'لكن', 'لكنّ', 'غير', 'بينما', 'حين', 'عندما', 'بعد', 'إلى', 'الى', 'حتى', 'هناك', 'أما', 'في', 'منذ', 'لذلك', 'لأن', 'مع', 'هكذا'}
+LEADS = {'ثم', 'لكن', 'لكنّ', 'لكنه', 'لكنها', 'لكنهم', 'غير', 'بينما', 'حين', 'عندما', 'بعد', 'إلى', 'الى', 'حتى', 'هناك', 'أما', 'في', 'منذ', 'لذلك', 'لأن', 'مع', 'هكذا'}
 
 
 def on_screen(ln: dict) -> list[str]:
@@ -234,6 +234,8 @@ def story_check(film: dict) -> list[str]:
     for prev, ln in zip(lines, lines[1:]):                               # every change of scene is led into
         first = (checks.words(ln['text']) or [''])[0]
         if ln.get('closing') or first in LEADS or (first[:1] in 'وف' and len(first) > 2): continue
+        same = lambda k: ln.get(k) == prev.get(k) and ln.get(k)
+        if same('set') and (ln.get('params') or {}).get('asset') == (prev.get('params') or {}).get('asset'): continue   # the same place and picture: one scene, cut for a pause
         out.append(f"{ln['id']}: begins without leading in from {prev['id']} (open with وبينما، لكن، ثم، وبعد… or a sentence that prepares the change)")
     hook = film.get('hook')
     if hook and lines:                                                   # the hook is the story's own words, not a teaser it never keeps
