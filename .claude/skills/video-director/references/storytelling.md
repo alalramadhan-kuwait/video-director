@@ -113,6 +113,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     exact watch, find one (Commons by model and reference; read the description: a «homage» or replica is refused) or
     show the nearest true thing that is not a watch and say what it is (rule 13). Simplified principle diagrams of a
     mechanism (`watch_movement`, a screw crown) are not pictures of a watch and stay labelled as principles.
+    **A cut-out is checked by eye before the film goes out** (the owner, Halter part 1: the Antiqua's cut lost its lower
+    edge and left white crumbs under the case). Look at the scene still: a broken edge, holes, specks of the old
+    background or a missing lug, crown or strap means the cut failed, and the watch is shown as its photo, uncut
+    (`print: true` inside a world, or `archive_photo`). A watch with a ragged cut is worse than a watch in a rectangle.
 12i. **The watch shown is the model that is named** ✓ (the owner: in the watch community a model that does not match
     its picture is a big thing). Every watch photo says what it is (`watch:` on the photo — brand, model and reference,
     read from the dial in the picture and from its source page, never from the file name alone), and that name goes on
