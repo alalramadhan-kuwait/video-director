@@ -14,6 +14,14 @@ class TestAppear(unittest.TestCase):
         self.assertAlmostEqual(sc['elements'][0]['in']['at'], t, delta=.01)
         self.assertGreater(sc['elements'][1]['in']['at'], t); self.assertGreater(sc['elements'][2]['in']['at'], t)
         self.assertEqual(sc['sfx'][0]['name'], 'shutter')
+        self.assertTrue(sc['elements'][0]['appear'])
+
+    def test_a_match_cut_keeps_a_late_print(self):
+        a = {'dur': 3.0, 'elements': [], 'camera': {}}
+        b = {'dur': 4.0, 'transition': 'match', 'elements': [{'type': 'photo', 'asset': 'w', 'w': 260, 'aspect': .8, 'x': 360, 'y': 600,
+                                                             'in': {'type': 'fade', 'at': 3.0}, 'appear': True}]}
+        quickfilm.cross([a, b])
+        self.assertEqual(b['elements'][0]['in']['at'], 3.0)
 
     def test_no_word_no_change(self):
         sc = {'elements': [{'type': 'photo'}]}
