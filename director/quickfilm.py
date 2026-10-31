@@ -294,6 +294,27 @@ def veil(w: float, h: float) -> str:
             f'<rect x="0" y="{h - 30}" width="{w}" height="8" fill="#B08D4A"/>{hem}</svg>')
 
 
+def line_appear(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
+    """`appear: {on: <word>, type: fade|pop|rise|drop, card: true, sfx: shutter}`: the scene's print (and its card and
+    credit) stay off screen until the word, so a live clip or a world plays clear first and the watch arrives on its
+    name (the owner: «The watch should appear at the end once the video hold to reveal it»)."""
+    a = ln.get('appear')
+    if not a: return []
+    a = {'on': a} if isinstance(a, str) else dict(a)
+    at = cue_time(a, words)
+    pic = next((e for e in sc.get('elements', []) if e.get('type') == 'photo'), None)
+    if pic is None or at is None or not 0 < at < dur:
+        return [f"{ln['id']}: appear on «{a.get('on')}» has no print or word"]
+    pic['in'] = {'type': a.get('type', 'pop'), 'at': round(at, 2), 'dur': a.get('dur', .5)}
+    if a.get('card', True):
+        for e in sc['elements']:
+            if e.get('type') == 'card' or (e.get('type') == 'text' and e.get('z') == 40):     # its card and its credit line
+                e['in'] = {'type': (e.get('in') or {}).get('type', 'fade'), 'at': round(at + .35, 2)}
+    if a.get('sfx', 'shutter'):
+        sc.setdefault('sfx', []).append({'at': round(at, 2), 'name': a.get('sfx', 'shutter'), 'gain': -10, 'owner': True})
+    return []
+
+
 def line_reveal(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
     """`reveal: {on: <word>}`: the scene's print stands under a velvet cloth that is pulled away on the word (the owner:
     the new watch at Basel hidden, then unveiled). A swish plays as it lifts. Returns what could not be placed."""
@@ -706,6 +727,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
                 report.setdefault('clip_missing', []).append(f"{ln['id']}: clip {c['file']} not found: the template's picture is shown")
         report.setdefault('sound', []).extend(line_sound(sc, ln, t['words'], dur))     # the film file's own cues and bed
         report.setdefault('sound', []).extend(line_reveal(sc, ln, t['words'], dur))   # a print unveiled on its word
+        report.setdefault('sound', []).extend(line_appear(sc, ln, t['words'], dur))   # a print that arrives on its word
         words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
         motion.direct(sc, dur, ln['id'], words=words, shots=ln.get('shots'), pixels=motion.pixels(out / 'assets'), template=template)
         voice_db[len(scenes)] = mix.level(str(t['wav']), 'active')
