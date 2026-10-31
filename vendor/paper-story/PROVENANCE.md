@@ -11,3 +11,38 @@ Copied read-only from audit/claude_success-story-video (.claude/skills/paper-sto
   `<name>_bed` take, the automatic paper place only for a banner that really comes in.
 - `scripts/make-sfx.py`: train, train_bed, train_horn, gavel, tower_strike, footsteps, thud, tick_slow.
 - `tk_endcard.py`: 3 s, no banner over the logo, no black scene after it.
+- `engine/paper.js` (2): shot-size cameras (`camera.clamp`: the frame never shows the world's edge), the camera crossing
+  the cut (`transition`: `through` push-through with `cutFocus`, `match`, `whip` right to left in an rtl film; the
+  outgoing camera keeps its speed past the cut; `slide`/`push` follow the reading direction), directional motion blur
+  on fast-moving elements and on whips (`motionBlur: false` / `noBlur` turn it off), and the asymmetric glide types
+  `flyL`, `flyR`, `flyU`, `flyD`, `depth` (0.9 s in, 0.4 s out). `vendor/studio-ext/text-audit.js` skips a push-through
+  while it settles.
+
+## Bang Motion (ideas and constants ported, no code or GSAP vendored)
+The shot-size camera (`frameOn` with its edge clamp), the push-through constants, the whip with a directional blur and
+the directional blur itself (`blurTween`: an SVG feGaussianBlur with separate x and y deviations, put on only while
+the element moves) are re-implemented here from Bang Motion v1.19.0 (`references/techniques.md`, `assets/starter-*.html`):
+
+    MIT License
+
+    Copyright (c) 2026 Bang Tutorial
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+GSAP is not under that licence and is not used.

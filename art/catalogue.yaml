@@ -185,7 +185,7 @@ templates:
     status: implemented
     purpose: [transition]
     name_ar: الانتقالات
-    about: 'scene.transition: cut, fade, slide, push, rise, drop (transitionDur, default 0.45 s)'
+    about: 'scene.transition: cut, through (push-through), match, whip, fade, slide, push, rise, drop (transitionDur); a film line says cut: push | match | whip | fade | cut'
     engine: paper.js
   - id: story_worlds
     status: implemented

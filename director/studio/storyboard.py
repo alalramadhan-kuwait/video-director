@@ -141,10 +141,11 @@ def engine_storyboard(studio, pid, doc: dict, work: Path) -> dict:
             shutil.copyfile(src, dst)
             sc['voice'] = f"voice/{s['id']}.wav"; sc['voiceAt'] = VOICE_AT
             sc['words'] = [[round(VOICE_AT + w['s'], 2), w['w']] for w in take['words']]
-            motion.word_punch(sc, sc['words'], s['dur'], s['id'])          # a long scene: a second picture event on a word
+            motion.direct(sc, s['dur'], s['id'], words=sc['words'], pixels=motion.pixels(work / 'assets'), template=s['technique'])   # shot sizes on its words
             voice_db[len(scenes)] = mix.level(str(dst), 'active')
         else:
             sc['captions'] = s['line']
+            motion.direct(sc, s['dur'], s['id'], pixels=motion.pixels(work / 'assets'), template=s['technique'])
         scenes.append(sc)
     if doc.get('endcard') == 'timekeeper':
         cards = _endcard(work, 'tk-black')

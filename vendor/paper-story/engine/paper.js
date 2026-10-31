@@ -32,6 +32,9 @@
     linear: (t) => t,
     outCubic: (t) => 1 - Math.pow(1 - t, 3),
     inCubic: (t) => t * t * t,
+    inQuad: (t) => t * t,
+    outQuart: (t) => 1 - Math.pow(1 - t, 4),
+    outExpo: (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t)),
     inOutCubic: (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2),
     outBack: (t) => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); },
     outElastic: (t) => (t === 0 ? 0 : t === 1 ? 1 : Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * (2 * Math.PI) / 3) + 1),
@@ -293,6 +296,14 @@
     slideR: (p, d) => ({ dx: (1 - E.outBack(p)) * d, o: clamp(p * 6) }),
     slideU: (p, d) => ({ dy: -(1 - E.outBack(p)) * d, o: clamp(p * 6) }),
     slideD: (p, d) => ({ dy: (1 - E.outBack(p)) * d, o: clamp(p * 6) }),
+    // asymmetric entrances (after Bang Motion, MIT): a long glide that decelerates hard (outQuart / outExpo, 0.9 s by
+    // default); used as an exit the same curve runs backwards, so the element accelerates away (0.4 s by default).
+    // In an Arabic (rtl) film the story reads right to left: things arrive from the left (flyL) and leave to the right (flyR).
+    flyL: (p, d) => ({ dx: -(1 - E.outQuart(p)) * d, o: clamp(p * 3) }),
+    flyR: (p, d) => ({ dx: (1 - E.outQuart(p)) * d, o: clamp(p * 3) }),
+    flyU: (p, d) => ({ dy: (1 - E.outQuart(p)) * d, o: clamp(p * 3) }),
+    flyD: (p, d) => ({ dy: -(1 - E.outQuart(p)) * d, o: clamp(p * 3) }),
+    depth: (p) => ({ s: 1 + (1 - E.outExpo(p)) * 1.4, o: clamp(p * 2.5) }),
     slam: (p, d, after) => ({
       s: 1 + (1 - E.outCubic(p)) * 1.5, o: clamp(p * 10), r: (1 - p) * 10,
       dx: after > 0 ? Math.sin(after * 90) * 7 * Math.exp(-after * 16) : 0,
@@ -337,31 +348,28 @@
     return { spec, el, built, idx, seed: hash((spec.id || spec.type) + idx) };
   }
 
-  function normAnim(a, dflt) {
+  const GLIDE = { flyL: 1, flyR: 1, flyU: 1, flyD: 1, depth: 1 };
+  function normAnim(a, dflt, exit) {
     if (!a) return null;
     if (typeof a === 'string') a = { type: a };
-    return Object.assign({ at: 0, dur: 0.45, from: 520 }, dflt, a);
+    const glide = GLIDE[a.type || (dflt && dflt.type)];
+    // a glide comes in slowly and leaves quickly: 0.9 s in, 0.4 s out, from 180 px (unless the spec says otherwise)
+    return Object.assign({ at: 0, dur: 0.45, from: 520 }, dflt, glide ? { dur: exit ? 0.4 : 0.9, from: 180 } : {}, a);
   }
 
-  function applyEl(it, lt, cam) {
+  // The element's own pose at scene time lt (its keys, entrance, exit and idle; no camera, no boil), or null when hidden.
+  function poseOf(it, lt) {
     const sp = it.spec;
     const inn = it._in || (it._in = normAnim(sp.in));
-    const out = it._out || (it._out = normAnim(sp.out, { type: sp.in && sp.in.type ? sp.in.type : 'fade', dur: 0.3 }));
-    let vis = true;
-    if (inn && lt < inn.at) vis = false;
-    if (out && lt >= out.at + out.dur) vis = false;
-    if (sp.hidden) vis = false;
-    if (!vis) { it.el.style.display = 'none'; return; }
-    it.el.style.display = '';
-
-    let x = val(sp.x, lt, S.width / 2), y = val(sp.y, lt, S.height / 2);
-    let rot = val(sp.rot, lt, 0), sc = val(sp.scale, lt, 1), op = val(sp.opacity, lt, 1);
-    let sx = 1, sy = 1;
+    const out = it._out || (it._out = normAnim(sp.out, { type: sp.in && sp.in.type ? sp.in.type : 'fade', dur: 0.3 }, true));
+    if (sp.hidden || (inn && lt < inn.at) || (out && lt >= out.at + out.dur)) return null;
+    const P = { x: val(sp.x, lt, S.width / 2), y: val(sp.y, lt, S.height / 2), rot: val(sp.rot, lt, 0), sc: val(sp.scale, lt, 1),
+                op: val(sp.opacity, lt, 1), sx: 1, sy: 1 };
     const add = (m) => {
       if (!m) return;
-      if (m.dx) x += m.dx; if (m.dy) y += m.dy; if (m.r) rot += m.r;
-      if (m.s != null) sc *= m.s; if (m.sx != null) sx *= m.sx; if (m.sy != null) sy *= m.sy;
-      if (m.o != null) op *= m.o;
+      if (m.dx) P.x += m.dx; if (m.dy) P.y += m.dy; if (m.r) P.rot += m.r;
+      if (m.s != null) P.sc *= m.s; if (m.sx != null) P.sx *= m.sx; if (m.sy != null) P.sy *= m.sy;
+      if (m.o != null) P.op *= m.o;
     };
     if (inn && lt < inn.at + inn.dur + 2) {
       const p = clamp((lt - inn.at) / inn.dur);
@@ -380,12 +388,69 @@
         add(f(bt + (id.phase || 0) + it.seed % 7, id.amp, id.speed || 1));
       }
     }
+    return P;
+  }
+  PM.poseOf = poseOf;
+
+  // ---- directional motion blur (the idea of Bang Motion's blurTween, MIT, © 2026 Bang Tutorial): an SVG
+  // feGaussianBlur whose x and y deviations follow the direction of travel, put on only while the thing moves fast and
+  // taken off again (a filter left on is re-rasterised every frame). No GSAP: the deviation is a pure function of time.
+  let mbDefs = null, mbCount = 0;
+  function mbFilter() {
+    const NS = 'http://www.w3.org/2000/svg';
+    if (!mbDefs) {
+      const svg = document.createElementNS(NS, 'svg');
+      svg.setAttribute('width', '0'); svg.setAttribute('height', '0');
+      svg.style.position = 'absolute';
+      mbDefs = document.createElementNS(NS, 'defs'); svg.appendChild(mbDefs); stage.appendChild(svg);
+    }
+    const id = 'pm-mb' + (mbCount++), f = document.createElementNS(NS, 'filter');
+    f.id = id;
+    f.setAttribute('x', '-60%'); f.setAttribute('y', '-60%'); f.setAttribute('width', '220%'); f.setAttribute('height', '220%');  // room for the tail
+    f.setAttribute('color-interpolation-filters', 'sRGB');
+    const g = document.createElementNS(NS, 'feGaussianBlur');
+    g.setAttribute('stdDeviation', '0 0'); f.appendChild(g); mbDefs.appendChild(f);
+    return { url: 'url(#' + id + ')', node: g };
+  }
+  // sets (or clears) a directional blur of (bx, by) px on a node; `iso` adds a round blur (a push through the frame)
+  function blurOn(holder, node, bx, by, iso) {
+    bx = Math.min(MB.max, bx || 0); by = Math.min(MB.max, by || 0); iso = iso || 0;
+    if (bx < MB.least && by < MB.least && iso < MB.least) { if (node.style.filter) node.style.filter = ''; node.dataset.mb = ''; return; }
+    if (!holder._mb) holder._mb = mbFilter();
+    holder._mb.node.setAttribute('stdDeviation', Math.max(bx, iso).toFixed(2) + ' ' + Math.max(by, iso).toFixed(2));
+    node.style.filter = holder._mb.url;
+    node.dataset.mb = Math.max(bx, by, iso).toFixed(1);
+  }
+  // px per frame (at 720 wide) before anything blurs, blur per px of travel per frame, the largest deviation, the least drawn
+  const MB = { speed: 6, k: 0.55, max: 26, least: 0.6 };
+  PM.MB = MB;
+
+  function applyEl(it, lt, cam) {
+    const sp = it.spec;
+    const P = poseOf(it, lt);
+    if (!P) { it.el.style.display = 'none'; return; }
+    it.el.style.display = '';
+    let { x, y, rot, sc, op, sx, sy } = P;
     // scene camera: zoom toward / pan to (cam.x, cam.y). depth scales the move per element: 0 = pinned to the
     // screen, 1 = the scene plane, >1 = foreground that sweeps past faster (parallax).
+    let z = 1;
     if (cam && sp.depth !== 0) {
-      const d = sp.depth == null ? 1 : sp.depth, z = 1 + (cam.z - 1) * d;
+      const d = sp.depth == null ? 1 : sp.depth;
+      z = 1 + (cam.z - 1) * d;
       const ox = S.width / 2 + (cam.x - S.width / 2) * d, oy = S.height / 2 + (cam.y - S.height / 2) * d;
       x = S.width / 2 + (x - ox) * z; y = S.height / 2 + (y - oy) * z; sc *= z;
+    }
+    // motion blur along the element's own travel over the last frame (its entrance, exit, keys; not the camera's
+    // drift, not the paper boil): nothing while it rests
+    if (S.motionBlur !== false && !sp.noBlur) {
+      const Q = poseOf(it, lt - 1 / (S.fps || 30));
+      if (Q) {
+        const vx = (P.x - Q.x) * z, vy = (P.y - Q.y) * z;
+        const grow = Math.abs(P.sc - Q.sc) * z * Math.max(it.built.w, it.built.h) / 2;       // a slam or a depth entrance
+        const v = Math.hypot(vx, vy), k = (u) => Math.max(0, u - MB.speed * 0.5) * MB.k;
+        const amt = v > MB.speed ? k(v) : 0, iso = grow > MB.speed ? k(grow) * 0.5 : 0;
+        blurOn(it, it.el, amt * Math.abs(vx) / (v || 1), amt * Math.abs(vy) / (v || 1), iso);
+      } else blurOn(it, it.el, 0, 0, 0);
     }
     if (boils(sp)) {
       const r = rng(it.seed + Math.floor(lt * 12) * 7919);
@@ -587,6 +652,7 @@
     setv('--grain', st.grain); setv('--vignette', st.vignette);
     stage.style.height = S.height + 'px';
     stage.innerHTML = '';
+    mbDefs = null; mbCount = 0;
     // make sure every face is loaded before anything is measured
     const faces = ['800 30px "Inter Tight"', '900 30px "Inter Tight"', '700 30px "Cairo"', '800 30px "Cairo"', '700 30px "Fraunces"', '400 30px "Anton"', '500 20px "JetBrains Mono"'];
     await Promise.all(faces.map((f) => document.fonts.load(f, 'Aaال')));
@@ -643,8 +709,8 @@
     const inter = (a, b) => Math.max(0, Math.min(a.right, b.right) - Math.max(a.left, b.left)) * Math.max(0, Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top));
     const shown = (el) => el && el.style.display !== 'none' && +(el.style.opacity || 1) > 0.15;
     scenes.forEach((sc, si) => {
-      const lt = t - sc.start, trd = sc.spec.transitionDur || 0.45;
-      if (lt < trd + 0.05 || lt > sc.spec.dur - 0.05 || sc.root.style.display === 'none') return;
+      const lt = t - sc.start;
+      if (!settled(si, lt) || sc.root.style.display === 'none') return;
       if (sc.banner && shown(sc.banner)) {                     // words and bubbles hidden under the banner
         const br = sc.banner.getBoundingClientRect();
         sc.items.filter((it) => (it.spec.type === 'bubble' || it.spec.type === 'text') && shown(it.el)).forEach((it) => {
@@ -693,22 +759,26 @@
     const caps = [...document.querySelectorAll('.caps')].filter((r) => r.style.display !== 'none')
       .flatMap((r) => [...r.children]).filter((c) => c.style.visibility !== 'hidden').map((c) => c.getBoundingClientRect());
     scenes.forEach((sc, si) => {
-      const lt = t - sc.start, trd = sc.spec.transitionDur || 0.45;
-      if (lt < trd + 0.05 || lt > sc.spec.dur - 0.05 || sc.root.style.display === 'none') return;
+      const lt = t - sc.start;
+      if (!settled(si, lt) || sc.root.style.display === 'none') return;
+      // a directed close-up crops its picture on purpose: what it pushes out of the frame, or over the captions, is the shot
+      const cam = camAt(sc, lt), close = !!(sc.spec.camera && sc.spec.camera.shots && cam && cam.z >= 1.2);
       const items = sc.items.filter((it) => shown(it.el) && it.built.w * it.built.h < area * 0.5 && it.spec.fit !== 'cover')
         .map((it) => ({ it, r: it.el.firstChild.getBoundingClientRect() })).filter(({ r }) => r.width * r.height > 0);
       const prints = items.filter(({ it }) => it.spec.type === 'image' || it.spec.type === 'photo' || (it.spec.type === 'svg' && it.spec.print));
       items.forEach(({ it, r }) => {
         const a = r.width * r.height, rec = (kind, extra) => out.push({ kind, scene: si, t: +t.toFixed(2), what: name(it), r: [r.left, r.top, r.right, r.bottom].map(Math.round), ...extra });
         const ty = it.spec.type;
-        if (ty === 'image' || ty === 'photo' || (ty === 'text' && it.spec.paper) || (ty === 'svg' && it.spec.print)) {
+        const framed = close && it.spec.depth !== 0;
+        if (framed) { /* the close-up's own crop */ }
+        else if (ty === 'image' || ty === 'photo' || (ty === 'text' && it.spec.paper) || (ty === 'svg' && it.spec.print)) {
           const vis = Math.max(0, Math.min(r.right, S.width) - Math.max(r.left, 0)) * Math.max(0, Math.min(r.bottom, S.height) - Math.max(r.top, 0)) / a;
           if (vis < 0.97) rec('cut', { pct: Math.round((1 - vis) * 100) });
         } else if (ty === 'cutout' && !it.spec.crop) {
           const hv = Math.max(0, Math.min(r.right, S.width) - Math.max(r.left, 0)) / r.width, tv = 1 - Math.max(0, -r.top) / r.height;
           if (hv * tv < 0.97 && hv * tv > 0.5) rec('cut', { pct: Math.round((1 - hv * tv) * 100) });   // mostly gone = leaving, or a panel
         }
-        if (caps.length && (ty === 'image' || ty === 'photo' || ty === 'card' || (ty === 'text' && it.spec.paper) || (ty === 'svg' && a < area * 0.08 && !it.spec.still))) {
+        if (caps.length && !framed && (ty === 'image' || ty === 'photo' || ty === 'card' || (ty === 'text' && it.spec.paper) || (ty === 'svg' && a < area * 0.08 && !it.spec.still))) {
           const hit = caps.reduce((m, c) => Math.max(m, inter(c, r) / Math.max(1, c.width * c.height)), 0);
           if (hit > 0.25 && !it.spec.underCaptions) rec('caption', { pct: Math.round(hit * 100) });
         }
@@ -734,45 +804,109 @@
   };
   PM.offFrame = (t) => PM.layout(t).filter((x) => x.kind === 'cut');      // older callers
 
+  // ---- cuts: how the camera crosses from one scene to the next (scene.transition, on the incoming scene)
+  //   cut      a hard cut (each scene's camera is still moving on both sides of it)
+  //   through  push-through: the outgoing camera dives in (0.5 s, accelerating) toward the point where the next scene
+  //            is born (`cutFocus`, screen px), cut, and the new scene arrives 1.5x too close and settles (0.9 s)
+  //   match    match cut: the two scenes are framed so a shape lines up across the cut (director/studio/motion.py
+  //            frames them); a short dissolve while both cameras keep moving
+  //   whip     whip pan: both scenes sweep sideways as one strip in 0.32 s with a directional blur; the camera
+  //            travels toward the next page: right to left in an Arabic (rtl) film, so the picture sweeps to the right
+  //   fade, slide, push, rise, drop: the older page transitions (slide and push also follow the reading direction)
+  const THROUGH = { pre: 0.5, push: 1.8, post: 0.9, from: 1.5 };
+  const WHIP = { dur: 0.32, blur: 30 };
+  PM.CUTS = { THROUGH, WHIP };
+  function overlapOf(spec) {                       // how long the incoming scene is drawn over the outgoing one
+    const tr = spec.transition;
+    if (!tr || tr === 'cut' || tr === 'through') return 0;
+    if (tr === 'whip') return spec.transitionDur || WHIP.dur;
+    if (tr === 'match') return spec.transitionDur || 0.5;
+    return spec.transitionDur || 0.45;
+  }
+  PM.overlapOf = overlapOf;
+  // a scene is settled (for the checks) once its cut has played and until the next one begins
+  function settled(si, lt) {
+    const sc = scenes[si], nx = scenes[si + 1], tr = sc.spec.transition;
+    const head = tr === 'through' ? (sc.spec.transitionDur || THROUGH.post) : (sc.spec.transitionDur || 0.45);
+    const tail = nx && nx.spec.transition === 'through' ? THROUGH.pre : 0.05;
+    return lt >= head + 0.05 && lt <= sc.spec.dur - tail;
+  }
+  PM.settled = settled;
+  // the scene camera at lt. Past the scene's end (while the next scene comes in over it) it keeps the speed it had, so
+  // the camera crosses the cut instead of stopping on it. A directed camera (`clamp`) never shows the frame's edge.
+  function camAt(sc, lt) {
+    const cs = sc.spec.camera;
+    if (!cs) return null;
+    const dur = sc.spec.dur;
+    const at = (u) => ({ z: val(cs.zoom, u, 1), x: val(cs.x, u, S.width / 2), y: val(cs.y, u, S.height / 2) });
+    let c = at(Math.min(lt, dur));
+    if (lt > dur) {
+      const b = at(dur - 0.1), k = (lt - dur) / 0.1;
+      c = { z: c.z + (c.z - b.z) * k, x: c.x + (c.x - b.x) * k, y: c.y + (c.y - b.y) * k };
+    }
+    if (cs.clamp) {
+      c.z = Math.max(1, c.z);
+      const hx = S.width / 2 / c.z, hy = S.height / 2 / c.z;
+      c.x = clamp(c.x, hx, S.width - hx); c.y = clamp(c.y, hy, S.height - hy);
+    }
+    return c;
+  }
+  PM.camAt = (si, lt) => camAt(scenes[si], lt);
+
   PM.setTime = function (t) {
     t = clamp(t, 0, S.duration - 1e-6);
+    const way = S.dir === 'rtl' ? -1 : 1;          // the side the next page lies on: the left in an Arabic film
     scenes.forEach((sc, si) => {
       const lt = t - sc.start;
       const next = scenes[si + 1];
-      const nextTr = next && next.spec.transition !== 'cut' ? (next.spec.transitionDur || 0.45) : 0;
+      const nextTr = next ? overlapOf(next.spec) : 0;
       const endT = sc.start + sc.spec.dur;
       const vis = lt >= 0 && t < endT + nextTr;
       sc.root.style.display = vis ? '' : 'none';
       if (!vis) return;
       sc.root.style.zIndex = si;
-      let tx = 0, ty = 0, op = 1;
+      let tx = 0, ty = 0, op = 1, k = 1, bx = 0, by = 0, iso = 0, origin = null;
       const tr = sc.spec.transition;
-      const trd = sc.spec.transitionDur || 0.45;
-      if (si > 0 && tr !== 'cut' && lt < trd) {
-        const p = E.inOutCubic(clamp(lt / trd));
-        if (tr === 'slide' || tr === 'push') tx = (1 - p) * S.width;
+      const trd = overlapOf(sc.spec);
+      if (si > 0 && tr === 'through') {                       // born too close, settling
+        const post = sc.spec.transitionDur || THROUGH.post;
+        if (lt < post) {
+          const p = clamp(lt / post);
+          k = 1 + (THROUGH.from - 1) * (1 - E.outCubic(p)); iso = 7 * Math.pow(1 - p, 3); origin = sc.spec.cutFocus;
+        }
+      } else if (si > 0 && tr !== 'cut' && lt < trd) {
+        const raw = clamp(lt / trd), p = E.inOutCubic(raw);
+        if (tr === 'slide' || tr === 'push' || tr === 'whip') tx = way * (1 - p) * S.width;
         else if (tr === 'rise') ty = (1 - p) * S.height;
-        else if (tr === 'fade') op = p;
+        else if (tr === 'fade' || tr === 'match') op = p;
         else if (tr === 'drop') ty = -(1 - E.outBounce(p)) * S.height;
+        if (tr === 'whip') { bx = WHIP.blur * Math.sin(Math.PI * raw); by = 0.6; }
+      }
+      // diving toward the next scene's birth point (push-through)
+      if (next && next.spec.transition === 'through' && lt > sc.spec.dur - THROUGH.pre && t < endT) {
+        const q = clamp((lt - (sc.spec.dur - THROUGH.pre)) / THROUGH.pre);
+        k = 1 + (THROUGH.push - 1) * E.inCubic(q); iso = 6 * q * q; origin = next.spec.cutFocus;
       }
       // being covered by the next scene
       if (t >= endT && nextTr) {
-        const q = E.inOutCubic(clamp((t - endT) / nextTr));
+        const raw = clamp((t - endT) / nextTr), q = E.inOutCubic(raw);
         const ntr = next.spec.transition;
-        if (ntr === 'slide') tx = -q * S.width * 0.25;
-        else if (ntr === 'push') tx = -q * S.width;
+        if (ntr === 'slide') tx = -way * q * S.width * 0.25;
+        else if (ntr === 'push' || ntr === 'whip') tx = -way * q * S.width;
+        if (ntr === 'whip') { bx = WHIP.blur * Math.sin(Math.PI * raw); by = 0.6; }
       }
-      sc.root.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px)';
+      sc.root.style.transformOrigin = origin ? origin[0] + 'px ' + origin[1] + 'px' : '50% 50%';
+      sc.root.style.transform = 'translate(' + tx.toFixed(1) + 'px,' + ty.toFixed(1) + 'px)' + (k !== 1 ? ' scale(' + k.toFixed(4) + ')' : '');
       sc.root.style.opacity = op;
-      const cs = sc.spec.camera;
-      const cam = cs ? { z: val(cs.zoom, lt, 1), x: val(cs.x, lt, S.width / 2), y: val(cs.y, lt, S.height / 2) } : null;
+      if (S.motionBlur !== false) blurOn(sc, sc.root, bx, by, iso);
+      const cam = camAt(sc, lt);
       sc.items.forEach((it) => applyEl(it, lt, cam));
       if (sc.banner) {
         const at = sc.bannerKeep ? -1 : (sc.spec.bannerAt != null ? sc.spec.bannerAt : 0.25);
         const p = clamp((lt - at) / 0.6);
-        const k = E.outBack(p);
-        const dy = sc.bannerKeep ? 0 : -(1 - k) * 220;
-        const rr = sc.bannerTilt + (sc.bannerKeep ? 0 : (1 - k) * -7);
+        const kk = E.outBack(p);
+        const dy = sc.bannerKeep ? 0 : -(1 - kk) * 220;
+        const rr = sc.bannerTilt + (sc.bannerKeep ? 0 : (1 - kk) * -7);
         sc.banner.style.transform = 'translate(' + (S.width / 2) + 'px,' + (sc.bannerY + dy) + 'px) rotate(' + rr.toFixed(2) + 'deg)';
         sc.banner.style.opacity = sc.bannerKeep ? 1 : clamp((lt - at) * 10);
       }
