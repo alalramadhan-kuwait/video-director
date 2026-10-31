@@ -526,7 +526,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                 params.update(aspect=c.get('aspect', .75), person=person)
             else:                                                            # a watch is never drawn: its real photo, uncut
                 template = 'archive_photo'
-                params = {k: v for k, v in params.items() if k in ('asset', 'desc', 'card')}
+                params = {k: v for k, v in params.items() if k in ('asset', 'desc', 'card', 'print', 'w', 'y', 'move', 'pos')}   # print: a print in the scene's world
                 if pics.get(slot, {}).get('credit'): params['credit'] = pics[slot]['credit']
                 if pics.get(slot, {}).get('aspect'): params['aspect'] = pics[slot]['aspect']
                 report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): shown as its photo, uncut")

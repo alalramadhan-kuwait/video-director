@@ -59,7 +59,9 @@ def inner(box, k=0.12):
 def behind(img, box) -> list:
     """The worst-case background in the box: of its darker and lighter tenth, the one nearer the words is used later."""
     x0, y0, x1, y1 = [int(round(v)) for v in inner(box)]
-    x0, y0 = max(0, x0), max(0, y0); x1, y1 = min(img.width, max(x0 + 1, x1)), min(img.height, max(y0 + 1, y1))
+    x0, y0 = max(0, x0), max(0, y0)
+    if x0 >= img.width or y0 >= img.height: return []                  # words wholly off the frame (a camera move)
+    x1, y1 = min(img.width, max(x0 + 1, x1)), min(img.height, max(y0 + 1, y1))
     px = sorted(img.crop((x0, y0, x1, y1)).getdata(), key=lum)
     return [px[int(len(px) * .1)], px[int(len(px) * .9)]] if px else []
 
