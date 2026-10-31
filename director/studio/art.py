@@ -57,7 +57,7 @@ def b_kinetic_type(p, theme, dur):
     for i, ln in enumerate(p['lines']):
         size = ln.get('size', 66)
         els.append({'type': 'text', 'text': ln['text'], 'font': 'title', 'size': size, 'color': ink, 'x': 360, 'y': y,
-                    'w': 640, 'align': 'center',
+                    'w': min(640, ln.get('w', 640)), 'align': 'center',               # a short line on paper sets w so the band fits it
                     **({} if ln.get('in') == 'none' else {'in': {'type': ln.get('in', 'rise'), 'at': ln.get('at', 0.0 + i * 0.5), 'dur': 0.45}}),
                     **({'paper': PAPER if ink == INK else INK} if ln.get('paper') else {})})       # 'in': 'none' = on screen from frame 0
         y += ln.get('gap', size * 1.9)
