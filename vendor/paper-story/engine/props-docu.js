@@ -153,13 +153,33 @@
       text(lab, pn.label || '', { font: 'banner', size: ls, w: lw, h: lh, center: true, ls: .04 });
       return { pn, el };
     });
+    // the moving marker: a paper plane (default), or `marker: "train"` (on the route or the whole map), a small drawn
+    // locomotive and carriage that runs along a railway line (sleepers under the trail) and never lifts off the map
+    const trainSvg = (col) => '<svg xmlns="http://www.w3.org/2000/svg" width="58" height="22" viewBox="0 0 58 22">'
+      + '<rect x="1" y="5" width="22" height="11" rx="2" fill="' + col + '" stroke="#2A2620" stroke-width="1.4"/>'
+      + '<rect x="4" y="8" width="5" height="4" fill="#E9C46A"/><rect x="12" y="8" width="5" height="4" fill="#E9C46A"/>'
+      + '<rect x="25" y="3" width="24" height="13" rx="2" fill="' + col + '" stroke="#2A2620" stroke-width="1.4"/>'
+      + '<rect x="41" y="0" width="5" height="5" fill="#2A2620"/><path d="M49 16 L57 16 L52 9 L49 9 Z" fill="#2A2620"/>'
+      + '<rect x="28" y="6" width="7" height="5" fill="#E9C46A"/>'
+      + '<circle cx="7" cy="18" r="3" fill="#2A2620"/><circle cx="17" cy="18" r="3" fill="#2A2620"/>'
+      + '<circle cx="31" cy="18" r="3" fill="#2A2620"/><circle cx="43" cy="18" r="3" fill="#2A2620"/></svg>';
     const routes = (sp.routes || []).map((r) => {
-      const trail = document.createElementNS(NS, 'path'); trail.setAttribute('fill', 'none'); trail.setAttribute('stroke', r.color || ink); trail.setAttribute('stroke-width', '3'); trail.setAttribute('stroke-dasharray', '2 9'); trail.setAttribute('stroke-linecap', 'round'); gRoute.appendChild(trail);
+      const train = (r.marker || sp.marker) === 'train';
+      const trail = document.createElementNS(NS, 'path'); trail.setAttribute('fill', 'none'); trail.setAttribute('stroke', r.color || ink); trail.setAttribute('stroke-width', train ? '2.4' : '3'); trail.setAttribute('stroke-dasharray', train ? 'none' : '2 9'); trail.setAttribute('stroke-linecap', 'round'); gRoute.appendChild(trail);
+      let ties = null;
+      if (train) { ties = document.createElementNS(NS, 'path'); ties.setAttribute('fill', 'none'); ties.setAttribute('stroke', r.color || ink); ties.setAttribute('stroke-opacity', '.55'); ties.setAttribute('stroke-width', '9'); ties.setAttribute('stroke-dasharray', '1.6 6'); gRoute.insertBefore(ties, trail); }
       const pl = box(node, { left: '0', top: '0', width: '0', height: '0', zIndex: 6, display: 'none' });
-      const sh = box(pl, { left: '-16px', top: '-10px', width: '34px', height: '22px', background: 'rgba(0,0,0,.25)', clipPath: 'polygon(0 50%,100% 0,70% 50%,100% 100%)', transform: 'translate(8px,14px)' });
-      box(pl, { left: '-16px', top: '-10px', width: '34px', height: '22px', background: r.planeColor || '#FBF8F0', clipPath: 'polygon(0 50%,100% 0,70% 50%,100% 100%)', filter: 'drop-shadow(0 0 1px rgba(0,0,0,.6))' });
-      box(pl, { left: '-16px', top: '-1px', width: '24px', height: '2px', background: 'rgba(0,0,0,.25)' });
-      return { r, trail, pl };
+      if (train) {
+        const body = box(pl, { left: '-29px', top: '-15px', width: '58px', height: '22px', filter: 'drop-shadow(1px 3px 2px rgba(0,0,0,.35))' });
+        body.innerHTML = trainSvg(r.trainColor || '#8E2B22'); pl._body = body;
+        pl._puffs = [0, 1, 2].map(() => box(pl, { left: '0', top: '0', width: '10px', height: '10px', borderRadius: '50%', background: '#F3F0E8', boxShadow: '0 0 0 1px rgba(0,0,0,.15)' }));
+      } else {
+        box(pl, { left: '-16px', top: '-10px', width: '34px', height: '22px', background: 'rgba(0,0,0,.25)', clipPath: 'polygon(0 50%,100% 0,70% 50%,100% 100%)', transform: 'translate(8px,14px)' });
+        box(pl, { left: '-16px', top: '-10px', width: '34px', height: '22px', background: r.planeColor || '#FBF8F0', clipPath: 'polygon(0 50%,100% 0,70% 50%,100% 100%)', filter: 'drop-shadow(0 0 1px rgba(0,0,0,.6))' });
+        box(pl, { left: '-16px', top: '-1px', width: '24px', height: '2px', background: 'rgba(0,0,0,.25)' });
+      }
+      pl.dataset.marker = train ? 'train' : 'plane';
+      return { r, trail, pl, ties, train };
     });
     const find = (id) => (sp.pins || []).find((p) => p.id === id) || { lon: 0, lat: 0 };
     const unf = sp.unfold;
@@ -209,7 +229,7 @@
           el.style.display = lt < at ? 'none' : '';
           el.style.transform = 'translate(' + px(X(pn.lon)) + ',' + px(Y(pn.lat) - (1 - E.outBounce(p)) * 120) + ')';
         });
-        routes.forEach(({ r, trail, pl }) => {
+        routes.forEach(({ r, trail, pl, ties, train }) => {
           const a = find(r.from), b = find(r.to);
           const ax = X(a.lon), ay = Y(a.lat), bx = X(b.lon), by = Y(b.lat);
           const mx = (ax + bx) / 2 - (by - ay) * (r.curve != null ? r.curve : 0.18), my = (ay + by) / 2 + (bx - ax) * (r.curve != null ? r.curve : 0.18);
@@ -218,9 +238,21 @@
           let d = ''; const n = 36;
           for (let i = 0; i <= n * q; i++) { const [x, y] = pt(i / n); d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1); }
           trail.setAttribute('d', q > 0 ? d : '');
-          if (r.plane !== false && lt >= (r.at || 0) && (p < 1 || r.keep)) {
+          if (ties) ties.setAttribute('d', q > 0 ? d : '');
+          if (r.plane !== false && r.marker !== 'none' && lt >= (r.at || 0) && (p < 1 || r.keep)) {
             const [x, y] = pt(q), [x2, y2] = pt(Math.min(1, q + 0.01)), ang = Math.atan2(y2 - y, x2 - x) * 180 / Math.PI;
-            pl.style.display = ''; pl.style.transform = 'translate(' + px(x) + ',' + px(y) + ') rotate(' + ang + 'deg) scale(' + (1 + Math.sin(Math.PI * q) * 0.5) + ')';
+            pl.style.display = '';
+            if (train) {                                       // on the ground: no lift, never upside down, steam behind the chimney
+              const back = Math.abs(ang) > 90;                 // (the flip keeps the train's roof, and its steam, up)
+              const k = r.markerScale || 1.4;
+              pl.style.transform = 'translate(' + px(x) + ',' + px(y) + ') rotate(' + ang + 'deg) scale(' + k + ',' + (back ? -k : k) + ')';
+              const run = lt - (r.at || 0);
+              pl._puffs.forEach((pf, k) => {
+                const ph = ((run * 1.6 + k / 3) % 1);
+                pf.style.opacity = (p < 1 ? (1 - ph) * 0.8 : 0).toFixed(2);
+                pf.style.transform = 'translate(' + px(14 - ph * 30) + ',' + px(-20 - ph * 12) + ') scale(' + (0.5 + ph * 0.9).toFixed(2) + ')';
+              });
+            } else pl.style.transform = 'translate(' + px(x) + ',' + px(y) + ') rotate(' + ang + 'deg) scale(' + (1 + Math.sin(Math.PI * q) * 0.5) + ')';
           } else pl.style.display = 'none';
         });
         if (unf) {

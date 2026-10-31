@@ -16,10 +16,14 @@ three-part Royal Oak documentary (`video/royal-oak/parts.py`, Arabic, many revie
 
 These are cheap and cover every scene; `life()` in `video/royal-oak/parts.py` applies the first two automatically.
 
-- **People breathe:** `idle: {type: "pulse", amp: .005, speed: .22}` from the end of their entrance (it scales from
-  the feet). Nobody stands frozen.
+- **People breathe:** `idle: "breathe"` (0.6 % over 4 s, from the feet). Nobody stands frozen, and nobody trembles:
+  photos and cut-outs never take the line boil (Étienne's review of Halter: every element jittered ±0.7 px 12 times a
+  second and the posters "trembled on an empty page").
 - **Taped prints settle:** a 1 to 1.5 degree `rot` drift and a 0.6 % `scale` creep over the time they are on screen.
 - **No camera hold longer than about 2 s:** keep a 3 to 5 % drift between beats and add a small push on each beat.
+  The studio enforces it (`director/studio/motion.py`): every scene's camera moves at least 3 % (push, pull, drift or
+  lateral dolly, seeded per scene), is still moving at the cut, and a scene longer than 5 s punches in on a word
+  half-way. The quality step and the review flag a scene that moves less (LONG_HOLD).
 - **Layers at different `depth`:** background .4 to .7, pinned things .85 to .9, the subject 1, foreground 1.1 to 1.3.
 - **Light has life:** dust motes in every spotlight (`motes()`), one glint sweep across a hero product photo
   (`glint()`), a lamp whose glow breathes.
@@ -89,6 +93,11 @@ The stage point `y` appears on screen at `640 + (y - camY) * zoom` (the same for
   storyboard (`musicInsertBars`); the mixer reads them.
 - Duck the music under the voice: sidechain-compress it, keyed by the voice clips themselves. Normalise the result to
   -14 LUFS for social.
+- **Levels that were measured to work** (Étienne's Halter review; `director/studio/mix.py` sets them): the music
+  about 18-20 dB under the voice while it speaks and about 10 dB under it in the gaps (music gain -6 dB, duck ratio 3,
+  threshold 0.03, release 400 ms; at -18 dB and ratio 6 it was 40 dB under and the film went silent between
+  sentences); a bed in every scene with a world or a mood, 24-28 dB under the voice, starting 0.5 s before its cut;
+  one-shots 3-6 dB under the voice, at most 15 a minute, and paper sounds only when paper really comes in.
 
 ## Arabic captions and on-screen text
 
@@ -179,8 +188,9 @@ user tops up.
 ## The Time Keeper end card
 
 Every Time Keeper film ends the same way (the owner's choice, from the success story): on a near-black plate a gold
-clock hand sweeps once around and draws the logo, one tick as it starts, the double tick (`tick_pair`) as the screen
-falls to black, then 1.3 s of black. It lives in `video/brand/tk_endcard.py`; append it to the storyboard's scenes
+clock hand sweeps once around and draws the logo, one tick as it starts, the double tick (`tick_pair`) as the logo is
+complete, then a 0.35 s fade: 3 s in all, with no banner over the logo and no black scene after it (a 1.3 s black tail
+read as a broken ending). It lives in `video/brand/tk_endcard.py`; append it to the storyboard's scenes
 and do not change it per film. The music ends with the story (the end card scenes carry `"endcard"`, and
 `video/royal-oak/score_parts.py` writes no music under them), so the ticks are heard alone. An optional closing line
 can play over it (`caption`, `voice`), as "والوقت… كان مجرد البداية." did in the success story.

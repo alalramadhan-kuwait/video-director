@@ -6,6 +6,7 @@ measures frozen time and contrast and returns problems with time codes):
   overlap    no words crossing other words (two different pieces of text sharing more than 15 % of the smaller one)
   first      frame one is a finished picture: no words still fading or flying in at t = 0
   frozen     no still stretch: ffmpeg freezedetect on the finished film (a long hold reads as a broken video)
+  camera     every scene's camera moves at least 3 % (director/studio/motion.py; the end card rests on purpose)
 
 Each check returns plain lines with the scene and the time, like the layout and safe-zone checks."""
 from __future__ import annotations
@@ -135,6 +136,21 @@ def runs(found: list[dict]) -> list[str]:
            'frozen': lambda e: f"the picture stands still for {e['seconds']} s"}
     return [(f"scene {e['scene'] + 1}  " if e.get('scene') is not None and e['scene'] >= 0 else '') +
             f"{e['from']:.1f}-{e['to']:.1f}s  " + say[e['kind']](e) for e in out]
+
+
+def camera(sb: dict, least: float | None = None) -> list[str]:
+    """Scenes whose camera moves less than `least` (3 %): a picture that stands still while the voice goes on."""
+    from .studio import motion
+    least = motion.MIN if least is None else least
+    out, t = [], 0.0
+    for i, s in enumerate(sb.get('scenes', [])):
+        d = float(s.get('dur') or 0)
+        if not s.get('endcard'):
+            a = motion.amount(s, d)
+            if a + motion.TOL < least:
+                out.append(f"scene {i + 1}  {t:.1f}-{t + d:.1f}s  the camera moves {a * 100:.1f} % (at least {least * 100:.0f} %: a push, a drift or a dolly)")
+        t += d
+    return out
 
 
 def check(sb: dict, work: Path, seconds: float) -> list[str]:

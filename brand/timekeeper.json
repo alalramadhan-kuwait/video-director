@@ -81,7 +81,7 @@
     ]
   },
   "music": {
-    "_why": "Subtle cinematic bed: at gain_db in pauses, ducked about 9 dB more while the voice speaks. A track is used only with its commercial licence record next to it (same name, .licence.json); otherwise there is no music. The owner's own track in the library wins; else the film picks from the whole catalogue by mood (prefer/avoid) and length, and its credit goes with the film.",
+    "_why": "A cinematic bed that is heard: at gain_db in pauses, ducked about 8-10 dB more while the voice speaks (duck). A track is used only with its commercial licence record next to it (same name, .licence.json); otherwise there is no music. The owner's own track in the library wins; else the film picks from the whole catalogue by mood (prefer/avoid) and length, and its credit goes with the film.",
     "library": "brand/music",
     "catalogs": [
       "brand/music/incompetech.json"
@@ -137,7 +137,14 @@
       "solo voice"
     ],
     "max_bpm": 100,
-    "gain_db": -18
+    "gain_db": -6,
+    "duck": {
+      "_why": "The music is heard: about 10 dB under the voice in the pauses and 18-20 dB under it while he speaks (Étienne's mix review: at -18 dB and ratio 6 it sat 40 dB under the voice and the film fell silent between sentences).",
+      "ratio": 3,
+      "threshold": 0.03,
+      "attack": 40,
+      "release": 400
+    }
   },
   "export": {
     "width": 1080,

@@ -12,7 +12,7 @@ from __future__ import annotations
 import importlib.util, json, os, shutil, subprocess, time
 from pathlib import Path
 
-from . import art, engine
+from . import art, engine, mix, motion
 from .voice import approved_script
 from .checks import words as checks_words
 
@@ -20,6 +20,7 @@ ROOT = Path(__file__).resolve().parents[2]
 VOICE_AT, TAIL = 0.15, 0.45
 NARRATOR_PACE = {'timekeeper': (1.74, 'median speaking rate of the 30 approved Royal Oak takes (ElevenLabs, Abdullah)')}
 TRANSITION = {'l9': 'fade', 'l12': 'fade', 'l13': 'fade'}
+ENDCARD_S = 3.0                         # the Time Keeper end card (vendor/paper-story/tk_endcard.py DUR): no black scene after it
 
 
 def _endcard(sb_dir: Path, theme='tk-black'):
@@ -46,7 +47,7 @@ def _previews(studio, pid, st, scenes, warnings, v):
     try:
         from . import engine
         sbe = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style(st['brand']),
-               'scenes': [{**art.scene_visual(s['technique'], s['params'], s['theme'], s['dur'], s['banner']), 'dur': s['dur']} for s in scenes]}
+               'scenes': [{**art.scene_visual(s['technique'], s['params'], s['theme'], s['dur'], s['banner'], seed=s['id']), 'dur': s['dur']} for s in scenes]}
         files = engine.stills(sbe, studio.pdir(pid) / 'work' / f'sb-{v}', [s['start'] + min(1.6, s['dur'] * 0.5) for s in scenes], scale=0.3)
         for s, f in zip(scenes, files): s['still'] = studio.put_file(pid, f, 'png')
     except Exception as e:                                      # the storyboard is still usable; say the pictures are missing
@@ -102,11 +103,11 @@ def build(studio, pid) -> dict:
                        'concept': appr and appr['concept'], 'art_version': appr and appr['version']})
         t += dur
     _previews(studio, pid, st, scenes, warnings, len(st['storyboards']) + 1)
-    seconds = round(t + 4.5 + 1.3, 2)
+    seconds = round(t + ENDCARD_S, 2)
     # what the FINAL narration would take: words at the brand narrator's measured pace, same pauses and end card
     n_words = sum(len(checks_words(s['line'])) for s in scenes)
     rate, rate_src = NARRATOR_PACE.get(st['brand'], (None, None))
-    est = round(n_words / rate + len(scenes) * (VOICE_AT + TAIL + 0.15) + 5.8, 1) if rate else None
+    est = round(n_words / rate + len(scenes) * (VOICE_AT + TAIL + 0.15) + ENDCARD_S, 1) if rate else None
     doc = {'v': len(st['storyboards']) + 1, 'script_v': sv['v'], 'hook': hook and hook['id'], 'scenes': scenes,
            'endcard': 'timekeeper' if st['brand'] == 'timekeeper' else None}
     rel = studio.put(pid, json.dumps(doc, ensure_ascii=False, indent=1).encode(), 'json')
@@ -126,9 +127,9 @@ def engine_storyboard(studio, pid, doc: dict, work: Path) -> dict:
     if adir.exists():
         (work / 'assets').mkdir(exist_ok=True)
         for f in adir.glob('*'): shutil.copyfile(f, work / 'assets' / f.name)
-    scenes = []
+    scenes, voice_db = [], {}
     for s in doc['scenes']:
-        sc = art.scene_visual(s['technique'], s['params'], s['theme'], s['dur'], s['banner'])
+        sc = art.scene_visual(s['technique'], s['params'], s['theme'], s['dur'], s['banner'], seed=s['id'])
         sc.update({'id': s['id'], 'dur': s['dur'], 'transition': s['transition'] if s['transition'] != 'none' else 'cut',
                    'status': 'METAPHOR' if s['technique'] in ('kinetic_type', 'paper_cut', 'parallax_25d') else 'CONFIRMED'})
         if s['take']:
@@ -140,17 +141,18 @@ def engine_storyboard(studio, pid, doc: dict, work: Path) -> dict:
             shutil.copyfile(src, dst)
             sc['voice'] = f"voice/{s['id']}.wav"; sc['voiceAt'] = VOICE_AT
             sc['words'] = [[round(VOICE_AT + w['s'], 2), w['w']] for w in take['words']]
+            motion.word_punch(sc, sc['words'], s['dur'], s['id'])          # a long scene: a second picture event on a word
+            voice_db[len(scenes)] = mix.level(str(dst), 'active')
         else:
             sc['captions'] = s['line']
         scenes.append(sc)
     if doc.get('endcard') == 'timekeeper':
         cards = _endcard(work, 'tk-black')
-        if doc.get('endcard_tail') is False:
-            cards = cards[:1]                  # the card already fades to black: no extra silent black scene after it
         for sc in cards:
             sc.setdefault('banner', None)      # no banner from the last scene on the logo card
             scenes.append(sc)
-    return {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style('timekeeper'), 'scenes': scenes}
+    mix.apply(scenes, voice_db)                # beds and J-cuts, one-shots under the voice and at most 15 a minute
+    return {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', **art.style('timekeeper'), 'audio': {'autoSfx': False}, 'scenes': scenes}
 
 
 def render(studio, pid, task, storyboard_v=None, scale=1.5, inject=None, crf=None):

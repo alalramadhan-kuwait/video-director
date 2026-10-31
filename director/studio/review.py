@@ -11,7 +11,7 @@ Checks (each one names the perspective it stands for):
   historical_product years and claims on screen against the research file; drawn watches presented as a brand
   historical_product placeholders where a real photo is still missing
   arabic_readability caption groups, banner length, Latin in captions, digits style
-  motion_director    scenes that hold too long without a camera move
+  motion_director    scenes whose camera moves less than 3 % (director/studio/motion.py)
   art_director       themes outside the brand's palette (style consistency)
 """
 from __future__ import annotations
@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 
 from ..art import review as R
-from . import checks, engine
+from . import checks, engine, motion
 from .storyboard import VOICE_AT
 
 YEAR = re.compile(r'(1[89]\d\d|20\d\d)')
@@ -216,10 +216,11 @@ def run(studio, pid, task, render_id, profile, other_profiles, research, platfor
             add('OFF_BRAND_THEME', 'major', 'art_director', f"background {th.get('bg')} is not a {profile['id']} colour", 'use a brand theme', s['id'], s['start'] + .3)
         if isinstance(th, str) and th not in themes:
             add('OFF_BRAND_THEME', 'major', 'art_director', f"theme {s['src']['theme']} is not a {profile['id']} theme", 'use a brand theme', s['id'], s['start'] + .3)
-        moving = s['src'].get('camera') or any(isinstance(e.get('view'), list) or isinstance(e.get('x'), list) or isinstance(e.get('y'), list)
-                                               or isinstance(e.get('scale'), list) for e in s['src'].get('elements', []))
-        if s['dur'] > 8 and not moving and not s['src'].get('endcard'):
-            add('LONG_HOLD', 'minor', 'motion_director', f"{s['dur']:.1f} s with no camera move", 'add a slow push or a layer change', s['id'], s['start'] + s['dur'] / 2)
+        cam = motion.amount(s['src'], s['dur'])               # a camera key is not a move: it has to travel at least 3 %
+        if cam + motion.TOL < motion.MIN and not s['src'].get('endcard'):
+            add('LONG_HOLD', 'minor' if s['dur'] <= 8 else 'major', 'motion_director',
+                f"{s['dur']:.1f} s with the camera moving {cam * 100:.1f} % (at least {motion.MIN * 100:.0f} %)",
+                'a 3-5 % push, drift or dolly, and a punch-in on a word if the scene is long', s['id'], s['start'] + s['dur'] / 2)
     task.unit(what='readability')
     # evidence: one still per finding at its timecode
     for i, f in enumerate(F):

@@ -2,8 +2,8 @@
 """Make a whole film from a film file:  python3 tools/make_film.py films/panerai.yaml OUT_DIR [--stills-only] [--voice-dir DIR]
 --voice-dir DIR: the narration read elsewhere, one DIR/<id>.wav per line (OmniVoice: tools/voice_script.py, then
 omnivoice_narrate.py --lines-dir DIR), instead of the free draft voice.
-Prints what Whisper did not hear, layout faults, words under the platform's buttons, how many cuts land on the music's
-beats, the stills to look at, the film, its size, the cover or parts the platform needs and the credits file."""
+Prints what Whisper did not hear, layout faults, words under the platform's buttons, the camera check, the sound
+(effects a minute, beds, effects dropped), how many cuts land on the music's beats, the stills to look at, the film, its size, the cover or parts the platform needs and the credits file."""
 import argparse, json, sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -20,7 +20,11 @@ for slot, p in r['photos'].items():
 for d in r.get('drawn', []): print('cut-out:', d)
 print('story:', 'all rules kept' if not r['story'] else '\n  ' + '\n  '.join(r['story']))
 print('layout:', 'no faults' if not r['layout'] else '\n  ' + '\n  '.join(r['layout']))
-print('quality:', 'contrast, overlaps, first frame and motion all pass' if not r.get('quality') else '\n  ' + '\n  '.join(r['quality']))
+print('quality:', 'contrast, overlaps, first frame, camera and motion all pass' if not r.get('quality') else '\n  ' + '\n  '.join(r['quality']))
+m = r.get('mix') or {}
+print(f"sound: {m.get('one_shots', 0)} effects ({m.get('per_minute', 0)} a minute), beds in {len(m.get('beds', []))} scenes"
+      + (f", {len(m['dropped'])} effect(s) dropped to stay under 15 a minute: " + ', '.join(f"{d['name']} ({d['scene']})" for d in m['dropped']) if m.get('dropped') else ''))
+for w in r.get('sound', []): print('  sound:', w)
 print(f"platform: {r['platform']}" + (f"  ⚠ {r['length']}" if r.get('length') else ''))
 print('safe zones:', 'nothing under the app\'s buttons' if not r['safe'] else '\n  ' + '\n  '.join(r['safe']),
       f"({r['safe_caution']} in the caution band)" if r.get('safe_caution') else '')

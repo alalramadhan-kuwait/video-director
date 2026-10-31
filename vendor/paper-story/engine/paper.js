@@ -308,7 +308,14 @@
     hop:   (t, a, sp) => { const ph = (t * sp) % 1; const k = Math.sin(Math.PI * Math.min(1, ph * 1.6)); const air = ph * 1.6 < 1; return { dy: -k * (a == null ? 26 : a), sy: air ? 1 + k * 0.05 : 1 - Math.exp(-(ph - 0.625) * 22) * 0.07, sx: air ? 1 - k * 0.03 : 1 + Math.exp(-(ph - 0.625) * 22) * 0.05 }; },
     spin:  (t, a, sp) => ({ r: t * 360 * sp }),
     shake: (t, a, sp) => ({ dx: Math.sin(t * 60 * sp) * (a == null ? 3 : a) }),
+    // a person at rest: the body grows by `amp` (0.6 %) and settles again once every 4 s / speed, smooth as breath
+    breathe: (t, a, sp) => ({ s: 1 + (a == null ? 0.006 : a) * (0.5 - 0.5 * Math.cos(t * Math.PI * 2 * sp / 4)) }),
   };
+  // Real pictures never boil: a photograph or a cut-out of a person or a watch trembling 12 times a second reads as a
+  // broken video (Étienne's review). The paper decor and the words keep the hand-made boil; `boil: true` forces it back.
+  const STEADY = { image: 1, photo: 1, cutout: 1, igpost: 1, reveal: 1, phone: 1, laptop: 1 };
+  const boils = (sp) => S.boil && !sp.still && !sp.noBoil && !(STEADY[sp.type] && sp.boil !== true);
+  PM.boils = boils;
 
   function makeEl(spec, idx, scene) {
     const B = PM.builders[spec.type];
@@ -365,7 +372,7 @@
       const m = (IN[out.type] || IN.fade)(p, out.from, 0);
       add(Object.assign({}, m, { o: m.o != null ? m.o : p }));
     }
-    const bt = S.boil && !sp.still ? Math.floor(lt * 12) / 12 : lt;
+    const bt = boils(sp) ? Math.floor(lt * 12) / 12 : lt;          // a steady element idles smoothly, not in 12 fps steps
     if (sp.idle) {
       const id = typeof sp.idle === 'string' ? { type: sp.idle } : sp.idle;
       const f = IDLE[id.type];
@@ -380,7 +387,7 @@
       const ox = S.width / 2 + (cam.x - S.width / 2) * d, oy = S.height / 2 + (cam.y - S.height / 2) * d;
       x = S.width / 2 + (x - ox) * z; y = S.height / 2 + (y - oy) * z; sc *= z;
     }
-    if (S.boil && !sp.still && !sp.noBoil) {
+    if (boils(sp)) {
       const r = rng(it.seed + Math.floor(lt * 12) * 7919);
       x += (r() - 0.5) * 1.4; y += (r() - 0.5) * 1.4; rot += (r() - 0.5) * 0.7;
     }
