@@ -7,6 +7,9 @@ measures frozen time and contrast and returns problems with time codes):
   first      frame one is a finished picture: no words still fading or flying in at t = 0
   frozen     no still stretch: ffmpeg freezedetect on the finished film (a long hold reads as a broken video)
   camera     every scene's camera moves at least 3 % (director/studio/motion.py; the end card rests on purpose)
+  stage      the stage law (Bang Motion's anti-slide checks, motion.stage_law): at least 8 things moving in a scene,
+             world decor counted; the main camera move reaching zoom 1.08 (shot sizes, not a drift); no plain fade or
+             slide between two scenes in the same place (the camera carries that cut: push or match)
 
 Each check returns plain lines with the scene and the time, like the layout and safe-zone checks."""
 from __future__ import annotations
@@ -153,6 +156,13 @@ def camera(sb: dict, least: float | None = None) -> list[str]:
                 out.append(f"scene {i + 1}  {t:.1f}-{t + d:.1f}s  the camera moves {a * 100:.1f} % (at least {least * 100:.0f} %: a push, a drift or a dolly)")
         t += d
     return out
+
+
+def stage(sb: dict, least: int | None = None) -> list[str]:
+    """The stage law as plain lines with the scene and its time, like the other checks."""
+    from .studio import motion
+    found = motion.stage_law(sb, motion.MOVERS if least is None else least)
+    return [f"scene {f['scene'] + 1}  {f['t']:.1f}-{f['t'] + f['dur']:.1f}s  {f['say']} ({f['fix']})" for f in found]
 
 
 def check(sb: dict, work: Path, seconds: float) -> list[str]:

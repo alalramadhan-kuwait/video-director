@@ -30,8 +30,21 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
                sentence that prepares the change (`closing: true` for an echo that ends the film)
              · the feeling of the story is named on the lines that carry it (`mood:` mystery, fear, sadness, tension, joy,
                wonder): it changes the light and the sound of the scene (director/studio/moods.py)
-  motion     every scene's camera moves at least 3 % (director/studio/motion.py, seeded by the line's id); a scene longer
-             than 5 s punches in on a word half-way through; quality flags a scene whose camera moves less
+  motion     shot sizes, not drift (director/studio/motion.py `direct`, rule 18h): each scene goes wide -> close-up (or
+             born close, pulling back) on the word that carries the line, framed on what it is about (the photo, the
+             face, the number), never below zoom 1.08, eased, seeded by the line's id, then a slow push. A line steers
+             it:  shots: [{on: فبراير, to: close, focus: [520, 610]}, {on: دينار, to: medium}]  (to: wide | medium |
+             close | a zoom; focus in frame px of the 720x1280 frame; at: seconds instead of on:; nth: for a repeated
+             word). The zoom is capped so no photo is shown bigger than its own pixels allow (its real size, the
+             engine's `soft` limit). Words and cards glide in slowly and leave fast before a cut, blurred along their
+             travel while they move fast
+  cuts       the camera crosses the cut (paper.js): `cut: push` (push-through: the camera dives into where the next
+             scene is born, which arrives too close and settles), `cut: match` (the two subjects line up on screen
+             across a short dissolve), `cut: whip` (a whip pan with a directional blur, right to left for Arabic),
+             `cut: fade` or `cut: cut`. Chosen by itself when the line says nothing: two pictures -> match, the same
+             world -> push, a new world -> whip or push in turn, into a city zoom -> cut
+  stage      the anti-slide checks (motion.stage_law, report `stage`): at least 8 things moving in a scene (its world
+             counted), the main camera move reaching zoom 1.08, no plain fade inside one place
   sound      the mix (director/studio/mix.py): beds 24-28 dB under the voice starting 0.5 s before their cut, one-shots
              3-6 dB under it and at most 15 a minute, paper sounds only when paper comes in. A line can ask for its own
              effects and bed:  sfx: [{name: gavel, on: «word»}, {name: train_horn, at: 2.5, gain: -8}]  ·  bed: train
@@ -324,6 +337,26 @@ def _seconds(p: Path) -> float:
                                 capture_output=True, text=True).stdout)
 
 
+CUTS = {'push': 'through', 'through': 'through', 'match': 'match', 'whip': 'whip', 'fade': 'fade', 'cut': 'cut',
+        'slide': 'slide', 'rise': 'rise', 'drop': 'drop'}
+
+
+def cut_for(ln: dict, prev: dict | None, sc: dict, world, template: str, last: str | None) -> str:
+    """How the camera crosses into this scene: the line's `cut:` (push | match | whip | fade | cut; the older
+    `transition:` still works), else chosen: two pictures line up (match), the same world carries on (push), a new
+    world is whipped to or pushed into in turn, and a city zoom flies in from a plain cut."""
+    if prev is None: return 'cut'
+    asked = ln.get('cut') or ln.get('transition')
+    if asked:
+        if asked not in CUTS: raise ValueError(f"{ln['id']}: cut {asked!r} is not one of push, match, whip, fade, cut")
+        return CUTS[asked]
+    if template in motion.OWN_CAMERA or prev.get('endcard'): return 'cut'
+    a, b = motion.hero(prev), motion.hero(sc)
+    if a and b and a['kind'] == b['kind'] == 'picture': return 'match'
+    if world and prev.get('set') == world: return 'through'
+    return 'through' if last == 'whip' else 'whip'
+
+
 def photos(film: dict, work: Path) -> dict:
     """Each photo slot as work/assets/<slot>.<ext>: the owner's own file, a Commons file whose page states a free
     licence, or a credited photo from another page (`url:` with `page:` and `credit:`; the owner's choice, rule 12j:
@@ -399,6 +432,25 @@ def cutout(slot: str, work: Path, person: bool = False) -> dict:
         out['whole'] = True                                   # a portrait: the person as photographed, cut at the waist
     rec.write_text(json.dumps(out, ensure_ascii=False), encoding='utf-8')
     return out
+
+
+def cross(scenes: list[dict], rtl: bool = True) -> None:
+    """After every scene is drawn: a match cut lines B's subject up with A's, a push-through knows where B is born,
+    words leave before each cut (asymmetric exits), and a whip or a push is heard (a whoosh at the cut)."""
+    for i, sc in enumerate(scenes):
+        tr = sc.get('transition')
+        if i and tr in ('match', 'through', 'whip'):                       # the subject is there at the cut: the camera
+            h = motion.hero(sc)                                          # arrives on it, it does not drop in afterwards
+            if h and h['kind'] == 'picture': h['el'].pop('in', None)
+        if i and tr == 'match':
+            motion.match(scenes[i - 1], sc)
+        if i and tr == 'through':
+            sc['cutFocus'] = motion.cut_focus(sc)
+        if i and tr in ('whip', 'through'):
+            prev = scenes[i - 1]
+            prev.setdefault('sfx', []).append({'at': round(max(0.0, prev['dur'] - (.18 if tr == 'whip' else .35)), 2), 'name': 'whoosh',
+                                               'gain': -14 if tr == 'whip' else -18})
+        motion.choreograph(sc, sc['dur'], leaving=i < len(scenes) - 1, rtl=rtl)
 
 
 def voice_script(film: dict) -> list[dict]:
@@ -549,14 +601,14 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
         report.setdefault('sound', []).extend(line_sound(sc, ln, t['words'], dur))     # the film file's own cues and bed
         words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
-        motion.word_punch(sc, words, dur, ln['id'])                          # a long scene: a second picture event on a word
+        motion.direct(sc, dur, ln['id'], words=words, shots=ln.get('shots'), pixels=motion.pixels(out / 'assets'), template=template)
         voice_db[len(scenes)] = mix.level(str(t['wav']), 'active')
-        same = scenes and scenes[-1].get('set') == world
+        cut = cut_for(ln, scenes[-1] if scenes else None, sc, world, template, scenes[-1].get('transition') if scenes else None)
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
-                  words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']],
-                  transition=ln.get('transition', 'cut' if not scenes else ('slide' if same else 'fade')))     # a new world fades in
+                  words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']], transition=cut)
         scenes.append(sc)
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': template})
+    cross(scenes, rtl=True)                                              # the camera crosses each cut
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
     ending = _endcard(out)
     report['mix'] = mix.apply(scenes + ending, voice_db, sfx_dir=out / 'sfx')   # beds, J-cuts, one-shot levels and the cap
@@ -585,6 +637,9 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     report['quality'] = quality.check(sb, out, seconds)                  # contrast, words over words, a finished first frame
     report['quality'] += quality.camera(sb)                              # every scene's camera moves at least 3 %
     report['motion'] = {s['id']: motion.amount(s, s['dur']) for s in scenes}
+    report['shots'] = {s['id']: {'cut': s.get('transition'), 'shots': [(x['at'], x['size'], x['zoom']) for x in (s.get('camera') or {}).get('shots', [])],
+                                 **({'cap': s['camera']['cap']} if (s.get('camera') or {}).get('cap') else {})} for s in scenes}
+    report['stage'] = quality.stage(sb)                                  # the stage law: movers, the zoom floor, no fade in one place
     starts = [sum(s['dur'] for s in scenes[:i]) for i in range(len(scenes))]
     shots = engine.stills(sb, out, [round(st + s['dur'] * .7, 2) for st, s in zip(starts, scenes)], scale=0.5)
     (out / 'scenes').mkdir(exist_ok=True)

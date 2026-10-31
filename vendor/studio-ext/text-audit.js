@@ -27,8 +27,11 @@
     const owner = (n) => n.parentElement.closest('.el, .banner, .cap') || n.parentElement;
     const ids = new Map();
     const settled = PM.scenes.map((sc, si) => {             // a scene mid-transition is partly covered: not measured
-      const lt = t - sc.start, trd = si > 0 && sc.spec.transition !== 'cut' ? (sc.spec.transitionDur || 0.45) : 0;
-      return lt >= (trd ? trd + 0.05 : 0) && lt <= sc.spec.dur - 0.05;
+      // a push-through settles for 0.9 s after its cut and dives in for the last 0.5 s before the next one (PM.CUTS)
+      const lt = t - sc.start, tr = sc.spec.transition, nx = PM.scenes[si + 1], C = PM.CUTS || { THROUGH: { pre: 0.5, post: 0.9 } };
+      const trd = si > 0 && tr !== 'cut' ? (sc.spec.transitionDur || (tr === 'through' ? C.THROUGH.post : 0.45)) : 0;
+      const tail = nx && nx.spec.transition === 'through' ? C.THROUGH.pre : 0.05;
+      return lt >= (trd ? trd + 0.05 : 0) && lt <= sc.spec.dur - tail;
     });
     const walk = document.createTreeWalker(stage, NodeFilter.SHOW_TEXT);
     for (let n = walk.nextNode(); n; n = walk.nextNode()) {

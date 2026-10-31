@@ -12,6 +12,8 @@ Checks (each one names the perspective it stands for):
   historical_product placeholders where a real photo is still missing
   arabic_readability caption groups, banner length, Latin in captions, digits style
   motion_director    scenes whose camera moves less than 3 % (director/studio/motion.py)
+  motion_director    the stage law: too few moving things, a main camera move under zoom 1.08, a plain fade inside one
+                     place (motion.stage_law)
   art_director       themes outside the brand's palette (style consistency)
 """
 from __future__ import annotations
@@ -221,6 +223,11 @@ def run(studio, pid, task, render_id, profile, other_profiles, research, platfor
             add('LONG_HOLD', 'minor' if s['dur'] <= 8 else 'major', 'motion_director',
                 f"{s['dur']:.1f} s with the camera moving {cam * 100:.1f} % (at least {motion.MIN * 100:.0f} %)",
                 'a 3-5 % push, drift or dolly, and a punch-in on a word if the scene is long', s['id'], s['start'] + s['dur'] / 2)
+    codes = {'FEW_MOVERS': 'STAGE_FEW_MOVERS', 'CAMERA_FLOOR': 'CAMERA_UNDER_FLOOR', 'FADE_SAME_PLACE': 'FADE_SAME_PLACE'}
+    for f in motion.stage_law(esb):                       # the stage law: a slideshow is flagged, not judged by eye
+        sc = scenes[f['scene']]
+        add(codes[f['code']], 'minor', 'motion_director', f"{f['say']} ({f['dur']:.1f} s)", f['fix'], sc['id'],
+            sc['start'] + (0.1 if f['code'] == 'FADE_SAME_PLACE' else sc['dur'] / 2))
     task.unit(what='readability')
     # evidence: one still per finding at its timecode
     for i, f in enumerate(F):
