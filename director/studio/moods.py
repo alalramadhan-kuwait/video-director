@@ -54,13 +54,13 @@ def tension(dur):
 
 def joy(dur):
     leak = {**_svg(_glow('#F5C77A', '85%', '12%', .55)), 'opacity': [[0, .4], [dur * .5, 1], [dur, .7]]}
-    return [leak], [], [(0.25, 'chime', -16)]
+    return [leak], [('room', -34)], [(0.25, 'chime', -16)]        # every mood has a bed under the voice (the mix review)
 
 
 def wonder(dur):
     leak = {**_svg(_glow('#E8EEF2', '50%', '0%', .45)), 'opacity': [[0, .3], [dur, .9]]}
     return [leak, {'type': 'sparkles', 'x': 360, 'y': 520, 'count': 10, 'radius': 120, 'life': 1.4, 'color': '#FFFFFF', 'at': .8, 'z': Z}], \
-        [], [(0.4, 'chime', -20)]
+        [('drone', -34)], [(0.4, 'chime', -20)]
 
 
 MOODS = {'mystery': mystery, 'fear': fear, 'sadness': sadness, 'tension': tension, 'joy': joy, 'wonder': wonder}
