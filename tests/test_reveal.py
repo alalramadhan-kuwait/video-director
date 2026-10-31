@@ -11,7 +11,7 @@ class TestReveal(unittest.TestCase):
         self.assertEqual(quickfilm.line_reveal(sc, {'id': 'l5', 'reveal': {'on': 'Antiqua'}}, words, 4.0), [])
         cloth = sc['elements'][-1]
         self.assertEqual(cloth['type'], 'svg'); self.assertNotIn('dial', cloth['svg'])
-        self.assertGreater(cloth['w'], 400); self.assertGreater(cloth['z'], 0)
+        self.assertGreater(cloth['w'], 400); self.assertNotIn('z', cloth)                # stacked over the print by order
         ys = cloth['y']
         self.assertEqual(ys[0], [0, 520])                                    # over the print from the first frame
         self.assertLess(ys[-1][1], -500)                                     # pulled away, out of the frame

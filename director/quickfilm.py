@@ -303,7 +303,8 @@ def line_reveal(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
     t0, t1 = round(max(.05, at - .15), 2), round(at + .7, 2)
     sc['elements'].append({'type': 'svg', 'svg': veil(vw, vh), 'w': round(vw), 'h': round(vh), 'x': x, 'still': True, 'noBoil': True,
                            'y': [[0, y], [t0, y + 12, 'outCubic'], [t1, y - 1500, 'inCubic']],
-                           'rot': [[0, 0], [t0, 1.5], [t1, -9, 'inCubic']], 'z': (pic.get('z') or 0) + 8})
+                           'rot': [[0, 0], [t0, 1.5], [t1, -9, 'inCubic']],
+                           **({'z': pic['z'] + 1} if pic.get('z') is not None else {})})   # appended last: over the print (the engine stacks by order)
     sc.setdefault('sfx', []).append({'at': t0, 'name': 'whoosh', 'gain': -10, 'owner': True})
     return []
 
