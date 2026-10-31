@@ -45,10 +45,12 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              world -> push, a new world -> whip or push in turn, into a city zoom -> cut
   stage      the anti-slide checks (motion.stage_law, report `stage`): at least 8 things moving in a scene (its world
              counted), the main camera move reaching zoom 1.08, no plain fade inside one place
-  sound      the mix (director/studio/mix.py): beds 24-28 dB under the voice starting 0.5 s before their cut, one-shots
-             3-6 dB under it and at most 15 a minute, paper sounds only when paper comes in. A line can ask for its own
-             effects and bed:  sfx: [{name: gavel, on: «word»}, {name: train_horn, at: 2.5, gain: -8}]  ·  bed: train
-             (or {name, gain}, a list, or none)
+  sound      the mix (director/studio/mix.py): beds are felt, not heard: one main bed 34 dB under the voice from 0.5 s
+             before its cut to 1.5 s after it, then 40 dB under (a tick or a tock 36 at most; a second bed 6 dB further
+             down, never a third); one-shots 3-6 dB under the voice and at most 15 a minute, paper sounds only when
+             paper comes in. A line can ask for its own effects and bed:  sfx: [{name: gavel, on: «word»}, {name:
+             train_horn, at: 2.5, gain: -8}]  ·  bed: train (or {name, gain}, a list, or none). The film can turn every
+             bed down further:  beds: {gain: -4}
              real recordings (director/copilot/sounds.py): `sounds: {gavel: "gavel on wood", train_bed: "steam train"}`
              finds each on Openverse (CC0, then CC BY; cached outside git) and plays it wherever the film uses that
              name; `name: "found:<openverse id>"` (with `fallback: gavel`) uses one sound directly. Not found or
@@ -501,20 +503,43 @@ def take(line: dict, brand: str, vdir: Path, given: Path | None = None) -> dict:
             'not_heard': min(miss, key=len) if m['heard'] else []}
 
 
-def loudness(src: Path, dst: Path):
-    """The platform loudness target (-14 LUFS, peaks under -1.5 dBTP), the video stream untouched (as the studio does).
-    Two passes: the film is measured first and normalised with those figures (one pass fell 2.4 LU short on a
-    quieter, more dynamic voice)."""
-    target = 'I=-14:TP=-2:LRA=11'                                  # -2 dBTP so the AAC encode stays under -1.5
-    pre = 'alimiter=limit=0.35:attack=2:release=60:level=false,'      # tame the voice's lone peaks so the gain can be linear
-    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', str(src), '-af', f'{pre}loudnorm={target}:print_format=json', '-f', 'null', '-'],
-                       capture_output=True, text=True)
+LOUD = -14.0                                                       # the platform target, integrated LUFS
+
+
+def _measured(src: Path, af: str) -> dict | None:
+    """loudnorm's measurement of the film's audio after the filter chain `af` (empty: as it is)."""
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-i', str(src), '-vn', '-af', f'{af}{"," if af else ""}loudnorm=I={LOUD}:TP=-2:LRA=11:print_format=json',
+                        '-f', 'null', '-'], capture_output=True, text=True)
     m = re.search(r'\{[^{}]*"input_i"[^{}]*\}', r.stderr)
-    af = f'{pre}loudnorm={target}'
+    j = m and json.loads(m.group(0))
+    return j if j and j['input_i'] not in ('-inf', 'inf') else None
+
+
+def loudness(src: Path, dst: Path):
+    """The platform loudness target (-14 LUFS, true peak about -2 dBTP so the AAC encode stays under -1.5), the video
+    stream untouched (as the studio does). Linear, never an AGC: one fixed gain lifts the whole film, so the pauses stay
+    as far under the voice as the mix put them. A limiter before it catches lone peaks; one after it, at 4x the sample
+    rate (true peaks), catches only the peaks the gain pushes over (the voice's consonants, the gavel's attack). That
+    limiter takes some loudness back, so the gain is measured and corrected until the film lands within 0.3 LU.
+    (loudnorm's own linear mode turns dynamic, an AGC, whenever the peaks sit more than 12 dB over the loudness: the
+    OmniVoice takes sit 20 dB over, and v10's mix went from LRA 3.1 to 1.6.)"""
+    pre = 'alimiter=limit=0.6:attack=2:release=60:level=false'           # lone peaks only (0.35, -9 dBFS, squashed the gavel and the horn)
+    post = 'aresample=192000,alimiter=limit=0.708:attack=1:release=50:level=false,aresample=48000'   # -3 dB true peaks
+    chain = lambda g: f'{pre},volume={g:.2f}dB,{post}'
+    m = _measured(src, pre)
     if m:
-        j = json.loads(m.group(0))
-        af += (f":measured_I={j['input_i']}:measured_TP={j['input_tp']}:measured_LRA={j['input_lra']}"
-               f":measured_thresh={j['input_thresh']}:offset={j['target_offset']}:linear=true")
+        last = (0.0, float(m['input_i']))                               # (gain, loudness): no gain, as measured
+        gain = LOUD - last[1]
+        for _ in range(5):
+            m = _measured(src, chain(gain))
+            if not m: break
+            now = float(m['input_i'])
+            if abs(LOUD - now) < .3: break
+            slope = min(1.0, max(.2, (now - last[1]) / (gain - last[0]))) if gain != last[0] else 1.0   # the limiter eats part of each dB
+            last, gain = (gain, now), gain + (LOUD - now) / slope
+        af = chain(gain)
+    else:                                                               # silent or unmeasurable: the plain target
+        af = f'{pre},loudnorm=I={LOUD}:TP=-2:LRA=11'
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', str(src), '-c:v', 'copy', '-af', af, '-ar', '48000',
                     '-c:a', 'aac', '-b:a', '160k', '-movflags', '+faststart', str(dst)], check=True)
 
@@ -546,6 +571,35 @@ def split(film: Path, cuts: list[tuple[float, float]], mb: float) -> list[Path]:
     return out
 
 
+# what an uncut photo keeps of a paper_cutout's params (print: a print in the scene's world; in: 'none' = on screen at frame 0)
+UNCUT_KEYS = ('asset', 'desc', 'card', 'print', 'w', 'y', 'move', 'pos', 'in')
+
+
+def cut_or_uncut(ln: dict, params: dict, film: dict, pics: dict, out: Path, report: dict) -> tuple[str, dict]:
+    """A paper_cutout line's (template, params): the whole subject cut out of its photo (rule 12h); a person no photo
+    shows whole drawn in our style (or flagged for a drawn: fallback); a watch the photo cuts shown as its photo,
+    uncut (archive_photo). The credit on screen is the photo's own: author and licence, nothing added."""
+    slot = params['asset']
+    person = bool((film.get('photos') or {}).get(slot, {}).get('person'))
+    c = cutout(slot, out, person) if not pics.get(slot, {}).get('missing') else {'whole': False, 'why': 'no photo'}
+    why = c.get('cut_sides') or c.get('why')
+    if c.get('whole'):
+        params.update(aspect=c['aspect'], person=person)
+        if pics.get(slot, {}).get('credit'): params.setdefault('credit', pics[slot]['credit'])
+    elif person and params.get('drawn'):                                 # no photo shows the person whole: drawn in our style
+        params.pop('asset'); report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): drawn")
+    elif person:
+        report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): give it a drawn: fallback")
+        params.update(aspect=c.get('aspect', .75), person=person)
+    else:                                                                # a watch is never drawn: its real photo, uncut
+        params = {k: v for k, v in params.items() if k in UNCUT_KEYS}
+        if pics.get(slot, {}).get('credit'): params['credit'] = pics[slot]['credit']
+        if pics.get(slot, {}).get('aspect'): params['aspect'] = pics[slot]['aspect']
+        report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): shown as its photo, uncut")
+        return 'archive_photo', params
+    return 'paper_cutout', params
+
+
 def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, preview=False) -> dict:
     film = load(path)
     brand = film.get('brand', 'timekeeper')
@@ -570,24 +624,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
             if ln['template'] in ('archive_photo', 'blueprint') and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
         template = ln['template']
         if template == 'paper_cutout' and params.get('asset'):                # the whole subject, cut out (rule 12h)
-            slot = params['asset']
-            person = bool((film.get('photos') or {}).get(slot, {}).get('person'))
-            c = cutout(slot, out, person) if not pics.get(slot, {}).get('missing') else {'whole': False, 'why': 'no photo'}
-            why = c.get('cut_sides') or c.get('why')
-            if c.get('whole'):
-                params.update(aspect=c['aspect'], person=person)
-                if pics.get(slot, {}).get('credit'): params.setdefault('credit', pics[slot]['credit'] + ' · cut out')
-            elif person and params.get('drawn'):                             # no photo shows the person whole: drawn in our style
-                params.pop('asset'); report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): drawn")
-            elif person:
-                report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): give it a drawn: fallback")
-                params.update(aspect=c.get('aspect', .75), person=person)
-            else:                                                            # a watch is never drawn: its real photo, uncut
-                template = 'archive_photo'
-                params = {k: v for k, v in params.items() if k in ('asset', 'desc', 'card', 'print', 'w', 'y', 'move', 'pos')}   # print: a print in the scene's world
-                if pics.get(slot, {}).get('credit'): params['credit'] = pics[slot]['credit']
-                if pics.get(slot, {}).get('aspect'): params['aspect'] = pics[slot]['aspect']
-                report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): shown as its photo, uncut")
+            template, params = cut_or_uncut(ln, params, film, pics, out, report)
         if params.get('land_on'):                                            # a number lands when the voice says it (rule 18b)
             hit = next((w for w in t['words'] if w['w'] == str(params['land_on'])), None)
             params.pop('land_on')
@@ -611,7 +648,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
     cross(scenes, rtl=True)                                              # the camera crosses each cut
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
     ending = _endcard(out)
-    report['mix'] = mix.apply(scenes + ending, voice_db, sfx_dir=out / 'sfx')   # beds, J-cuts, one-shot levels and the cap
+    report['mix'] = mix.apply(scenes + ending, voice_db, sfx_dir=out / 'sfx',     # beds, J-cuts, one-shot levels and the cap
+                              bed_gain=min(0.0, float((film.get('beds') or {}).get('gain', 0))))   # `beds: {gain: -4}`: every bed further down, never up
     played = sounds.used(scenes + ending, found['files'])                # the found sounds the film really plays
     duck = (B.load(brand).get('music') or {}).get('duck')
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),
@@ -624,6 +662,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         cuts = [round(sum(s['dur'] for s in sb['scenes'][:i]), 3) for i in range(1, len(sb['scenes']))]
         al = beats.align(Path(mus['file']), cuts, seconds, out / 'music-aligned.flac')
         mus['file'] = al['file']
+        mus['gain'] = mix.music_gain(voice_db, Path(mus['file']), mus['gain'])   # about 10 dB under the voice in the pauses
+        report['music']['gain'] = mus['gain']
         punched = 0
         if film.get('beats') == 'punch':                                 # a small push on the scenes that start on a beat
             punched = sum(beats.punch(sc) for sc, ok in zip(sb['scenes'][1:], al['on_beat']) if ok)

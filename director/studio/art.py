@@ -356,8 +356,9 @@ def b_archive_photo(p, theme, dur):
                             '<rect y="860" width="760" height="460" fill="#000" fill-opacity=".35"/></svg>')})
         full = True
     else:                                                               # shown whole, as a large print on the desk
+        inn = p.get('in') or {'type': 'drop', 'at': .15}                 # 'in': 'none' = on screen from frame 0 (a hook's first frame)
         els.append({'type': 'photo', 'asset': p['asset'], 'desc': p['desc'], 'label': p.get('label', ''), 'w': p.get('w', 650), 'aspect': aspect,
-                    'x': 360, 'y': p.get('y', 560), 'rot': p.get('rot', -1.5), 'in': {'type': 'drop', 'at': .15}})
+                    'x': 360, 'y': p.get('y', 560), 'rot': p.get('rot', -1.5), **({} if inn == 'none' else {'in': inn})})
         full = False
     if p.get('card'):
         els.append({'type': 'card', 'x': 360, 'y': p.get('card_y', 860 if full else 900), 'w': 520, 'h': 84, 'tex': 'paper', 'label': p['card'],

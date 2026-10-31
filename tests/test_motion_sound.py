@@ -215,12 +215,84 @@ class TestMix(unittest.TestCase):
             mix.levels(sc, {0: v})
             main = sc[0]['beds'][1]
             under = v - (mix.level(str(mix.sound_file('watch_run', True))) + main['gain'])
-            self.assertTrue(24 <= under <= 28, under)                         # the main bed 24-28 dB under the voice
+            self.assertAlmostEqual(under, mix.TICK_UNDER, delta=.2)            # a running movement: 36 dB under the voice
             second = v - (mix.level(str(mix.sound_file('room', True))) + sc[0]['beds'][0]['gain'])
             self.assertAlmostEqual(second - under, 6, delta=.2)               # the second keeps its distance below
             for c in sc[0]['sfx']:
                 shot = v + 3 - (mix.level(str(mix.sound_file(c['name'])), 'peak') + c['gain'])
                 self.assertTrue(3 <= shot <= 6, (c, shot))                    # one-shots 3-6 dB under the voice
+
+    def _voice(self, d):
+        t = np.arange(44100 * 2) / 44100
+        _wav(d / 'v.wav', .3 * np.sin(2 * np.pi * 220 * t) * (np.sin(2 * np.pi * 2 * t) > -.5))
+        return mix.level(str(d / 'v.wav'))
+
+    def _under(self, v, b):
+        return v - (mix.level(str(mix.sound_file(b['name'], True))) + b['gain'])
+
+    def test_beds_are_felt_not_heard(self):
+        """The owner on v10: «الاصوات اللي بالخلفية مزعجة جدا». One bed 34 dB under the voice while it sets the place,
+        then 40 under; a tick or a tock 36 at most; a second bed 6 dB further down; never a third."""
+        with tempfile.TemporaryDirectory() as d:
+            v = self._voice(Path(d))
+        sc = [{'id': 'a', 'dur': 6, 'beds': [{'name': 'room', 'gain': -30}, {'name': 'crowd', 'gain': -38}, {'name': 'drone', 'gain': -42}]},
+              {'id': 'b', 'dur': 6, 'beds': [{'name': 'tock', 'gain': -26}]},
+              {'id': 'c', 'dur': 6, 'beds': [{'name': 'tick', 'gain': -4, 'fixed': True}]},
+              {'id': 'd', 'dur': 6, 'beds': [{'name': 'tock', 'gain': -60, 'fixed': True}]}]
+        mix.jcut(sc); mix.levels(sc, {i: v for i in range(4)}); mix.settle(sc)
+        self.assertEqual([b['name'] for b in sc[0]['beds']], ['room', 'crowd'])            # never a third
+        main, second = sc[0]['beds']
+        self.assertAlmostEqual(self._under(v, main), mix.BED_AIM, delta=.2)
+        self.assertGreaterEqual(self._under(v, second) - self._under(v, main), mix.BED_SECOND - .1)
+        self.assertEqual(main['settle']['at'], mix.BED_HEAD)                               # the film's first scene: no lead
+        self.assertAlmostEqual(main['gain'] - main['settle']['gain'], mix.BED_SETTLE - mix.BED_AIM, delta=.11)
+        tock = sc[1]['beds'][0]
+        self.assertAlmostEqual(self._under(v, tock), mix.TICK_UNDER, delta=.2)              # no repetitive tick under speech
+        self.assertEqual(tock['settle']['at'], mix.LEAD + mix.BED_HEAD)                     # the J-cut, then 1.5 s of the scene
+        self.assertAlmostEqual(self._under(v, sc[2]['beds'][0]), mix.TICK_UNDER, delta=.2)  # a film's own gain, capped
+        self.assertEqual(sc[3]['beds'][0]['gain'], -60)                                     # a quieter one is kept as it is
+        for s_ in sc:
+            for b in s_['beds']:
+                self.assertGreaterEqual(self._under(v, b), 34 - .2, b)
+
+    def test_a_bed_that_carries_on_does_not_swell_and_the_film_can_turn_beds_down(self):
+        with tempfile.TemporaryDirectory() as d:
+            v = self._voice(Path(d))
+        mk = lambda: [{'id': 'a', 'dur': 4, 'beds': [{'name': 'room', 'gain': -30}]}, {'id': 'b', 'dur': 4, 'beds': [{'name': 'room', 'gain': -30}]}]
+        a, b = mk(), mk()
+        mix.apply(a, {0: v, 1: v}); mix.apply(b, {0: v, 1: v}, bed_gain=-5)
+        self.assertIn('settle', a[0]['beds'][0])
+        self.assertNotIn('settle', a[1]['beds'][0])                                          # the same room: it stays low
+        self.assertAlmostEqual(a[1]['beds'][0]['gain'], a[0]['beds'][0]['settle']['gain'], delta=.01)
+        self.assertAlmostEqual(a[0]['beds'][0]['gain'] - b[0]['beds'][0]['gain'], 5, delta=.01)
+        self.assertAlmostEqual(a[0]['beds'][0]['settle']['gain'] - b[0]['beds'][0]['settle']['gain'], 5, delta=.01)
+
+    @unittest.skipUnless(shutil.which('ffmpeg'), 'ffmpeg not available')
+    def test_the_music_is_levelled_against_the_voice(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            t = np.arange(44100 * 3) / 44100
+            _wav(d / 'm.wav', .1 * np.sin(2 * np.pi * 330 * t))
+            lv = mix.level(str(d / 'm.wav'))
+            g = mix.music_gain({0: -25.0, 1: -24.0, 2: -26.0}, d / 'm.wav', -6.0)
+            self.assertAlmostEqual(lv + g, -25.0 - mix.MUSIC_UNDER, delta=.3)        # MUSIC_UNDER under the voice in the pauses
+            self.assertEqual(mix.music_gain({0: 0.0}, d / 'm.wav', -6.0), -6.0)        # never above the brand's gain
+            self.assertEqual(mix.music_gain({}, d / 'm.wav', -6.0), -6.0)              # no voice: the brand's gain
+
+    @unittest.skipUnless(HAVE_RENDER, 'node/ffmpeg not available')
+    def test_the_engine_settles_a_bed_after_it_sets_the_place(self):
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            bed = {'name': 'room', 'gain': -6, 'settle': {'at': 1.0, 'gain': -18, 'ramp': .5}}
+            sb = {'width': 180, 'height': 320, 'fps': 5, 'audio': {'autoSfx': False}, 'scenes': [{'dur': 4.0, 'floor': False, 'elements': [], 'beds': [bed]}]}
+            (d / 'b.json').write_text(json.dumps(sb))
+            engine.run(d / 'b.json', '-o', d / 'b.mp4', '--scale', 1)
+            lv = []
+            for a, b in ((.5, .95), (2.5, 3.4)):
+                r = subprocess.run(['ffmpeg', '-v', 'info', '-ss', str(a), '-to', str(b), '-i', str(d / 'b.mp4'), '-vn', '-af', 'volumedetect',
+                                    '-f', 'null', '-'], capture_output=True, text=True)
+                lv.append(float(re.search(r'mean_volume: (-?[\d.]+)', r.stderr).group(1)))
+        self.assertAlmostEqual(lv[0] - lv[1], 12, delta=2.5)                                # it sets the place, then sits 12 dB lower
 
     @unittest.skipUnless(HAVE_RENDER, 'node/ffmpeg not available')
     def test_the_engine_starts_a_bed_before_its_cut(self):

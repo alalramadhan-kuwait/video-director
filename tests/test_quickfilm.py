@@ -1,7 +1,7 @@
 """A film file becomes a film: catalogue-only templates, the brand's pronunciation, captions timed to the take,
 omissions reported, sources and credits written. Offline: the mock voice (tones) and no music."""
 from tests import _guard  # noqa: F401
-import json, os, shutil, tempfile, unittest
+import json, os, re, shutil, tempfile, unittest
 from pathlib import Path
 
 import yaml
@@ -32,6 +32,31 @@ class TestQuickFilm(unittest.TestCase):
 
     def _file(self, film):
         f = self.d / 'film.yaml'; f.write_text(yaml.safe_dump(film, allow_unicode=True), encoding='utf-8'); return f
+
+    def test_the_mix_keeps_its_dynamics(self):
+        """No AGC inside the mix (a one-pass loudnorm lifted every pause back to the voice and undid the duck); only a
+        safety limiter. The film's two-pass linear loudness sets the level, after a pre-limiter for lone peaks only."""
+        src = engine.RENDER.read_text(encoding='utf-8')
+        mix = next(l for l in src.splitlines() if 'amix=inputs=${labels.length}' in l)   # the final mix to [a]
+        self.assertNotIn('loudnorm', src)
+        self.assertNotIn('loudnorm', mix)
+        self.assertIn('alimiter=limit=0.89:level=false[a]', mix)
+        from unittest import mock
+        calls, measured = [], iter(['-20.0', '-14.9', '-14.4', '-14.1'])     # the limiter eats part of each step
+        def run(cmd, **kw):
+            calls.append(cmd)
+            i = next(measured, '-14.1')
+            return mock.Mock(stderr='{"input_i": "%s", "input_tp": "-3.0", "input_lra": "7.0", "input_thresh": "-30.0", "target_offset": "0.1"}' % i)
+        with mock.patch.object(quickfilm.subprocess, 'run', side_effect=run):
+            quickfilm.loudness(Path('in.mp4'), Path('out.mp4'))
+        af = calls[-1][calls[-1].index('-af') + 1]                                    # the encode
+        self.assertTrue(af.startswith('alimiter=limit=0.6:'), af)                    # was 0.35 (-9 dBFS): it flattened the gavel
+        self.assertNotIn('loudnorm', af)                                             # one linear gain: no AGC
+        self.assertRegex(af, r'volume=\d+\.\d+dB,aresample=192000,alimiter=limit=0\.708')   # then true peaks under -3 dB
+        self.assertEqual(len(calls), 5)                                              # measured, corrected until within 0.3 LU
+        gain = float(re.search(r'volume=([\d.]+)dB', af).group(1))
+        g1 = 6 + .9 / (5.1 / 6); g2 = g1 + .4 / (.5 / (g1 - 6))                      # secant steps on the measured loudness
+        self.assertAlmostEqual(gain, g2, delta=.01)
 
     def test_only_production_ready_templates(self):
         bad = json.loads(json.dumps(FILM)); bad['lines'][0]['template'] = 'swiss_grid'

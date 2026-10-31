@@ -66,7 +66,9 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    drawn in code, rule 18g): `underwater`, `sea_night`, `florence`, `workshop`, `radium`, `archive`, `auction_room` (a sale
    room, paddles rising, an empty frame for the lot's photo), `paris_rail` (dusk railway, a train crossing), `home_70s`
    and `home_70s_driver` (a 1970s kitchen; the second has a drawn `rail_driver` walking in), `paris_atelier` (a
-   restorer's bench over the zinc roofs), `jura` (snow, fog, village lights) and `basel_fair` (a 1998 fair hall). Then `python3 tools/make_film.py films/<name>.yaml <out>`:
+   restorer's bench over the zinc roofs), `jura` (snow, fog, village lights), `basel_fair` (a 1998 fair hall),
+   `swiss_atelier` (Halter's Sainte-Croix bench, the Jura through the window, drawn makers rising behind) and
+   `waiting_years` (a tear-off calendar, 2003 to 2010, its pages falling). Then `python3 tools/make_film.py films/<name>.yaml <out>`:
    it voices, listens (Whisper), times the captions to the voice, draws, checks the story and the layout, adds the
    ducked music (its beats under the cuts) and the end card, keeps the size under the brand's limit, checks the words
    against the platform's buttons, makes the cover or the parts the platform needs and writes `credits.txt`. Fix every
