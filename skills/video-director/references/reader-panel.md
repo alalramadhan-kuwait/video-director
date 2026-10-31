@@ -22,13 +22,18 @@ and uses no other tool: their knowledge is the persona.
 
 | Reader | Persona | Watches for |
 |---|---|---|
-| **Noura** (نورة), the novice | knows nothing of the watch world; a smart Kuwaiti viewer scrolling Instagram | words and names they cannot place, a missing «why», jumps, open questions, where they would swipe |
+| **Noura** (نورة), the novice | knows nothing of the watch world; a smart Kuwaiti viewer scrolling Instagram; **loves simple sentences**: short, one idea each, plain words, nothing she has to read twice | words and names she cannot place, a missing «why», jumps, open questions, where she would swipe; and every long or tangled sentence, which she rewrites as short simple ones |
 | **Fahad** (فهد), medium | owns a few good watches, knows Rolex/Patek/AP, auctions, roughly what a complication is; not a collector of independents | the same, plus being talked down to (seconds spent explaining what they know) |
 | **Bu Khaled** (بو خالد), the expert | a collector who knows the subject deeply and comments publicly on mistakes | wrong or misleading facts, a picture that would not match, the thing that really matters left out, nothing new for a collector |
 
 The novice also flags **every word they would not say themselves** and every figure of speech they have to decode
 («يصنع في الظلّ», «جفّت الطلبات», «العتيقة», «دور»), even when they could guess it from the rest of the line: the
 owner caught these after the panel had passed them (rule 9c).
+
+Noura also **simplifies** (the owner: «وخل نورة تحب تبسط الجمل بدون تعقيد تكون لغة بسيطة»): for every sentence
+with more than one idea, a chain of commas, a clause inside a clause, or more than about 15 words, she writes the
+simple version — two or three short sentences in plain Standard Arabic — and the filter takes it unless it loses a
+fact or a second it cannot spare.
 
 Each reports, per point: line, the exact words, the question in the viewer's own voice, severity (SWIPE / CONFUSED /
 MINOR, and FACT for the expert), a short fix that replaces words rather than adding lines; then the second they would

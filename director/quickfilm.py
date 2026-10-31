@@ -99,6 +99,7 @@ PLAIN = [                                                                  # rul
     (r'جفّ?ت', 'say it plainly, or leave it out'),
     (r'(?<![\u0600-\u06FF])(?:ل|و|ف)?(?:ال)?دورٍ|الدور الكبرى|دور الساعات', 'شركات الساعات'),
 ]
+LONG_SENTENCE = 18                                                       # words; Noura's simple sentences (rule 9c)
 
 
 def story_check(film: dict) -> list[str]:
@@ -128,6 +129,10 @@ def story_check(film: dict) -> list[str]:
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
     for ln in lines:                                                     # plain Arabic (rule 9c)
         said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
+        for sent in re.split(r'[.؟?!…:]+', ln['text']):
+            n = len(sent.split())
+            if n > LONG_SENTENCE:
+                out.append(f"{ln['id']}: a sentence of {n} words («{' '.join(sent.split()[:5])}…»); split it into short sentences, one idea each")
         for pat, easy in PLAIN:
             m = re.search(pat, said)
             if m:
