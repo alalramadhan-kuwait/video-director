@@ -68,6 +68,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     the story on is dropped. `story_check` flags the words in `quickfilm.PLAIN`; add to it whenever the owner finds one.
     **Short sentences, one idea each** (the owner: «تبسط الجمل بدون تعقيد»): no chain of commas or clause inside a clause;
     `story_check` asks to split any sentence over `quickfilm.LONG_SENTENCE` (18) words.
+9d. **The voice reads every number as words** ✓ (the owner, hearing «71,400» read from digits: «نطق الرقم سيء»). Prices,
+    counts and years go to the voice in words in `say:` («واحدٍ وسبعين ألفًا وأربعمئة دينار كويتي»); the screen and the
+    captions keep the digits. `story_check` flags a digit in what the voice reads. Test recordings follow the same rule.
 10. A claim the sources only believe or call likely is said as a belief: «يُقال…».
 11. Contested dates: say only the part all sources agree on (the decade).
 

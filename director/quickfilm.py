@@ -127,6 +127,11 @@ def story_check(film: dict) -> list[str]:
             for v, k in arabic.items():
                 if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
+    for ln in lines:                                                     # the voice reads numbers as words (rule 9d)
+        spoken = ln.get('say') or ln['text']
+        m = re.search(r'[0-9٠-٩][0-9٠-٩,٬.]*', spoken)
+        if m:
+            out.append(f"{ln['id']}: the voice would read «{m.group(0)}» as digits; write it as words in say: (the screen keeps the digits)")
     for ln in lines:                                                     # plain Arabic (rule 9c)
         said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
         for sent in re.split(r'[.؟?!…:]+', ln['text']):
