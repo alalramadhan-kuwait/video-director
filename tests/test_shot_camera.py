@@ -26,7 +26,7 @@ class TestShotSizes(unittest.TestCase):
             shots = sc['camera']['shots']
             self.assertGreaterEqual(len(shots), 2, seed)
             self.assertTrue(all(a['size'] != b['size'] for a, b in zip(shots, shots[1:])), shots)   # never the same size twice
-            self.assertIn('close', [s['size'] for s in shots])
+            self.assertTrue({'close', 'face'} & {s['size'] for s in shots}, shots)               # a person opens on a face (18j)
             self.assertGreaterEqual(min(_zooms(sc, 7.5)), motion.FLOOR - 1e-6)
             self.assertGreaterEqual(max(_zooms(sc, 7.5)), 1.6)                                      # a real close-up, not 3 %
             self.assertTrue(any(abs(s['at'] - t) < .01 for s in shots[1:] for t, _ in WORDS))       # on a spoken word
@@ -42,7 +42,8 @@ class TestShotSizes(unittest.TestCase):
             sc = art.scene_visual('paper_cutout', {'asset': 'h', 'aspect': .5, 'person': True}, 'tk-bone', 7.0, seed=seed)
             motion.direct(sc, 7.0, seed, words=WORDS, pixels={'h_cut': (1700, 2500)}, template='paper_cutout')
             shots = sc['camera']['shots']
-            self.assertEqual(shots[0]['size'], 'close', seed); self.assertEqual(shots[1]['size'], 'wide', seed)
+            self.assertEqual(shots[0]['size'], 'face', seed); self.assertEqual(shots[1]['size'], 'wide', seed)
+            self.assertGreaterEqual(shots[0]['zoom'], 2.0, seed)                                        # the face fills the frame
             self.assertLess(shots[0]['focus'][1], motion.hero(sc)['cy'])                              # on the face
 
     def test_a_person_is_framed_on_the_face_and_the_frame_edge_never_shows(self):
