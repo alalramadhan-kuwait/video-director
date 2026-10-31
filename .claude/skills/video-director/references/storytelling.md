@@ -163,6 +163,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     it: one main bed 34 dB under the voice from its J-cut to 1.5 s into the scene, then 40 dB under; a tick, a tock
     or a running movement 36 dB under at most; a second bed 6 dB further down and never a third; a film's own bed
     gain never above those. `beds: {gain: -4}` in the film file turns every bed down further.
+    An effect that runs over 2 s (a train passing, a horn, footsteps) is levelled like a bed, its running level 16 dB
+    under the voice (the owner: «صوت القطار لا زال عالي»); only a short hit (a gavel, a click) sits 3-6 dB under.
 18d. **A written hook, when the opening has no words of its own** (`hook: {text, em, dur}` in the film file, from
     video-ad-editor; a city zoom's name is already the hook): a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
     line. The captions wait until it has gone: two texts at once and the viewer reads neither.
