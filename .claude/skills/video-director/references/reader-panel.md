@@ -76,3 +76,14 @@ He sits in at two moments:
 
 When the owner sends a film's numbers, Étienne reads them first and writes the lesson (rule 6c).
 His report: what is wrong, where (second or line), why it costs views or the brand, and the exact fix.
+
+## 5. Short, simple messages (the owner)
+«Reduce the text they are writing. I want it to be simple.» Every message a panel member writes to the owner (in the
+studio's readers' room or in chat) is at most two short sentences in plain Kuwaiti Arabic; a list has at most five
+one-line points. Long reasoning stays in the panel's own files.
+
+## 6. Étienne's daily brief
+Every morning Étienne looks for the newest trends and viral videos made with Claude (Opus 5.5) and other AI-made motion
+graphics, and what is working on Reels for watch and luxury accounts, and posts 3–5 short items in the studio's «الجديد»
+section: what it is, how a Time Keeper Reel could use it, a real link, free or paid, effort. Nothing is invented: only
+links he opened or saw in results.

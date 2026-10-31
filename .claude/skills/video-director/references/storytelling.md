@@ -159,6 +159,11 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 18e. **Cuts land on the music's beats** ✓: make_film shifts the music (later in its track, or a moment's late entry)
     so the most scene changes fall on a beat; nothing in the film moves. `beats: punch` adds a small camera push to the
     scenes that start on a beat.
+18g. **New places and themes are drawn in code** (the owner: «for changing the theme, we want only the drawing to be in
+    hex to minimize the cost and to use everything that we can use in Opus 5.5»). Backgrounds, places, worlds and
+    themes are drawn as SVG/canvas in code with hex colours (`director/studio/sets.py`), not generated; paid image
+    generation is kept for what code cannot draw (a real person's likeness), and only with the owner's yes. Watches
+    are never drawn either way (12h).
 18f. **How a watch works is shown running** (`watch_movement`, from the "awesome Opus 5.5 videos" prompts): when a line
     explains the mechanism (the mainspring, the balance, the escapement), the movement drawn in code turns and ticks and
     then lifts apart with its names. 3D only where it explains something physical, and always labelled as a simplified
