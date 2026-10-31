@@ -23,6 +23,10 @@ and uses no other tool: their knowledge is the persona.
 | Medium | owns a few good watches, knows Rolex/Patek/AP, auctions, roughly what a complication is; not a collector of independents | the same, plus being talked down to (seconds spent explaining what they know) |
 | Expert | a collector who knows the subject deeply and comments publicly on mistakes | wrong or misleading facts, a picture that would not match, the thing that really matters left out, nothing new for a collector |
 
+The novice also flags **every word they would not say themselves** and every figure of speech they have to decode
+(«يصنع في الظلّ», «جفّت الطلبات», «العتيقة», «دور»), even when they could guess it from the rest of the line: the
+owner caught these after the panel had passed them (rule 9c).
+
 Each reports, per point: line, the exact words, the question in the viewer's own voice, severity (SWIPE / CONFUSED /
 MINOR, and FACT for the expert), a short fix that replaces words rather than adding lines; then the second they would
 most likely swipe and whether the story reads as one chain of events. Under 450 words each.
