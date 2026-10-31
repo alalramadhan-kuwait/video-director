@@ -39,8 +39,8 @@ REPETITIVE = {'tick', 'tock', 'tick_pair', 'tick_slow', 'watch_run'}
 MUSIC_UNDER = 14                      # dB under the voice's measured level, the music in the pauses: the master's limiter
                                       # brings the voice ~3-4 dB nearer, so pauses land 7-10 dB under it in the film
 SHOT_UNDER = (3, 6)                   # dB under the voice, a one-shot effect
-LONG_SHOT, LONG_UNDER = 2.0, 16       # an effect that runs over 2 s (a train passing, a horn, footsteps) is levelled
-                                      # like a bed: its running level 16 dB under the voice, not its peak 3-6 under
+LONG_SHOT, LONG_UNDER = 2.0, 20       # an effect that runs over 2 s (a train passing, a horn, footsteps) is levelled
+                                      # like a bed: its running level 20 dB under the voice, not its peak 3-6 under
 LEAD = 0.5                            # s: a bed starts this long before its cut
 PER_MINUTE = 15
 PAPER = {'paper_place', 'paper_slide', 'fold', 'tape', 'paper_tear'}
