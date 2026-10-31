@@ -101,7 +101,23 @@ class TestStory(unittest.TestCase):
         self.assertEqual(whole['elements'][0]['type'], 'photo'); self.assertFalse(whole['full_frame'])
 
     def test_the_panerai_film_keeps_every_rule(self):
-        self.assertEqual(quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml')), [])
+        out = quickfilm.story_check(quickfilm.load(engine.ROOT / 'films/panerai.yaml'))
+        # Panerai (Oct 2026) opened on Florence 1860 with no hook and lost two in three viewers in two seconds: the film is
+        # kept as posted, and the check now names that one lesson for every film after it (rule 6)
+        self.assertEqual(len(out), 1, out); self.assertIn('open on a hook', out[0])
+
+    def test_a_reel_opens_on_a_hook_the_film_pays_off(self):
+        base = lambda first: {'platform': 'reels', 'lines': [{'id': 'l1', 'template': 'kinetic_type', 'params': {}, 'no_photo': 't', **first},
+            {'id': 'l2', 'text': 'في Paris، عام 1963، وُلد صانع الساعات.', 'template': 'city_zoom', 'params': {'city': 'paris'}},
+            {'id': 'l3', 'text': 'وفي 1998 صنع ساعة Antiqua، ولم يُصنع منها إلا 110 ساعات.', 'template': 'kinetic_type', 'params': {}, 'no_photo': 't'}]}
+        no_hook = base({'text': 'في Suresnes، عام 1962، كان طفلًا.'})
+        self.assertTrue(any('open on a hook' in m for m in quickfilm.story_check(no_hook)))
+        good = base({'text': 'ساعة لم يُصنع منها إلا 110 قطع… تُباع اليوم بأكثر من مئتي ألف فرنك.', 'cold_open': True})
+        self.assertEqual([m for m in quickfilm.story_check(good) if m.startswith('l1') or 'out of order' in m], [])
+        unpaid = base({'text': 'سرّ لن تعرفه أبدًا عن رجل غامض جدًا من جبال سويسرا.', 'cold_open': True})
+        self.assertTrue(any('never pays the hook off' in m for m in quickfilm.story_check(unpaid)))
+        long = base({'text': ' '.join(['كلمة'] * 20) + ' 110', 'cold_open': True})
+        self.assertTrue(any('6-16' in m for m in quickfilm.story_check(long)))
 
     def test_every_mood_grades_the_scene_under_the_words_and_has_a_sound(self):
         kit = (engine.ENGINE / 'scripts/make-sfx.py').read_text()

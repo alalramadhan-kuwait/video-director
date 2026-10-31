@@ -17,12 +17,21 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 5. **Feelings** ✓ — name the feeling of the lines that carry it (`mood:` mystery, fear, sadness, tension, joy, wonder).
    **Sadness for human moments always**: people who suffered, were deceived, died, were captured. Make it human:
    who they were, what they were told, what happened to them («قيل لهنّ إنه آمن… فتساقطت أسنانهنّ… ورحلن جميعًا»).
-6. **The film opens where the story begins** ✓ — its first place and year, flown into with `city_zoom` («في Florence،
-   عام 1860»), then the story in order. The owner did not like a teaser opening that sums the film up over a drawing
-   (Panerai, the patent on blueprint paper): no summary before the story, never a photo first. The closing line may
-   still echo what the story became. A real drawing from the archive (`template: blueprint`, e.g. a US patent drawing,
-   public domain) belongs where the story reaches it; **never an invented cartoon or clip-art drawing**: the owner
-   finds it childish.
+6. **A Reel opens on a hook, then goes back to where the story begins** ✓ (the owner, after Panerai's numbers: it
+   opened on «في Florence، عام 1860» over a drawn map and two in three viewers left in the first two seconds; average
+   watch time 13 s of 2:58; those who stayed past ~15 s stayed to the end). The first line (`cold_open: true`) is the
+   story's strongest **true** moment, told in 6–16 words, out of order on purpose (`vendor/paper-story/references/
+   hooks.md`: cold open, paradox, shock number, flash-forward…); offer the owner 3–4 and recommend one.
+   Frame 1 already moves and shows the subject itself (the real watch or the real place, named), the hook's words on
+   screen; the icon is named within two seconds. Then the film goes back to the beginning (`city_zoom` of its place
+   and year) and tells it in order, and it pays the hook off: its words or numbers come back later (make_film checks).
+   Still never a summary teaser over a drawing (the first Panerai opening the owner disliked), never a hook the film
+   does not deliver. A real drawing from the archive (`template: blueprint`, e.g. a US patent drawing, public domain)
+   belongs where the story reaches it; **never an invented cartoon or clip-art drawing**: the owner finds it childish.
+6c. **Every film teaches the next** ✓ (the owner: «ابيك تتعلم من كل فيديو حق الفيديو اللي ياي»). When the owner sends a
+   film's numbers (skip rate, average watch time, the retention curve), write down what they show — where people
+   left and why — as a rule here and a line in the hooks log, and apply it to the next film. Panerai's: the drop is
+   in the first two seconds, so the hook is the work; length came second (aim for 60–90 s on Reels).
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
@@ -148,6 +157,7 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     `director/platforms.py`): Reels and Shorts up to 3 minutes for sure, TikTok up to 10 (1–3 is best), WhatsApp in
     parts under 16 MB cut between scenes. No words under the app's buttons: make_film checks every 0.2 s as drawn and
     must say «nothing under the app's buttons». Reels and TikTok get a separate `cover.png` (the hook's frame).
+    **Aim for 60–90 s on Reels** (rule 6c): the 3-minute limit is a ceiling, not a target.
     **A film longer than its platform allows is cut to fit before it is sent** (the owner, on Panerai at 3:22 for
     Reels): drop whole lines whose neighbours still lead into each other, never the reason for a change or the end of
     a group the story follows (12f), and drop the photos and sources only those lines used. When only a few seconds
