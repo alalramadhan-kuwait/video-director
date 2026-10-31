@@ -39,6 +39,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     with medium knowledge and an expert read it as the viewer gets it; one filter applies or drops each concern
     (checking facts against the research); the three vote that it reads as one chain of events with nothing left open.
     How: `references/reader-panel.md`. At most three rounds.
+    **Étienne**, the brand, design and Reel specialist, joins the script vote and reviews the finished film beside
+    the critic; his brand «no» blocks it (`references/reader-panel.md` §4).
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
