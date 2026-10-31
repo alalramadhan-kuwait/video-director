@@ -595,7 +595,7 @@ def swiss_atelier(dur, rng):
     return {**w, 'beds': [('watch_run', -26), ('wind', -36)]}
 
 
-def waiting_years(dur, rng):
+def waiting_years(dur, rng, done=False):
     """A dark office wall and a tear-off calendar whose year pages fall one by one, 2003 to 2010: the years the owners
     waited. Paper and numbers only: no clock face and no watch. The calendar keeps to the right edge, the scene's own
     picture the middle."""
@@ -606,7 +606,7 @@ def waiting_years(dur, rng):
     board = ('<rect x="0" y="12" width="170" height="222" rx="6" fill="#4A3B2F"/><rect x="6" y="18" width="158" height="210" rx="4" fill="#3A2E25"/>'
              '<circle cx="85" cy="6" r="6" fill="#8C7A5A"/><path d="M85 6 L40 14 M85 6 L130 14" stroke="#8C7A5A" stroke-width="2"/>')
     els.append({**_el(board, 170, 236, 575, 382), 'behind': True, 'depth': .6, 'scale': .8})   # up and in: clear of the app's buttons
-    years = list(range(2003, 2011)); step = max(.3, dur * .55 / len(years))
+    years = [2010] if done else list(range(2003, 2011)); step = max(.3, dur * .55 / len(years))   # done: the wait is over, 2010 stays
     for k, y in reversed(list(enumerate(years))):                # 2003 on top, the first to fall
         t = .5 + k * step; last = y == years[-1]
         page = (f'<rect width="150" height="190" rx="4" fill="#F3F0E8"/><rect width="150" height="36" rx="4" fill="#8E3B2F"/>'
@@ -618,10 +618,10 @@ def waiting_years(dur, rng):
     els += _motes(rng, 10, '#F3D9A4', dur, y0=400, y1=900, rise=30, op=.3, x0=480, x1=720)
     return {'theme': 'tk-ink', 'elements': els, 'beds': [('room', -32)], 'sfx': []}
 
-SETS = {'underwater': underwater, 'sea_night': sea_night, 'florence': florence, 'workshop': workshop, 'radium': radium, 'archive': archive,
+SETS = {'waiting_years_end': lambda dur, rng: waiting_years(dur, rng, done=True), 'underwater': underwater, 'sea_night': sea_night, 'florence': florence, 'workshop': workshop, 'radium': radium, 'archive': archive,
         'auction_room': auction_room, 'paris_rail': paris_rail, 'home_70s': home_70s, 'home_70s_driver': home_70s_driver,
         'paris_atelier': paris_atelier, 'jura': jura, 'basel_fair': basel_fair, 'swiss_atelier': swiss_atelier, 'waiting_years': waiting_years}
-NAME_AR = {'underwater': 'تحت الماء', 'sea_night': 'بحر ليلي وسفينة', 'florence': 'فلورنسا', 'workshop': 'ورشة الساعاتي',
+NAME_AR = {'waiting_years_end': 'بعد سنوات الانتظار', 'underwater': 'تحت الماء', 'sea_night': 'بحر ليلي وسفينة', 'florence': 'فلورنسا', 'workshop': 'ورشة الساعاتي',
            'radium': 'مختبر الراديوم', 'archive': 'مكتب الأرشيف', 'auction_room': 'قاعة المزاد', 'paris_rail': 'سكة حديد باريس عند الغروب',
            'home_70s': 'مطبخ من السبعينيات', 'home_70s_driver': 'مطبخ من السبعينيات وسائق القطار', 'paris_atelier': 'ورشة ترميم في باريس',
            'jura': 'جبال الجورا', 'basel_fair': 'معرض بازل 1998', 'swiss_atelier': 'ورشته في سويسرا', 'waiting_years': 'سنوات الانتظار'}
