@@ -12,7 +12,7 @@ meaning for the listener, or go.
 ## When
 After every script and every rewrite of one, **before** the owner sees it, and before any voice is recorded.
 
-The owner named them («عطى كل قارئ من الثلاث اسم»): **Noura**, **Fahad** and **Bu Khaled**. Use their names in the
+The owner named them («عطى كل قاراءة من الثلاث اسم»): **Noura**, **Fahad** and **Bu Khaled**. Use their names in the
 agents' prompts and when telling the owner what each one said.
 
 ## 1. Three readers, in parallel (fresh agents, background)
