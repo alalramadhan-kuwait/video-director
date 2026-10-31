@@ -75,7 +75,14 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    effect when the voice says that word (`nth: 2` for its second time, `offset: -0.2` to lead it) or at seconds from
    the cut; these cues are kept first when the film has more than 15 effects a minute. `bed: train` (or
    `{name, gain}`, a list, or `none`) replaces the scene's ambience. Sounds: the kit of `make-sfx.py`, including
-   `train`, `train_horn`, `gavel`, `tower_strike`, `footsteps`, `thud`, `tick_slow`. A `map` journey takes
+   `train`, `train_horn`, `gavel`, `tower_strike`, `footsteps`, `thud`, `tick_slow`. **Real recordings first**
+   where a sound carries the story: `python3 tools/find_sound.py gavel "gavel on wood"` (`--bed` for a loop under
+   the voice) searches Openverse with no key or account, CC0 first then CC BY, never NC/ND/SA, and caches the WAV
+   (trimmed, levelled to the kit) with its licence record outside git. In the film file
+   `sounds: {gavel: "gavel on wood", train_bed: "steam train passing"}` plays the found sound wherever that name is
+   used (`name: "found:<openverse id>"`, with `fallback: gavel`, pins one); every found sound the film plays goes in
+   `credits.txt` (CC BY must be credited in the caption). Openverse often times out: the film then keeps the
+   procedural sound and says so (`found sound:` lines), never fails. A `map` journey takes
    `marker: train` for a small drawn train instead of the paper plane. make_film levels the rest itself: beds 24–28 dB
    under the voice from 0.5 s before their cut, effects 3–6 dB under it, and every camera moving at least 3 %.
    Then the critic loop (`references/storytelling.md` rule 19c): `python3 tools/critic.py pack <out>`, a fresh agent
@@ -90,6 +97,8 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
 pip install numpy pyyaml gTTS faster-whisper imageio-ffmpeg     # ffmpeg, node and Chromium are usually there
 python3 -m venv var/cutenv && var/cutenv/bin/pip install "rembg[cpu]"   # the paper cut-outs (export VD_CUTOUT_PYTHON=var/cutenv/bin/python)
 python3 vendor/paper-story/scripts/make-sfx.py                  # the paper sound kit (made locally, free)
+# optional: earshot ranks found sounds (MIT, CPU, ~1.1 GB of models), installed outside the repo, then
+# export VD_EARSHOT=<venv>/bin/earshot   (github.com/Leonxlnx/earshot; pip install torch --index-url …/whl/cpu first)
 npm i --prefix ~/.cache/paper-story playwright-core             # only if render.mjs says playwright-core is missing
 ```
 A worked example of a whole short film (voice + scenes + render): `examples/explainer/build.py`
