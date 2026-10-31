@@ -132,7 +132,7 @@ class TestSets(unittest.TestCase):
         falls = [e for e in cal if re.search(r'>\d{4}</text>', e['svg']) and isinstance(e['y'], list)]
         self.assertEqual(len(falls), 7)                                              # every year falls but the last
         last = next(e for e in cal if '>2010</text>' in e['svg'])
-        self.assertNotIn('rot', last); self.assertEqual(last['y'], 640)              # 2010 stays, straight
+        self.assertNotIn('rot', last); self.assertEqual(last['y'], 400)              # 2010 stays, straight, clear of the app's buttons
         self.assertLess(max(e['y'][2][0] for e in falls), 8.0)
         base = sets.paris_atelier(8.0, random.Random(2))['elements']
         swiss = sets.swiss_atelier(8.0, random.Random(2))['elements']

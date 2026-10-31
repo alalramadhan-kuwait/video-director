@@ -39,6 +39,7 @@ REPETITIVE = {'tick', 'tock', 'tick_pair', 'tick_slow', 'watch_run'}
 MUSIC_UNDER = 14                      # dB under the voice's measured level, the music in the pauses: the master's limiter
                                       # brings the voice ~3-4 dB nearer, so pauses land 7-10 dB under it in the film
 SHOT_UNDER = (3, 6)                   # dB under the voice, a one-shot effect
+STRIKES = {'tower_strike', 'gavel', 'bell', 'bell_far', 'chime', 'stamp'}   # a strike rings out: a hit, whatever its tail
 LONG_SHOT, LONG_UNDER = 2.0, 20       # an effect that runs over 2 s (a train passing, a horn, footsteps) is levelled
                                       # like a bed: its running level 20 dB under the voice, not its peak 3-6 under
 LEAD = 0.5                            # s: a bed starts this long before its cut
@@ -206,7 +207,7 @@ def levels(scenes: list[dict], voice_db: dict[int, float], sfx_dir: Path | None 
         for c in sc.get('sfx', []):
             if c.get('fixed') or c.get('endcard'): continue
             f = sound_file(c['name'], False, sfx_dir)
-            if f and seconds(str(f)) > LONG_SHOT:                # the owner: «صوت القطار لا زال عالي»
+            if f and seconds(str(f)) > LONG_SHOT and c['name'] not in STRIKES:   # the owner: «صوت القطار لا زال عالي»
                 lv = level(str(f), 'active')
                 if lv is not None: c['gain'] = round(v - LONG_UNDER - lv, 1)
                 continue
