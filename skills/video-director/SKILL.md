@@ -50,6 +50,8 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    (why each change happened), the human stories and their feelings, and the historical photographs.
 2. **Hook + script** — pick the strongest honest hook yourself; Modern Standard Arabic, clear for listening, one idea
    per line, in chronological acts where each line leads into the next (`references/storytelling.md`).
+   Then the reader panel (rule 6d, `references/reader-panel.md`): a novice, a medium and an expert reader, a
+   filter, and their vote, before the owner sees it.
 3. **Voice** — OmniVoice with the brand settings (`arabic-narration` → `references/omnivoice.md`, pass `--brand`):
    calm, natural documentary delivery, watch names from `brand/pronunciation.json`, natural speed. Listen-check the
    take yourself (Whisper for omissions/repetitions) and regenerate a passage that is wrong.
