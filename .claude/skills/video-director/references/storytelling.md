@@ -164,6 +164,15 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     themes are drawn as SVG/canvas in code with hex colours (`director/studio/sets.py`), not generated; paid image
     generation is kept for what code cannot draw (a real person's likeness), and only with the owner's yes. Watches
     are never drawn either way (12h).
+18h. **The camera moves inside the story, not over a slideshow** (from Bang Motion, MIT): a few % of zoom reads as a
+    still, so every scene changes **shot size** on the words that carry it (wide 1.08-1.14, medium 1.28-1.42, close-up
+    1.6-1.9; never below 1.08), framed on what the words are about (the photo, the face, the number with its unit),
+    then a slow push. Steer it per line: `shots: [{on: فبراير, to: close, focus: [x, y]}]` (frame px of the 720x1280
+    frame). A photo is never shown bigger than its pixels allow: the zoom is capped from its real size, so give a
+    close-up a large scan. The camera **crosses the cut**: `cut: push` (push-through), `match` (two shapes line up),
+    `whip` (a whip pan, right to left for Arabic), `fade` or `cut`; left unsaid, two pictures match, one place pushes
+    on, a new world whips. No plain fade inside one place. Words glide in slowly and leave fast before a cut, blurred
+    along their travel. make_film's `stage` line flags a scene with fewer than 8 moving things (its world counted).
 18f. **How a watch works is shown running** (`watch_movement`, from the "awesome Opus 5.5 videos" prompts): when a line
     explains the mechanism (the mainspring, the balance, the escapement), the movement drawn in code turns and ticks and
     then lifts apart with its names. 3D only where it explains something physical, and always labelled as a simplified
