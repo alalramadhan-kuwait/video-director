@@ -62,7 +62,7 @@ def assemble(studio, pid, task):
     doc = {'v': len(st['storyboards']) + 1, 'script_v': sv['v'], 'hook': hook and hook['id'], 'scenes': scenes,
            'endcard': 'timekeeper' if st['brand'] == 'timekeeper' else None, 'endcard_tail': False, 'copilot_film': n}
     rel = studio.put(pid, json.dumps(doc, ensure_ascii=False, indent=1).encode(), 'json')
-    rec = {'v': doc['v'], 'file': rel, 'script_v': sv['v'], 'hook': doc['hook'], 'seconds': round(t + 4.5, 2), 'warnings': [],
+    rec = {'v': doc['v'], 'file': rel, 'script_v': sv['v'], 'hook': doc['hook'], 'seconds': round(t + SB.ENDCARD_S, 2), 'warnings': [],
            'words': None, 'est_final_seconds': None, 'pace': {}, 'copilot_film': n,
            'scenes': [{k: s.get(k) for k in ('id', 'start', 'dur', 'technique', 'take', 'status', 'transition', 'banner', 'concept', 'art_version')} for s in scenes]}
     studio.act(pid, 'storyboard', rec, actor='copilot')

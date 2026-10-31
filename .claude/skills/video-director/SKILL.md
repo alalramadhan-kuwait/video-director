@@ -67,6 +67,13 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    ducked music (its beats under the cuts) and the end card, keeps the size under the brand's limit, checks the words
    against the platform's buttons, makes the cover or the parts the platform needs and writes `credits.txt`. Fix every
    `story:` and `safe zones:` warning, look at every still in `<out>/scenes/` (text cut, overlaps, faint text, wrong photo), then render.
+   **Sound on a line** (optional): `sfx: [{name: gavel, on: «كلمة»}, {name: train_horn, at: 2.5, gain: -8}]` plays an
+   effect when the voice says that word (`nth: 2` for its second time, `offset: -0.2` to lead it) or at seconds from
+   the cut; these cues are kept first when the film has more than 15 effects a minute. `bed: train` (or
+   `{name, gain}`, a list, or `none`) replaces the scene's ambience. Sounds: the kit of `make-sfx.py`, including
+   `train`, `train_horn`, `gavel`, `tower_strike`, `footsteps`, `thud`, `tick_slow`. A `map` journey takes
+   `marker: train` for a small drawn train instead of the paper plane. make_film levels the rest itself: beds 24–28 dB
+   under the voice from 0.5 s before their cut, effects 3–6 dB under it, and every camera moving at least 3 %.
    Then the critic loop (`references/storytelling.md` rule 19c): `python3 tools/critic.py pack <out>`, a fresh agent
    reads the round folder and writes findings, fix the worst problems, render, `record`, repeat until «ship» (at most
    three rounds).

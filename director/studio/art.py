@@ -23,7 +23,7 @@ from pathlib import Path
 import yaml
 
 from ..art.selector import recommend, load_registry
-from . import engine
+from . import engine, motion
 
 ROOT = Path(__file__).resolve().parents[2]
 REGISTRY = ROOT / 'art/techniques.yaml'
@@ -106,8 +106,10 @@ def b_map(p, theme, dur):
     v0, v1 = p.get('view_from', p['view']), p['view']
     look = {} if p.get('plain') else {k: p.get(k, v) for k, v in ATLAS.items()}
     hl = [{'color': GOLD, 'at': .6, **({'n': h} if isinstance(h, str) else h)} for h in p.get('highlight', [])]
+    # `marker: train` (on the map or on one route): the journey's moving marker is a small drawn train, not a paper plane
+    routes = [{**r, 'marker': r.get('marker', p['marker'])} if p.get('marker') else r for r in p.get('routes', [])]
     els = [{'type': 'map', 'x': 360, 'y': 640, 'w': 720, 'h': 1280, 'z': 1, 'view': [[0, v0], [min(dur, 2.4), v1, 'inOutCubic']],
-            'pins': p.get('pins', []), 'routes': p.get('routes', []), 'highlight': hl,
+            'pins': p.get('pins', []), 'routes': routes, 'highlight': hl,
             'sea': p.get('sea', '#CFC7B5'), 'land': p.get('land', '#F3F0E8'), **look}]
     if not p.get('plain'):
         els.append({'type': 'svg', 'w': 120, 'h': 140, 'svg': _compass(INK), 'x': 600, 'y': 380, 'z': 24, 'opacity': .85, 'still': True,
@@ -332,8 +334,8 @@ def b_city_zoom(p, theme, dur):
     cam = {'zoom': [[0, 1.0], [t1, 1.0], [dur, 1.06, 'inOutCubic']], 'x': [[0, 360]], 'y': [[0, 640], [dur, 630, 'inOutCubic']]}
     sc = {'theme': theme, 'floor': False, 'elements': els, 'camera': cam,
           'beds': [{'name': c['bed'], 'from': round(t1, 2), 'gain': -26}]}
-    sc['sfx'] = [{'at': .15, 'name': 'whoosh', 'gain': -16}, {'at': round(zt * .7, 2), 'name': 'pin', 'gain': -12}] + \
-                [{'at': round(t1 + .2 + .3 * k, 2), 'name': 'paper_place', 'gain': -14} for k in range(3)]
+    sc['sfx'] = [{'at': .15, 'name': 'whoosh', 'gain': -16}, {'at': round(zt * .7, 2), 'name': 'pin', 'gain': -12},
+                 {'at': round(t1 + .2, 2), 'name': 'paper_place', 'gain': -14}]          # one paper sound as the pop-up city rises
     return sc
 
 
@@ -598,7 +600,8 @@ def b_paper_cutout(p, theme, dur):
         h = min(h, 600 / aspect, bottom - 300)                          # whole on screen: below the banner, clear of the sides
         els.append({'type': 'cutout', 'asset': p['asset'] + '_cut', 'desc': p.get('desc', p['asset']), 'h': round(h), 'aspect': aspect,
                     'x': 360, 'y': bottom, 'edge': 3, 'rot': p.get('tilt', -1.5), 'in': {'type': 'drop', 'at': .15},
-                    'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']]})
+                    'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']], 'noBoil': True,
+                    **({'idle': {'type': 'breathe', 'amp': .006, 'speed': 1}} if person else {})})   # a person breathes; a watch rests
         if p.get('credit'):
             els.append({'type': 'text', 'text': short_credit(p['credit']), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360,
                         'y': CREDIT_Y, 'depth': 0, 'w': 600, 'align': 'center', 'z': 40, 'in': {'type': 'fade', 'at': .3}})
@@ -610,7 +613,8 @@ def b_paper_cutout(p, theme, dur):
         w = w0 * k
         svg = svg.replace(f'width="{w0}" height="{h0}"', f'width="{w:.0f}" height="{h:.0f}"', 1)
         els.append({'type': 'svg', 'svg': svg, 'w': round(w), 'h': round(h), 'x': 360, 'y': bottom - h / 2, 'rot': p.get('tilt', -1.5),
-                    'in': {'type': 'drop', 'at': .15}, 'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']]})
+                    'in': {'type': 'drop', 'at': .15}, 'scale': [[0, 1.0], [dur, 1.035, 'inOutCubic']], 'noBoil': True,
+                    'idle': {'type': 'breathe', 'amp': .006, 'speed': 1}})
         els.append({'type': 'text', 'text': p.get('note', DRAWN_NOTE), 'font': 'cap', 'size': 18, 'color': ink, 'opacity': .75, 'x': 360,
                     'y': CREDIT_Y, 'depth': 0, 'w': 600, 'align': 'center', 'in': {'type': 'fade', 'at': .3}})
     if p.get('card'):
@@ -672,7 +676,7 @@ def backdrop(sc: dict, asset: str, dur: float, credit: str = '', move: str = 'in
     shade = ('<svg xmlns="http://www.w3.org/2000/svg" width="760" height="1320"><rect width="760" height="1320" fill="#08090B" '
              'fill-opacity=".62"/></svg>')
     sc['elements'] = [{'type': 'image', 'asset': asset, 'desc': asset, 'w': 720, 'h': 1280, 'x': 360, 'y': 640, 'frame': False, 'fit': 'cover',
-                       'behind': True, 'scale': [[0, s0], [dur, s1, 'linear']]},
+                       'behind': True, 'noBoil': True, 'scale': [[0, s0], [dur, s1, 'linear']]},
                       {'type': 'svg', 'w': 760, 'h': 1320, 'svg': shade, 'x': 360, 'y': 640, 'behind': True, 'still': True}] + sc['elements']
     if credit:
         sc['elements'].append({'type': 'text', 'text': short_credit(credit), 'font': 'cap', 'size': 18, 'color': PAPER, 'paper': INK, 'x': 360, 'y': CREDIT_Y, 'depth': 0,
@@ -695,6 +699,8 @@ def _sounds(tech, p, sc, dur):
         for i, e in enumerate(p.get('events', [])): cue(e.get('at', .25 + i * .6) + .15, 'paper_place', -15)
     elif tech == 'map':
         for pin in p.get('pins', []): cue(pin.get('at', 1.0), 'pin', -12)
+        for r in p.get('routes', []):                # a train on the route is heard passing
+            if r.get('marker', p.get('marker')) == 'train': cue(r.get('at', 0), 'train', -10)
         if p.get('date'): cue(p.get('date_at', .6), 'paper_place', -15)
     elif tech == 'spec_card':
         for i, _ in enumerate(p.get('rows', [])): cue(p.get('at', .6) + i * p.get('stagger', .35) + .1, 'click', -16)
@@ -714,14 +720,28 @@ def _sounds(tech, p, sc, dur):
         cue(p.get('land', 1.9), 'click', -13)
     elif tech == 'trend_chart':
         cue(p.get('at', .5), 'whoosh', -20)
-    elif tech == 'compare_bars':
-        for j, _ in enumerate(p.get('items', [])): cue(p.get('at', .5) + j * .35 + .1, 'paper_place', -15)
+    elif tech == 'compare_bars':                    # the bars are drawn, not paper: one click as they rise
+        cue(p.get('at', .5) + .1, 'click', -15)
 
 
-def scene_visual(tech, params, theme, dur, banner=None):
+STEADY = {'image', 'photo', 'cutout', 'igpost', 'reveal'}     # real pictures: never the paper boil (the engine agrees)
+
+
+def steady(sc: dict) -> dict:
+    """Photos and cut-outs of people and watches hold still: no line boil (it read as trembling, Étienne's review)."""
+    for e in sc.get('elements', []):
+        if e.get('type') in STEADY: e.setdefault('noBoil', True)
+    return sc
+
+
+def scene_visual(tech, params, theme, dur, banner=None, seed=None):
+    """The engine scene for a template: its elements, its sounds, no boil on its photos, and a camera that really moves
+    (motion.ensure: at least 3 %, seeded by `seed`, else by the template and the scene's length)."""
     sc = BUILDERS[tech](copy.deepcopy(params), theme, dur)
     _sounds(tech, params, sc, dur)
     sc['banner'] = banner or None          # explicit: the engine keeps the PREVIOUS scene's banner when the key is missing
+    steady(sc)
+    motion.ensure(sc, dur, seed if seed is not None else f'{tech}|{dur}|{banner or ""}')
     return sc
 
 

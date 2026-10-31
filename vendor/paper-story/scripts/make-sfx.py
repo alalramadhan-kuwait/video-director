@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Procedural sound kit for paper-story drafts: writes mono 44.1 kHz WAVs to assets/sfx/.
-Deterministic (seeded). These are reference-quality placeholders for reviewing timing and mix; replace any
+Deterministic (seeded): the same bytes on every run. These are reference-quality placeholders for reviewing timing and mix; replace any
 of them by dropping a WAV with the same name into assets/sfx/ (or a project-level sfx/ folder).
    python3 make-sfx.py            """
 import numpy as np, wave, os, sys
@@ -104,4 +104,95 @@ save('heartbeat', np.tile(beat, 8), .6)
 save('chime', mix(bell(1319, 1.6, 3.5), at(bell(1760, 1.4, 3.8) * .8, .14, 1.8), at(bell(2093, 1.2, 4.2) * .6, .28, 1.8)), .4)
 bm = lowpass(noise(3), 180) * np.exp(-1.6 * t(3)) + np.sin(2 * np.pi * 38 * t(3)) * np.exp(-2.2 * t(3)) * .8
 save('boom', bm, .7)
+
+# --- story sounds asked for by the panel (Étienne's review of Halter): a train, a gavel, a close tower bell, footsteps,
+# a thud and a tick that slows and stops. Each draws from its own seeded generator, so adding a sound later never
+# changes the ones before it.
+import zlib
+def gen(name): return np.random.default_rng(zlib.crc32(name.encode()))
+def nz(r, d): return r.standard_normal(int(SR * d))
+def conv(x, ir):
+    n = len(x) + len(ir) - 1; m = 1 << (n - 1).bit_length()
+    return np.fft.irfft(np.fft.rfft(x, m) * np.fft.rfft(ir, m), m)[:n]
+def room_tail(x, r, secs=.8, lp=3000, wet=.25):              # a small room: decaying filtered noise as the impulse
+    ir = lowpass(nz(r, secs), lp) * np.exp(-6.9 * t(secs) / secs); ir[0] = 0
+    ir /= np.sqrt(np.sum(ir ** 2)) or 1                     # unit energy: `wet` is the tail's level against the dry sound
+    return mix(x, conv(x, ir) * wet)
+def wheels(r, d, pair_every, gap=.11, amp=1.0):              # clickety-clack: the two axles of each bogie over a rail joint
+    out = np.zeros(int(SR * d)); k = .07
+    while k < d - .3:
+        for j, dt in enumerate((0, gap)):
+            c = mix(damped(950 + 60 * j, .05, 80), .8 * damped(140, .09, 45), .5 * bandpass(nz(r, .03), 1500, 6000) * env(.03, .0003, 60))
+            out += at(c * amp * (1 - .15 * j), k + dt, d)
+        k += pair_every
+    return out
+
+def train(name='train', d=6.0):
+    r = gen(name); x = t(d)
+    pass_env = np.exp(-((x - d * .5) / (d * .2)) ** 2)                       # it comes, passes close, goes
+    rumble = lowpass(nz(r, d), 160) * 2.2 + bandpass(nz(r, d), 180, 1400) * .55 + bandpass(nz(r, d), 2000, 6000) * .08
+    hum = sum(a * np.sin(2 * np.pi * (f * (1.04 - .08 / (1 + np.exp(-(x - d * .5) * 3)))) * x) for a, f in ((.5, 62), (.25, 124)))   # the pitch falls as it passes
+    clack = wheels(r, d, .42, amp=.9) * (pass_env ** .7)
+    return (rumble + hum) * pass_env + clack
+save('train', train(), .8)
+
+def train_bed(d=10.0):                                       # the same train heard steadily (as from inside it): a bed that loops
+    r = gen('train_bed')
+    rumble = lowpass(nz(r, d), 150) * 2.0 + bandpass(nz(r, d), 180, 1200) * .45
+    sway = .85 + .15 * np.sin(2 * np.pi * t(d) / 2.5)
+    return loopable(rumble * sway + wheels(r, d, .5, amp=.7), 300)
+save('train_bed', train_bed(), .4)
+
+def train_horn(d=2.6):
+    r = gen('train_horn'); x = t(d)
+    vib = 1 + .004 * np.sin(2 * np.pi * 5.5 * x)
+    tone = sum(a * np.sign(np.sin(2 * np.pi * f * k * vib * x)) / k for f, a in ((311.1, 1), (370.0, .85)) for k in (1, 2, 3))
+    e = np.clip(x / .08, 0, 1) * np.clip((d - .5 - x) / .45, 0, 1) ** 1.5
+    horn = lowpass(tone * e, 2600) + bandpass(nz(r, d), 300, 1600) * e * .05
+    return room_tail(horn, r, 1.6, 2200, .6)
+save('train_horn', train_horn(), .7)
+
+def gavel():
+    r = gen('gavel')
+    knock = mix(damped(620, .25, 38), .7 * damped(1380, .18, 60), .35 * damped(2650, .1, 90),
+                .9 * bandpass(nz(r, .04), 500, 4200) * env(.04, .0002, 70), .8 * damped(170, .3, 30))
+    return room_tail(mix(knock, np.zeros(int(SR * 1.4))), r, 1.1, 2500, .55)
+save('gavel', gavel(), .85)
+
+def tower_strike(f=196.0, d=8.0):                            # a heavy bell struck close: hum, prime, tierce, quint, nominal
+    r = gen('tower_strike'); x = t(d)
+    parts = ((.5, .9, .35), (1.0, 1.0, .55), (1.183, .7, .8), (1.506, .45, 1.0), (2.0, .55, 1.2), (2.514, .3, 1.7), (2.662, .25, 1.9), (3.011, .2, 2.2), (4.166, .14, 3.0))
+    b = np.zeros(len(x))
+    for ratio, a, k in parts:
+        for det in (0, .7):                                  # two close strikes of each partial: the slow beating of a real bell
+            b += a * (1 if det == 0 else .35) * np.sin(2 * np.pi * (f * ratio + det) * x + r.random() * 6) * np.exp(-k * x)
+    clang = mix(bandpass(nz(r, .12), 1200, 7000) * env(.12, .0003, 30) * .9, damped(90, .5, 9) * .6)
+    return room_tail(mix(b, clang), r, 2.5, 4000, .35)
+save('tower_strike', tower_strike(), .85)
+
+def footsteps(n=5, step=.56):
+    r = gen('footsteps'); d = n * step + .8; out = np.zeros(int(SR * d))
+    for i in range(n):
+        k = .1 + i * step + r.uniform(-.03, .03); g = r.uniform(.8, 1.0)
+        heel = mix(damped(r.uniform(85, 110), .14, 30), .6 * damped(r.uniform(300, 420), .09, 48), .35 * bandpass(nz(r, .05), 600, 3500) * env(.05, .001, 45))
+        toe = .45 * mix(damped(r.uniform(380, 460), .06, 70), .3 * bandpass(nz(r, .03), 1500, 5000) * env(.03, .0005, 60))
+        creak = .08 * bandpass(nz(r, .2), 700, 1300) * np.sin(np.linspace(0, np.pi, int(SR * .2))) if i % 2 else np.zeros(1)
+        out += at(heel * g, k, d) + at(toe * g, k + .07, d) + at(creak, k + .05, d)
+    return room_tail(out, r, .7, 2500, .4)
+save('footsteps', footsteps(), .75)
+
+def thud():
+    r = gen('thud')
+    body = mix(damped(78, .35, 16), .7 * damped(240, .2, 32), .4 * damped(520, .12, 55), .5 * lowpass(nz(r, .06), 1600) * env(.06, .0005, 40))
+    rattle = at(.15 * mix(damped(1700, .05, 90), damped(2300, .04, 110)), .045, .2)
+    return room_tail(mix(body, rattle, np.zeros(int(SR * .9))), r, .6, 2200, .35)
+save('thud', thud(), .85)
+
+def tick_slow(d=3.4):                                        # the watch running down: each beat later and softer, then it stops
+    out = np.zeros(int(SR * d)); k, gap, i = .05, .22, 0
+    while k < 2.9:
+        out += at(tick(1.0 if i % 2 == 0 else .86) * (1 - .45 * k / 3), k, d)
+        k += gap; gap *= 1.17; i += 1
+    return out
+save('tick_slow', tick_slow(), .6)
 print('wrote', len(os.listdir(OUT)), 'files to', os.path.normpath(OUT))

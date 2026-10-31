@@ -12,7 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
-from ..studio import art, engine, review as RV
+from ..studio import art, engine, motion, review as RV
 from ..studio.storyboard import VOICE_AT, TAIL
 from . import ai, styles
 from .factcheck import assertions, subject_hits
@@ -201,9 +201,10 @@ def tech_checks(sp, drawn, research) -> list[dict]:
             F.append(_f('PLACEHOLDER_PERSON', 'major', 'a placeholder stands in for a real person', 'ظلّ بديل مكان شخص حقيقي'))
     if sp['take'] and (drawn['voice_db'] is None or drawn['voice_db'] < -45):
         F.append(_f('VOICE_MISSING', 'critical', f"the voice is not audible in the scene clip ({drawn['voice_db']} dB)", 'الصوت غير مسموع في المشهد'))
-    moving = sc.get('camera') or any(isinstance(e.get(k), list) for e in sc.get('elements', []) for k in ('x', 'y', 'scale', 'view'))
-    if sp['dur'] > 8 and not moving:
-        F.append(_f('LONG_HOLD', 'minor', f"{sp['dur']:.1f} s without movement", 'مشهد طويل بلا حركة', {'zoom': '1.18'} if kinetic else None))
+    cam = motion.amount(sc, sp['dur'])                                  # the camera has to travel at least 3 %, not just have a key
+    if cam + motion.TOL < motion.MIN and not sc.get('endcard'):
+        F.append(_f('LONG_HOLD', 'minor', f"{sp['dur']:.1f} s with the camera moving {cam * 100:.1f} %", 'الكاميرا شبه ثابتة في المشهد',
+                    {'zoom': '1.18'} if kinetic else None))
     if sp.get('fallback'):
         F.append(_f('FALLBACK', 'info', sp['fallback'], 'بديل: لا توجد صورة مرخّصة لهذا المشهد'))
     return F

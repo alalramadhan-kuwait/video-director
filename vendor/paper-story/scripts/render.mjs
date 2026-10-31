@@ -11,7 +11,7 @@
  *   node render.mjs <storyboard.json> --sheet [--every 2] -o sheet.png   contact sheet of the whole video
  *
  * Options: --fps N  --scale N (1 = 720x1280, 1.5 = 1080x1920)  --workers N  --from S --to S
- *          --crf N  --keep-frames  --voice-gain dB  --music-gain dB  --no-duck (music stays level under the voice)
+ *          --crf N  --keep-frames  --voice-gain dB  --music-gain dB (default -6)  --no-duck (music stays level under the voice)
  */
 import fs from 'node:fs';
 import os from 'node:os';
@@ -341,8 +341,13 @@ if (spawnSync(ffmpeg, ['-y', '-v', 'error', '-f', 'concat', '-safe', '0', '-i', 
 const D = total / fps;
 const args = ['-y', '-v', 'error', '-i', video];
 const vg = opt.voiceGain != null ? opt.voiceGain : (sb.audio && sb.audio.voiceGain) || 0;
-const duck = !opt.noDuck && !(sb.audio && sb.audio.duck === false), duckRatio = 6;
-const mg = opt.musicGain != null ? opt.musicGain : (sb.audio && sb.audio.musicGain != null ? sb.audio.musicGain : -18);
+// the music is heard: about 10 dB under the voice in the pauses and 18-20 dB under it while someone speaks (Étienne's
+// mix: at -18 dB and ratio 6 it sat 40 dB under the voice and the film fell silent between sentences).
+// storyboard audio.duck = {ratio, threshold, release} overrides these; audio.duck = false keeps the music level.
+const au = sb.audio || {}, dk = typeof au.duck === 'object' && au.duck ? au.duck : {};
+const duck = !opt.noDuck && au.duck !== false;
+const duckRatio = dk.ratio || 3, duckThreshold = dk.threshold || 0.03, duckRelease = dk.release || 400, duckAttack = dk.attack || 40;
+const mg = opt.musicGain != null ? opt.musicGain : (au.musicGain != null ? au.musicGain : -6);
 // every audio source becomes { f, start, gain(dB), loop?, len? }; start is in output seconds
 const srcs = [];
 if (audio) {
@@ -353,8 +358,12 @@ if (audio) {
 }
 voiceClips.filter((v) => v.start < t1).forEach((v) => srcs.push({ f: v.f, start: Math.max(0, v.start - t0), gain: vg, voice: true }));
 // sound effects: scene.sfx = [{at, name, gain}], scene.beds = [{name, from, to, gain}], automatic paper sounds unless scene.silent
-const sfxFile = (name) => {
-  for (const d of [path.join(sbDir, 'sfx'), path.join(here, '..', 'assets', 'sfx')]) { const f = path.join(d, name.endsWith('.wav') ? name : name + '.wav'); if (fs.existsSync(f)) return f; }
+const sfxFile = (name, bed) => {
+  const dirs = [path.join(sbDir, 'sfx'), path.join(here, '..', 'assets', 'sfx')];
+  // a sound used as a bed loops: its loopable `<name>_bed` take wins when there is one (a passing `train` is one pass,
+  // `train_bed` the rumble and wheels that can run under a whole scene)
+  if (bed && !name.endsWith('.wav')) for (const d of dirs) { const f = path.join(d, name + '_bed.wav'); if (fs.existsSync(f)) return f; }
+  for (const d of dirs) { const f = path.join(d, name.endsWith('.wav') ? name : name + '.wav'); if (fs.existsSync(f)) return f; }
   die('sound effect not found: ' + name + ' (looked in <storyboard>/sfx and the skill assets/sfx)');
 };
 const autoSfx = !(sb.audio && sb.audio.autoSfx === false);
@@ -365,11 +374,15 @@ let sfxCount = 0;
     const cues = [];
     if (autoSfx && !sc.silent) {
       if (i > 0 && ['slide', 'push', 'rise', 'drop'].includes(sc.transition || 'slide')) cues.push({ at: 0, name: 'paper_slide', gain: -9 });
-      if (sc.banner !== undefined || i === 0) cues.push({ at: 0.3, name: 'paper_place', gain: -14 });
+      if (sc.banner) cues.push({ at: 0.3, name: 'paper_place', gain: -14 });     // only when a banner really comes in (null = none)
     }
     (sc.sfx || []).forEach((c) => cues.push(c));
     for (const c of cues) { const st = acc + c.at - t0; if (st >= -0.01 && st < t1 - t0) { srcs.push({ f: c.file ? path.resolve(sbDir, c.file) : sfxFile(c.name), start: Math.max(0, st), gain: c.gain != null ? c.gain : -8 }); sfxCount++; } }
-    for (const bd of sc.beds || []) { const from = acc + (bd.from || 0) - t0, len = (bd.to != null ? bd.to : sc.dur) - (bd.from || 0); if (from < t1 - t0) srcs.push({ f: sfxFile(bd.name), start: Math.max(0, from), gain: bd.gain != null ? bd.gain : -22, loop: true, len, fade: 0.4 }); }
+    // a bed with `lead` starts that many seconds before its scene's cut (a J-cut: the next place is heard first)
+    for (const bd of sc.beds || []) {
+      const lead = Math.min(bd.lead || 0, acc + (bd.from || 0)), from = acc + (bd.from || 0) - lead - t0, len = (bd.to != null ? bd.to : sc.dur) - (bd.from || 0) + lead;
+      if (from < t1 - t0) srcs.push({ f: sfxFile(bd.name, true), start: Math.max(0, from), gain: bd.gain != null ? bd.gain : -22, loop: true, len, fade: 0.4, fadeIn: Math.max(0.4, lead) });
+    }
     acc += sc.dur;
   }
 }
@@ -379,7 +392,7 @@ if (srcs.length || music) {
   const chains = [], labels = [];
   srcs.forEach((x, i) => {
     let c = `[${i + 1}:a]`;
-    if (x.loop) c += `atrim=0:${x.len.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=${x.fade},afade=t=out:st=${Math.max(0, x.len - x.fade).toFixed(3)}:d=${x.fade},`;
+    if (x.loop) c += `atrim=0:${x.len.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=${x.fadeIn || x.fade},afade=t=out:st=${Math.max(0, x.len - x.fade).toFixed(3)}:d=${x.fade},`;
     c += `adelay=${Math.round(x.start * 1000)}:all=1,volume=${x.gain}dB[a${i}]`;
     chains.push(c); labels.push(`[a${i}]`);
   });
@@ -391,7 +404,7 @@ if (srcs.length || music) {
       vl.forEach((l) => labels.splice(labels.indexOf(l), 1));
       chains.push(`${vl.join('')}${vl.length > 1 ? `amix=inputs=${vl.length}:duration=longest:normalize=0,` : ''}asplit=2[vo][vk0]`);
       chains.push('[vk0]apad[vk]');                     // the key runs to the end, so the music does too
-      chains.push(`[m0][vk]sidechaincompress=threshold=0.015:ratio=${duckRatio}:attack=60:release=700:knee=4[m]`);
+      chains.push(`[m0][vk]sidechaincompress=threshold=${duckThreshold}:ratio=${duckRatio}:attack=${duckAttack}:release=${duckRelease}:knee=4[m]`);
       labels.push('[vo]');
     }
     labels.push('[m]');
@@ -406,4 +419,4 @@ const enc = spawnSync(ffmpeg, args, { stdio: 'inherit' });
 if (enc.status !== 0) die('ffmpeg encode failed');
 if (!opt.keep) fs.rmSync(tmp, { recursive: true, force: true }); else console.log('frames kept in ' + tmp);
 const mb = (fs.statSync(out).size / 1048576).toFixed(1);
-console.log(`done: ${out}  ${outW}x${outH}  ${D.toFixed(1)}s  ${mb} MB${srcs.length || music ? '' : '  (no audio)'}`);
+console.log(`done: ${out}  ${outW}x${outH}  ${D.toFixed(1)}s  ${mb} MB${srcs.length || music ? '' : '  (no audio)'}  (${sfxCount} one-shot sound(s), ${(sfxCount / Math.max(1, D) * 60).toFixed(1)} a minute)`);

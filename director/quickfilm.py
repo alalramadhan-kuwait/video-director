@@ -30,6 +30,12 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
                sentence that prepares the change (`closing: true` for an echo that ends the film)
              · the feeling of the story is named on the lines that carry it (`mood:` mystery, fear, sadness, tension, joy,
                wonder): it changes the light and the sound of the scene (director/studio/moods.py)
+  motion     every scene's camera moves at least 3 % (director/studio/motion.py, seeded by the line's id); a scene longer
+             than 5 s punches in on a word half-way through; quality flags a scene whose camera moves less
+  sound      the mix (director/studio/mix.py): beds 24-28 dB under the voice starting 0.5 s before their cut, one-shots
+             3-6 dB under it and at most 15 a minute, paper sounds only when paper comes in. A line can ask for its own
+             effects and bed:  sfx: [{name: gavel, on: «word»}, {name: train_horn, at: 2.5, gain: -8}]  ·  bed: train
+             (or {name, gain}, a list, or none)
 The voice is the free DRAFT voice unless `voice_dir` is given: a folder of takes read on the owner's computer, one per
 line (OmniVoice: tools/voice_script.py, then omnivoice_narrate.py --lines-dir). Those takes are used as they are (no
 speed change), Whisper still listens to each one, and the film is labelled with the voice and its licence.
@@ -42,7 +48,7 @@ import yaml
 
 from . import beats, platforms, quality, brand as B
 from .copilot import commons
-from .studio import art, checks, engine, moods, sets, voice
+from .studio import art, checks, engine, mix, moods, motion, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
 
@@ -225,6 +231,43 @@ def story_check(film: dict) -> list[str]:
         if last and ys[0] < last[1] and not ln.get('flashback'):
             out.append(f"{ln['id']}: {ys[0]} comes after {last[1]} ({last[0]}): out of order (or mark it flashback: true)")
         last = (ln['id'], max(ys))
+    return out
+
+
+def cue_word(cue: dict):
+    """The word a cue waits for: `on:` (YAML 1.1 reads a bare `on` key as true, so that key counts too) or `word:`."""
+    return next((cue[k] for k in ('on', True, 'word') if cue.get(k) is not None), None)
+
+
+def cue_time(cue: dict, words: list[dict]) -> float | None:
+    """When a film file's sound cue plays, in scene seconds: `at:` seconds from the cut, or `on:` a word of the line
+    (as the voice says it; `nth:` for a word said more than once), plus `offset:`. None when the word is not in the line."""
+    off = float(cue.get('offset', 0))
+    on = cue_word(cue)
+    if on is None:
+        return round(float(cue.get('at', 0)) + off, 2)
+    want = checks.words(str(on))
+    if not want: return None
+    hits = [w for w in words if w.get('s') is not None and (w['w'] == want[0] or checks.stem(w['w']) == checks.stem(want[0]))]
+    n = int(cue.get('nth', 1))
+    return round(VOICE_AT + hits[n - 1]['s'] + off, 2) if len(hits) >= n else None
+
+
+def line_sound(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
+    """A line's own sound from the film file: `sfx:` cues (kept over the template's when the film has too many) and a
+    `bed:` that replaces the scene's beds (`none` for silence under the voice). Returns what could not be placed."""
+    out = []
+    for c in ln.get('sfx') or []:
+        c = {'name': c} if isinstance(c, str) else c
+        at = cue_time(c, words)
+        if at is None or not 0 <= at < dur:
+            out.append(f"{ln['id']}: sound {c['name']!r} {'on «' + str(cue_word(c)) + '»' if cue_word(c) is not None else 'at ' + str(c.get('at'))} is not in the scene")
+            continue
+        sc.setdefault('sfx', []).append({'at': at, 'name': c['name'], 'gain': c.get('gain', -8), 'owner': True, **({'fixed': True} if 'gain' in c else {})})
+    if 'bed' in ln:
+        b = ln['bed']
+        beds = [] if b in (None, 'none', False) else b if isinstance(b, list) else [b]
+        sc['beds'] = [{'name': x, 'gain': -26} if isinstance(x, str) else {'gain': -26, **x, **({'fixed': True} if 'gain' in x else {})} for x in beds]
     return out
 
 
@@ -458,7 +501,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
             raise FileNotFoundError(f'no take in {voice_dir} for: ' + ', '.join(missing))
     pics = photos(film, out)
     plat_id, plat = platforms.of(film, B.load(brand))
-    scenes, report = [], {'lines': [], 'photos': pics, 'story': story_check(film), 'platform': plat['name']}
+    scenes, report, voice_db = [], {'lines': [], 'photos': pics, 'story': story_check(film), 'platform': plat['name']}, {}
     for ln in film['lines']:
         t = take(ln, brand, out / 'voice', given=voice_dir)
         gap = film.get('gap') or {}                                          # a slower voice keeps its words, the silences shorten
@@ -493,11 +536,15 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
             if hit: params['land'] = round(VOICE_AT + hit['s'], 2)
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
-        sc = art.scene_visual(template, params, theme, dur, banner=ln.get('banner'))
+        sc = art.scene_visual(template, params, theme, dur, banner=ln.get('banner'), seed=ln['id'])
         if ln.get('photo'):                                                  # a scene of words gets its related photo behind
             art.backdrop(sc, ln['photo'], dur, credit=pics.get(ln['photo'], {}).get('credit', ''))
         sc = sets.dress(sc, world, dur, seed=ln['id'], template=template)
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
+        report.setdefault('sound', []).extend(line_sound(sc, ln, t['words'], dur))     # the film file's own cues and bed
+        words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
+        motion.word_punch(sc, words, dur, ln['id'])                          # a long scene: a second picture event on a word
+        voice_db[len(scenes)] = mix.level(str(t['wav']), 'active')
         same = scenes and scenes[-1].get('set') == world
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
                   words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']],
@@ -506,7 +553,10 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': template})
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
     ending = _endcard(out)
+    report['mix'] = mix.apply(scenes + ending, voice_db)                 # beds, J-cuts, one-shot levels and the cap
+    duck = (B.load(brand).get('music') or {}).get('duck')
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),
+          'audio': {'autoSfx': False, **({'duck': {k: v for k, v in duck.items() if not k.startswith('_')}} if duck else {})},
           'scenes': scenes + ending}
     seconds = round(sum(s['dur'] for s in sb['scenes']), 1)
     mus = B.music(brand, seconds=seconds, seed=film.get('seed') or Path(path).stem, title=film.get('music'))
@@ -526,6 +576,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     report['safe_caution'] = sum(1 for l in safe if l.startswith('safe caution'))
     report['length'] = platforms.length_warning(plat, seconds)
     report['quality'] = quality.check(sb, out, seconds)                  # contrast, words over words, a finished first frame
+    report['quality'] += quality.camera(sb)                              # every scene's camera moves at least 3 %
+    report['motion'] = {s['id']: motion.amount(s, s['dur']) for s in scenes}
     starts = [sum(s['dur'] for s in scenes[:i]) for i in range(len(scenes))]
     shots = engine.stills(sb, out, [round(st + s['dur'] * .7, 2) for st, s in zip(starts, scenes)], scale=0.5)
     (out / 'scenes').mkdir(exist_ok=True)
