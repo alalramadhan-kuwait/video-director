@@ -613,7 +613,8 @@ def waiting_years(dur, rng):
                 + ''.join(f'<circle cx="{x}" cy="12" r="4" fill="#2A2C31"/>' for x in (45, 105))
                 + f'<text x="75" y="125" font-family="Inter Tight,Cairo,sans-serif" font-size="46" font-weight="700" text-anchor="middle" fill="#111">{y}</text>')
         fall = {} if last else {'y': [[0, 640], [t, 640], [t + .7, 1450, 'inCubic']], 'rot': [[0, 0], [t, 0], [t + .7, round(rng.uniform(-25, 25), 1)]]}
-        els.append({**_el(page, 150, 190, 640, 640), 'behind': True, 'depth': .6, **fall})          # 2010 stays
+        under = {} if k == 0 else {'opacity': [[0, 0], [round(.5 + (k - 1) * step, 2), 0], [round(.5 + (k - 1) * step + .05, 2), 1]]}
+        els.append({**_el(page, 150, 190, 640, 640), 'behind': True, 'depth': .6, **fall, **under})   # 2010 stays; a page shows once the one above it falls
     els += _motes(rng, 10, '#F3D9A4', dur, y0=400, y1=900, rise=30, op=.3, x0=480, x1=720)
     return {'theme': 'tk-ink', 'elements': els, 'beds': [('room', -32)], 'sfx': []}
 
