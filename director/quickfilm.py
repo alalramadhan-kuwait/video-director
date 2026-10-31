@@ -274,6 +274,40 @@ def cue_time(cue: dict, words: list[dict]) -> float | None:
     return round(VOICE_AT + hits[n - 1]['s'] + off, 2) if len(hits) >= n else None
 
 
+VEIL = ('<defs><linearGradient id="vg" x1="0" x2="1"><stop offset="0" stop-color="#3E1418"/><stop offset=".18" stop-color="#6E2229"/>'
+        '<stop offset=".34" stop-color="#4A171C"/><stop offset=".52" stop-color="#76262E"/><stop offset=".7" stop-color="#4A171C"/>'
+        '<stop offset=".86" stop-color="#6E2229"/><stop offset="1" stop-color="#3E1418"/></linearGradient></defs>')
+
+
+def veil(w: float, h: float) -> str:
+    """A velvet cloth over a print, drawn in code: deep red folds, a gold fringe at the hem. No watch is drawn."""
+    w, h = round(w), round(h)
+    hem = ''.join(f'<rect x="{x}" y="{h - 22}" width="5" height="22" rx="2" fill="#C8A35A"/>' for x in range(6, w - 6, 11))
+    return (f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}">{VEIL}'
+            f'<path d="M0 10 Q{w / 2} -8 {w} 10 L{w} {h - 24} Q{w / 2} {h - 8} 0 {h - 24} Z" fill="url(#vg)"/>'
+            f'<rect x="0" y="{h - 30}" width="{w}" height="8" fill="#B08D4A"/>{hem}</svg>')
+
+
+def line_reveal(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
+    """`reveal: {on: <word>}`: the scene's print stands under a velvet cloth that is pulled away on the word (the owner:
+    the new watch at Basel hidden, then unveiled). A swish plays as it lifts. Returns what could not be placed."""
+    r = ln.get('reveal')
+    if not r: return []
+    r = {'on': r} if isinstance(r, str) else dict(r)
+    pic = next((e for e in sc.get('elements', []) if e.get('type') == 'photo'), None)
+    at = cue_time(r, words)
+    if pic is None or at is None or not 0 < at < dur:
+        return [f"{ln['id']}: reveal on «{r.get('on')}» has no print or word to unveil"]
+    w = float(pic.get('w', 650)); h = w / float(pic.get('aspect') or 1.0)
+    vw, vh, x, y = w + 70, h + 110, pic.get('x', 360), pic.get('y', 560)
+    t0, t1 = round(max(.05, at - .15), 2), round(at + .7, 2)
+    sc['elements'].append({'type': 'svg', 'svg': veil(vw, vh), 'w': round(vw), 'h': round(vh), 'x': x, 'still': True, 'noBoil': True,
+                           'y': [[0, y], [t0, y + 12, 'outCubic'], [t1, y - 1500, 'inCubic']],
+                           'rot': [[0, 0], [t0, 1.5], [t1, -9, 'inCubic']], 'z': (pic.get('z') or 0) + 8})
+    sc.setdefault('sfx', []).append({'at': t0, 'name': 'whoosh', 'gain': -10, 'owner': True})
+    return []
+
+
 def line_sound(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
     """A line's own sound from the film file: `sfx:` cues (kept over the template's when the film has too many) and a
     `bed:` that replaces the scene's beds (`none` for silence under the voice). Returns what could not be placed."""
@@ -639,6 +673,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         sc = sets.dress(sc, world, dur, seed=ln['id'], template=template)
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
         report.setdefault('sound', []).extend(line_sound(sc, ln, t['words'], dur))     # the film file's own cues and bed
+        report.setdefault('sound', []).extend(line_reveal(sc, ln, t['words'], dur))   # a print unveiled on its word
         words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
         motion.direct(sc, dur, ln['id'], words=words, shots=ln.get('shots'), pixels=motion.pixels(out / 'assets'), template=template)
         voice_db[len(scenes)] = mix.level(str(t['wav']), 'active')
