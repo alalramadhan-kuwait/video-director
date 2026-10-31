@@ -186,7 +186,8 @@ def word_punch(sc: dict, words: list, dur: float, seed) -> float | None:
 # ====================================================================== shot sizes
 H = 1280
 FLOOR, CEIL = 1.08, 1.9                # the main move never rests below FLOOR, never closer than CEIL
-SIZES = {'wide': (1.08, 1.14), 'medium': (1.28, 1.42), 'close': (1.6, 1.9)}
+SIZES = {'wide': (1.08, 1.14), 'medium': (1.28, 1.42), 'close': (1.6, 1.9), 'face': (2.3, 2.6)}
+FACE_CEIL = 2.6                        # a person's face fills the frame (rule 18j); only the 'face' shot comes this close
 SOFT = 1.5                             # the engine's layout `soft` limit: a photo shown at most 1.5x its own pixels
 RENDER_SCALE = 1.5                     # films are rendered at 1080x1920: 1.5x the 720x1280 stage
 DRAWN_MAX = 1.35                       # the motion kit's numbers are a 1080-wide canvas: kept sharp enough
@@ -317,8 +318,8 @@ def _natural_factor(e, nw, nh) -> float:
 def cap(sc: dict, pixels: dict | None, scale: float = RENDER_SCALE, soft: float = SOFT, dur: float | None = None) -> float:
     """The closest the camera may come without showing any photo bigger than its pixels allow: each picture's own size
     (`pixels`: {asset or file stem: (w, h)}), its box, its own scale keys and its depth, at the render scale. A drawn
-    canvas (the motion kit) is capped at DRAWN_MAX. Never more than CEIL."""
-    out = CEIL
+    canvas (the motion kit) is capped at DRAWN_MAX. Never more than FACE_CEIL (and CEIL for every shot but a face)."""
+    out = FACE_CEIL
     dur = dur or sc.get('dur') or 6.0
     for e in sc.get('elements', []):
         if e.get('depth') == 0: continue
@@ -401,7 +402,7 @@ def _zoom(size, tg: dict, r: random.Random, top: float) -> float:
         z = FLOOR + (z - FLOOR) * room / (CEIL - FLOOR) if z > FLOOR else z
     if tg['kind'] in ('text', 'card', 'chart') and tg.get('w'):     # words and numbers stay whole in the frame
         z = min(z, .9 * W / max(1.0, tg['w']), .9 * H / max(1.0, tg['h']))
-    return round(max(min(FLOOR, top), min(z, CEIL, top)), 4)
+    return round(max(min(FLOOR, top), min(z, FACE_CEIL if size == 'face' else CEIL, top)), 4)
 
 
 def _focus(size, tg: dict) -> tuple[float, float]:
@@ -411,7 +412,7 @@ def _focus(size, tg: dict) -> tuple[float, float]:
 
 
 def _size_of(z: float) -> str:
-    return 'close' if z >= SIZES['close'][0] - .05 else 'medium' if z >= SIZES['medium'][0] - .05 else 'wide'
+    return 'face' if z >= SIZES['face'][0] - .05 else 'close' if z >= SIZES['close'][0] - .05 else 'medium' if z >= SIZES['medium'][0] - .05 else 'wide'
 
 
 def plan(sc: dict, dur: float, seed, words=(), shots=None, top: float = CEIL) -> list[dict]:
@@ -460,8 +461,8 @@ def plan(sc: dict, dur: float, seed, words=(), shots=None, top: float = CEIL) ->
     if pattern == 'in':
         out = [shot(0, 'wide', lead)]
         if k1: out.append(shot(k1[0], 'close', tgt_for(k1[1])))
-    elif pattern == 'face':                                              # close on the face, then pull back to the whole scene
-        out = [shot(0, 'close', lead)]
+    elif pattern == 'face':                                              # the face fills the frame, then pull back to the whole scene
+        out = [shot(0, 'face', lead)]
         out.append(shot(k1[0] if k1 else round(min(dur * .45, 2.4), 2), 'wide', lead))
     else:
         out = [shot(0, 'close', lead)]
@@ -529,6 +530,8 @@ def direct(sc: dict, dur: float, seed, words=(), shots=None, pixels: dict | None
         if isinstance(sk, list) and sk and isinstance(sk[0], list) and steady(xk) and steady(yk):
             el['scale'] = min(v[1] for v in sk)
     top = cap(sc, pixels, dur=dur)
+    face = (lead is not None and lead.get('person') and not shots) or any(isinstance(x, dict) and x.get('to') == 'face' for x in (shots or []))
+    if not face: top = min(top, CEIL)                                 # only a face shot comes closer than CEIL
     events = plan(sc, dur, seed, words=words, shots=shots, top=top)
     cam = _keys(events, dur, top)
     if top < CEIL: cam['cap'] = top
