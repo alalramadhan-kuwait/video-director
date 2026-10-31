@@ -49,7 +49,7 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     وقربه الى اقرب ١٠٠ لانه العنصر المستهدف»). The audience is in Kuwait: a price in francs, dollars, euros or any other
     currency is said and shown in KWD («نحو 71,400 دينار كويتي», on screen «71,400 د.ك»), never in the original
     currency. Convert at the rate of the price's own day (the sale or announcement date), not today's: 203,200 CHF at
-    Phillips on 8 November 2024 × 0.3511 = 71,352 → 71,400. The original figure, the rate and its date go in
+    Phillips on 8 November 2024 × 0.35114 = 71,352 → 71,400. The original figure, the rate and its date go in
     `sources:` (and `credits.txt`), not in the film. `story_check` flags a foreign currency and an unrounded KWD amount.
 8. **Precise words**: say exactly what the source says. «حصلن على تعويض» (a settlement), not «كسبن القضية»;
    «عاملات شابّات», not «فتيات صغيرات», unless the source says so.
