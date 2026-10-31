@@ -129,6 +129,14 @@ class TestStory(unittest.TestCase):
         self.assertIn('71,400', ' '.join(mine(one('بيعت بنحو 71,352 دينار كويتي.'))))
         self.assertEqual(mine(one('في 1998 صنع 110 ساعات، وفي 2011 فاز.')), [])
 
+    def test_the_words_are_everyday_words(self):
+        one = lambda text: {'lines': [{'id': 'l1', 'text': text, 'template': 'kinetic_type', 'params': {}, 'no_photo': 't'}]}
+        mine = lambda f: [m for m in quickfilm.story_check(f) if 'everyday' in m]
+        for hard in ('وأمضى عشر سنوات يرمّم الساعات العتيقة.', 'يصنع في الظلّ أصعب الآليات.', 'لدورٍ مثل Breguet.',
+                     'وحين جفّت الطلبات صنع ساعة.', 'مدير الساعات آنذاك.', 'في طليعة عصرٍ جديد.'):
+            self.assertTrue(mine(one(hard)), hard)
+        self.assertEqual(mine(one('أمضى عشر سنوات يصلّح الساعات القديمة لشركات الساعات، ودوره كبير في الظلام.')), [])
+
     def test_every_mood_grades_the_scene_under_the_words_and_has_a_sound(self):
         kit = (engine.ENGINE / 'scripts/make-sfx.py').read_text()
         for m in moods.MOODS:

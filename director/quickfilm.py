@@ -90,6 +90,17 @@ _NUM = r'([0-9٠-٩][0-9٠-٩,٬]*)'
 KWD_AMOUNT = re.compile(_NUM + r'\s*(?:ألف\s*)?(?:دينار|د\.ك|KWD)|(?:KWD|د\.ك)\s*' + _NUM)
 
 
+PLAIN = [                                                                  # rule 9c: everyday words, no figures of speech
+    (r'عتيق', 'قديمة'),
+    (r'آنذاك', 'وقتها'),
+    (r'طليعة', 'مقدّمة'),
+    (r'(?<![\u0600-\u06FF])(?:[وف]?ي)?رمّ?م', 'يصلّح'),
+    (r'في الظلّ?(?![\u0600-\u06FF])', 'say it plainly (e.g. «باسم غيره، لا باسمه»)'),
+    (r'جفّ?ت', 'say it plainly, or leave it out'),
+    (r'(?<![\u0600-\u06FF])(?:ل|و|ف)?(?:ال)?دورٍ|الدور الكبرى|دور الساعات', 'شركات الساعات'),
+]
+
+
 def story_check(film: dict) -> list[str]:
     """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
     out, lines = [], film['lines']
@@ -115,6 +126,12 @@ def story_check(film: dict) -> list[str]:
             for v, k in arabic.items():
                 if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
+    for ln in lines:                                                     # plain Arabic (rule 9c)
+        said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
+        for pat, easy in PLAIN:
+            m = re.search(pat, said)
+            if m:
+                out.append(f"{ln['id']}: «{m.group(0)}» is not an everyday word; use {easy}")
     for ln in lines:                                                     # prices in Kuwaiti dinars, to the nearest 100 (rule 7b)
         said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
         if FOREIGN_MONEY.search(said):

@@ -60,6 +60,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     Gérald Genta films: «Panerai», «Rolex», «Oyster», «Marie Curie», «Ponte alle Grazie», «Florence»; the voice reads
     them as they are (`narration.keep_latin` in the brand config). Arab places keep their Arabic name (الإسكندرية).
     Mind the article: an Arabic «ال» before a Latin word is lost when spoken; keep that word Arabic in that line.
+9c. **Plain Arabic: everyday words, no figures of speech** ✓ (the owner on Halter: «شنو يعني يصنع بالظل؟ خفف اللغة
+    العربية… ليش تستخدم عتيقة استخدم كلمة اسهل مثلا القديمة… يصنع لدور ليش ما قلت شركات ساعات… شنو يعني جفت الطلبات؟»).
+    Standard Arabic grammar, but the words a Kuwaiti viewer uses: قديمة not عتيقة, يصلّح not يرمّم, شركات الساعات not
+    الدور, وقتها not آنذاك. No figure of speech the listener has to decode («يصنع في الظلّ», «جفّت الطلبات»): say the
+    plain fact («باسم تلك الشركات، لا باسمه») or leave it out. A detail that needs its own explanation and does not move
+    the story on is dropped. `story_check` flags the words in `quickfilm.PLAIN`; add to it whenever the owner finds one.
 10. A claim the sources only believe or call likely is said as a belief: «يُقال…».
 11. Contested dates: say only the part all sources agree on (the decade).
 
@@ -175,6 +181,11 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     Reels): drop whole lines whose neighbours still lead into each other, never the reason for a change or the end of
     a group the story follows (12f), and drop the photos and sources only those lines used. When only a few seconds
     are over (a slower final voice), shorten the silences first (`gap: {tail, pause}` in the film file) before any line.
+20c. **Two parts when the story needs room** (the owner: «اذا الفيديو فيه معلومات كثيره و محتاج مساحة للعرض تقدر تقسمه
+    الى جزئين»). When the story cannot be told in 60–90 s without piling up facts, make it two films: each with its
+    own hook (rule 6) and its own film file (`films/<name>-1.yaml`, `-2.yaml`); part 1 answers its own hook and ends
+    on a true question that part 2 opens with («… في الجزء الثاني»); part 2 recalls part 1 in one short line. The
+    reader panel reads both parts together.
 21. Send the film with its sources, photo credits and music credit (`credits.txt`). The draft voice is labelled as a
     draft; the final narration is OmniVoice.
 
