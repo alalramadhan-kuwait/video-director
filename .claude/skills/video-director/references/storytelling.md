@@ -162,6 +162,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     بشكل كامل وبعدين يطلع»). A scene whose main picture is a person opens close on the face, the whole face in frame,
     then pulls back to show the place. `motion.plan` does it for every person cut-out with a `face` shot (zoom 2.3-2.6,
     the only shot allowed past 1.9, still capped by the picture's pixels); a line can ask for it: `shots: [{at: 0, to: face}]`.
+18k. **A new watch is unveiled** ✓ (the owner: «ليش ماخليتها مخفية تحت ستار وبعدين ينشال… يكون في غموض»). When a line
+    presents a watch for the first time (a launch, a fair, an auction lot), its print stands under a velvet cloth drawn
+    in code and the cloth is pulled away on the watch's name: `reveal: {on: Antiqua}`. A swish plays as it lifts; pair
+    it with a close shot on the same word.
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
     it: one main bed 34 dB under the voice from its J-cut to 1.5 s into the scene, then 40 dB under; a tick, a tock
