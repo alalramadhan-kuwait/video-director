@@ -96,3 +96,12 @@ class TestOnRenders(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestBehindOffFrame(unittest.TestCase):
+    def test_words_wholly_off_the_frame_have_no_background(self):
+        from PIL import Image
+        img = Image.new('RGB', (720, 1280), 'white')
+        self.assertEqual(quality.behind(img, [800, 100, 900, 160]), [])          # right of the frame (a camera move)
+        self.assertEqual(quality.behind(img, [100, 1400, 300, 1460]), [])        # below it
+        self.assertTrue(quality.behind(img, [100, 100, 300, 160]))
