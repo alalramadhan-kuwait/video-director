@@ -14,5 +14,11 @@ class TestCalendarPages(unittest.TestCase):
             if e is not top: self.assertEqual(e['opacity'][0], [0, 0])      # the rest wait their turn
 
 
+    def test_the_end_keeps_only_2010(self):
+        els = [e for e in sets.SETS['waiting_years_end'](4, random.Random(0))['elements'] if 'font-size="46"' in e.get('svg', '')]
+        self.assertEqual(len(els), 1); self.assertIn('>2010<', els[0]['svg'])
+        self.assertNotIn('rot', els[0]); self.assertNotIn('opacity', els[0])
+
+
 if __name__ == '__main__':
     unittest.main()
