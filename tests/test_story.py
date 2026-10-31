@@ -112,12 +112,22 @@ class TestStory(unittest.TestCase):
             {'id': 'l3', 'text': 'وفي 1998 صنع ساعة Antiqua، ولم يُصنع منها إلا 110 ساعات.', 'template': 'kinetic_type', 'params': {}, 'no_photo': 't'}]}
         no_hook = base({'text': 'في Suresnes، عام 1962، كان طفلًا.'})
         self.assertTrue(any('open on a hook' in m for m in quickfilm.story_check(no_hook)))
-        good = base({'text': 'ساعة لم يُصنع منها إلا 110 قطع… تُباع اليوم بأكثر من مئتي ألف فرنك.', 'cold_open': True})
+        good = base({'text': 'ساعة لم يُصنع منها إلا 110 قطع… تُباع اليوم بنحو 71,400 دينار كويتي.', 'cold_open': True})
         self.assertEqual([m for m in quickfilm.story_check(good) if m.startswith('l1') or 'out of order' in m], [])
         unpaid = base({'text': 'سرّ لن تعرفه أبدًا عن رجل غامض جدًا من جبال سويسرا.', 'cold_open': True})
         self.assertTrue(any('never pays the hook off' in m for m in quickfilm.story_check(unpaid)))
         long = base({'text': ' '.join(['كلمة'] * 20) + ' 110', 'cold_open': True})
         self.assertTrue(any('6-16' in m for m in quickfilm.story_check(long)))
+
+    def test_a_price_is_said_in_kuwaiti_dinars_to_the_nearest_100(self):
+        one = lambda text, **k: {'lines': [{'id': 'l1', 'text': text, 'template': 'kinetic_type', 'params': {}, 'no_photo': 't', **k}]}
+        mine = lambda f: [m for m in quickfilm.story_check(f) if 'dinar' in m or 'KWD' in m]
+        self.assertTrue(mine(one('بيعت بأكثر من مئتي ألف فرنك سويسري.')))
+        self.assertTrue(mine(one('بيعت عام 2024.', banner='CHF 203,200')))           # on screen too
+        self.assertTrue(mine(one('سعرها $6,000 فقط.')))
+        self.assertEqual(mine(one('بيعت بنحو 71,400 دينار كويتي.', banner='71,400 د.ك')), [])
+        self.assertIn('71,400', ' '.join(mine(one('بيعت بنحو 71,352 دينار كويتي.'))))
+        self.assertEqual(mine(one('في 1998 صنع 110 ساعات، وفي 2011 فاز.')), [])
 
     def test_every_mood_grades_the_scene_under_the_words_and_has_a_sound(self):
         kit = (engine.ENGINE / 'scripts/make-sfx.py').read_text()

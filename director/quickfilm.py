@@ -84,6 +84,12 @@ def _says(screen: str, narration: str) -> bool:
     return any(x == y or (len(x) >= 4 and len(y) >= 4 and x[:4] == y[:4]) for x in a for y in b)
 
 
+FOREIGN_MONEY = re.compile(r'فرنك|دولار|يورو|جنيه|ليرة|درهم|ريال|\b(?:CHF|USD|EUR|GBP|francs?|dollars?|euros?)\b|[$€£]', re.I)
+ARABIC_DIGITS = str.maketrans('٠١٢٣٤٥٦٧٨٩', '0123456789')
+_NUM = r'([0-9٠-٩][0-9٠-٩,٬]*)'
+KWD_AMOUNT = re.compile(_NUM + r'\s*(?:ألف\s*)?(?:دينار|د\.ك|KWD)|(?:KWD|د\.ك)\s*' + _NUM)
+
+
 def story_check(film: dict) -> list[str]:
     """The storytelling rules this film breaks, in plain words (an empty list is a pass)."""
     out, lines = [], film['lines']
@@ -109,6 +115,14 @@ def story_check(film: dict) -> list[str]:
             for v, k in arabic.items():
                 if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
+    for ln in lines:                                                     # prices in Kuwaiti dinars, to the nearest 100 (rule 7b)
+        said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
+        if FOREIGN_MONEY.search(said):
+            out.append(f"{ln['id']}: say the price in Kuwaiti dinars (دينار كويتي / د.ك), rounded to the nearest 100, at the rate of its day")
+        for m in KWD_AMOUNT.finditer(said):
+            n = int(re.sub(r'[,٬.]', '', (m.group(1) or m.group(2)).translate(ARABIC_DIGITS)))
+            if n % 100:
+                out.append(f"{ln['id']}: round {n:,} KWD to the nearest 100 ({round(n / 100) * 100:,})")
     photos = film.get('photos') or {}
     first = lines[0] if lines else {}
     if first and not first.get('cold_open') and (first['template'] in PHOTO_TEMPLATES or first.get('photo')) and not first.get('opening_photo'):
