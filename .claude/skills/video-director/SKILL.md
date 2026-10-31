@@ -62,7 +62,11 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
 6. **Film** — write the film file `films/<name>.yaml` (example: `films/panerai.yaml`): each line's `text` (and `say`
    when the voice must read it differently, e.g. years as words), its `template` and `params` from
    `art/catalogue.yaml`, its `banner`, its world (`set`), its `mood`, and `event` / `change` + `because` where they
-   apply; plus `photos` (Commons queries), `sources`, the `platform` and the written `hook`. Then `python3 tools/make_film.py films/<name>.yaml <out>`:
+   apply; plus `photos` (Commons queries), `sources`, the `platform` and the written `hook`. Worlds (`director/studio/sets.py`,
+   drawn in code, rule 18g): `underwater`, `sea_night`, `florence`, `workshop`, `radium`, `archive`, `auction_room` (a sale
+   room, paddles rising, an empty frame for the lot's photo), `paris_rail` (dusk railway, a train crossing), `home_70s`
+   and `home_70s_driver` (a 1970s kitchen; the second has a drawn `rail_driver` walking in), `paris_atelier` (a
+   restorer's bench over the zinc roofs), `jura` (snow, fog, village lights) and `basel_fair` (a 1998 fair hall). Then `python3 tools/make_film.py films/<name>.yaml <out>`:
    it voices, listens (Whisper), times the captions to the voice, draws, checks the story and the layout, adds the
    ducked music (its beats under the cuts) and the end card, keeps the size under the brand's limit, checks the words
    against the platform's buttons, makes the cover or the parts the platform needs and writes `credits.txt`. Fix every
