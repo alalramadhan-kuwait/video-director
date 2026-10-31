@@ -99,6 +99,7 @@ def video(sb_path: Path, out: Path, scale=1.0, workers=4, extra=(), progress=Non
             while last < pct:
                 last += 10; progress(last)
     p.wait(timeout=3600)
+    p.stdout.close()
     pidf.unlink(missing_ok=True)
     log = ''.join(lines)
     if p.returncode != 0:

@@ -70,7 +70,7 @@ NAME_AR = {'mystery': 'غموض', 'fear': 'رعب', 'sadness': 'حزن', 'tensio
 def dress(sc: dict, mood: str | None, dur: float) -> dict:
     if not mood: return sc
     els, beds, sfx = MOODS[mood](dur)
-    sc['elements'] = sc['elements'] + els
+    sc['elements'] = sc['elements'] + [{**e, 'mood': True} for e in els]      # marked: a clip that replaces the picture keeps the light
     sc.setdefault('beds', []).extend({'name': n, 'gain': g} for n, g in beds)
     sc.setdefault('sfx', []).extend({'at': a, 'name': n, 'gain': g} for a, n, g in sfx if a < dur)
     sc['mood'] = mood

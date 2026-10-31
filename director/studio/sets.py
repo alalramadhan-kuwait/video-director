@@ -653,8 +653,9 @@ def dress(sc: dict, set_id: str | None, dur: float, seed: str = '', template: st
     from .art import FULL_FRAME
     w = SETS[set_id](dur, random.Random(f'{set_id}|{seed}'))
     if template in FULL_FRAME or sc.get('full_frame'): w = {**w, 'elements': []}
-    back = [e for e in w['elements'] if e.get('behind')]
-    front = [e for e in w['elements'] if not e.get('behind')]       # edge and bottom decor (weeds, vials, skyline): over a full-frame map too
+    els = [{**e, 'world': True} for e in w['elements']]             # marked: a video clip replaces the world's decor (clips.py)
+    back = [e for e in els if e.get('behind')]
+    front = [e for e in els if not e.get('behind')]       # edge and bottom decor (weeds, vials, skyline): over a full-frame map too
     sc['elements'] = back + sc['elements'] + front
     beds, have = [], set()                                          # a stand-in never doubles a bed
     for n, g in w['beds']:

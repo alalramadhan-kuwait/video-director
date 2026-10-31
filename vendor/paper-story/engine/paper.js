@@ -324,7 +324,7 @@
   };
   // Real pictures never boil: a photograph or a cut-out of a person or a watch trembling 12 times a second reads as a
   // broken video (Étienne's review). The paper decor and the words keep the hand-made boil; `boil: true` forces it back.
-  const STEADY = { image: 1, photo: 1, cutout: 1, igpost: 1, reveal: 1, phone: 1, laptop: 1 };
+  const STEADY = { image: 1, photo: 1, cutout: 1, igpost: 1, reveal: 1, phone: 1, laptop: 1, video: 1 };
   const boils = (sp) => S.boil && !sp.still && !sp.noBoil && !(STEADY[sp.type] && sp.boil !== true);
   PM.boils = boils;
 

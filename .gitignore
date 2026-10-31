@@ -26,3 +26,6 @@ examples/explainer/out/
 
 # the studio app's own icons (drawn in code, not media)
 !studio-app/*.png
+
+# the frames render.mjs extracts from a video clip (cached next to the storyboard)
+.clip-frames/
