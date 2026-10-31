@@ -25,6 +25,7 @@ m = r.get('mix') or {}
 print(f"sound: {m.get('one_shots', 0)} effects ({m.get('per_minute', 0)} a minute), beds in {len(m.get('beds', []))} scenes"
       + (f", {len(m['dropped'])} effect(s) dropped to stay under 15 a minute: " + ', '.join(f"{d['name']} ({d['scene']})" for d in m['dropped']) if m.get('dropped') else ''))
 for w in r.get('sound', []): print('  sound:', w)
+for w in r.get('sounds', []): print('  found sound:', w)
 print(f"platform: {r['platform']}" + (f"  ⚠ {r['length']}" if r.get('length') else ''))
 print('safe zones:', 'nothing under the app\'s buttons' if not r['safe'] else '\n  ' + '\n  '.join(r['safe']),
       f"({r['safe_caution']} in the caution band)" if r.get('safe_caution') else '')

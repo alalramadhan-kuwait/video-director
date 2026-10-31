@@ -49,6 +49,10 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              3-6 dB under it and at most 15 a minute, paper sounds only when paper comes in. A line can ask for its own
              effects and bed:  sfx: [{name: gavel, on: «word»}, {name: train_horn, at: 2.5, gain: -8}]  ·  bed: train
              (or {name, gain}, a list, or none)
+             real recordings (director/copilot/sounds.py): `sounds: {gavel: "gavel on wood", train_bed: "steam train"}`
+             finds each on Openverse (CC0, then CC BY; cached outside git) and plays it wherever the film uses that
+             name; `name: "found:<openverse id>"` (with `fallback: gavel`) uses one sound directly. Not found or
+             offline: the procedural kit. Every found sound the film plays is credited in credits.txt
 The voice is the free DRAFT voice unless `voice_dir` is given: a folder of takes read on the owner's computer, one per
 line (OmniVoice: tools/voice_script.py, then omnivoice_narrate.py --lines-dir). Those takes are used as they are (no
 speed change), Whisper still listens to each one, and the film is labelled with the voice and its licence.
@@ -60,7 +64,7 @@ from pathlib import Path
 import yaml
 
 from . import beats, platforms, quality, brand as B
-from .copilot import commons
+from .copilot import commons, sounds
 from .studio import art, checks, engine, mix, moods, motion, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
@@ -554,6 +558,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     pics = photos(film, out)
     plat_id, plat = platforms.of(film, B.load(brand))
     scenes, report, voice_db = [], {'lines': [], 'photos': pics, 'story': story_check(film), 'platform': plat['name']}, {}
+    found = sounds.for_film(film, out / 'sfx')                           # real recorded sounds, else the procedural kit
+    report['sounds'] = found['notes']
     for ln in film['lines']:
         t = take(ln, brand, out / 'voice', given=voice_dir)
         gap = film.get('gap') or {}                                          # a slower voice keeps its words, the silences shorten
@@ -605,7 +611,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     cross(scenes, rtl=True)                                              # the camera crosses each cut
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
     ending = _endcard(out)
-    report['mix'] = mix.apply(scenes + ending, voice_db)                 # beds, J-cuts, one-shot levels and the cap
+    report['mix'] = mix.apply(scenes + ending, voice_db, sfx_dir=out / 'sfx')   # beds, J-cuts, one-shot levels and the cap
+    played = sounds.used(scenes + ending, found['files'])                # the found sounds the film really plays
     duck = (B.load(brand).get('music') or {}).get('duck')
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),
           'audio': {'autoSfx': False, **({'duck': {k: v for k, v in duck.items() if not k.startswith('_')}} if duck else {})},
@@ -664,6 +671,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                                                                                         plat['part_seconds']), plat['part_mb'])]
     credits = ['Sources:'] + [f"- {s}" for s in film.get('sources', [])]
     credits += ['Photos:'] + [f"- {v['credit']} ({v['page']})" for v in pics.values() if v.get('credit')]
+    credits += sounds.credit_lines(played)                               # CC BY sounds must be credited (CC0 listed too)
     if mus: credits += ['Music:', mus['credit']]
     label, lic = voice_label(voice_dir)
     credits += ['Narration:', label + (f' ({lic})' if lic else '')]
