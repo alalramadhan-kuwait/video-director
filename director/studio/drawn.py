@@ -8,8 +8,12 @@ real one). A watch is shown only in its real photograph: cut out when the photo 
 when it does not.
 
 person(kind, ...)  'man_suit', 'woman_dress', 'worker' (a dial painter's smock), 'diver' (a combat swimmer's rubber
-                   suit and mask), 'scientist' (a lab coat)
+                   suit and mask), 'scientist' (a lab coat), 'rail_driver' (a French train driver of the 1970s: a peaked
+                   cap, a blue work jacket with pockets, trousers)
 It returns (svg, width, height) in drawing units; the template scales it.
+
+walk_in(kind, ...) the same figure as a set element that walks in from the side on x keyframes (a small step bob while
+                   it moves) and stops clear of the middle; sets.py places one in the `home_70s_driver` world.
 """
 from __future__ import annotations
 
@@ -27,12 +31,15 @@ DRESS = {
     'worker': {'top': '#C9BFA8', 'bottom': '#4E4A45', 'hair': '#3B2A1F', 'shoes': '#2A211B', 'dress': True, 'bob': True, 'apron': True},
     'diver': {'top': '#1E2226', 'bottom': '#1E2226', 'hair': None, 'shoes': '#111', 'diver': True},
     'scientist': {'top': PAPER, 'bottom': '#3A3D44', 'hair': '#3A2A1F', 'shoes': '#151515', 'coat': True},
+    'rail_driver': {'top': '#3E4C5E', 'bottom': '#34404E', 'hair': '#2A211B', 'shoes': '#1A1A1A', 'shirt': '#C9C3B4', 'tie': False,
+                    'jacket': True, 'cap': True},
 }
 
 
-def person(kind: str = 'man_suit', uid: str = 'pp') -> tuple[str, int, int]:
-    """A standing figure about seven heads tall, faceless, in the clothes of the time."""
-    d = DRESS[kind]
+def person(kind: str = 'man_suit', uid: str = 'pp', **over) -> tuple[str, int, int]:
+    """A standing figure about seven heads tall, faceless, in the clothes of the time. `over` changes one piece of the
+    kind's dress (e.g. hat=False for a man in a suit indoors)."""
+    d = {**DRESS[kind], **over}
     W, H, cx = 300, 900, 150
     sh = f'filter="url(#{uid})"'
     skin = '#D9B89A'
@@ -52,8 +59,15 @@ def person(kind: str = 'man_suit', uid: str = 'pp') -> tuple[str, int, int]:
                      f'fill="{d["bottom"]}" {sh}/>')
         p.append(f'<path d="M{cx - 66},{200} L{cx + 66},{200} L{cx + 58},{leg_top + 40} L{cx - 58},{leg_top + 40}Z" fill="{d["top"]}" {sh}/>')
         if d.get('shirt'):
-            p.append(f'<path d="M{cx - 16},{200} L{cx + 16},{200} L{cx},{300}Z" fill="{d["shirt"]}"/>'
-                     f'<path d="M{cx - 6},{214} L{cx + 6},{214} L{cx + 4},{290} L{cx},{300} L{cx - 4},{290}Z" fill="#6E1E24"/>')
+            p.append(f'<path d="M{cx - 16},{200} L{cx + 16},{200} L{cx},{300}Z" fill="{d["shirt"]}"/>')
+            if d.get('tie', True):
+                p.append(f'<path d="M{cx - 6},{214} L{cx + 6},{214} L{cx + 4},{290} L{cx},{300} L{cx - 4},{290}Z" fill="#6E1E24"/>')
+        if d.get('jacket'):                                                      # a work jacket: button line, chest and hip pockets
+            p.append(f'<line x1="{cx}" y1="{300}" x2="{cx}" y2="{leg_top + 34}" stroke="#2C3746" stroke-width="3"/>'
+                     + ''.join(f'<circle cx="{cx + 7}" cy="{y}" r="4" fill="#C9C3B4" fill-opacity=".7"/>' for y in (330, 390, 450, 510))
+                     + ''.join(f'<rect x="{cx + s * 44 - 20}" y="{y}" width="40" height="{hgt}" rx="3" fill="none" stroke="#2C3746" stroke-width="3"/>'
+                               f'<line x1="{cx + s * 44 - 20}" y1="{y + 10}" x2="{cx + s * 44 + 20}" y2="{y + 10}" stroke="#2C3746" stroke-width="3"/>'
+                               for s in (-1, 1) for y, hgt in ((262, 46), (430, 64))))
         if d.get('coat'):
             p.append(f'<path d="M{cx - 70},{200} L{cx + 70},{200} L{cx + 74},{leg_top + 140} L{cx - 74},{leg_top + 140}Z" fill="{PAPER}" {sh}/>'
                      f'<line x1="{cx}" y1="{214}" x2="{cx}" y2="{leg_top + 136}" stroke="#C9C3B4" stroke-width="3"/>')
@@ -75,7 +89,27 @@ def person(kind: str = 'man_suit', uid: str = 'pp') -> tuple[str, int, int]:
     elif d.get('hair'):
         p.append(f'<path d="M{cx - 48},{head - 6} Q{cx - 50},{head - 64} {cx},{head - 60} Q{cx + 50},{head - 64} {cx + 48},{head - 6} '
                  f'Q{cx},{head - 36} {cx - 48},{head - 6}Z" fill="{d["hair"]}" {sh}/>')
+    if d.get('cap'):                                                              # a peaked driver's cap, seen from the front
+        p.append(f'<path d="M{cx - 52},{head - 30} L{cx - 58},{head - 74} Q{cx},{head - 92} {cx + 58},{head - 74} L{cx + 52},{head - 30}Z" fill="#2C3746" {sh}/>'
+                 f'<rect x="{cx - 52}" y="{head - 40}" width="104" height="12" fill="#1E2630"/>'
+                 f'<path d="M{cx - 50},{head - 30} Q{cx},{head - 8} {cx + 50},{head - 30}Z" fill="#14181E" {sh}/>')
     if d.get('hat'):
         p.append(f'<ellipse cx="{cx}" cy="{head - 40}" rx="74" ry="14" fill="#1C1E22" {sh}/>'
                  f'<path d="M{cx - 46},{head - 42} L{cx - 40},{head - 96} Q{cx},{head - 108} {cx + 40},{head - 96} L{cx + 46},{head - 42}Z" fill="#1C1E22" {sh}/>')
     return f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {W} {H}" width="{W}" height="{H}">' + ''.join(p) + '</svg>', W, H
+
+
+
+def walk_in(kind: str = 'rail_driver', uid: str = 'pw', at: float = 0.4, walk: float = 2.2, from_x: float = 860, to_x: float = 610,
+            bottom: float = 1150, h: float = 560, depth: float = .9, behind: bool = True) -> dict:
+    """The figure as an engine `svg` element that walks in from the side: it waits off frame until `at`, crosses on x
+    keyframes (easing to a stop at `to_x`) with a small step bob while it moves, then stands. `bottom` is where its
+    feet are; keep `to_x` at an edge third (about 110 or 610) so the scene's own picture keeps the middle. Any element
+    list can take it, e.g. a set's: els.append(drawn.walk_in('rail_driver', uid=sets.uid('dr'), at=0.6))."""
+    svg, w0, h0 = person(kind, uid=uid)
+    w = w0 * h / h0
+    svg = svg.replace(f'width="{w0}" height="{h0}"', f'width="{w:.0f}" height="{h:.0f}"', 1)
+    end = at + walk
+    return {'type': 'svg', 'svg': svg, 'w': round(w), 'h': round(h), 'anchor': 'c', 'y': bottom - h / 2,
+            'x': [[0, from_x], [at, from_x], [end, to_x, 'outCubic']], 'still': True, 'noBoil': True, 'depth': depth, 'behind': behind,
+            'crop': True, 'idle': {'type': 'bob', 'amp': 7, 'speed': 1.9, 'from': at, 'until': end - .25}}
