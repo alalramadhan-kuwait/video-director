@@ -110,8 +110,20 @@ def story_check(film: dict) -> list[str]:
                 if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
     photos = film.get('photos') or {}
-    if lines and (lines[0]['template'] in PHOTO_TEMPLATES or lines[0].get('photo')) and not lines[0].get('opening_photo'):
-        out.append(f"{lines[0]['id']}: open where the story begins (city_zoom of its place and year), not on a photo")
+    first = lines[0] if lines else {}
+    if first and not first.get('cold_open') and (first['template'] in PHOTO_TEMPLATES or first.get('photo')) and not first.get('opening_photo'):
+        out.append(f"{first['id']}: open where the story begins (city_zoom of its place and year), not on a photo")
+    if first and film.get('platform') in ('reels', 'tiktok', 'shorts'):               # the Panerai lesson (rule 6): a hook first
+        if not first.get('cold_open'):
+            out.append(f"{first['id']}: open on a hook (cold_open: true): the story's strongest true moment, then back to its beginning")
+        else:
+            n = len(checks.words(first['text']))
+            if not 6 <= n <= 16:
+                out.append(f"{first['id']}: the hook is {n} words; keep it to 6-16 so it is said in the first seconds")
+            st = lambda t: {checks.stem(w) for w in checks.words(t) if len(checks.stem(w)) >= 4 or w.isdigit()}
+            later = st(' '.join(ln['text'] for ln in lines[1:]))
+            if not st(first['text']) & later:
+                out.append(f"{first['id']}: the film never pays the hook off (none of its words or numbers come back later)")
     for ln in lines:                                                     # a person on screen is introduced, and seen
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
         who = (photos.get(slot) or {}).get('person') if slot else None
@@ -168,7 +180,7 @@ def story_check(film: dict) -> list[str]:
     last = None                                                          # told in order: a year never goes back unless it says so
     for ln in lines:
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
-        if not ys: continue
+        if not ys or ln.get('cold_open'): continue                       # the hook is told out of order on purpose
         if last and ys[0] < last[1] and not ln.get('flashback'):
             out.append(f"{ln['id']}: {ys[0]} comes after {last[1]} ({last[0]}): out of order (or mark it flashback: true)")
         last = (ln['id'], max(ys))
