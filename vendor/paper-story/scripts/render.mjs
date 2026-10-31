@@ -381,7 +381,7 @@ let sfxCount = 0;
     // a bed with `lead` starts that many seconds before its scene's cut (a J-cut: the next place is heard first)
     for (const bd of sc.beds || []) {
       const lead = Math.min(bd.lead || 0, acc + (bd.from || 0)), from = acc + (bd.from || 0) - lead - t0, len = (bd.to != null ? bd.to : sc.dur) - (bd.from || 0) + lead;
-      if (from < t1 - t0) srcs.push({ f: sfxFile(bd.name, true), start: Math.max(0, from), gain: bd.gain != null ? bd.gain : -22, loop: true, len, fade: 0.4, fadeIn: Math.max(0.4, lead) });
+      if (from < t1 - t0) srcs.push({ f: sfxFile(bd.name, true), start: Math.max(0, from), gain: bd.gain != null ? bd.gain : -22, loop: true, len, fade: 0.4, fadeIn: Math.max(0.4, lead), settle: bd.settle });
     }
     acc += sc.dur;
   }
@@ -393,6 +393,11 @@ if (srcs.length || music) {
   srcs.forEach((x, i) => {
     let c = `[${i + 1}:a]`;
     if (x.loop) c += `atrim=0:${x.len.toFixed(3)},asetpts=PTS-STARTPTS,afade=t=in:d=${x.fadeIn || x.fade},afade=t=out:st=${Math.max(0, x.len - x.fade).toFixed(3)}:d=${x.fade},`;
+    // a bed sets the place, then settles: settle = {at (s from the bed's start), gain (dB), ramp (s)} (director/studio/mix.py)
+    if (x.loop && x.settle && x.settle.gain < x.gain) {
+      const a = x.settle.at.toFixed(3), b = (x.settle.at + (x.settle.ramp || 1)).toFixed(3), r = Math.pow(10, (x.settle.gain - x.gain) / 20).toFixed(5);
+      c += `volume='if(lt(t,${a}),1,if(lt(t,${b}),1+(${r}-1)*(t-${a})/(${b}-${a}),${r}))':eval=frame,`;
+    }
     c += `adelay=${Math.round(x.start * 1000)}:all=1,volume=${x.gain}dB[a${i}]`;
     chains.push(c); labels.push(`[a${i}]`);
   });
@@ -409,7 +414,7 @@ if (srcs.length || music) {
     }
     labels.push('[m]');
   }
-  chains.push(labels.length === 1 ? `${labels[0]}anull[a]` : `${labels.join('')}amix=inputs=${labels.length}:duration=longest:normalize=0,loudnorm=I=-18:TP=-2:LRA=11[a]`);
+  chains.push(labels.length === 1 ? `${labels[0]}anull[a]` : `${labels.join('')}amix=inputs=${labels.length}:duration=longest:normalize=0,alimiter=limit=0.89:level=false[a]`);   // a safety limiter only: no AGC in the mix (it lifted every pause back up and undid the duck); the film's two-pass linear loudness sets the level
   args.push('-filter_complex', chains.join(';'), '-map', '0:v', '-map', '[a]');
 }
 args.push('-c:v', 'copy', '-movflags', '+faststart');                      // the parts are already encoded

@@ -102,7 +102,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     never a modern medical photo of someone else.
 12h. **Watches and people as paper cut-outs, always whole** ✓ (the owner's choice, `paper_cutout`): the watch, the
     instrument or the person is cut out of its real photo (`tools/cutout_photo.py`, free and local) and laid on the
-    scene's paper with a paper edge and a shadow, never cropped by the frame; the credit adds «cut out». A portrait may
+    scene's paper with a paper edge and a shadow, never cropped by the frame; the credit is the photo's own (author,
+    licence), nothing added in English. A portrait may
     stop at the shoulders, as photographed. When no free photo shows a **person** whole, the person is **drawn in the
     same paper style** (`drawn:` — a man in a suit, a woman in a dress, a dial painter, a diver, a scientist),
     faceless and never a cartoon, labelled on screen as a drawing. A drawing is never evidence: an `event:` still needs
@@ -157,6 +158,11 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 18c. **One hero per scene, sounds on moments**: one main picture in a scene (a second only to support it). A sound
     marks something that happens (a number lands, a stamp, a new scene), never every word: about 15 a minute at most,
     and half a second of quiet before the most important line.
+18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
+    first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
+    it: one main bed 34 dB under the voice from its J-cut to 1.5 s into the scene, then 40 dB under; a tick, a tock
+    or a running movement 36 dB under at most; a second bed 6 dB further down and never a third; a film's own bed
+    gain never above those. `beds: {gain: -4}` in the film file turns every bed down further.
 18d. **A written hook, when the opening has no words of its own** (`hook: {text, em, dur}` in the film file, from
     video-ad-editor; a city zoom's name is already the hook): a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
     line. The captions wait until it has gone: two texts at once and the viewer reads neither.

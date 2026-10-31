@@ -22,7 +22,7 @@ class TestSets(unittest.TestCase):
                 self.assertIn(f"save('{c['name']}'", kit, k)                                    # the local kit makes every sound used
             self.assertEqual(sc['set'], k)
 
-    NEW = ('auction_room', 'paris_rail', 'home_70s', 'home_70s_driver', 'paris_atelier', 'jura', 'basel_fair')
+    NEW = ('auction_room', 'paris_rail', 'home_70s', 'home_70s_driver', 'paris_atelier', 'jura', 'basel_fair', 'swiss_atelier', 'waiting_years')
 
     def _dressed(self, k, dur=8.0, seed='l1'):
         base = art.scene_visual('kinetic_type', {'lines': [{'text': 'x'}]}, sets.theme_for(k, 'tk-bone'), dur)
@@ -62,12 +62,19 @@ class TestSets(unittest.TestCase):
         rises = sorted(e['y'][1][0] for e in back if isinstance(e.get('y'), list) and len(e['y']) == 5)
         self.assertEqual(rises[:3], [1.0, 1.6, 2.2])
 
-    def test_the_train_crosses_and_the_lights_come_on(self):
-        _, back, front = self._dressed('paris_rail', dur=6.0)
-        train = max(front, key=lambda e: e['w'])
-        self.assertGreater(train['x'][0][1], 720 + train['w'] / 2)                 # starts off the frame on the right
-        self.assertLess(train['x'][-1][1], -train['w'] / 2)                         # and has left it on the left before the cut
-        self.assertLess(train['x'][-1][0], 6.0)
+    def test_the_train_crosses_on_the_far_line_above_the_captions_and_the_lights_come_on(self):
+        dur = 6.0
+        _, back, front = self._dressed('paris_rail', dur=dur)
+        train = max(back, key=lambda e: e['w'])
+        self.assertNotIn(train, front)                                               # behind the boy, on the far line
+        half = train['w'] * train.get('scale', 1) / 2
+        self.assertGreater(train['x'][0][1], 720 + half)                            # starts off the frame on the right
+        self.assertLess(train['x'][-1][1], -half)                                   # and leaves it on the left
+        self.assertLessEqual(train['y'] + train['h'] * train.get('scale', 1) / 2, 1004)   # above the captions (captionY 1004)
+        (_, x0), (t0, _), (t1, x1, _) = train['x']
+        mid = t0 + (t1 - t0) * (x0 - 360) / (x0 - x1)                               # mid-frame on «القطارات»
+        self.assertAlmostEqual(mid, .73 * dur + .6, delta=.2)
+        self.assertLess(mid, dur)
         _, back, _ = self._dressed('jura', dur=6.0)
         lights = [e for e in back if isinstance(e.get('opacity'), list) and e['opacity'][0][1] == 0 and len(e['opacity']) == 3]
         self.assertGreaterEqual(len(lights), 6)
@@ -85,6 +92,55 @@ class TestSets(unittest.TestCase):
         sc, back, _ = self._dressed('home_70s_driver')
         self.assertTrue(any(e.get('svg', '').count('feDropShadow') and isinstance(e.get('x'), list) for e in back))
         self.assertEqual(sets.theme_for('home_70s', 'tk-ink'), sets.theme_for('home_70s_driver', 'tk-ink'))
+
+    def test_the_father_stops_whole_in_the_frame_and_a_crate_of_gears_lands(self):
+        dur = 4.0
+        sc, back, front = self._dressed('home_70s_driver', dur=dur)
+        father = next(e for e in back if 'feDropShadow' in e.get('svg', '') and isinstance(e.get('x'), list))
+        stop = father['x'][-1][1]
+        self.assertLess(stop, 622)                                                   # further in than before
+        self.assertGreaterEqual(stop - father['w'] / 2, 0); self.assertLessEqual(stop + father['w'] / 2, 720)   # whole across
+        self.assertGreaterEqual(father['y'] - father['h'] / 2, 0); self.assertLessEqual(father['y'] + father['h'] / 2, 1280)  # and top to bottom
+        crate = next(e for e in front if '<polygon' in e['svg'] and isinstance(e.get('y'), list))
+        land, y = crate['y'][-1][:2]
+        self.assertGreater(land, father['x'][-1][0])                                 # after he stops
+        self.assertLess(land, dur)
+        self.assertTrue(1005 < y + crate['h'] / 2 < 1155, y)                          # on the tabletop
+        self.assertEqual(crate['svg'].count('<circle'), crate['svg'].count('<polygon'))   # gears and their holes only: no dial
+
+    @staticmethod
+    def _faces(svg):                                                                 # a round face: any circle bigger than a hole or a nail
+        return [r for r in re.findall(r'<circle[^>]*\br="([\d.]+)"[^>]*>', svg)
+                if float(r) > 8] if svg else []
+
+    def test_the_new_worlds_draw_no_watch_and_no_dial(self):
+        self.assertIn('swiss_atelier', sets.SETS); self.assertIn('waiting_years', sets.SETS)
+        self.assertEqual(sets.NAME_AR['swiss_atelier'], 'ورشته في سويسرا')
+        self.assertEqual(sets.NAME_AR['waiting_years'], 'سنوات الانتظار')
+        for k in ('swiss_atelier', 'waiting_years'):
+            for dur in (1.0, 4.0, 8.0):
+                w = sets.SETS[k](dur, __import__('random').Random(k))
+                self.assertTrue(w['elements'] and w['beds'], k)
+                for e in w['elements']:
+                    self.assertEqual(e['type'], 'svg', k)
+                    self.assertNotRegex(e['svg'].lower(), r'\bwatch|\bdial\b|clock|<image', k)
+        import random
+        cal = sets.waiting_years(8.0, random.Random(1))['elements']
+        self.assertEqual([f for e in cal for f in self._faces(e['svg']) if 'url(#' not in e['svg']], [])   # no clock face
+        years = [int(y) for e in cal for y in re.findall(r'>(\d{4})</text>', e['svg'])]
+        self.assertEqual(sorted(years), list(range(2003, 2011)))
+        falls = [e for e in cal if re.search(r'>\d{4}</text>', e['svg']) and isinstance(e['y'], list)]
+        self.assertEqual(len(falls), 7)                                              # every year falls but the last
+        last = next(e for e in cal if '>2010</text>' in e['svg'])
+        self.assertNotIn('rot', last); self.assertEqual(last['y'], 640)              # 2010 stays, straight
+        self.assertLess(max(e['y'][2][0] for e in falls), 8.0)
+        base = sets.paris_atelier(8.0, random.Random(2))['elements']
+        swiss = sets.swiss_atelier(8.0, random.Random(2))['elements']
+        self.assertEqual(len(swiss), len(base) + 5)                                 # the Jura in the window, and four makers
+        self.assertEqual(self._faces(swiss[2]['svg']), [])
+        makers = swiss[-4:]
+        self.assertTrue(all('feDropShadow' in e['svg'] and e['opacity'][-1][1] < 1 for e in makers))   # drawn, faceless, a little faded
+        self.assertEqual(sorted({e['y'][1][0] for e in makers})[0], round(8.0 * .45, 2))                 # rising from .45 of the scene
 
     def test_a_sound_the_kit_does_not_make_yet_never_stops_a_render(self):
         kit = (engine.ENGINE / 'scripts/make-sfx.py').read_text()
