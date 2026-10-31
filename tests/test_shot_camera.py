@@ -36,6 +36,15 @@ class TestShotSizes(unittest.TestCase):
         for sc in (a, b): motion.direct(sc, 7.5, 'x', words=WORDS)
         self.assertEqual(a['camera'], b['camera'])                                                   # seeded by the line
 
+    def test_a_person_is_met_face_first_then_the_place(self):
+        """Rule 18j: a person scene opens close on the face, then pulls back wide."""
+        for seed in ('l1', 'l2', 'l3'):
+            sc = art.scene_visual('paper_cutout', {'asset': 'h', 'aspect': .5, 'person': True}, 'tk-bone', 7.0, seed=seed)
+            motion.direct(sc, 7.0, seed, words=WORDS, pixels={'h_cut': (1700, 2500)}, template='paper_cutout')
+            shots = sc['camera']['shots']
+            self.assertEqual(shots[0]['size'], 'close', seed); self.assertEqual(shots[1]['size'], 'wide', seed)
+            self.assertLess(shots[0]['focus'][1], motion.hero(sc)['cy'])                              # on the face
+
     def test_a_person_is_framed_on_the_face_and_the_frame_edge_never_shows(self):
         sc = art.scene_visual('paper_cutout', {'asset': 'h', 'aspect': .5, 'person': True}, 'tk-bone', 6.0, seed='l1')
         h = motion.hero(sc)
