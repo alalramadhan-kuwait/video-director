@@ -166,6 +166,17 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     presents a watch for the first time (a launch, a fair, an auction lot), its print stands under a velvet cloth drawn
     in code and the cloth is pulled away on the watch's name: `reveal: {on: Antiqua}`. A swish plays as it lifts; pair
     it with a close shot on the same word.
+18l. **AI video clips bring people and places to life, never a watch** (the owner approved short generated clips:
+    Seedance 2.5 on Higgsfield, 720p, 9:16, about 5 s, no audio). People and places only: a watch is never generated;
+    a watch is always its real photo. The narration, captions and banner stay; the clip is only the picture:
+    `clip: {file: films/private/<film>/clips/l1a.mp4, label: مشهد بالذكاء الاصطناعي, fit: cover, mode: replace}`.
+    `mode: replace` (default) fills the frame with the clip in place of the template's picture and the world's decor
+    (words, cards and the label stay on top); `mode: behind` plays it as the backdrop in place of the world's decor,
+    with the scene's own print, its velvet reveal and cards over it (the Basel fair: the real watch over a moving
+    crowd). A clip line over a watch photo must be `behind`: make_film refuses it otherwise. Every clip is labelled on
+    screen («مشهد بالذكاء الاصطناعي», where a photo's credit goes) and listed in credits.txt as «فيديو بالذكاء
+    الاصطناعي (Seedance 2.5 · Higgsfield)». A scene longer than its clip plays it slower (never below 0.7x), then
+    back and forth; generating one is paid, so it needs the owner's yes first.
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
     it: one main bed 34 dB under the voice from its J-cut to 1.5 s into the scene, then 40 dB under; a tick, a tock

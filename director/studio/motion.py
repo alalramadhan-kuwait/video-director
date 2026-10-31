@@ -326,6 +326,10 @@ def cap(sc: dict, pixels: dict | None, scale: float = RENDER_SCALE, soft: float 
         d = float(e.get('depth', 1) or 1)
         if e.get('type') == 'kit':
             out = min(out, DRAWN_MAX); continue
+        if e.get('type') == 'video' and e.get('px'):                    # a clip (clips.py): its own frame size, fitted in its box
+            nw, nh = e['px']
+            f = (max if e.get('fit', 'cover') == 'cover' else min)(e.get('w', W) / nw, e.get('h', H) / nh)
+            out = min(out, 1 + (soft / (f * max(_scale_at(e, dur * i / 12) for i in range(13)) * scale) - 1) / d); continue
         if e.get('type') not in PICTURES or not pixels: continue
         name = e.get('asset') or Path(str(e.get('src') or '')).stem
         if name not in pixels: continue
@@ -606,7 +610,7 @@ def choreograph(sc: dict, dur: float, leaving: bool, rtl: bool = True) -> dict:
 
 # ====================================================================== the stage law
 MOVERS = 8                              # things that move in a scene, world decor counted (a set gives 8-60)
-_ANIMATED = {'kit', 'sparkles', 'movement3d', 'map', 'reveal', 'spotlight'}
+_ANIMATED = {'kit', 'sparkles', 'movement3d', 'map', 'reveal', 'spotlight', 'video'}
 _KEYS = ('x', 'y', 'scale', 'rot', 'opacity', 'view', 'reveal')
 
 
@@ -632,13 +636,14 @@ def stage_law(sb: dict, least: int = MOVERS) -> list[dict]:
     out, t, prev = [], 0.0, None
     for i, s in enumerate(sb.get('scenes', [])):
         d = float(s.get('dur') or 0)
+        clip = any(e.get('type') == 'video' for e in s.get('elements', []))     # a video clip moves by itself (clips.py)
         if not s.get('endcard'):
             n = sum(map(moving, s.get('elements', [])))
-            if n < least:
+            if n < least and not clip:
                 out.append({'code': 'FEW_MOVERS', 'scene': i, 't': t, 'dur': d, 'say': f'only {n} things move (at least {least}, its world counted)',
                             'fix': 'give the line a world (set:) or more moving pieces'})
             cam = s.get('camera') or {}
-            if not cam.get('own') and not s.get('still_camera'):
+            if not cam.get('own') and not s.get('still_camera') and not clip:
                 z = top_zoom(s, d)
                 if z + TOL < FLOOR:
                     held = cam.get('cap') is not None and cam['cap'] < FLOOR

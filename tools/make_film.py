@@ -19,6 +19,8 @@ for ln in r['lines']:
 for slot, p in r['photos'].items():
     print(f"photo {slot}: " + ('MISSING — ' + p['query'] if p.get('missing') else p['credit']) + ('   [credited, not a free licence]' if p.get('credited') else ''))
 for d in r.get('drawn', []): print('cut-out:', d)
+for c in r.get('clips', []): print(f"clip {c['id']}: {c['mode']}, {c['seconds']} s at {c['rate']}x ({c['file']})")
+for c in r.get('clip_missing', []): print('clip:', c)
 print('story:', 'all rules kept' if not r['story'] else '\n  ' + '\n  '.join(r['story']))
 print('layout:', 'no faults' if not r['layout'] else '\n  ' + '\n  '.join(r['layout']))
 print('quality:', 'contrast, overlaps, first frame, camera and motion all pass' if not r.get('quality') else '\n  ' + '\n  '.join(r['quality']))

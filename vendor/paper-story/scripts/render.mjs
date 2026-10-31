@@ -19,6 +19,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import { execFileSync, spawnSync } from 'node:child_process';
+import crypto from 'node:crypto';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const stageUrl = pathToFileURL(path.join(here, '..', 'engine', 'stage.html')).href;
@@ -136,6 +137,37 @@ function chromiumPath() {
 }
 
 const ffmpeg = findFfmpeg();
+
+// ---- video clips ------------------------------------------------------------
+// A `video` element (vendor/studio-ext/clip.js) shows its clip as a JPG sequence extracted here once, at the clip's
+// own frame rate: headless Chromium has no H.264 decoder and a <video> seek is not frame-accurate there. The frames are
+// cached next to the storyboard by the clip's path, size and date, so the check, the stills and every worker share
+// them; a worker never decodes video. No audio is ever taken from a clip.
+const CLIP_MAX_H = 1920;
+function clipFrames(src) {
+  const file = src.startsWith('file:') ? fileURLToPath(src) : path.resolve(sbDir, src);
+  if (!fs.existsSync(file)) { console.warn('video clip not found: ' + file); return null; }
+  const st = fs.statSync(file);
+  const key = crypto.createHash('sha1').update([file, st.size, Math.round(st.mtimeMs), CLIP_MAX_H].join('|')).digest('hex').slice(0, 16);
+  let root = path.join(sbDir, '.clip-frames');
+  try { fs.mkdirSync(root, { recursive: true }); fs.accessSync(root, fs.constants.W_OK); } catch { root = path.join(os.tmpdir(), 'pm-clip-frames'); fs.mkdirSync(root, { recursive: true }); }
+  const dir = path.join(root, key), meta = path.join(dir, 'frames.json');
+  if (!fs.existsSync(meta)) {
+    const info = spawnSync(ffmpeg, ['-hide_banner', '-i', file], { encoding: 'utf8' }).stderr || '';
+    const m = /Video:.*?(\d{2,5})x(\d{2,5}).*?([\d.]+) fps/.exec(info);
+    const fps = m ? +m[3] : 24;
+    const tmp = fs.mkdtempSync(path.join(root, key + '.part-'));
+    const r = spawnSync(ffmpeg, ['-v', 'error', '-y', '-i', file, '-an', '-vf', `fps=${fps},scale=-2:'min(${CLIP_MAX_H},ih)'`, '-q:v', '2',
+                                 path.join(tmp, 'f_%05d.jpg')], { stdio: 'inherit' });
+    const n = fs.readdirSync(tmp).filter((f) => f.endsWith('.jpg')).length;
+    if (r.status !== 0 || !n) { fs.rmSync(tmp, { recursive: true, force: true }); console.warn('could not read the frames of ' + file); return null; }
+    fs.writeFileSync(path.join(tmp, 'frames.json'), JSON.stringify({ n, fps, w: m ? +m[1] : null, h: m ? +m[2] : null }));
+    try { fs.renameSync(tmp, dir); } catch { fs.rmSync(tmp, { recursive: true, force: true }); }   // another render got there first
+  }
+  const fr = JSON.parse(fs.readFileSync(meta, 'utf8'));
+  return { ...fr, base: pathToFileURL(path.join(dir, 'f_')).href };
+}
+for (const sc of sb.scenes || []) for (const e of sc.elements || []) if (e.type === 'video' && e.src && !e.frames) e.frames = clipFrames(e.src);
 if (placeholders.length) {
   console.warn(`placeholders still showing (${placeholders.length}): ${[...new Set(placeholders)].join(', ')}`);
   if (opt.final) die('--final refused: real assets are missing for the placeholders above');
@@ -189,6 +221,7 @@ async function newPage() {
 }
 async function shot(page, t, file, png) {
   await page.evaluate((tt) => window.PM.setTime(tt), t);
+  await page.evaluate(() => window.PM.settle && window.PM.settle());     // every clip frame asked for is decoded
   await page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
   const take = () => page.screenshot(png ? { path: file, type: 'png' } : { path: file, type: 'jpeg', quality: 88 });
   // a frame Chromium could not capture (a busy or nearly full machine) is tried once more before the render fails
@@ -240,6 +273,7 @@ if (opt.textmap) {
   const all = [];
   for (const [i, t] of opt.textmap.entries()) {
     const words = await first.page.evaluate((tt) => window.PM.textAudit(tt), t);
+    await first.page.evaluate(() => window.PM.settle && window.PM.settle());   // the clip frame behind the words, decoded
     await first.page.addStyleTag({ content: '#stage, #stage * { color: transparent !important; text-shadow: none !important; -webkit-text-stroke: 0 !important }' });
     await first.page.evaluate(() => new Promise((r) => requestAnimationFrame(() => r())));
     await first.page.screenshot({ path: path.join(dir, 'bare_' + i + '.png'), type: 'png' });

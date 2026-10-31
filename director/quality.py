@@ -6,7 +6,8 @@ measures frozen time and contrast and returns problems with time codes):
   overlap    no words crossing other words (two different pieces of text sharing more than 15 % of the smaller one)
   first      frame one is a finished picture: no words still fading or flying in at t = 0
   frozen     no still stretch: ffmpeg freezedetect on the finished film (a long hold reads as a broken video)
-  camera     every scene's camera moves at least 3 % (director/studio/motion.py; the end card rests on purpose)
+  camera     every scene's camera moves at least 3 % (director/studio/motion.py; the end card rests on purpose, and a
+             video clip's scene moves by itself: it is not held to the camera, frozen or stage-law movement checks)
   stage      the stage law (Bang Motion's anti-slide checks, motion.stage_law): at least 8 things moving in a scene,
              world decor counted; the main camera move reaching zoom 1.08 (shot sizes, not a drift); no plain fade or
              slide between two scenes in the same place (the camera carries that cut: push or match)
@@ -108,9 +109,10 @@ def first_frame(frames: list[dict]) -> list[dict]:
     return [{'kind': 'first', 't': 0.0, 'scene': w['scene'], 'what': w['text']} for w in (f0 or {}).get('words', []) if 0.05 < w['alpha'] < 0.9]
 
 
-def frozen(mp4: Path, noise: float = FREEZE_NOISE, least: float = FREEZE_MIN, ending: float = 0.0) -> list[dict]:
+def frozen(mp4: Path, noise: float = FREEZE_NOISE, least: float = FREEZE_MIN, ending: float = 0.0, moving=()) -> list[dict]:
     """Still stretches in the finished film; the last `ending` seconds (the end card, whose logo rests on purpose) are not
-    counted."""
+    counted, nor a stretch wholly inside one of the `moving` spans [(start, end)]: a video clip's scene, which moves by
+    itself (a calm clip can sit under freezedetect's noise floor)."""
     r = subprocess.run(['ffmpeg', '-hide_banner', '-i', str(mp4), '-vf', f'freezedetect=n={noise}:d={least}', '-map', '0:v', '-f', 'null', '-'],
                        capture_output=True, text=True)
     starts = [float(x) for x in re.findall(r'freeze_start: ([\d.]+)', r.stderr)]
@@ -121,8 +123,9 @@ def frozen(mp4: Path, noise: float = FREEZE_NOISE, least: float = FREEZE_MIN, en
         durs.append(end - starts[-1])
     m = re.search(r'Duration: (\d+):(\d+):([\d.]+)', r.stderr)
     total = int(m.group(1)) * 3600 + int(m.group(2)) * 60 + float(m.group(3)) if m else 1e9
+    inside = lambda s, d: any(a - .05 <= s and s + d <= b + .05 for a, b in moving)
     return [{'kind': 'frozen', 't': round(s, 2), 'seconds': round(d, 2)} for s, d in zip(starts, durs)
-            if d >= least and s < total - ending]
+            if d >= least and s < total - ending and not inside(s, d)]
 
 
 def runs(found: list[dict]) -> list[str]:
@@ -150,7 +153,7 @@ def camera(sb: dict, least: float | None = None) -> list[str]:
     out, t = [], 0.0
     for i, s in enumerate(sb.get('scenes', [])):
         d = float(s.get('dur') or 0)
-        if not s.get('endcard'):
+        if not s.get('endcard') and not any(e.get('type') == 'video' for e in s.get('elements', [])):   # a clip moves by itself
             a = motion.amount(s, d)
             if a + motion.TOL < least:
                 out.append(f"scene {i + 1}  {t:.1f}-{t + d:.1f}s  the camera moves {a * 100:.1f} % (at least {least * 100:.0f} %: a push, a drift or a dolly)")

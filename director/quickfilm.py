@@ -13,6 +13,8 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              app's buttons (checked as drawn), a separate cover where the app asks for one, parts for a chat
   quality    measured, not judged by eye (director/quality.py): every word's contrast against what is behind it,
              no words crossing words, a finished first frame, no frozen stretch in the film
+  clip       `clip: {file, label, fit, mode: replace|behind}`: an AI video clip (people and places, never a watch) as the
+             scene's picture or behind its print, labelled on screen and in the credits (director/studio/clips.py, rule 18l)
   hook       `hook: {text, em, dur}`: the hook written big over the first 1.5-3 s, the captions held back meanwhile
   credits    sources, photo credits and the music credit, ready for the post caption
   story      the storytelling rules, checked on every film (story_check):
@@ -67,7 +69,7 @@ import yaml
 
 from . import beats, platforms, quality, brand as B
 from .copilot import commons, sounds
-from .studio import art, checks, engine, mix, moods, motion, sets, voice
+from .studio import art, checks, clips, engine, mix, moods, motion, sets, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
 
@@ -76,6 +78,9 @@ def load(path) -> dict:
     for ln in f['lines']:
         if not art.production_ready(ln['template']):
             raise ValueError(f"{ln['id']}: template {ln['template']!r} is not production-ready (art/catalogue.yaml)")
+        clips.spec(ln)                                                   # a clip's mode, fit and end are known ones
+    bad = clips.problems(f)                                              # a watch is never generated (rule 18l)
+    if bad: raise ValueError('; '.join(bad))
     return f
 
 
@@ -201,7 +206,7 @@ def story_check(film: dict) -> list[str]:
     for ln in lines:                                                     # every scene has a related picture, of the right time
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
         if ln is lines[0]: continue                                      # the opening is a drawing from the archive
-        if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo') and not (ln.get('params') or {}).get('drawn'):
+        if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo') and not (ln.get('params') or {}).get('drawn') and not ln.get('clip'):
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")
         py = (photos.get(slot) or {}).get('year') if slot else None
         ys = [int(y) for y in re.findall(r'(?<!\d)(1[5-9]\d\d|20\d\d)(?!\d)', ln['text'])]
@@ -252,6 +257,7 @@ def story_check(film: dict) -> list[str]:
         if last and ys[0] < last[1] and not ln.get('flashback'):
             out.append(f"{ln['id']}: {ys[0]} comes after {last[1]} ({last[0]}): out of order (or mark it flashback: true)")
         last = (ln['id'], max(ys))
+    out += clips.problems(film)                                          # a watch is never generated (rule 18l)
     return out
 
 
@@ -446,6 +452,21 @@ def photos(film: dict, work: Path) -> dict:
         if ph.get('watch') and not out[slot].get('missing'):
             out[slot] = {**out[slot], 'credit': ph['watch'] + ' · ' + out[slot].get('credit', '')}
     return out
+
+
+def clip_asset(ln: dict, c: dict, film_path, work: Path) -> str | None:
+    """The line's clip copied into the film folder (assets/<line id>_clip.<ext>), its path relative to the folder, or
+    None when the file is not there. A relative file is looked for in the repository (films/private/, never in git),
+    then next to the film file."""
+    src = Path(c['file']).expanduser()
+    if not src.is_absolute():
+        src = next((p for p in (engine.ROOT / src, Path(film_path).resolve().parent / src) if p.is_file()), engine.ROOT / src)
+    if not src.is_file(): return None
+    (work / 'assets').mkdir(parents=True, exist_ok=True)
+    dst = work / 'assets' / f"{ln['id']}_clip{src.suffix.lower()}"
+    if not dst.is_file() or dst.stat().st_size != src.stat().st_size or dst.stat().st_mtime < src.stat().st_mtime:
+        shutil.copyfile(src, dst)
+    return str(dst.relative_to(work))
 
 
 def cutout(slot: str, work: Path, person: bool = False) -> dict:
@@ -673,6 +694,16 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
             art.backdrop(sc, ln['photo'], dur, credit=pics.get(ln['photo'], {}).get('credit', ''))
         sc = sets.dress(sc, world, dur, seed=ln['id'], template=template)
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
+        c = clips.spec(ln)
+        if c:                                                                # an AI clip as the picture, or behind it (rule 18l)
+            src = clip_asset(ln, c, path, out)
+            if src:
+                info = clips.probe(out / src)
+                clips.apply(sc, c, src, dur, info)
+                report.setdefault('clips', []).append({'id': ln['id'], 'file': src, 'mode': c['mode'], 'seconds': info['seconds'],
+                                                       'rate': sc['clip']['rate'], 'credit': c.get('credit', clips.CREDIT)})
+            else:
+                report.setdefault('clip_missing', []).append(f"{ln['id']}: clip {c['file']} not found: the template's picture is shown")
         report.setdefault('sound', []).extend(line_sound(sc, ln, t['words'], dur))     # the film file's own cues and bed
         report.setdefault('sound', []).extend(line_reveal(sc, ln, t['words'], dur))   # a print unveiled on its word
         words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
@@ -744,13 +775,17 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
             (out / 'film-small.mp4').replace(out / 'film.mp4'); report['crf'] = crf + step
         report['film'] = str(out / 'film.mp4'); report['size_mb'] = round((out / 'film.mp4').stat().st_size / 1e6, 1)
         if preview: (out / 'film.mp4').replace(out / 'preview.mp4'); report['film'] = str(out / 'preview.mp4'); report['preview'] = True
-        else: report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sum(s['dur'] for s in ending)))   # no still stretch in the finished film
+        else:                                                            # no still stretch in the finished film (a clip moves by itself)
+            moving = [(sum(x['dur'] for x in scenes[:i]), sum(x['dur'] for x in scenes[:i + 1])) for i, s in enumerate(scenes) if clips.has_clip(s)]
+            report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sum(s['dur'] for s in ending), moving=moving))
         if plat['parts']:                                                # a chat: parts cut between scenes, each under its limit
             starts = [sum(s['dur'] for s in sb['scenes'][:i]) for i in range(len(sb['scenes']))]
             report['parts'] = [str(p) for p in split(out / 'film.mp4', platforms.parts(starts, [s['dur'] for s in sb['scenes']],
                                                                                         plat['part_seconds']), plat['part_mb'])]
     credits = ['Sources:'] + [f"- {s}" for s in film.get('sources', [])]
     credits += ['Photos:'] + [f"- {v['credit']} ({v['page']})" for v in pics.values() if v.get('credit')]
+    if report.get('clips'):                                              # every AI clip, named as generated (rule 18l)
+        credits += ['Video clips:'] + [f"- {c['id']}: {c['credit']}" for c in report['clips']]
     credits += sounds.credit_lines(played)                               # CC BY sounds must be credited (CC0 listed too)
     if mus: credits += ['Music:', mus['credit']]
     label, lic = voice_label(voice_dir)

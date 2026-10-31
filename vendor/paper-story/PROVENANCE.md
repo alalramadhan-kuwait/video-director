@@ -18,6 +18,10 @@ Copied read-only from audit/claude_success-story-video (.claude/skills/paper-sto
   `flyL`, `flyR`, `flyU`, `flyD`, `depth` (0.9 s in, 0.4 s out). `vendor/studio-ext/text-audit.js` skips a push-through
   while it settles.
 
+- `scripts/render.mjs` (3), `engine/stage.html`, `engine/paper.js` (3): video clips (`vendor/studio-ext/clip.js`, ours: the
+  `video` element). The renderer extracts each clip's frames once with ffmpeg (cached in `<storyboard>/.clip-frames/`)
+  and awaits `PM.settle()` (every clip frame decoded) before each screenshot and each textmap frame; a clip never boils.
+
 ## Bang Motion (ideas and constants ported, no code or GSAP vendored)
 The shot-size camera (`frameOn` with its edge clamp), the push-through constants, the whip with a directional blur and
 the directional blur itself (`blurTween`: an SVG feGaussianBlur with separate x and y deviations, put on only while
