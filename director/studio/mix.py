@@ -39,6 +39,8 @@ REPETITIVE = {'tick', 'tock', 'tick_pair', 'tick_slow', 'watch_run'}
 MUSIC_UNDER = 14                      # dB under the voice's measured level, the music in the pauses: the master's limiter
                                       # brings the voice ~3-4 dB nearer, so pauses land 7-10 dB under it in the film
 SHOT_UNDER = (3, 6)                   # dB under the voice, a one-shot effect
+LONG_SHOT, LONG_UNDER = 2.0, 16       # an effect that runs over 2 s (a train passing, a horn, footsteps) is levelled
+                                      # like a bed: its running level 16 dB under the voice, not its peak 3-6 under
 LEAD = 0.5                            # s: a bed starts this long before its cut
 PER_MINUTE = 15
 PAPER = {'paper_place', 'paper_slide', 'fold', 'tape', 'paper_tear'}
@@ -77,6 +79,15 @@ def level(path: str, kind: str = 'active') -> float | None:
     if kind == 'peak': return round(_db(pw.max()), 2)
     top = pw.max()
     return round(_db(pw[pw >= top * 1e-3].mean()), 2) if top > 0 else None
+
+
+@lru_cache(maxsize=256)
+def seconds(path: str) -> float:
+    """How long a wav runs (0 when it cannot be read)."""
+    try:
+        with wave.open(path) as w: return w.getnframes() / float(w.getframerate())
+    except (OSError, wave.Error, EOFError):
+        return 0.0
 
 
 def music_gain(voice_db: dict[int, float], music: Path, most: float) -> float:
@@ -195,6 +206,10 @@ def levels(scenes: list[dict], voice_db: dict[int, float], sfx_dir: Path | None 
         for c in sc.get('sfx', []):
             if c.get('fixed') or c.get('endcard'): continue
             f = sound_file(c['name'], False, sfx_dir)
+            if f and seconds(str(f)) > LONG_SHOT:                # the owner: «صوت القطار لا زال عالي»
+                lv = level(str(f), 'active')
+                if lv is not None: c['gain'] = round(v - LONG_UNDER - lv, 1)
+                continue
             lv = f and level(str(f), 'peak')
             if lv is None: continue
             g = c.get('gain', -12)
