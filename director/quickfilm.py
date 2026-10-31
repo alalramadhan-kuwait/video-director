@@ -306,6 +306,7 @@ def line_appear(sc: dict, ln: dict, words: list[dict], dur: float) -> list[str]:
     if pic is None or at is None or not 0 < at < dur:
         return [f"{ln['id']}: appear on «{a.get('on')}» has no print or word"]
     pic['in'] = {'type': a.get('type', 'pop'), 'at': round(at, 2), 'dur': a.get('dur', .5)}
+    pic['appear'] = True                                                 # kept through a match cut (cross)
     if a.get('card', True):
         for e in sc['elements']:
             if e.get('type') == 'card' or (e.get('type') == 'text' and e.get('z') == 40):     # its card and its credit line
@@ -522,7 +523,7 @@ def cross(scenes: list[dict], rtl: bool = True) -> None:
         tr = sc.get('transition')
         if i and tr in ('match', 'through', 'whip'):                       # the subject is there at the cut: the camera
             h = motion.hero(sc)                                          # arrives on it, it does not drop in afterwards
-            if h and h['kind'] == 'picture': h['el'].pop('in', None)
+            if h and h['kind'] == 'picture' and not h['el'].get('appear'): h['el'].pop('in', None)   # unless it arrives on a word
         if i and tr == 'match':
             motion.match(scenes[i - 1], sc)
         if i and tr == 'through':
