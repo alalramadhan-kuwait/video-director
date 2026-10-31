@@ -11,8 +11,9 @@ from director import quickfilm
 
 ap = argparse.ArgumentParser(); ap.add_argument('film'); ap.add_argument('out'); ap.add_argument('--stills-only', action='store_true')
 ap.add_argument('--voice-dir', default=None, help='one <line id>.wav per line, read elsewhere (OmniVoice)')
+ap.add_argument('--preview', action='store_true', help='a quick look: 360x640 at 15 fps, no contrast check or cover (out/preview.mp4)')
 a = ap.parse_args()
-r = quickfilm.make(a.film, Path(a.out), video=not a.stills_only, voice_dir=a.voice_dir and Path(a.voice_dir))
+r = quickfilm.make(a.film, Path(a.out), video=not a.stills_only, voice_dir=a.voice_dir and Path(a.voice_dir), preview=a.preview)
 for ln in r['lines']:
     if ln['not_heard']: print(f"{ln['id']}: not heard → {' '.join(ln['not_heard'])}   (heard: {ln['heard']})")
 for slot, p in r['photos'].items():

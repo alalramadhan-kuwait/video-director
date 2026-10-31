@@ -600,7 +600,7 @@ def cut_or_uncut(ln: dict, params: dict, film: dict, pics: dict, out: Path, repo
     return 'paper_cutout', params
 
 
-def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) -> dict:
+def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, preview=False) -> dict:
     film = load(path)
     brand = film.get('brand', 'timekeeper')
     out = Path(out).resolve(); out.mkdir(parents=True, exist_ok=True)
@@ -674,7 +674,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     report['safe'] = [l for l in safe if l.startswith('safe HARD')]
     report['safe_caution'] = sum(1 for l in safe if l.startswith('safe caution'))
     report['length'] = platforms.length_warning(plat, seconds)
-    report['quality'] = quality.check(sb, out, seconds)                  # contrast, words over words, a finished first frame
+    report['quality'] = [] if preview else quality.check(sb, out, seconds)   # contrast, words over words, a finished first frame (a preview skips it)
     report['quality'] += quality.camera(sb)                              # every scene's camera moves at least 3 %
     report['motion'] = {s['id']: motion.amount(s, s['dur']) for s in scenes}
     report['shots'] = {s['id']: {'cut': s.get('transition'), 'shots': [(x['at'], x['size'], x['zoom']) for x in (s.get('camera') or {}).get('shots', [])],
@@ -687,12 +687,13 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
     for s, f in zip(scenes, shots):
         dst = out / 'scenes' / f"{s['id']}.png"; shutil.copyfile(f, dst); report['stills'].append(str(dst))
     report['seconds'] = seconds
-    if plat['cover']:                                                    # the app asks for a cover: the hook, or the opening
+    if plat['cover'] and not preview:                                    # the app asks for a cover: the hook, or the opening
         t = (hook_end - .15) if hook_end else scenes[0]['dur'] * .7
         f = engine.stills(sb, out, [round(t, 2)], scale=1.5)[0]           # in out/: the storyboard's paths are relative to it
         shutil.copyfile(f, out / 'cover.png'); report['cover'] = str(out / 'cover.png')
     if video:
         extra = ('--crf', B.load(brand).get('export', {}).get('crf', 24)) + (('--music', str(mus['file']), '--music-gain', mus['gain']) if mus else ())
+        if preview: scale, extra = 0.5, extra + ('--fps', 15)            # a quick look: 360x640 at 15 fps, about a tenth of the work
         engine.video(out / 'film.json', out / 'film-raw.mp4', scale=scale, extra=extra)
         loudness(out / 'film-raw.mp4', out / 'film.mp4'); (out / 'film-raw.mp4').unlink()
         cap = B.load(brand).get('export', {}).get('max_mb')
@@ -704,7 +705,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None) 
                 if (out / 'film-small.mp4').stat().st_size / 1e6 <= cap: break
             (out / 'film-small.mp4').replace(out / 'film.mp4'); report['crf'] = crf + step
         report['film'] = str(out / 'film.mp4'); report['size_mb'] = round((out / 'film.mp4').stat().st_size / 1e6, 1)
-        report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sum(s['dur'] for s in ending)))   # no still stretch in the finished film
+        if preview: (out / 'film.mp4').replace(out / 'preview.mp4'); report['film'] = str(out / 'preview.mp4'); report['preview'] = True
+        else: report['quality'] += quality.runs(quality.frozen(out / 'film.mp4', ending=sum(s['dur'] for s in ending)))   # no still stretch in the finished film
         if plat['parts']:                                                # a chat: parts cut between scenes, each under its limit
             starts = [sum(s['dur'] for s in sb['scenes'][:i]) for i in range(len(sb['scenes']))]
             report['parts'] = [str(p) for p in split(out / 'film.mp4', platforms.parts(starts, [s['dur'] for s in sb['scenes']],
