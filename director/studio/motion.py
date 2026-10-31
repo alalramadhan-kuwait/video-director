@@ -455,10 +455,14 @@ def plan(sc: dict, dur: float, seed, words=(), shots=None, top: float = CEIL) ->
         if not c: return None
         return max(c, key=lambda tw: (any(ch.isdigit() for ch in tw[1]), _named(tw[1], targets) is not None, len(tw[1]), r.random()))
     pattern = r.choice(('in', 'in', 'out'))
+    if lead.get('person'): pattern = 'face'                          # the owner: a person is met face first, then the place
     k1 = key(.25, .7) or ((round(dur * r.uniform(.35, .5), 2), '') if dur > 2.4 else None)
     if pattern == 'in':
         out = [shot(0, 'wide', lead)]
         if k1: out.append(shot(k1[0], 'close', tgt_for(k1[1])))
+    elif pattern == 'face':                                              # close on the face, then pull back to the whole scene
+        out = [shot(0, 'close', lead)]
+        out.append(shot(k1[0] if k1 else round(min(dur * .45, 2.4), 2), 'wide', lead))
     else:
         out = [shot(0, 'close', lead)]
         if k1: out.append(shot(k1[0], r.choice(('wide', 'medium')), tgt_for(k1[1])))

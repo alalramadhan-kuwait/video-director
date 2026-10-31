@@ -158,6 +158,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 18c. **One hero per scene, sounds on moments**: one main picture in a scene (a second only to support it). A sound
     marks something that happens (a number lands, a stamp, a new scene), never every word: about 15 a minute at most,
     and half a second of quiet before the most important line.
+18j. **A person is met face first** ✓ (the owner: «لمن الفيديو يتكلم عن شخصية… الفريم قريب بحيث يطلع ملامح وجهه
+    بشكل كامل وبعدين يطلع»). A scene whose main picture is a person opens close on the face, the whole face in frame,
+    then pulls back to show the place. `motion.plan` does it for every person cut-out; a line's own `shots:` can still
+    say otherwise.
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
     it: one main bed 34 dB under the voice from its J-cut to 1.5 s into the scene, then 40 dB under; a tick, a tock
