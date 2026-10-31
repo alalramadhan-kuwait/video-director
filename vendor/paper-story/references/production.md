@@ -92,11 +92,14 @@ The stage point `y` appears on screen at `640 + (y - camY) * zoom` (the same for
   before it so that scene starts exactly on a bar. story.py computes the bars to insert and writes them to the
   storyboard (`musicInsertBars`); the mixer reads them.
 - Duck the music under the voice: sidechain-compress it, keyed by the voice clips themselves. Normalise the result to
-  -14 LUFS for social.
+  -14 LUFS for social with one linear gain and a true-peak limiter after it, never a dynamic loudnorm (an AGC lifts
+  every pause back up to the voice: v10's LRA fell to 1.7 LU).
 - **Levels that were measured to work** (Étienne's Halter review; `director/studio/mix.py` sets them): the music
-  about 18-20 dB under the voice while it speaks and about 10 dB under it in the gaps (music gain -6 dB, duck ratio 3,
+  about 18-20 dB under the voice while it speaks and about 10 dB under it in the gaps (its gain measured against the
+  voice, never above the brand's -6 dB; duck ratio 3,
   threshold 0.03, release 400 ms; at -18 dB and ratio 6 it was 40 dB under and the film went silent between
-  sentences); a bed in every scene with a world or a mood, 24-28 dB under the voice, starting 0.5 s before its cut;
+  sentences); a bed in every scene with a world or a mood, felt and not heard: 34 dB under the voice from 0.5 s
+  before its cut to 1.5 s after it, then 40 dB under (a tick or a tock 36 at most, one bed at a time);
   one-shots 3-6 dB under the voice, at most 15 a minute, and paper sounds only when paper really comes in.
 
 ## Arabic captions and on-screen text

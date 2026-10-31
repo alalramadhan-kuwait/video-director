@@ -2,11 +2,16 @@
 
 Étienne measured the Halter mix: the music sat 40 dB under the voice, beds played in 3 of 13 scenes (one ~30 dB
 under), and 44 one-shots ran at 23 a minute, 73 % of them paper sounds. The targets since then:
-  music      about 18-20 dB under the voice while it speaks, about 10 dB under in the pauses (render.mjs: music gain
-             -6 dB, duck ratio 3, threshold 0.03, release 400 ms; the brand's music.gain_db and music.duck)
-  beds       every scene with a world (`set:`) or a feeling (`mood:`) plays its bed BED_UNDER dB under the voice (the
-             scene's main bed; a second bed keeps its distance below the first), and each bed starts LEAD s before
-             its cut (a J-cut: the next place is heard before it is seen)
+  music      about 18-20 dB under the voice while it speaks, about 10 dB under in the pauses of the finished film: its
+             gain is measured against the voice (`music_gain`, MUSIC_UNDER), never above the brand's music.gain_db;
+             render.mjs ducks it (ratio 3, threshold 0.03, release 400 ms; the brand's music.duck). At a fixed -6 dB
+             it sat 2.5 dB over the quieter OmniVoice takes in v10's pauses.
+  beds       felt, not heard (the owner on v10: «الاصوات اللي بالخلفية مزعجة جدا»). Every scene with a world (`set:`)
+             or a feeling (`mood:`) plays one main bed: BED_AIM dB under the voice while it sets the place (from LEAD s
+             before the cut, a J-cut, to BED_HEAD s after it), then it settles to BED_SETTLE dB under. A repetitive
+             bed (a tick, a tock, a running movement) is never over TICK_UNDER dB under. A second bed sits at least
+             BED_SECOND dB below the main one; any more are dropped. A film's gain from its film file is kept but
+             never above those levels, and `beds: {gain: dB}` in the film file turns every bed down further
   one-shots  SHOT_UNDER dB under the voice, at most PER_MINUTE a minute (the least important are dropped first), and
              paper sounds only when paper really comes in: a banner or a card, a slide of the page; never two within
              PAPER_GAP s, never more than PAPER_MAX in one scene
@@ -14,7 +19,7 @@ Levels are measured on the files (the voice's spoken parts, each sound's own lou
 bed both land where they should. A sound file that is missing keeps the gain the template gave it.
 """
 from __future__ import annotations
-import math, wave
+import math, subprocess, wave
 from functools import lru_cache
 from pathlib import Path
 
@@ -23,8 +28,16 @@ import numpy as np
 from . import engine
 
 SFX = engine.ENGINE / 'assets/sfx'
-BED_UNDER = (24, 28)                  # dB under the voice, the scene's main bed
-BED_AIM = 26
+BED_UNDER = (32, 36)                  # dB under the voice, the scene's main bed while it sets the place
+BED_AIM = 34
+BED_SETTLE = 40                       # dB under the voice, after the first BED_HEAD s of the scene
+BED_HEAD = 1.5                        # s after the cut: a bed sets the place, then sits low
+BED_RAMP = 1.0                        # s to settle
+BED_SECOND = 6                        # dB: a second bed at least this far under the main one; a third is dropped
+TICK_UNDER = 36                       # dB under the voice at most: a repetitive bed never competes with the narration
+REPETITIVE = {'tick', 'tock', 'tick_pair', 'tick_slow', 'watch_run'}
+MUSIC_UNDER = 14                      # dB under the voice's measured level, the music in the pauses: the master's limiter
+                                      # brings the voice ~3-4 dB nearer, so pauses land 7-10 dB under it in the film
 SHOT_UNDER = (3, 6)                   # dB under the voice, a one-shot effect
 LEAD = 0.5                            # s: a bed starts this long before its cut
 PER_MINUTE = 15
@@ -64,6 +77,24 @@ def level(path: str, kind: str = 'active') -> float | None:
     if kind == 'peak': return round(_db(pw.max()), 2)
     top = pw.max()
     return round(_db(pw[pw >= top * 1e-3].mean()), 2) if top > 0 else None
+
+
+def music_gain(voice_db: dict[int, float], music: Path, most: float) -> float:
+    """The music's gain so that, undocked in the pauses, it sits MUSIC_UNDER dB under the voice's measured level; never
+    above `most` (the brand's gain). Unmeasurable (no voice, no ffmpeg, an unreadable file): `most`."""
+    known = [v for v in voice_db.values() if v is not None]
+    try:
+        r = subprocess.run(['ffmpeg', '-v', 'error', '-i', str(music), '-vn', '-ac', '1', '-ar', '22050', '-f', 's16le', '-'],
+                           capture_output=True, timeout=120)
+    except (OSError, subprocess.TimeoutExpired):
+        return most
+    x = np.frombuffer(r.stdout, '<i2').astype(np.float64) / 32768
+    if not known or len(x) < 1102: return most
+    pw = (x[:len(x) // 1102 * 1102].reshape(-1, 1102) ** 2).mean(axis=1)      # 50 ms frames, as level() measures
+    top = pw.max()
+    if top <= 0: return most
+    lv = _db(pw[pw >= top * 1e-3].mean())
+    return round(min(most, float(np.median(known)) - MUSIC_UNDER - lv), 1)
 
 
 def sound_file(name: str, bed: bool = False, extra: Path | None = None) -> Path | None:
@@ -132,26 +163,35 @@ def cap(scenes: list[dict], per_minute: int = PER_MINUTE) -> list[dict]:
     return dropped
 
 
-def levels(scenes: list[dict], voice_db: dict[int, float], sfx_dir: Path | None = None) -> None:
-    """Gains measured against the voice: beds BED_AIM dB under it (a second bed keeps its distance under the first),
-    one-shots SHOT_UNDER dB under it (a cue the template meant louder sits at 3, a quiet one at 6). A cue or bed with
-    `fixed: true` (the film file gave its gain) keeps it."""
+def _aim(name: str) -> float:
+    return max(BED_AIM, TICK_UNDER) if name in REPETITIVE else BED_AIM
+
+
+def levels(scenes: list[dict], voice_db: dict[int, float], sfx_dir: Path | None = None, bed_gain: float = 0.0) -> None:
+    """Gains measured against the voice: the main bed BED_AIM dB under it (a tick or a tock TICK_UNDER), a second bed
+    at least BED_SECOND dB under the main one, no third; one-shots SHOT_UNDER dB under it (a cue the template meant
+    louder sits at 3, a quiet one at 6). A cue with `fixed: true` (the film file gave its gain) keeps it; a fixed bed
+    keeps it too, but never above its level here. `bed_gain` (the film's `beds: {gain}`) turns every bed down."""
     known = [v for v in voice_db.values() if v is not None]
     ref = float(np.median(known)) if known else None
     for i, sc in enumerate(scenes):
         v = voice_db.get(i, ref)
-        if v is None: continue
-        beds = [b for b in sc.get('beds', []) if not b.get('fixed')]
-        if beds:
-            main = max(beds, key=lambda b: b.get('gain', -22))
+        if sc.get('beds'):
+            beds = sorted(sc['beds'], key=lambda b: (not b.get('fixed'), -b.get('gain', -22)))[:2]   # the film's own first, then the loudest
+            sc['beds'] = [b for b in sc['beds'] if any(b is x for x in beds)]                        # one bed, a second far under it
+            main, gap = beds[0], (beds[0].get('gain', -22) - beds[-1].get('gain', -22)) if len(beds) > 1 else 0
             for b in beds:
                 f = sound_file(b['name'], True, sfx_dir)
                 lv = f and level(str(f), 'active')
-                if lv is None:
-                    b['gain'] = max(-40, min(b.get('gain', -26), -BED_UNDER[0]))
-                    continue
-                below = BED_AIM + max(0, main.get('gain', -22) - b.get('gain', -22))
-                b['gain'] = round(v - below - lv, 1)
+                below = _aim(b['name']) if b is main else max(_aim(b['name']), _aim(main['name']) + max(BED_SECOND, gap))
+                if v is not None and lv is not None:
+                    top = round(v - below - lv, 1)
+                    b['gain'] = min(b['gain'], top) if b.get('fixed') else top
+                elif v is not None:                                       # no file to measure: a safe level under the voice
+                    b['gain'] = max(-46, min(b.get('gain', -30), -BED_UNDER[0] - (0 if b is main else BED_SECOND)))
+                b['gain'] = round(b.get('gain', -30) + bed_gain, 1)
+                if v is not None: b['settle'] = round(b['gain'] - max(0, BED_SETTLE - _aim(b['name'])), 1)
+        if v is None: continue
         for c in sc.get('sfx', []):
             if c.get('fixed') or c.get('endcard'): continue
             f = sound_file(c['name'], False, sfx_dir)
@@ -161,6 +201,20 @@ def levels(scenes: list[dict], voice_db: dict[int, float], sfx_dir: Path | None 
             under = SHOT_UNDER[1] - (SHOT_UNDER[1] - SHOT_UNDER[0]) * min(1, max(0, (g + 20) / 12))     # -20 dB -> 6 under, -8 -> 3
             if c['name'] in PAPER: under = SHOT_UNDER[1]
             c['gain'] = round(v + 3 - under - lv, 1)        # the voice's loudest moments run ~3 dB over its spoken mean
+
+
+def settle(scenes: list[dict]) -> None:
+    """Each bed sets the place at its gain until BED_HEAD s after the cut, then settles over BED_RAMP s to its
+    `settle` gain (render.mjs: `settle: {at, gain, ramp}`, `at` in the bed's own seconds). A bed that carries on from
+    the scene before (the same place) does not swell again: it stays settled."""
+    for i, sc in enumerate(scenes):
+        prev = {b['name']: b for b in scenes[i - 1].get('beds', [])} if i else {}
+        for b in sc.get('beds', []):
+            low = b.pop('settle', None)
+            if low is None or low >= b['gain']: continue
+            if b['name'] in prev and not b.get('from'):
+                b['gain'] = low; continue
+            b['settle'] = {'at': round(b.get('lead', 0) + BED_HEAD, 2), 'gain': low, 'ramp': BED_RAMP}
 
 
 def jcut(scenes: list[dict], lead: float = LEAD) -> None:
@@ -174,7 +228,7 @@ def jcut(scenes: list[dict], lead: float = LEAD) -> None:
 
 
 def apply(scenes: list[dict], voice_db: dict[int, float] | None = None, per_minute: int = PER_MINUTE,
-          sfx_dir: Path | None = None) -> dict:
+          sfx_dir: Path | None = None, bed_gain: float = 0.0) -> dict:
     """The whole mix on the film's scenes (the end card included, last). Returns a report: one-shots kept and dropped,
     per minute, and the scenes with a bed."""
     for sc in scenes:
@@ -183,7 +237,8 @@ def apply(scenes: list[dict], voice_db: dict[int, float] | None = None, per_minu
     paper_cues(scenes)
     dropped = cap(scenes, per_minute)
     jcut(scenes)
-    levels(scenes, voice_db or {}, sfx_dir)
+    levels(scenes, voice_db or {}, sfx_dir, bed_gain)
+    settle(scenes)
     total = sum(float(s.get('dur') or 0) for s in scenes)
     n = sum(len(s.get('sfx', [])) for s in scenes)
     for sc in scenes:                                   # bookkeeping keys stay out of the engine's storyboard

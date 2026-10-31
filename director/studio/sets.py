@@ -271,7 +271,7 @@ def auction_room(dur, rng):
 
 def paris_rail(dur, rng):
     """A railway line outside Paris at dusk: the city far off, catenary posts and the rails, and a train with lit
-    windows that crosses during the scene."""
+    windows that crosses on the far line, above the captions, mid-frame at about 0.73 x the scene (on «القطارات»)."""
     from .cities import paris as _paris_sky
     els = [_sky((0, '#2C3240'), (.45, '#5E5A6C'), (.72, '#A9837C'), (1, '#D6A883'))]
     for _ in range(14):
@@ -291,7 +291,7 @@ def paris_rail(dur, rng):
                     for x in range(30, W, 150))
     posts += ''.join(f'<path d="M{x - 10} 994 Q {x + 65} 1004 {x + 140} 994" stroke="#3E3D4A" stroke-width="1.4" fill="none"/>' for x in range(30, W, 150))
     els.append(_el(ground + posts, behind=True, depth=.8))
-    t0 = round(min(.6, dur * .1), 2); t1 = round(max(t0 + 3.2, dur * .9), 2)
+    t0 = round(dur * .45, 2); t1 = round(dur + 1.2, 2)                 # mid-frame at about .73 x dur + .6: near the end of the line
     cars = ('<rect x="10" y="78" width="220" height="62" rx="10" fill="#3F4A5A"/><path d="M10 120 L0 120 L14 84 Q 20 78 40 78 L40 120 Z" fill="#3F4A5A"/>'
             '<rect x="18" y="88" width="24" height="18" rx="3" fill="#F1D49A" fill-opacity=".9"/><rect x="10" y="126" width="220" height="6" fill="#B07C5E"/>'
             '<path d="M110 78 L130 30 L150 78 M120 54 L140 54" stroke="#1E2228" stroke-width="3" fill="none"/>'
@@ -303,17 +303,20 @@ def paris_rail(dur, rng):
                                 f'fill-opacity="{.55 + .35 * ((j + k) % 3 == 0):.2f}"/>' for j in range(6))
                       for k in range(3))
             + ''.join(f'<circle cx="{x}" cy="142" r="9" fill="#14161A"/>' for x in [40, 70, 180, 210] + [260 + k * 250 + d for k in range(3) for d in (10, 40, 180, 210)]))
-    tw, th = 1000, 152
-    xa, xb = 360 + 360 + tw / 2 + 40, 360 - 360 - tw / 2 - 40
-    els.append({**_el(cars, tw, th, [[0, xa], [t0, xa], [t1, xb, 'linear']], 1112), 'depth': 1.0, 'crop': True, 'underCaptions': True,
+    tw, th, ts = 1000, 152, .8
+    xa, xb = 360 + 360 + tw * ts / 2 + 40, 360 - 360 - tw * ts / 2 - 40
+    far = (f'<rect y="0" width="{W}" height="26" fill="#2E2D37"/><rect y="2" width="{W}" height="3" fill="#8A8494"/>'
+           f'<rect y="10" width="{W}" height="3" fill="#8A8494"/>')                 # the far line: the train runs on it, behind the boy
+    els.append({**_el(far, W, 26, 360, 997), 'behind': True, 'depth': .5})
+    els.append({**_el(cars, tw, th, [[0, xa], [t0, xa], [t1, xb, 'linear']], 930), 'depth': .5, 'behind': True, 'scale': ts,
                 'idle': {'type': 'bob', 'amp': 1.2, 'speed': 3}})
     k = 0
     while k < 16:                                                        # vapour from under the train, drifting up and away
         tb = t0 + .2 + k * (t1 - t0) / 16
         if tb > dur - .4: break
-        x = xa + (xb - xa) * (tb - t0) / (t1 - t0) - tw / 2 + rng.uniform(40, 600); r = rng.uniform(26, 40)
+        x = xa + (xb - xa) * (tb - t0) / (t1 - t0) - tw * ts / 2 + rng.uniform(30, 480); r = rng.uniform(22, 34)
         els.append(_el(_glow('#E9E2CF', 2 * r, .5), 2 * r, 2 * r, [[0, x], [tb, x], [tb + 2.2, x + 90]],
-                       [[0, 1150], [tb, 1150], [tb + 2.2, 1010]], behind=False, depth=1.0, underCaptions=True, crop=True,
+                       [[0, 960], [tb, 960], [tb + 2.2, 820]], behind=True, depth=.5,
                        opacity=[[0, 0], [tb, 0], [tb + .3, .8], [tb + 2.2, 0]]))
         k += 1
     near = (''.join(f'<rect x="{x}" y="1050" width="14" height="300" fill="#1A1A20"/><rect x="{x - 6}" y="1044" width="26" height="10" fill="#1A1A20"/>'
@@ -380,13 +383,21 @@ def home_70s(dur, rng):
 
 def home_70s_driver(dur, rng):
     """The same kitchen, and the father, a train driver drawn faceless in paper (drawn.rail_driver), walks in from the
-    right and stops at the side, leaving the middle to the scene's own picture."""
+    right and stops well inside the frame, whole, behind the table; then a crate of drawn gears (the old machine he
+    brings home) lands on the table. Gears only: never a dial or a watch."""
     from . import drawn
     els = _kitchen(dur, rng)
     at = round(min(.6, dur * .1), 2)
-    walker = drawn.walk_in('rail_driver', uid=uid('dr'), at=at, walk=min(2.4, max(1.2, dur * .4)), from_x=880, to_x=622, bottom=1090, h=500, depth=.6)
+    walk = min(2.4, max(1.2, dur * .4))
+    walker = drawn.walk_in('rail_driver', uid=uid('dr'), at=at, walk=walk, from_x=880, to_x=560, bottom=1090, h=500, depth=.6)
     els.insert(len(els) - 1, walker)                                     # behind the table, in front of the counter
-    return {'theme': 'tk-linen', 'elements': els, 'beds': [('room', -30)], 'sfx': [(at + .1, 'footsteps', -20)]}
+    land = round(at + walk + .2, 2)
+    crate = (f'<g transform="translate(14 0)">{_gear(30, 12, "#8C7A5A")}</g><g transform="translate(74 16)">{_gear(22, 10, "#A9947A")}</g>'
+             '<rect y="44" width="150" height="70" rx="4" fill="#7A5E44"/><rect y="44" width="150" height="8" fill="#5E4634"/>'
+             + ''.join(f'<rect x="{x}" y="58" width="4" height="50" fill="#5E4634" fill-opacity=".6"/>' for x in (48, 98)))
+    els.append({**_el(crate, 150, 114, 430, [[0, 950], [land - .25, 950], [land, 990, 'inCubic']]), 'depth': .9, 'crop': True, 'underCaptions': True,
+                'opacity': [[0, 0], [land - .3, 0], [land - .2, 1]]})                  # on the tabletop (1005-1155), over it
+    return {'theme': 'tk-linen', 'elements': els, 'beds': [('room', -30)], 'sfx': [(at + .1, 'footsteps', -20)]}   # the thud is the film's, on its word
 
 
 def paris_atelier(dur, rng):
@@ -550,13 +561,69 @@ def basel_fair(dur, rng):
     return {'theme': 'tk-graphite', 'elements': els, 'beds': [('crowd', -28)], 'sfx': [(t, 'shutter', -24) for t in times[:2]]}
 
 
+
+def swiss_atelier(dur, rng):
+    """Halter's own bench in Sainte-Croix: the atelier, the Jura in winter through the window, and at about 0.45 x the
+    scene (on «صنّاعًا مستقلين») the makers who came after rise behind him as faceless drawn figures. Gears and tools
+    only: no watch and no dial is drawn."""
+    from . import drawn
+    w = paris_atelier(dur, rng); els = w['elements']
+    i = uid('win')
+    hills = ''
+    for y, a, n, c in ((300, 34, 3, '#8E99A3'), (400, 28, 4, '#6E7A86'), (500, 22, 5, '#505C67')):
+        body, pts = _ridge(rng, y, a, n, c)
+        hills += body
+        if y == 300:                                                     # snow on the far tops
+            hills += ''.join(f'<ellipse cx="{x:.0f}" cy="{yy - a * .35:.0f}" rx="40" ry="9" fill="#DDE2E5" fill-opacity=".8"/>' for x, yy in pts[1:-1])
+        if y == 500:                                                     # firs on the near slope, snow on their tiers
+            hills += ''.join(_fir(x, yy + 40, rng.uniform(70, 100), '#2A323A', '#E4E8EA') for x, yy in pts[::2])
+    flakes = ''.join(f'<circle cx="{rng.uniform(10, 410):.0f}" cy="{rng.uniform(10, 590):.0f}" r="{rng.uniform(1.5, 3.5):.1f}" fill="#F1F2F0" '
+                     f'fill-opacity="{rng.uniform(.5, .9):.2f}"/>' for _ in range(40))
+    view = (f'<defs><clipPath id="{i}"><rect width="420" height="600"/></clipPath></defs><rect width="420" height="600" fill="#A3ABAE"/>'
+            f'<g clip-path="url(#{i})">{hills}{flakes}</g><rect width="420" height="600" fill="none" stroke="#EFE9DC" stroke-width="24"/>'
+            + ''.join(f'<rect x="{x}" y="0" width="7" height="600" fill="#EFE9DC"/>' for x in (138, 275))
+            + ''.join(f'<rect x="0" y="{y}" width="420" height="7" fill="#EFE9DC"/>' for y in (196, 396)))
+    els.insert(2, {**_el(view, 420, 616, 230, 420), 'behind': True, 'depth': .35})      # over the Paris roofs: the Jura, in winter
+    at = round(dur * .45, 2)
+    for k, (x, kind) in enumerate(((110, 'man_suit'), (230, 'worker'), (500, 'man_suit'), (630, 'worker'))):
+        svg, w0, h0 = drawn.person(kind, uid=uid('mk'), hat=False)
+        h = 420; fw = w0 * h / h0; t = at + k * .35                     # people behind the bench (it hides their legs), not figurines on it
+        svg = svg.replace(f'width="{w0}" height="{h0}"', f'width="{fw:.0f}" height="{h}"', 1)
+        els.append({'type': 'svg', 'svg': svg, 'w': round(fw), 'h': h, 'anchor': 'c', 'x': x, 'still': True, 'noBoil': True,
+                    'y': [[0, 1160], [t, 1160], [t + .6, 860, 'outCubic']], 'opacity': [[0, 0], [t, 0], [t + .4, .6]],
+                    'behind': True, 'depth': .5})
+    return {**w, 'beds': [('watch_run', -26), ('wind', -36)]}
+
+
+def waiting_years(dur, rng):
+    """A dark office wall and a tear-off calendar whose year pages fall one by one, 2003 to 2010: the years the owners
+    waited. Paper and numbers only: no clock face and no watch. The calendar keeps to the right edge, the scene's own
+    picture the middle."""
+    els = [_backdrop('#2A2C31', '#121316'), {**_el(_glow('#F3D9A4', 520, .25), 520, 520, 600, 640), 'behind': True, 'depth': .4}]
+    wall = ''.join(f'<rect x="{18 + k * 124}" y="180" width="100" height="820" rx="3" fill="none" stroke="#3A3C42" stroke-opacity=".6" stroke-width="3"/>'
+                   for k in range(6)) + f'<rect y="1010" width="{W}" height="12" fill="#1C1D21"/>'
+    els.append(_el(wall, behind=True, depth=.3))
+    board = ('<rect x="0" y="12" width="170" height="222" rx="6" fill="#4A3B2F"/><rect x="6" y="18" width="158" height="210" rx="4" fill="#3A2E25"/>'
+             '<circle cx="85" cy="6" r="6" fill="#8C7A5A"/><path d="M85 6 L40 14 M85 6 L130 14" stroke="#8C7A5A" stroke-width="2"/>')
+    els.append({**_el(board, 170, 236, 640, 622), 'behind': True, 'depth': .6})
+    years = list(range(2003, 2011)); step = max(.3, dur * .55 / len(years))
+    for k, y in reversed(list(enumerate(years))):                # 2003 on top, the first to fall
+        t = .5 + k * step; last = y == years[-1]
+        page = (f'<rect width="150" height="190" rx="4" fill="#F3F0E8"/><rect width="150" height="36" rx="4" fill="#8E3B2F"/>'
+                + ''.join(f'<circle cx="{x}" cy="12" r="4" fill="#2A2C31"/>' for x in (45, 105))
+                + f'<text x="75" y="125" font-family="Inter Tight,Cairo,sans-serif" font-size="46" font-weight="700" text-anchor="middle" fill="#111">{y}</text>')
+        fall = {} if last else {'y': [[0, 640], [t, 640], [t + .7, 1450, 'inCubic']], 'rot': [[0, 0], [t, 0], [t + .7, round(rng.uniform(-25, 25), 1)]]}
+        els.append({**_el(page, 150, 190, 640, 640), 'behind': True, 'depth': .6, **fall})          # 2010 stays
+    els += _motes(rng, 10, '#F3D9A4', dur, y0=400, y1=900, rise=30, op=.3, x0=480, x1=720)
+    return {'theme': 'tk-ink', 'elements': els, 'beds': [('room', -32)], 'sfx': []}
+
 SETS = {'underwater': underwater, 'sea_night': sea_night, 'florence': florence, 'workshop': workshop, 'radium': radium, 'archive': archive,
         'auction_room': auction_room, 'paris_rail': paris_rail, 'home_70s': home_70s, 'home_70s_driver': home_70s_driver,
-        'paris_atelier': paris_atelier, 'jura': jura, 'basel_fair': basel_fair}
+        'paris_atelier': paris_atelier, 'jura': jura, 'basel_fair': basel_fair, 'swiss_atelier': swiss_atelier, 'waiting_years': waiting_years}
 NAME_AR = {'underwater': 'تحت الماء', 'sea_night': 'بحر ليلي وسفينة', 'florence': 'فلورنسا', 'workshop': 'ورشة الساعاتي',
            'radium': 'مختبر الراديوم', 'archive': 'مكتب الأرشيف', 'auction_room': 'قاعة المزاد', 'paris_rail': 'سكة حديد باريس عند الغروب',
            'home_70s': 'مطبخ من السبعينيات', 'home_70s_driver': 'مطبخ من السبعينيات وسائق القطار', 'paris_atelier': 'ورشة ترميم في باريس',
-           'jura': 'جبال الجورا', 'basel_fair': 'معرض بازل 1998'}
+           'jura': 'جبال الجورا', 'basel_fair': 'معرض بازل 1998', 'swiss_atelier': 'ورشته في سويسرا', 'waiting_years': 'سنوات الانتظار'}
 
 # A sound a world asks for that the local kit (make-sfx.py) does not make yet plays its stand-in, or nothing, so a world
 # never stops a render (render.mjs refuses an unknown sound). New sounds take over by themselves once the kit makes them.

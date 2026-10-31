@@ -17,7 +17,7 @@ class TestDrawn(unittest.TestCase):
         self.assertFalse(hasattr(drawn, 'watch'))
 
     def test_the_template_cuts_out_draws_a_person_and_refuses_a_drawn_watch(self):
-        sc = art.scene_visual('paper_cutout', {'asset': 'w', 'aspect': 0.5, 'credit': 'A · CC BY-SA 4.0 · cut out'}, 'tk-bone', 4)
+        sc = art.scene_visual('paper_cutout', {'asset': 'w', 'aspect': 0.5, 'credit': 'A · CC BY-SA 4.0'}, 'tk-bone', 4)
         cut = next(e for e in sc['elements'] if e['type'] == 'cutout')
         self.assertEqual((cut['asset'], cut['aspect']), ('w_cut', 0.5))
         self.assertLessEqual(cut['h'] * cut['aspect'], 600)
@@ -38,6 +38,47 @@ class TestDrawn(unittest.TestCase):
         f['lines'][1].update(event=False, params={'drawn': {'kind': 'radiomir'}})
         self.assertTrue(any(m.startswith('l2') and 'never drawn' in m for m in quickfilm.story_check(f)))
 
+
+
+class TestTheUncutPhotoAndItsCredit(unittest.TestCase):
+    """A watch the photo cuts is shown as its photo, uncut; `in: none` puts it on screen from frame 0; the credit on
+    screen is the photo's own, with no English jargon added (Étienne v10: «cut out» leaked onto every person scene)."""
+    PICS = {'w': {'credit': 'A · CC BY-SA 4.0', 'aspect': 1.2}, 'p': {'credit': 'B · CC BY 2.0'}}
+    FILM = {'photos': {'w': {'query': 'x'}, 'p': {'query': 'y', 'person': True}}}
+
+    def _run(self, params, whole):
+        from unittest import mock
+        with mock.patch.object(quickfilm, 'cutout', return_value={'whole': whole, 'aspect': .6, 'why': 'cut'}):
+            report = {}
+            return (*quickfilm.cut_or_uncut({'id': 'l1'}, dict(params), self.FILM, self.PICS, Path('.'), report), report)
+
+    def test_a_cut_watch_falls_back_to_its_photo_and_keeps_its_entrance(self):
+        template, params, report = self._run({'asset': 'w', 'desc': 'd', 'card': 'c', 'print': True, 'w': 380, 'y': 520,
+                                              'in': 'none', 'tilt': 3}, whole=False)
+        self.assertEqual(template, 'archive_photo')
+        self.assertEqual(params['in'], 'none')
+        self.assertNotIn('tilt', params)
+        self.assertIn('in', quickfilm.UNCUT_KEYS)
+        self.assertEqual(params['credit'], 'A · CC BY-SA 4.0')
+        self.assertTrue(report['drawn'])
+        photo = next(e for e in art.scene_visual(template, params, 'tk-ink', 5.0)['elements'] if e['type'] == 'photo')
+        self.assertNotIn('in', photo)                                               # on screen from frame 0
+
+    def test_a_direct_archive_photo_takes_its_entrance(self):
+        p = {'asset': 'w', 'desc': 'd', 'print': True, 'aspect': 1.2}
+        photo = lambda **k: next(e for e in art.scene_visual('archive_photo', {**p, **k}, 'tk-ink', 5.0)['elements'] if e['type'] == 'photo')
+        self.assertEqual(photo()['in'], {'type': 'drop', 'at': .15})                 # the default: dropped onto the desk
+        self.assertNotIn('in', photo(**{'in': 'none'}))
+        self.assertEqual(photo(**{'in': {'type': 'fade', 'at': 0}})['in'], {'type': 'fade', 'at': 0})
+
+    def test_no_cut_out_jargon_in_any_credit_on_screen(self):
+        for params, whole in (({'asset': 'p', 'desc': 'd'}, True), ({'asset': 'w', 'desc': 'd'}, True), ({'asset': 'w', 'desc': 'd'}, False)):
+            template, out, _ = self._run(params, whole)
+            self.assertNotIn('cut out', out.get('credit', ''), (params, whole))
+            texts = [e.get('text', '') for e in art.scene_visual(template, {**out, 'aspect': out.get('aspect', .6)}, 'tk-bone', 4.0)['elements']]
+            self.assertFalse(any('cut out' in t for t in texts), texts)
+            self.assertTrue(any(t.startswith(self.PICS[params['asset']]['credit'][:1]) for t in texts), texts)
+        self.assertNotIn("' · cut out'", (engine.ROOT / 'director/quickfilm.py').read_text(encoding='utf-8'))
 
 class TestTheNamedModelIsTheModelShown(unittest.TestCase):
     """Rule 12i: in the watch community a model that does not match its picture is a big thing."""
