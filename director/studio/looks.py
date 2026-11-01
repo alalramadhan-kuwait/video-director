@@ -50,6 +50,6 @@ def scene(look: str, sc: dict) -> dict:
             e.update(style='dark', color='#111111', ink=SAND, edge='none', tex='flat', rot=0)
             e.pop('tape', None); e.pop('pin', None)
             if e.get('label'): e['labelFont'] = 'ui'
-        elif t == 'text' and e.get('paper') and e.get('font') == 'cap':          # a credit line: small, quiet, no paper
-            e.update(paper=None, color='#8C8577')
+        elif t == 'text' and e.get('paper') and e.get('font') == 'cap':          # a credit line: small, on a dark band
+            e.update(paper='#0B0B0B', color=SAND)                         # on its own dark band: readable over any photo
     return sc
