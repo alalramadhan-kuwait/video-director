@@ -189,6 +189,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     back and forth; generating one is paid, so it needs the owner's yes first.
     No label on screen (the owner: «شيل اللي مكتوب مقطع مولد بالذكاء الاصطناعي الناس تدري»): the credits list each clip,
     and the post turns on the platform's AI label. A film may still set `label:` on a line.
+    The same goes for a pose drawn with AI from a person's photo (`licence: AI illustration`): its credit stays in
+    credits.txt and never shows on screen (`quickfilm.screen_credit`).
 
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does

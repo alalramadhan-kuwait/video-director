@@ -497,7 +497,21 @@ def photos(film: dict, work: Path) -> dict:
     for slot, ph in (film.get('photos') or {}).items():                   # a watch is named on screen as the model it is (rule 12i)
         if ph.get('watch') and not out[slot].get('missing'):
             out[slot] = {**out[slot], 'credit': ph['watch'] + ' · ' + out[slot].get('credit', '')}
+        if ai_drawn(ph) and not out[slot].get('missing'):                    # people know a drawing is drawn (the owner)
+            out[slot] = {**out[slot], 'screen': False}
     return out
+
+
+def ai_drawn(ph: dict) -> bool:
+    """A picture we made with AI (a pose drawn from a person's photo). Its credit goes in credits.txt, never on
+    screen: the owner, «شيل اللي مكتوب مقطع مولد بالذكاء الاصطناعي الناس تدري»."""
+    return str(ph.get('licence', '')).lower().startswith('ai')
+
+
+def screen_credit(pics: dict, slot: str) -> str:
+    """The credit a photo shows on screen: its credit, or nothing for a picture we made with AI."""
+    m = pics.get(slot) or {}
+    return '' if m.get('screen') is False else m.get('credit', '')
 
 
 def clip_asset(ln: dict, c: dict, film_path, work: Path) -> str | None:
@@ -689,7 +703,7 @@ def cut_or_uncut(ln: dict, params: dict, film: dict, pics: dict, out: Path, repo
     why = c.get('cut_sides') or c.get('why')
     if c.get('whole'):
         params.update(aspect=c['aspect'], person=person)
-        if pics.get(slot, {}).get('credit'): params.setdefault('credit', pics[slot]['credit'])
+        if screen_credit(pics, slot): params.setdefault('credit', screen_credit(pics, slot))
     elif person and params.get('drawn'):                                 # no photo shows the person whole: drawn in our style
         params.pop('asset'); report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): drawn")
     elif person:
@@ -697,7 +711,7 @@ def cut_or_uncut(ln: dict, params: dict, film: dict, pics: dict, out: Path, repo
         params.update(aspect=c.get('aspect', .75), person=person)
     else:                                                                # a watch is never drawn: its real photo, uncut
         params = {k: v for k, v in params.items() if k in UNCUT_KEYS}
-        if pics.get(slot, {}).get('credit'): params['credit'] = pics[slot]['credit']
+        if screen_credit(pics, slot): params['credit'] = screen_credit(pics, slot)
         if pics.get(slot, {}).get('aspect'): params['aspect'] = pics[slot]['aspect']
         report.setdefault('drawn', []).append(f"{ln['id']}: {slot} is not whole in its photo ({why}): shown as its photo, uncut")
         return 'archive_photo', params
@@ -724,7 +738,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         dur = round(VOICE_AT + t['seconds'] + gap.get('tail', TAIL) + ln.get('pause', gap.get('pause', 0.25)), 2)
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
-            if pics.get(slot, {}).get('credit') and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', pics[slot]['credit'])
+            if screen_credit(pics, slot) and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', screen_credit(pics, slot))
             if ln['template'] in ('archive_photo', 'blueprint') and pics.get(slot, {}).get('aspect'): params.setdefault('aspect', pics[slot]['aspect'])
         template = ln['template']
         if template == 'paper_cutout' and params.get('asset'):                # the whole subject, cut out (rule 12h)
@@ -737,7 +751,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
         sc = art.scene_visual(template, params, theme, dur, banner=ln.get('banner'), seed=ln['id'])
         if ln.get('photo'):                                                  # a scene of words gets its related photo behind
-            art.backdrop(sc, ln['photo'], dur, credit=pics.get(ln['photo'], {}).get('credit', ''))
+            art.backdrop(sc, ln['photo'], dur, credit=screen_credit(pics, ln['photo']))
         sc = sets.dress(sc, world, dur, seed=ln['id'], template=template)
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
         c = clips.spec(ln)
