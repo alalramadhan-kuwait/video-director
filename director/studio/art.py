@@ -143,6 +143,53 @@ def _crown_parts(ink):
     return case, crown
 
 
+BRASS, STEEL, RUBY = '#C8A55A', '#9AA0A6', '#9B1B30'
+
+
+def _plate(hole, ink, at=0.0, fill=BRASS):
+    """The plate in section, cut by its hole (x from hole[0] to hole[1]); box 600 x 600."""
+    a, b = hole
+    return [{'d': f'M40 380 L{a} 380 L{a} 470 L40 470 Z', 'at': at, 'dur': .6, 'stroke': ink, 'width': 4, 'fill': fill, 'fillAt': at + .4, 'fillDur': .3},
+            {'d': f'M{b} 380 L560 380 L560 470 L{b} 470 Z', 'at': at, 'dur': .6, 'stroke': ink, 'width': 4, 'fill': fill, 'fillAt': at + .4, 'fillDur': .3}]
+
+
+def _pivot(p, ink, dur):
+    """`stage`: brass (the steel axle turns in a hole drilled in the brass plate), worn (friction wears the hole wider
+    and the axle starts to wobble, from `wear_at`), jewel (a pierced ruby set in the plate, the axle turns in its hole,
+    a drop of oil in its little cup). Labels: `labels` overrides the stage's own. A principle, never a calibre."""
+    stage = p.get('stage', 'brass')
+    labels = p.get('labels') or {'brass': ['محور من الستيل', 'نحاس'], 'worn': ['', 'الثقب يتوسّع'], 'jewel': ['المحور', 'ياقوتة مثقوبة']}[stage]
+    els = []
+    wheel = [{'d': 'M150 200 L450 200 L450 224 L150 224 Z', 'at': .1, 'dur': .5, 'stroke': ink, 'width': 4, 'fill': BRASS, 'fillAt': .4, 'fillDur': .3},
+             {'d': ' '.join(f'M{x} 200 L{x} 188' for x in range(160, 450, 16)), 'at': .5, 'dur': .4, 'stroke': ink, 'width': 3}]
+    axle = [{'d': 'M292 110 L308 110 L308 455 L292 455 Z', 'at': .3, 'dur': .5, 'stroke': ink, 'width': 3, 'fill': STEEL, 'fillAt': .6, 'fillDur': .3}]
+    spin = {'d': 'M250 150 A55 18 0 1 0 350 150', 'at': 1.0, 'dur': .6, 'stroke': ink, 'width': 3}
+    if stage == 'jewel':
+        plate = _plate((262, 338), ink) + [
+            {'d': 'M262 372 L338 372 L338 478 L262 478 Z', 'at': .5, 'dur': .5, 'stroke': ink, 'width': 4, 'fill': RUBY, 'fillAt': .8, 'fillDur': .4},
+            {'d': 'M268 372 Q300 398 332 372', 'at': 1.1, 'dur': .4, 'stroke': '#F3F0E8', 'width': 3}]
+        drop = {'type': 'shape', 'kind': 'circle', 'w': 14, 'h': 14, 'color': '#C9A35F', 'x': 360 - 300 + 318, 'y': 560 - 300 + 378,
+                'in': {'type': 'fade', 'at': p.get('oil_at', 1.6)}}
+    else:
+        plate = _plate((288, 312), ink)
+        drop = None
+    w = p.get('wear_at', 1.0)
+    els.append({'type': 'sketch', 'x': 360, 'y': 560, 'w': 600, 'h': 600, 'paths': wheel + [spin], 'technical': True,
+                'texts': [{'text': labels[1], 'x': 130, 'y': 520, 'size': 30, 'at': .9, 'color': ink}] if labels[1] else []})
+    els.append({'type': 'sketch', 'x': 360, 'y': 560, 'w': 600, 'h': 600, 'paths': plate, 'technical': True,
+                **({'opacity': [[0, 1], [w, 1], [w + .5, 0]]} if stage == 'worn' else {})})
+    wobble = None
+    if stage == 'worn':                                   # the worn plate takes the brass plate's place: the hole is wider
+        els.append({'type': 'sketch', 'x': 360, 'y': 560, 'w': 600, 'h': 600, 'paths': _plate((266, 334), ink, at=0, fill='#B8964E'),
+                    'in': {'type': 'fade', 'at': w}, 'technical': True})
+        wobble = [[0, 0]] + [[round(w + .5 + k * .35, 2), (4 if k % 2 else -4)] for k in range(int(max(0, dur - w - .5) / .35))]
+    els.append({'type': 'sketch', 'x': 360, 'y': 560, 'w': 600, 'h': 600, 'paths': axle, 'technical': True, 'pencil': False,
+                **({'rot': wobble, 'anchor': 'c'} if wobble else {}),
+                'texts': [{'text': labels[0], 'x': 330, 'y': 70, 'size': 30, 'at': .7, 'color': ink}] if labels[0] else []})
+    if drop: els.append(drop)
+    return els
+
+
 def b_technical_illustration(p, theme, dur):
     ink = ink_for(theme)
     kind = p.get('kind', 'screw_crown')
@@ -180,6 +227,8 @@ def b_technical_illustration(p, theme, dur):
         case, crown = _crown_parts(ink)
         els.append({'type': 'sketch', 'x': 600, 'y': 562, 'w': 150, 'h': 180, 'scale': .42, 'paths': crown,
                     'in': {'type': 'fade', 'at': p.get('close_at', 2.2) + .8}})
+    elif kind == 'pivot':                                # a wheel's steel axle in its bearing, in section (the rubies film)
+        els += _pivot(p, ink, dur)
     elif kind == 'double_case':
         out = [{'d': 'M300 40 A260 260 0 1 1 299 40', 'at': 0, 'dur': 1.0, 'stroke': ink, 'width': 6},
                {'d': 'M300 120 A180 180 0 1 1 299 120', 'at': .9, 'dur': .9, 'stroke': ink, 'width': 4},
