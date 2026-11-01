@@ -92,6 +92,13 @@ SCREEN = ('text', 'title', 'body', 'label', 'value', 'values', 'name', 'sub', 'c
 LEADS = {'ثم', 'لكن', 'لكنّ', 'لكنه', 'لكنها', 'لكنهم', 'غير', 'بينما', 'حين', 'عندما', 'بعد', 'إلى', 'الى', 'حتى', 'هناك', 'أما', 'في', 'منذ', 'لذلك', 'لأن', 'مع', 'هكذا'}
 
 
+# Foreign (non-Arab) places and countries the voice must say in English (rule 9b): the Arabic spelling is caught here
+FOREIGN_PLACES = {'جنيف': 'Geneva', 'باريس': 'Paris', 'بازل': 'Basel', 'زيورخ': 'Zurich', 'لندن': 'London', 'نيويورك': 'New York',
+                  'ميلانو': 'Milan', 'فلورنسا': 'Florence', 'روما': 'Rome', 'طوكيو': 'Tokyo', 'هونغ كونغ': 'Hong Kong', 'سنغافورة': 'Singapore',
+                  'لوكسمبورغ': 'Luxembourg', 'سانت كروا': 'Sainte-Croix', 'جنيفا': 'Geneva', 'لا شو دو فون': 'La Chaux-de-Fonds'}
+# Countries keep their everyday Arabic names (سويسرا، فرنسا) until the owner says otherwise: Part 1 was approved with «سويسرا».
+
+
 def on_screen(ln: dict) -> list[str]:
     """Every piece of text the scene shows (not the captions, which are the narration itself; not credits or sources)."""
     out = []
@@ -157,6 +164,12 @@ def story_check(film: dict) -> list[str]:
             for v, k in arabic.items():
                 if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
+    if nar.get('keep_latin'):                                            # foreign places and countries too (the owner: «اسامي الدول الاجنبية تنقال بالانجليزي»)
+        for ln in lines:
+            said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
+            for ar, en in FOREIGN_PLACES.items():
+                if re.search(r'(?<![\u0600-\u06FF])[وفبل]?' + re.escape(ar) + r'(?![\u0600-\u06FF])', said):
+                    out.append(f"{ln['id']}: write «{ar}» in English letters ({en}), in the script, on screen and to the voice")
     for ln in lines:                                                     # the voice reads numbers as words (rule 9d)
         spoken = ln.get('say') or ln['text']
         m = re.search(r'[0-9٠-٩][0-9٠-٩,٬.]*', spoken)
