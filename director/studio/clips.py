@@ -40,7 +40,7 @@ def spec(ln: dict) -> dict | None:
     if not c: return None
     c = {'file': c} if isinstance(c, str) else dict(c)
     if not c.get('file'): raise ValueError(f"{ln.get('id')}: clip needs its file:")
-    c.setdefault('mode', 'replace'); c.setdefault('fit', 'cover'); c.setdefault('end', 'pingpong'); c.setdefault('label', LABEL)
+    c.setdefault('mode', 'replace'); c.setdefault('fit', 'cover'); c.setdefault('end', 'pingpong'); c.setdefault('label', '')   # the owner: «الناس تدري»; the credits and the platform's AI label say it, not the screen
     if c['mode'] not in MODES: raise ValueError(f"{ln.get('id')}: clip mode {c['mode']!r} is not one of {', '.join(MODES)}")
     if c['fit'] not in ('cover', 'contain'): raise ValueError(f"{ln.get('id')}: clip fit {c['fit']!r} is not cover or contain")
     if c['end'] not in ENDS: raise ValueError(f"{ln.get('id')}: clip end {c['end']!r} is not one of {', '.join(ENDS)}")
@@ -135,13 +135,13 @@ def apply(sc: dict, c: dict, src: str, dur: float, info: dict) -> dict:
     if c['mode'] == 'replace':
         kept = [e for e in els if not e.get('world') and (e.get('type') in OVERLAY or e.get('mood')) and not _credit_line(e)]
         sc['elements'] = [clip] + kept
-        sc['elements'].append(label_line(c['label']))
+        if c['label']: sc['elements'].append(label_line(c['label']))
         sc['full_frame'] = True
     else:
         kept = [e for e in els if not e.get('world')]
         credit = next((e for e in kept if _credit_line(e)), None)
-        if credit: credit['text'] = f"{credit['text']} · {c['label']}"
-        else: kept.append(label_line(c['label']))
+        if credit and c['label']: credit['text'] = f"{credit['text']} · {c['label']}"
+        elif c['label']: kept.append(label_line(c['label']))
         sc['elements'] = [clip] + kept
     sc['clip'] = {'mode': c['mode'], 'rate': clip['rate'], 'end': c['end'], 'seconds': info.get('seconds')}
     return sc

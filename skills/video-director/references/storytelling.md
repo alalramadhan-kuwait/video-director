@@ -182,6 +182,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     screen («مشهد بالذكاء الاصطناعي», where a photo's credit goes) and listed in credits.txt as «فيديو بالذكاء
     الاصطناعي (Seedance 2.5 · Higgsfield)». A scene longer than its clip plays it slower (never below 0.7x), then
     back and forth; generating one is paid, so it needs the owner's yes first.
+    No label on screen (the owner: «شيل اللي مكتوب مقطع مولد بالذكاء الاصطناعي الناس تدري»): the credits list each clip,
+    and the post turns on the platform's AI label. A film may still set `label:` on a line.
+
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
     it: one main bed 34 dB under the voice from its J-cut to 1.5 s into the scene, then 40 dB under; a tick, a tock

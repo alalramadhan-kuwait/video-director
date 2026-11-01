@@ -56,7 +56,7 @@ class TestStoryboard(unittest.TestCase):
                                       'aspect': 1.3}, 'paris_rail', mood='wonder')
         self.assertTrue(any(e.get('world') for e in sc['elements']))
         c = clips.spec({'id': 'l1a', 'clip': {'file': 'x.mp4'}})
-        self.assertEqual((c['mode'], c['fit'], c['end'], c['label']), ('replace', 'cover', 'pingpong', clips.LABEL))
+        self.assertEqual((c['mode'], c['fit'], c['end'], c['label']), ('replace', 'cover', 'pingpong', ''))   # no label on screen by default (the owner)
         beds = list(sc['beds'])
         clips.apply(sc, c, 'assets/l1a_clip.mp4', 6.0, INFO)
         els = sc['elements']
@@ -69,7 +69,10 @@ class TestStoryboard(unittest.TestCase):
         self.assertTrue(any(e['type'] == 'card' for e in els))                                       # the HUD card stays
         self.assertTrue(any(e.get('mood') for e in els))                                             # the mood's light stays over it
         labels = [e for e in els if e['type'] == 'text' and e.get('y') == art.CREDIT_Y]
-        self.assertEqual([e['text'] for e in labels], [clips.LABEL])                                 # the label, not the photo's credit
+        self.assertEqual([e['text'] for e in labels], [])                                            # no label, and not the photo's credit
+        sc2 = _scene('archive_photo', {'asset': 'boy', 'desc': 'a boy', 'aspect': 1.3}, 'paris_rail')
+        clips.apply(sc2, clips.spec({'id': 'x', 'clip': {'file': 'x.mp4', 'label': clips.LABEL}}), 'assets/x.mp4', 6.0, INFO)
+        self.assertIn(clips.LABEL, [e.get('text') for e in sc2['elements']])                        # a film can still ask for it
         self.assertEqual(sc['beds'], beds)                                                           # the world is still heard
         self.assertEqual(sc['banner'], 'معرض Basel · 1998')
         motion.direct(sc, 6.0, 'l1a', pixels={}, template='archive_photo')
@@ -95,7 +98,7 @@ class TestStoryboard(unittest.TestCase):
         quickfilm.line_reveal(sc, {'id': 'l5', 'reveal': {'on': 'Antiqua'}}, [{'w': 'Antiqua', 's': 3.0}], 9.0)
         self.assertGreater(els.index(sc['elements'][-1]), els.index(photo))                          # the velvet still over the print
         credit = [e['text'] for e in els if e['type'] == 'text' and e.get('y') == art.CREDIT_Y]
-        self.assertEqual(credit, ['Vianney Halter Antiqua · Phillips · ' + clips.LABEL])
+        self.assertEqual(credit, ['Vianney Halter Antiqua · Phillips'])                               # the photo's own credit only
         motion.direct(sc, 9.0, 'l5', shots=[{'at': 0, 'to': 'wide'}, {'at': 3.0, 'to': 'close'}], pixels={'antiqua_7': (2400, 2400)},
                       template='archive_photo')
         self.assertGreater(max(motion.val(sc['camera']['zoom'], i / 10, 1) for i in range(91)), 1.5)   # the clip never holds the close-up back
