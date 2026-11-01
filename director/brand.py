@@ -153,7 +153,7 @@ def names(brand: str | None = None, extra: dict | None = None) -> dict:
 def to_voice(text: str, table: dict) -> str:
     """The screen's Arabic names swapped for the names in their own language (longest first; a joined و ب ل ف, or two of them, stays)."""
     for ar in sorted(table, key=len, reverse=True):
-        text = re.sub(r'(?<![\u0600-\u06FF])([وبلف]{0,2})' + re.escape(ar) + r'(?![\u0600-\u06FF])',
+        text = re.sub(r'(?<![\u0621-\u064A\u066E-\u06D3])([وبلف]{0,2})' + re.escape(ar) + r'(?![\u0621-\u0652\u066E-\u06D3])',   # letters only: «بلندن،» ends on a comma
                       lambda m, en=table[ar]: (m.group(1) + ' ' if m.group(1) else '') + en, text)
     return text
 
