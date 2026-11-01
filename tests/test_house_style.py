@@ -40,12 +40,18 @@ class HouseStyle(unittest.TestCase):
         self.assertTrue(any('«Breguet» on screen in Arabic' in o for o in out))
         self.assertFalse(any('in English letters' in o for o in check(film('فازت في جنيف'))))   # a city in Arabic is fine now
 
-    def test_house_words(self):
-        out = check(film('قالب من الفولاذ وذهب وردي'))
+    def test_house_words_only_what_the_news_never_writes(self):
+        out = check(film('قالب من الفولاذ مع تعبئة يدوية'))
         self.assertTrue(any('ستيل' in o for o in out))
-        self.assertTrue(any('ذهب احمر' in o for o in out))
-        self.assertTrue(any('tanween' in o for o in check(film('ساعة تحمل إطاراً مميزاً'))))
+        self.assertTrue(any('تكويك يدوي' in o for o in out))
+        # the published news does write these: no finding (the owner: the final posts are the reference, not the chat)
+        self.assertFalse([o for o in check(film('لقد صنعها بالذهب الوردي مع مينا مميزة')) if 'news' in o])
         self.assertFalse([o for o in check(film('ساعة من صانع ما يعرفه الكثير بيعت في مزاد فيليبس')) if 'news' in o])
+
+    def test_the_dictionary_still_decides_how_a_name_is_said(self):
+        lex = B.lexicon()
+        said = B.spoken(B.to_voice('صنعها لشركة بانيراي', B.names()))   # the screen's Arabic → Latin → the dictionary
+        self.assertEqual(said, 'صنعها لشركة ' + lex['Panerai'])
 
 
 if __name__ == '__main__':

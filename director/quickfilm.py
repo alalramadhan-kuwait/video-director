@@ -101,23 +101,11 @@ def house_names(film: dict) -> dict:
     return B.names(film.get('brand', 'timekeeper'), {**FOREIGN_PLACES, **(film.get('names') or {})})
 
 
-# House words (rule 9e, from the editors' corrections in the news group): what the news never writes → what it writes
+# House words (rule 9e): only what the published news (1,792 final #tk_ posts) almost never writes, or the owner ruled out
 HOUSE_WORDS = [
-    (r'(?<![\u0600-\u06FF])كيان', 'مجموعة / شركة'),
-    (r'(?<![\u0600-\u06FF])منشأة', 'مصنع'),
-    (r'(?<![\u0600-\u06FF])(?:ال)?وداعي', 'الإصدار الأخير'),
-    (r'ذهب(?:ٍ)? (?:ال)?وردي', 'ذهب احمر'),
-    (r'(?<![\u0600-\u06FF])(?:ال)?فولاذ', 'ستيل'),
-    (r'(?<![\u0600-\u06FF])(?:ال)?ميناء', 'مينا'),
-    (r'(?<![\u0600-\u06FF])(?:ال)?أنثوية', 'النسائية'),
-    (r'(?<![\u0600-\u06FF])(?:و)?لقد(?![\u0600-\u06FF])', 'leave it out'),
-    (r'(?<![\u0600-\u06FF])ثمّ?ة(?![\u0600-\u06FF])', 'في / هناك'),
-    (r'(?<![\u0600-\u06FF])سوف(?![\u0600-\u06FF])', 'سـ'),
-    (r'من الجدير بالذكر', 'leave it out'),
-    (r'(?<![\u0600-\u06FF])يهال', 'طفل / أطفال'),
-    (r'غير مسبوق', 'مميزة'),
-    (r'تحفة خالدة|(?<![\u0600-\u06FF])اللافتة(?![\u0600-\u06FF])', 'describe it plainly'),
-    (r'(?:^|[.؟!]\s*)إنّ?(?![\u0600-\u06FF])', 'start without «إنّ»'),
+    (r'(?<![\u0600-\u06FF])(?:ال)?فولاذ', 'ستيل (the news: 1,128 ستيل, 4 فولاذ)'),
+    (r'تعبئة يدوية|(?<![\u0600-\u06FF])(?:ال)?تعبئة اليدوية', 'تكويك يدوي (the news: 375 تكويك, 5 تعبئة يدوية)'),
+    (r'(?<![\u0600-\u06FF])يهال', 'طفل / أطفال (the owner: «يهال وايد عامه استخدم طفل»)'),
 ]
 
 
@@ -205,10 +193,6 @@ def story_check(film: dict) -> list[str]:
                 for en, ar in latin.items():
                     if re.search(r'(?<![A-Za-z])' + re.escape(en) + r'(?![A-Za-z])', t):
                         out.append(f"{ln['id']}: write «{en}» on screen in Arabic as the news does («{ar}»); the voice still says {en}")
-            for t in [ln['text']] + on_screen(ln):
-                if re.search('[\u064B-\u064D]', t):                     # tanween: the news reads in pause form («إطاراً» → «إطار»)
-                    out.append(f"{ln['id']}: no tanween on screen («{t[:24]}…»): the news writes «إطار» not «إطاراً»; put it in say: if the voice needs it")
-                    break
             for pat, easy in HOUSE_WORDS:
                 m = re.search(pat, ' '.join([ln['text']] + on_screen(ln)))
                 if m:
