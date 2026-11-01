@@ -217,7 +217,9 @@ def _movement(cx, cy, R, ink, n, t0, step, label_at, extra_from=None, instant=Fa
     for i, (x, y) in enumerate(seen):
         gold = i >= len(M.VISIBLE)
         at = t0 + (i * run / len(M.VISIBLE) if not gold else run + (i - len(M.VISIBLE)) * .25)
-        els.append({'type': 'svg', 'svg': M.jewel_svg(gold), 'w': js, 'h': js, 'x': round(cx - R + x * D / 600, 1),
+        art_ = M.cap_svg() if gold else (M.balance_cap_svg() if (x, y) == M.BALANCE else M.jewel_svg())
+        els.append({'type': 'svg', 'svg': art_, 'w': js * (1.25 if gold else 1), 'h': js * (1.25 if gold else 1),
+                    'x': round(cx - R + x * D / 600, 1),
                     'y': round(cy - R + y * D / 600, 1), 'in': {'type': 'pop', 'at': round(at, 2)}})
     size = max(64, min(120, int(R * .55)))
     end = t0 + run + (1.0 if extra_from is not None else 0)
