@@ -1,57 +1,52 @@
-# Time Keeper house style (the news group)
+# Time Keeper house style (the published news)
 
-Learned from about 2,000 finished `#tk_` news posts (2024–2026) and the editors' corrections in the team's news
-group. The owner: «تلاحظ الكتابة نص ما بين الفصحى والكويتي». A script is written the way the news is written.
-(The full study, with dated corrections and example posts, stays private with the owner.)
+The owner shared the team's news group: "take the ready and the final news to be used as a reference for the way of
+writing the script… I just want you to see there is a middle ground between the formal Arabic and the Kuwaiti."
+So the reference is the **published posts only** (1,792 final `#tk_` posts, 2024–2026), never the talk around them.
+The counts below are from those posts. The posts themselves stay private with the owner; a script writer reads a
+dozen recent ones before writing.
 
-## Register: news fusha, read in pause form, made light
+## The middle ground
 
-- The base is plain news fusha, **read in pause form**: no case endings, no tanween, ever. «إطار» not «إطاراً»,
-  «حققت نجاح كبير», «أكثر من ١٥٠ عام» (a counted noun stays singular), «٧١ ألف» not «ألفًا».
-- Gulf grammar where fusha sounds stiff: «ساعتين» (not ساعتان), «كان متاح», «اسمهم» for a company's name,
-  «وليس» for "not X" («باسمهم وليس باسمه»), «للبيت».
-- No rhetorical particles: no opening «إنّ», no «لقد», «ثمة», «سوف» (use «سـ»), «من الجدير بالذكر».
-- Connectors as the news uses them: و، مع، حيث، كما، لكن، أما … ف، بينما، بعدها. «تأتي الساعة بـ…»,
-  «تتميز بـ…», «مستوحاة من…», «تجمع بين … و…».
-- **Kuwaiti is a seasoning, not the base**: one or two touches a script, in the hook or the closing question
-  («شرايكم؟ تستاهل ولا…؟», «تتوقعون نشوف…؟», «صج … بس»). Never a row of dialect verbs, never slang nouns
-  (يهال، وايد، جذي) in the narration. The owner rejected a full Kuwaiti narration («النطق الكويتي سيء»).
-- One idea per line, 6–14 words, each a full sentence («جملة مفيدة»).
-- No flourish: no «تحفة خالدة», «اللافتة», «الأصيل», «غير مسبوقة», «تمنحه طابع دافئ». No literal translation of a
-  press release: explain the idea behind the watch, not a list of parts.
-- Nothing unofficial stated as fact (the news would not name a model a watch is "inspired by" when only others say so).
+The news is **light fusha that reads like speech**: news Arabic, but read in pause form and without stiffness.
 
-## Words
+- **Pause form, no case endings.** «حققت نجاح كبير», «يعطي الساعة مظهر رياضي» (adjectives without the alif of
+  tanween: 0 «كبيرا / مميزا / جديدا» against 569 bare forms). A counted noun stays singular: «١٥٠ عام» (1,108
+  «عام» against 10 «عامًا»).
+- **Gulf grammar where fusha sounds stiff:** «ساعتين» (85, against 26 «ساعتان»), «وليس» for "not X" (55).
+- **The news connectors:** مع (2,272), مستوحاة / مستوحى من (808), تأتي / يأتي (770), حيث (736), تتميز / يتميز
+  (625), كما (311), أما … ف (243), بينما (166), تجمع بين (151). «الشركة» for a brand (453; الدار 58, العلامة 40).
+- **Rounded numbers with «حوالي»** (97).
+- **Kuwaiti is a light touch, not the base:** a closing question at most («شرايكم؟» 30, «ولا» 34, «تتوقعون»,
+  «تشوفون», «شنو»); 60 of 1,792 posts ask the reader anything. The narration stays in the middle ground; a Reel may
+  end on one short question. The owner rejected a full Kuwaiti narration («النطق الكويتي سيء خلك في خطتنا») and «يهال».
+- Headlines are Brand + verb: «تطلق» (599), «تعيد» (60), «تضيف» (39), «توسع» (18).
 
-| We write | Not |
+## Words the news uses
+
+| The news writes | Rarely |
 |---|---|
-| تكويك يدوي | تعبئة يدوية، تدوير |
-| ستيل | فولاذ |
-| مينا (plural مين) | ميناء، دايل |
-| ذهب احمر | ذهب وردي |
-| سير / سيور، سوار | سترابات |
-| مرجع | ريفيرانس |
-| الروتر | الوزن المتذبذب |
-| الريتروقريد، كرونوقراف، الفلاينق توربيون (Gulf ق for G) | الراجعي and other calques |
-| تقويم دائم، مراحل القمر، مردد الدقائق، تعقيدة / تعقيدات | بيربجوال كاليندر |
-| مصنع | منشأة |
-| مجموعة / شركة | كيان |
-| الإصدار الأخير | وداعي |
-| النسائية | الأنثوية |
-| الشركة (mostly; الدار / العلامة only for variety) | |
-| حوالي، تقريبا، أكثر من، أي ما يعادل | an unrounded conversion |
+| ستيل (1,128) | فولاذ (4) |
+| مينا (1,660) | ميناء (146) |
+| ذهب احمر (312) | ذهب وردي (66) |
+| تكويك يدوي (375) | تعبئة يدوية (5) |
+| مجموعة (931) | كيان (5) |
+| مصنع (40) | منشأة (6) |
 
-## Names and numbers in a Reel (the owner's choices, 1 Nov 2026)
+`story_check` only stops what the news practically never writes (فولاذ، تعبئة يدوية) and «يهال». Everything else
+here is how to write, not a rule a check enforces.
 
-- **Names are written in Arabic on screen**, spelled as the news spells them (فيليبس، بريغيه، باتيك فيليب،
-  أوديمار بيغيه، كريستيز، سوذبيز، تاق هوير…; `brand/names.json`), and **said in their own language**: the
-  film's `load()` gives the voice the Latin name (`brand.to_voice`). A film adds its people under `names:`
-  (`{فياني هالتر: Vianney Halter}`). Abbreviations a viewer can read (GMT, MB&F) may stay Latin, explained (rule 6d).
-- **Numbers on screen stay in English digits** (71,400 د.ك), as one word (rule 18b); the voice reads them as words
-  (rule 9d). Prices in KWD first, rounded; «د.ك».
-- Plain letters on screen, no tanween; diacritics the voice needs go in `say:`.
+## Names, numbers and pronunciation in a Reel (the owner's choices, 1 Nov 2026)
 
-## Layout of words on screen
+- **Names are written in Arabic on screen**, spelled as the news spells them (بريغيه 94, فيليبس 42, سوذبيز 24,
+  كريستيز 7; Latin «Phillips» and «Breguet» once each), `brand/names.json`. They are **said in their own language**:
+  `load()` gives the voice the Latin name, and the **pronunciation dictionary** (`brand/pronunciation.json`, with the
+  studio's pronunciation fixes) still decides exactly how every name and word is said. Nothing in the house style
+  changes a pronunciation the owner has fixed. A film adds its people under `names:` (`{فياني هالتر: Vianney Halter}`).
+- **Numbers on screen stay in English digits** (71,400 د.ك), as one word; the voice reads them as words (rule 9d).
+  The news writes «د.ك» (1,608; «دك» 141).
+
+## Words on screen
 
 - Almost no punctuation: no full stops, few commas; «؟» only on a question; no emojis.
 - Captions and one more block at a time (rule 18n).
