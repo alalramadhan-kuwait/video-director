@@ -22,7 +22,8 @@ class TestLongEffects(unittest.TestCase):
         lv = mix.level(str(d / 'longone.wav'), 'active')
         long_, short = sc[0]['sfx']
         self.assertAlmostEqual(-20 - (lv + long_['gain']), mix.LONG_UNDER, delta=.2)
-        self.assertGreater(short['gain'], long_['gain'] + 8)
+        peak = mix.level(str(d / 'shortone.wav'), 'peak')
+        self.assertGreaterEqual(-20 + 3 - (peak + short['gain']), mix.SHOT_UNDER[0] - .2)   # a hit is felt, not heard
 
 
     def test_a_strike_with_a_long_tail_is_still_a_hit(self):
@@ -31,7 +32,7 @@ class TestLongEffects(unittest.TestCase):
         sc = [{'sfx': [{'at': 0, 'name': 'tower_strike', 'gain': -10}]}]
         mix.levels(sc, {0: -20.0}, sfx_dir=d)
         peak = mix.level(str(d / 'tower_strike.wav'), 'peak')
-        self.assertLess(-20 + 3 - (peak + sc[0]['sfx'][0]['gain']), 7)     # 3-6 dB under the voice's peaks
+        self.assertLessEqual(-20 + 3 - (peak + sc[0]['sfx'][0]['gain']), mix.SHOT_UNDER[1] + .2)   # a hit, 16-20 dB under the voice's peaks
 
 
 if __name__ == '__main__':

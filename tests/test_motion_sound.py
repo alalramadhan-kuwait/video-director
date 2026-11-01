@@ -164,22 +164,27 @@ class TestMix(unittest.TestCase):
             scenes.append({'id': f'l{s}', 'dur': dur, 'transition': 'cut', 'banner': None, 'sfx': cues})
         return scenes
 
-    def test_at_most_fifteen_effects_a_minute_the_least_important_go_first(self):
-        scenes = self._film()
-        scenes[1]['sfx'].append({'at': 5.0, 'name': 'gavel', 'gain': -8, 'owner': True, 'fixed': True})
-        end = {'dur': 3.0, 'endcard': 'timekeeper', 'sfx': [{'at': .2, 'name': 'tick', 'gain': -12}, {'at': 1.8, 'name': 'tick_pair', 'gain': -8}]}
-        r = mix.apply(scenes + [end], {})
-        kept = [c for s in scenes for c in s['sfx']]
-        self.assertLessEqual(len(kept), 15)                                  # 60 s of story: 15 at most
-        self.assertTrue(any(c['name'] == 'gavel' for c in kept))             # the film file's own cue stays
-        self.assertEqual(len(end['sfx']), 2)                                 # the end card's ticks stay, uncounted
-        self.assertTrue(r['dropped'])
-        first = {d['name'] for d in r['dropped'][:8]}
-        self.assertLessEqual(first, {'paper_place', 'paper_slide', 'whoosh'})  # paper and whooshes go first
-        self.assertFalse(any('owner' in c or 'fixed' in c for c in kept))     # no bookkeeping left in the storyboard
-        # any 60 s window, not just the average
-        t = sorted(i * 20 + c['at'] for i, s in enumerate(scenes) for c in s['sfx'])
-        self.assertTrue(all(sum(1 for u in t if a <= u < a + 60) <= 15 for a in t))
+    def test_at_most_six_real_effects_a_minute_the_synthetic_kit_never_plays(self):
+        # the owner: «the sound effects are really bad and it's affecting the focus»
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            for name in ('gavel', 'tick', 'footsteps', 'train'):                # the film's real recorded sounds
+                _wav(d / f'{name}.wav', .2 * np.sin(np.arange(4410) * .05))
+            scenes = self._film()
+            for s in scenes:
+                s['sfx'] += [{'at': 1.0 + k * 3, 'name': n, 'gain': -12} for k, n in enumerate(['footsteps', 'train', 'tick', 'footsteps', 'train'])]
+            scenes[1]['sfx'].append({'at': 5.0, 'name': 'gavel', 'gain': -8, 'owner': True, 'fixed': True})
+            end = {'dur': 3.0, 'endcard': 'timekeeper', 'sfx': [{'at': .2, 'name': 'tick', 'gain': -12}, {'at': 1.8, 'name': 'tick_pair', 'gain': -8}]}
+            r = mix.apply(scenes + [end], {}, sfx_dir=d)
+            kept = [c for s in scenes for c in s['sfx']]
+            self.assertLessEqual(len(kept), mix.PER_MINUTE)                       # 60 s of story: six at most
+            self.assertTrue(kept and all(c['name'] in {'gavel', 'tick', 'footsteps', 'train'} for c in kept))
+            self.assertTrue(any(c['name'] == 'gavel' for c in kept))             # the film file's own cue stays
+            self.assertEqual([c['name'] for c in end['sfx']], ['tick'])         # the end card: its real tick only
+            self.assertTrue({'whoosh', 'click', 'stamp', 'paper_place'} <= {x['name'] for x in r['synthetic']})
+            self.assertFalse(any('owner' in c or 'fixed' in c for c in kept))     # no bookkeeping left in the storyboard
+            t = sorted(i * 20 + c['at'] for i, s in enumerate(scenes) for c in s['sfx'])
+            self.assertTrue(all(sum(1 for u in t if a <= u < a + 60) <= mix.PER_MINUTE for a in t))
 
     def test_paper_sounds_only_when_paper_comes_in(self):
         sc = [{'id': 'a', 'dur': 4, 'transition': 'cut', 'banner': None, 'sfx': []},
@@ -220,7 +225,7 @@ class TestMix(unittest.TestCase):
             self.assertAlmostEqual(second - under, 6, delta=.2)               # the second keeps its distance below
             for c in sc[0]['sfx']:
                 shot = v + 3 - (mix.level(str(mix.sound_file(c['name'])), 'peak') + c['gain'])
-                self.assertTrue(3 <= shot <= 6, (c, shot))                    # one-shots 3-6 dB under the voice
+                self.assertTrue(mix.SHOT_UNDER[0] - .2 <= shot <= mix.SHOT_UNDER[1] + .2, (c, shot))   # one-shots 16-20 dB under the voice
 
     def _voice(self, d):
         t = np.arange(44100 * 2) / 44100

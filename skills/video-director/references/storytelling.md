@@ -198,7 +198,20 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     or a running movement 36 dB under at most; a second bed 6 dB further down and never a third; a film's own bed
     gain never above those. `beds: {gain: -4}` in the film file turns every bed down further.
     An effect that runs over 2 s (a train passing, a horn, footsteps) is levelled like a bed, its running level 20 dB
-    under the voice (the owner: «صوت القطار لا زال عالي»); only a short hit (a gavel, a click) sits 3-6 dB under.
+    under the voice (the owner: «صوت القطار لا زال عالي»); a short hit (a gavel, a bell) sits 16-20 dB under.
+
+18m. **Few effects, real ones, felt not heard** ✓ (the owner: «the sound effect are really bad and it effecting the
+    focus. who's checking them?»). Only real recorded sounds play (the film's `sounds:`, fetched with their licence):
+    the synthetic kit (whoosh, shutter, click, chime, stamp, sonar, bubbles, paper) never plays, even where a film
+    file asks for it. Six a minute at most, each 16-20 dB under the voice, a film's own gain never louder. `mix.py`
+    does it (`recorded_only`, `PER_MINUTE`, `SHOT_UNDER`). Nobody in the studio can hear: the numbers are the check,
+    and the owner's ears are the last one. So the rule leans quiet: when in doubt, no effect.
+
+18n. **Captions and one more block of words, never more** ✓ (the owner: «the video have more than 3 lines of words it
+    is hard to read for the viewers. caption title sub title. it is too much»). At any moment the screen holds the
+    spoken captions and ONE block: the banner, OR the card, OR the line. A scene with a card or a line shows its banner
+    first, alone, and the banner leaves 0.3 s before the card comes in; if the card comes in under 1.9 s, the scene has
+    no banner. A photo's small credit is not a block. `textload.py` does it in make_film (`report.text`).
 18d. **A written hook, when the opening has no words of its own** (`hook: {text, em, dur}` in the film file, from
     video-ad-editor; a city zoom's name is already the hook): a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
     line. The captions wait until it has gone: two texts at once and the viewer reads neither.

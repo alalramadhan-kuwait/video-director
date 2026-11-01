@@ -69,7 +69,7 @@ import yaml
 
 from . import beats, platforms, quality, brand as B
 from .copilot import commons, sounds
-from .studio import art, checks, clips, engine, mix, moods, motion, sets, voice
+from .studio import art, checks, clips, engine, mix, moods, motion, sets, textload, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
 
@@ -776,6 +776,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         scenes.append(sc)
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': template})
     cross(scenes, rtl=True)                                              # the camera crosses each cut
+    report['text'] = textload.fit(scenes)                                # captions + one block of words at a time (the owner)
     hook_end = hook_card(scenes[0], film['hook']) if film.get('hook') and scenes else None
     ending = _endcard(out)
     report['mix'] = mix.apply(scenes + ending, voice_db, sfx_dir=out / 'sfx',     # beds, J-cuts, one-shot levels and the cap
