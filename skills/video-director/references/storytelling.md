@@ -63,7 +63,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     them as they are (`narration.keep_latin` in the brand config). Arab places keep their Arabic name (الإسكندرية).
     Mind the article: an Arabic «ال» before a Latin word is lost when spoken; keep that word Arabic in that line.
     Foreign cities too (the owner on Halter part 2: «مو قلنا اسامي … الاجنبية تنقال بالانجليزي؟» after «جنيف»): Geneva,
-    Paris, Basel. make_film flags an Arabic spelling (`FOREIGN_PLACES`). Countries keep their Arabic name (سويسرا).
+    Paris, Basel. make_film flags an Arabic spelling (`FOREIGN_PLACES`). Well-known countries keep their Arabic name
+    (سويسرا، فرنسا، أمريكا): the owner, «الدول المعروفه خلها».
 9c. **Plain Arabic: everyday words, no figures of speech** ✓ (the owner on Halter: «شنو يعني يصنع بالظل؟ خفف اللغة
     العربية… ليش تستخدم عتيقة استخدم كلمة اسهل مثلا القديمة… يصنع لدور ليش ما قلت شركات ساعات… شنو يعني جفت الطلبات؟»).
     Standard Arabic grammar, but the words a Kuwaiti viewer uses: قديمة not عتيقة, يصلّح not يرمّم, شركات الساعات not
