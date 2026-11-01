@@ -17,6 +17,8 @@ class DataLook(unittest.TestCase):
         self.assertEqual(st['banner']['tape'], 'none'); self.assertEqual(st['banner']['torn'], 0)
         self.assertEqual(st['grain'], 0)
         self.assertEqual(st['caption']['bg'], '#141414')
+        self.assertTrue(st['caption']['flat'])                                   # plain dark chips, no torn paper
+        self.assertNotIn('Mono', st['banner']['font'])                           # a dotted 0 reads 1902 as 1982
 
     def test_prints_lie_flat_and_cards_are_dark(self):
         sc = art.scene_visual('archive_photo', {'asset': 'a', 'desc': 'd', 'aspect': 1.4, 'card': 'بطاقة'}, 'tk-bone', 4)
@@ -32,6 +34,31 @@ class DataLook(unittest.TestCase):
         looks.scene('data', sc)
         cr = [e for e in sc['elements'] if e.get('type') == 'text' and e.get('font') == 'cap'][0]
         self.assertEqual(cr['paper'], '#0B0B0B'); self.assertEqual(cr['color'], looks.SAND)
+
+    def test_two_movements_light_17_and_21_jewels_the_four_extra_in_gold(self):
+        els = art.scene_visual('technical_illustration', {'kind': 'jewels', 'counts': [17, 21], 'instant': True}, 'tk-black', 5)['elements']
+        dots = [e for e in els if e.get('type') == 'shape']
+        self.assertEqual(len(dots), 38)
+        self.assertEqual(sum(1 for e in dots if e['color'] == art.GOLD), 4)
+        self.assertEqual(sorted(e['text'] for e in els if e.get('type') == 'text' and e['text'].isdigit()), ['17', '21'])
+
+    def test_a_hook_s_movements_show_their_numbers_on_frame_0(self):
+        els = art.scene_visual('technical_illustration', {'kind': 'jewels', 'counts': [17, 21], 'instant': True}, 'tk-black', 5)['elements']
+        nums = [e for e in els if e.get('type') == 'text' and e['text'].isdigit()]
+        self.assertTrue(nums and all('in' not in e for e in nums))
+
+    def test_the_end_card_logo_is_light_and_transparent_on_the_dark_stage(self):
+        import shutil, tempfile
+        from pathlib import Path
+        from PIL import Image
+        from director.studio import engine
+        d = Path(tempfile.mkdtemp()); shutil.copyfile(engine.ENGINE / 'tk-logo-512.png', d / 'tk-logo-512.png')
+        looks.endcard_logo('data', d); looks.endcard_logo('data', d)          # twice: the second run leaves it alone
+        im = Image.open(d / 'tk-logo-512.png')
+        self.assertEqual(im.mode, 'RGBA')
+        lo, hi = im.getextrema()[3]
+        self.assertEqual((lo, hi), (0, 255))
+        looks.endcard_logo('paper', d)                                          # the paper look keeps its own logo
 
     def test_a_collage_print_can_be_there_from_frame_0(self):
         sc = art.scene_visual('archival_collage', {'photos': [{'asset': 'a', 'desc': 'd', 'at': 'none'}], 'tags': [{'text': 'x', 'at': 'none'}]}, 'tk-bone', 4)

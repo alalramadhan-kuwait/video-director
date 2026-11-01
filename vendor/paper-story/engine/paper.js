@@ -576,16 +576,23 @@
         const r = rng('cap' + gi + '-' + wi);
         const tag = div('cap');
         tag.textContent = w.text;
-        const gth = scenes[g.scene].th;
-        if (gth.capBg) tag.style.backgroundColor = gth.capBg;
-        if (gth.capInk) tag.style.color = gth.capInk;
-        tag.style.backgroundImage = tex('paper');
-        tag.style.backgroundSize = '256px 256px';
+        const gth = scenes[g.scene].th, flat = !!(S.style.caption && S.style.caption.flat);
+        if (flat) {                                    // style.caption.flat: plain dark chips, no paper, no tilt (looks.py `data`)
+          tag.style.backgroundColor = S.style.caption.bg || '#141414';
+          tag.style.color = S.style.caption.ink || '#EDE8DC';
+          tag.style.borderRadius = '6px';
+        } else {
+          if (gth.capBg) tag.style.backgroundColor = gth.capBg;
+          if (gth.capInk) tag.style.color = gth.capInk;
+          tag.style.backgroundImage = tex('paper');
+          tag.style.backgroundSize = '256px 256px';
+        }
+        tag._flat = flat;
         tag.style.fontSize = (S.captionSize || 38) + 'px';
-        const rot = (r() - 0.5) * 6, dy = (r() - 0.5) * 12;
+        const rot = flat ? 0 : (r() - 0.5) * 6, dy = flat ? 0 : (r() - 0.5) * 12;
         tag.style.setProperty('--rot', rot + 'deg');
         tag._rot = rot; tag._dy = dy;
-        tag.style.clipPath = cutPoly(100, 56, 1, gi * 13 + wi, [2, 2, 2, 2]).replace(/-?\d+(\.\d+)?px/g, (m) => m); // placeholder; replaced on measure
+        if (!flat) tag.style.clipPath = cutPoly(100, 56, 1, gi * 13 + wi, [2, 2, 2, 2]).replace(/-?\d+(\.\d+)?px/g, (m) => m); // placeholder; replaced on measure
         w.el = tag;
         row.appendChild(tag);
       });
@@ -594,6 +601,7 @@
     });
     // exact hand-cut clip per tag once sizes are known
     groups.forEach((g, gi) => g.words.forEach((w, wi) => {
+      if (w.el._flat) return;
       const probe = w.el.cloneNode(true);
       probe.style.clipPath = 'none';
       const m = measure(probe);

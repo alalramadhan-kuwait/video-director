@@ -5,7 +5,7 @@ separators, photos as clean flat prints (no tape, no polaroid, no tilt), and one
 default."""
 from __future__ import annotations
 
-BG, SAND, INK, RUBY = '#080808', '#B3AA93', '#EDE8DC', '#9B1B30'
+BG, SAND, INK, RUBY, GOLD = '#080808', '#B3AA93', '#EDE8DC', '#9B1B30', '#C9A35F'
 MONO = '"JetBrains Mono","Cairo",ui-monospace,monospace'
 LOOKS = ('paper', 'data')
 
@@ -23,13 +23,14 @@ def theme(look: str, theme: str) -> str:
 
 def style(look: str, base: dict) -> dict:
     """The storyboard style under the look: a flat banner (no paper, tape or torn edge) in mono sand, dark captions
-    with the ruby on the spoken word, no paper grain, a soft vignette."""
+    with the gold on the spoken word, no paper grain, a soft vignette."""
     if look != 'data': return base
     if 'style' in base: return {**base, 'style': style(look, base['style'])}      # art.style(brand) is {'style': {...}}
     st = {**base}
     st['banner'] = {**base.get('banner', {}), 'paper': BG, 'ink': SAND, 'tape': 'none', 'torn': 0, 'size': 26,
-                    'font': MONO, 'upper': False, 'ls': .06}
-    st['caption'] = {**base.get('caption', {}), 'bg': '#141414', 'ink': INK, 'active': '#D9475E', 'activeLight': '#9B1B30'}
+                    'font': '"Inter Tight","Cairo",system-ui,sans-serif', 'upper': False, 'ls': .06}   # not mono: its dotted 0 reads 1902 as 1982 (Étienne)
+    st['caption'] = {**base.get('caption', {}), 'bg': '#141414', 'ink': '#F0EFED', 'active': GOLD, 'activeLight': GOLD,
+                     'flat': True}                                       # plain dark chips (paper.js), not torn paper tags
     st['grain'], st['vignette'] = 0, .35
     return st
 
@@ -53,3 +54,19 @@ def scene(look: str, sc: dict) -> dict:
         elif t == 'text' and e.get('paper') and e.get('font') == 'cap':          # a credit line: small, on a dark band
             e.update(paper='#0B0B0B', color=SAND)                         # on its own dark band: readable over any photo
     return sc
+
+
+def endcard_logo(look: str, out) -> None:
+    """The end card's logo for the dark stage: the brand logo is dark on an opaque white square; here its dark strokes
+    become light, on a transparent ground (Étienne: «the end card is still the white square»)."""
+    if look != 'data': return
+    from pathlib import Path
+    from PIL import Image
+    f = Path(out) / 'tk-logo-512.png'
+    if not f.is_file(): return
+    src = Image.open(f)
+    if src.mode == 'RGBA' and src.getextrema()[3][0] < 255: return             # already the light, transparent logo
+    im = src.convert('L')
+    alpha = im.point(lambda v: max(0, min(255, int((235 - v) * 255 / 200))))     # dark ink → opaque, white paper → clear
+    light = Image.new('RGBA', im.size, (240, 239, 237, 0)); light.putalpha(alpha)
+    light.save(f)

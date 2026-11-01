@@ -190,6 +190,54 @@ def _pivot(p, ink, dur):
     return els
 
 
+def _circle(cx, cy, r):
+    return f'M{cx - r:.1f} {cy:.1f} A{r:.1f} {r:.1f} 0 1 0 {cx + r:.1f} {cy:.1f} A{r:.1f} {r:.1f} 0 1 0 {cx - r:.1f} {cy:.1f}'
+
+
+# a generic movement, from above, in units of its radius: (x, y, r) of the barrel, centre, third, fourth and escape
+# wheels and the balance; where its 17 jewels sit (train 8, pallet 4, balance 5: the fully jewelled time-only watch)
+# and where a 21 adds four. A principle (owner, 1 Nov 2026: «ارسم صورة محرك عشان الناس تتخيله»), never a calibre.
+WHEELS = [(-.38, -.34, .34), (0, 0, .3), (.4, -.26, .2), (.46, .18, .18), (.16, .52, .13), (-.44, .36, .3)]
+JEWELS17 = [(0, 0), (.04, .05), (.4, -.26), (.44, -.21), (.46, .18), (.5, .23), (.16, .52), (.2, .57),
+            (-.06, .5), (-.12, .58), (-.02, .62), (-.16, .46), (-.44, .36), (-.4, .4), (-.48, .32), (-.38, .3), (-.5, .42)]
+JEWELS_EXTRA = [(-.38, -.34), (-.33, -.29), (.12, .47), (-.09, .54)]
+
+
+def _movement(cx, cy, R, ink, n, t0, step, label_at, extra_from=None, instant=False):
+    """One movement of radius R at (cx, cy): plate, wheels, then `n` jewels lighting up one by one from t0 (the
+    ones past `extra_from` in gold), then its count. `instant`: plate and wheels already drawn on frame 0 (a hook)."""
+    q = .01 if instant else 1
+    paths = [{'d': _circle(R, R, R * .98), 'at': 0, 'dur': .7 * q, 'stroke': ink, 'width': 3, 'fill': '#16161A', 'fillAt': .2 * q, 'fillDur': .4 * q}]
+    for k, (x, y, r) in enumerate(WHEELS):
+        paths.append({'d': _circle(R + x * R, R + y * R, r * R), 'at': (.25 + k * .08) * q, 'dur': .5 * q, 'stroke': '#6E6A60', 'width': 2})
+    els = [{'type': 'sketch', 'x': cx, 'y': cy, 'w': 2 * R, 'h': 2 * R, 'paths': paths, 'technical': True, 'pencil': False}]
+    spots = JEWELS17 + JEWELS_EXTRA
+    for i in range(n):
+        x, y = spots[i]
+        gold = extra_from is not None and i >= extra_from
+        d = max(9, round(R * .085))
+        els.append({'type': 'shape', 'kind': 'circle', 'w': d, 'h': d, 'x': round(cx + x * R, 1), 'y': round(cy + y * R, 1),
+                    'color': GOLD if gold else '#C21F3A', 'in': {'type': 'pop', 'at': round(t0 + i * step, 2)}})
+    size = max(64, min(110, int(R * .5)))
+    els.append({'type': 'text', 'text': str(n), 'font': 'title', 'size': size, 'color': GOLD if extra_from else ink,
+                'x': cx, 'y': cy + R + 18 + size * .5, 'w': 2 * R, 'align': 'center',
+                **({} if instant else {'in': {'type': 'rise', 'at': label_at}})})   # a hook shows its numbers on frame 0
+    return els
+
+
+def _jewels(p, ink, dur):
+    """`counts`: [17] for one movement, [17, 21] for two side by side (the 21's four extra jewels in gold).
+    `at`: when the jewels start lighting; `step`: seconds between two jewels; `instant`: drawn on frame 0."""
+    counts, t0, step = p.get('counts', [17, 21]), p.get('at', .5), p.get('step', .09)
+    if len(counts) == 1:
+        n = counts[0]
+        return _movement(360, 540, 200, ink, n, t0, step, t0 + n * step, extra_from=17 if n > 17 else None, instant=p.get('instant'))
+    els = []
+    for (cx, n) in zip((525, 195), counts):              # right to left: the first number on the right (RTL)
+        els += _movement(cx, 560, 140, ink, n, t0, step, t0 + n * step, extra_from=17 if n > 17 else None, instant=p.get('instant'))
+    return els
+
+
 def b_technical_illustration(p, theme, dur):
     ink = ink_for(theme)
     kind = p.get('kind', 'screw_crown')
@@ -229,6 +277,8 @@ def b_technical_illustration(p, theme, dur):
                     'in': {'type': 'fade', 'at': p.get('close_at', 2.2) + .8}})
     elif kind == 'pivot':                                # a wheel's steel axle in its bearing, in section (the rubies film)
         els += _pivot(p, ink, dur)
+    elif kind == 'jewels':                               # a generic movement seen from above, its jewels lighting up
+        els += _jewels(p, ink, dur)
     elif kind == 'double_case':
         out = [{'d': 'M300 40 A260 260 0 1 1 299 40', 'at': 0, 'dur': 1.0, 'stroke': ink, 'width': 6},
                {'d': 'M300 120 A180 180 0 1 1 299 120', 'at': .9, 'dur': .9, 'stroke': ink, 'width': 4},
@@ -244,7 +294,8 @@ def b_technical_illustration(p, theme, dur):
     if p.get('card'):
         els.append({'type': 'card', 'x': 330, 'y': 322, 'w': 440, 'h': 96, 'tex': 'paper', 'title': p['card'], 'titleSize': 32,
                     'body': '', 'style': 'dark', 'in': {'type': 'drop', 'at': p.get('card_at', 0.4)}, 'rot': -2})
-    return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.06, 620, 600)}
+    cam = _cam(dur, 1.0, 1.03, 360, 600) if kind == 'jewels' else _cam(dur, 1.0, 1.06, 620, 600)   # the movements stay whole
+    return {'theme': theme, 'floor': False, 'elements': els, 'camera': cam}
 
 
 def _waves(ink_dark, ink_mid, ink_light, w=900):

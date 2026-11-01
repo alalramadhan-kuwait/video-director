@@ -54,10 +54,16 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    (`references/storytelling.md`).
    Then the reader panel (rule 6d, `references/reader-panel.md`): a novice, a medium and an expert reader, a
    filter, and their vote, before the owner sees it.
-3. **Voice** — the owner's chosen voice: Abdullah on ElevenLabs (voice XdoLPWNt7ytn6BtU4FBf, eleven_multilingual_v2,
-   seed 1234, stability .5, similarity .75, style 0, speaker boost; speed 1.0, or up to 1.2 when the film must fit
-   90 s), then silence trim and atempo 1.06; words from `brand/pronunciation.json` and the studio's pronunciation tab.
-   OmniVoice (`arabic-narration` → `references/omnivoice.md`) stays the free fallback. Listen-check the
+3. **Voice** — the owner's chosen voice: **Nasser AlJubaily** on ElevenLabs (voice cFUFIbKkO2iZFwS8cRnY, a Saudi
+   «white dialect», warm storyteller; the owner, 1 Nov 2026: «عجبني ناصر», after «وايد واضح انه صوت الي»).
+   eleven_multilingual_v2, seed 1234, stability .4, similarity .8, style .2, speaker boost, **speed 1.0 and no atempo**
+   (speeding it up is what made the voice sound artificial), and each line sent with `previous_text`/`next_text` so the
+   delivery flows across lines. A film that runs long is cut in the script (with the owner), never sped up. Silence
+   trim only. Words from `brand/pronunciation.json` and the studio's pronunciation tab. (Abdullah, XdoLPWNt7ytn6BtU4FBf,
+   made Halter 1 and 2.)
+   OmniVoice (`arabic-narration` → `references/omnivoice.md`) stays the free fallback.
+   **Anything audio the owner must hear (a voice test, a take, a music choice) is sent as an MP4** (a dark still
+   with its name, the audio under it): the owner's chat does not play MP3 («I cant hear mp3 in this chat always make it mp4»). Listen-check the
    take yourself (Whisper for omissions/repetitions) and regenerate a passage that is wrong.
 4. **Look** — the brand's default look (`paper-story`), or `look: data` in the film file (rule 18o: a dark stage,
    big numbers, one ruby/gold accent, as the owner chose for the rubies film); another only if the subject clearly calls for it
