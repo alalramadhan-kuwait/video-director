@@ -89,6 +89,16 @@ def load(path) -> dict:
     return f
 
 
+def _known_as(who: str, film: dict) -> set:
+    """A person's name as the screen may write it: as given, its surname, and under house style its Arabic spelling
+    (`names:`: «فاتيو دي دولييه» for Fatio de Duillier)."""
+    out = {who}
+    if house(film):
+        for ar, en in house_names(film).items():
+            if en and (en in who or who in en): out.add(ar)
+    return out
+
+
 def house(film: dict) -> bool:
     """The news group's house style (rule 9e): on by the brand's `narration.house_style`, off by a film's
     `house_style: false` (Halter, made before it)."""
@@ -261,7 +271,7 @@ def story_check(film: dict) -> list[str]:
         if not who: continue
         if ln.get('photo'):
             out.append(f"{ln['id']}: {who} is behind the words (text on a face, no name): show the portrait with archive_photo and their name")
-        elif not any(who in t for t in on_screen(ln)):
+        elif not any(n in t for t in on_screen(ln) for n in _known_as(who, film)):
             out.append(f"{ln['id']}: {who} is on screen but not introduced (put the name in the banner or the card)")
     for ln in lines:                                                     # every scene has a related picture, of the right time
         slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
@@ -298,7 +308,8 @@ def story_check(film: dict) -> list[str]:
                 out.append(f"{ln['id']}: the screen shows «{t}», which this line does not say")
     for prev, ln in zip(lines, lines[1:]):                               # every change of scene is led into
         first = (checks.words(ln['text']) or [''])[0]
-        if ln.get('closing') or first in LEADS or (first[:1] in 'وف' and len(first) > 2): continue
+        if ln.get('closing') or ln.get('continues') or first in LEADS or first in ('و', 'ف') or (first[:1] in 'وف' and len(first) > 2): continue
+        # `continues: true`: the line goes on with the sentence before it («ليثبتوا…», «ياقوت حقيقي…» after its subject)
         same = lambda k: ln.get(k) == prev.get(k) and ln.get(k)
         if same('set') and (ln.get('params') or {}).get('asset') == (prev.get('params') or {}).get('asset'): continue   # the same place and picture: one scene, cut for a pause
         out.append(f"{ln['id']}: begins without leading in from {prev['id']} (open with وبينما، لكن، ثم، وبعد… or a sentence that prepares the change)")

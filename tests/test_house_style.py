@@ -34,6 +34,20 @@ class HouseStyle(unittest.TestCase):
     def test_a_joined_letter_stays(self):
         self.assertEqual(B.to_voice('وفيليبس ولبريغيه', B.names()), 'و Phillips ول Breguet')
 
+    def test_a_name_before_arabic_punctuation_is_still_said_in_its_language(self):
+        self.assertEqual(B.to_voice('وفي ١٧٠٤ بلندن، سجّل', quickfilm.house_names({})), 'وفي ١٧٠٤ ب London، سجّل')
+
+    def test_a_person_introduced_by_their_arabic_name(self):
+        f = {**film('سجّل براءة', template='archive_photo', banner='فاتيو دي دولييه · عالم رياضيات', params={'asset': 'fatio'}),
+             'names': {'فاتيو دي دولييه': 'Fatio de Duillier'},
+             'photos': {'fatio': {'file': 'x.jpg', 'person': 'Nicolas Fatio de Duillier'}}}
+        self.assertFalse([o for o in check(f) if 'not introduced' in o])
+
+    def test_a_line_that_continues_the_sentence_needs_no_lead_in(self):
+        f = film('ثم رفضوا', closing=False)
+        f['lines'].append({'id': 'l2', 'text': 'ليثبتوا أن الفكرة قديمة', 'template': 'kinetic_type', 'params': {}, 'no_photo': 'test', 'continues': True})
+        self.assertFalse([o for o in check(f) if 'leading in' in o])
+
     def test_latin_names_on_screen_are_caught(self):
         out = check(film('بيعت في مزاد Phillips', banner='Breguet · 1991'))
         self.assertTrue(any('«Phillips» on screen in Arabic' in o and 'فيليبس' in o for o in out))
