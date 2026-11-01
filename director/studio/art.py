@@ -295,10 +295,10 @@ def b_archival_collage(p, theme, dur):
     for i, ph in enumerate(p['photos']):
         els.append({'type': 'photo', 'asset': ph['asset'], 'desc': ph['desc'], 'label': ph.get('label', ''), 'w': ph.get('w', 460),
                     'aspect': ph.get('aspect', 0.8), 'x': ph.get('x', 360), 'y': ph.get('y', 560), 'rot': ph.get('rot', -2 + 4 * i),
-                    'in': {'type': 'drop', 'at': ph.get('at', .2 + .5 * i)}})
+                    **({} if ph.get('at') == 'none' else {'in': {'type': 'drop', 'at': ph.get('at', .2 + .5 * i)}})})   # 'none': on screen from frame 0
     for t in p.get('tags', []):
         els.append({'type': 'text', 'text': t['text'], 'font': 'title', 'size': t.get('size', 34), 'color': INK, 'paper': PAPER,
-                    'x': t.get('x', 360), 'y': t.get('y', 880), 'rot': -2, 'in': {'type': 'slideL', 'at': t.get('at', 1.0)}})
+                    'x': t.get('x', 360), 'y': t.get('y', 880), 'rot': -2, **({} if t.get('at') == 'none' else {'in': {'type': 'slideL', 'at': t.get('at', 1.0)}})})
     return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.08)}
 
 

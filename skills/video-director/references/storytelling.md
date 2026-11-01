@@ -248,6 +248,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     then lifts apart with its names. 3D only where it explains something physical, and always labelled as a simplified
     principle, never as the brand's own calibre.
 
+18o. **The data look** ✓ (the owner, on the rubies film: «The video you created is different style than the original» —
+    the Altivère video). `look: data` in the film file (`director/studio/looks.py`): one near-black stage for the whole
+    film, no paper grain, tape or tilt; banners flat in mono sand; photos as clean flat prints; cards dark with sand
+    words; dark captions with the ruby on the spoken word; big numbers (stat_counter) carry the facts. Only the grammar
+    is taken from another film, never its frames, script or music. Paper stays the default look.
+
 ## Delivery
 19. Look at every still in `<out>/scenes/` before sending (text cut, overlaps, a stamp too faint on a dark scene);
     for a quick look at many scenes, one contact sheet of about six frames costs less than six separate images.

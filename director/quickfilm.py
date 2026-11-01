@@ -69,7 +69,7 @@ import yaml
 
 from . import beats, platforms, quality, brand as B
 from .copilot import commons, sounds
-from .studio import art, checks, clips, engine, mix, moods, motion, sets, textload, voice
+from .studio import art, checks, clips, engine, looks, mix, moods, motion, sets, textload, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
 
 
@@ -768,6 +768,7 @@ def cut_or_uncut(ln: dict, params: dict, film: dict, pics: dict, out: Path, repo
 def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, preview=False) -> dict:
     film = load(path)
     brand = film.get('brand', 'timekeeper')
+    look = looks.of(film)                                                # paper (default) or data (looks.py)
     out = Path(out).resolve(); out.mkdir(parents=True, exist_ok=True)
     if voice_dir is not None:
         voice_dir = Path(voice_dir).expanduser().resolve()
@@ -796,11 +797,13 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
             if hit: params['land'] = round(VOICE_AT + hit['s'], 2)
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
+        if look == 'data': world, theme = None, looks.theme(look, theme)       # one dark stage: no paper world behind
         sc = art.scene_visual(template, params, theme, dur, banner=ln.get('banner'), seed=ln['id'])
         if ln.get('photo'):                                                  # a scene of words gets its related photo behind
             art.backdrop(sc, ln['photo'], dur, credit=screen_credit(pics, ln['photo']))
         sc = sets.dress(sc, world, dur, seed=ln['id'], template=template)
         moods.dress(sc, ln.get('mood'), dur)                                 # the feeling of the line: light and sound
+        looks.scene(look, sc)                                                # the film's look (looks.py)
         c = clips.spec(ln)
         if c:                                                                # an AI clip as the picture, or behind it (rule 18l)
             src = clip_asset(ln, c, path, out)
@@ -830,7 +833,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
                               bed_gain=min(0.0, float((film.get('beds') or {}).get('gain', 0))))   # `beds: {gain: -4}`: every bed further down, never up
     played = sounds.used(scenes + ending, found['files'])                # the found sounds the film really plays
     duck = (B.load(brand).get('music') or {}).get('duck')
-    sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **art.style(brand),
+    sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **looks.style(look, art.style(brand)),
           'audio': {'autoSfx': False, **({'duck': {k: v for k, v in duck.items() if not k.startswith('_')}} if duck else {})},
           'scenes': scenes + ending}
     seconds = round(sum(s['dur'] for s in sb['scenes']), 1)
