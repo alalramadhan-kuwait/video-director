@@ -78,6 +78,16 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     the story on is dropped. `story_check` flags the words in `quickfilm.PLAIN`; add to it whenever the owner finds one.
     **Short sentences, one idea each** (the owner: «تبسط الجمل بدون تعقيد»): no chain of commas or clause inside a clause;
     `story_check` asks to split any sentence over `quickfilm.LONG_SENTENCE` (18) words.
+9e. **Write the way the news is written** ✓ (the owner, sharing the team's news group: "Read the ready news to know the way
+    we write in it to follow with script… تلاحظ الكتابة نص مابين الفصحى والكويتي"). The script is news fusha read in pause form (no
+    tanween, no case endings), made light with Gulf grammar, the house watch words (ستيل، مينا، ذهب احمر، تكويك يدوي،
+    تعقيدة، مصنع), no rhetoric, and Kuwaiti only as a touch in the hook or the closing question. Names are WRITTEN in
+    Arabic as the news spells them and SAID in their own language; numbers on screen stay in English digits (the
+    owner's choices). All of it in `references/house-style.md`. `story_check` catches a Latin name on screen, tanween
+    on screen and the words the news never writes; `load()` gives the voice the Latin names. On by the brand
+    (`narration.house_style`); a film made before it sets `house_style: false` (Halter 1 and 2 stay as approved).
+    This replaces rule 9b's Latin letters on screen for new films; the voice still says names in English.
+
 9d. **The voice reads every number as words** ✓ (the owner, hearing «71,400» read from digits: «نطق الرقم سيء»). Prices,
     counts and years go to the voice in words in `say:` («واحدٍ وسبعين ألفًا وأربعمئة دينار كويتي»); the screen and the
     captions keep the digits. `story_check` flags a digit in what the voice reads. Test recordings follow the same rule.

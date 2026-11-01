@@ -6,7 +6,7 @@ from director import quickfilm
 
 def check(text):
     lines = [{'id': 'a', 'text': text, 'template': 'kinetic_type', 'params': {}, 'no_photo': 'test'}]
-    return [m for m in quickfilm.story_check({'lines': lines}) if 'English letters' in m]
+    return [m for m in quickfilm.story_check({'lines': lines, 'house_style': False}) if 'English letters' in m]   # before rule 9e
 
 
 class TestForeignPlaces(unittest.TestCase):
