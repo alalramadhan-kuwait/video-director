@@ -27,6 +27,12 @@ class DataLook(unittest.TestCase):
         card = [e for e in sc['elements'] if e['type'] == 'card'][0]
         self.assertEqual(card['style'], 'dark'); self.assertEqual(card['ink'], looks.SAND)
 
+    def test_a_credit_sits_on_its_own_dark_band(self):
+        sc = art.scene_visual('archive_photo', {'asset': 'a', 'desc': 'd', 'aspect': .7, 'credit': 'Joe Haupt · CC BY-SA 2.0'}, 'tk-bone', 4)
+        looks.scene('data', sc)
+        cr = [e for e in sc['elements'] if e.get('type') == 'text' and e.get('font') == 'cap'][0]
+        self.assertEqual(cr['paper'], '#0B0B0B'); self.assertEqual(cr['color'], looks.SAND)
+
     def test_a_collage_print_can_be_there_from_frame_0(self):
         sc = art.scene_visual('archival_collage', {'photos': [{'asset': 'a', 'desc': 'd', 'at': 'none'}], 'tags': [{'text': 'x', 'at': 'none'}]}, 'tk-bone', 4)
         self.assertFalse(any('in' in e for e in sc['elements']))
