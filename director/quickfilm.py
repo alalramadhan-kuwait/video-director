@@ -99,6 +99,10 @@ FOREIGN_PLACES = {'جنيف': 'Geneva', 'باريس': 'Paris', 'بازل': 'Base
 # Countries keep their everyday Arabic names (سويسرا، فرنسا) until the owner says otherwise: Part 1 was approved with «سويسرا».
 
 
+# words that explain an abbreviation beside it on screen («شركته MB&F», «ورشة THA»)
+EXPLAINS = ('شركة', 'شركته', 'ورشة', 'ورشته', 'جائزة', 'دار', 'مزاد', 'متحف', 'مدرسة')
+
+
 def on_screen(ln: dict) -> list[str]:
     """Every piece of text the scene shows (not the captions, which are the narration itself; not credits or sources)."""
     out = []
@@ -170,6 +174,13 @@ def story_check(film: dict) -> list[str]:
             for ar, en in FOREIGN_PLACES.items():
                 if re.search(r'(?<![\u0600-\u06FF])[وفبل]?' + re.escape(ar) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{ar}» in English letters ({en}), in the script, on screen and to the voice")
+    said_all = ' '.join(ln['text'] + ' ' + ln.get('say', '') for ln in lines)
+    for ln in lines:                                                     # no unexplained abbreviation on screen (rule 6d)
+        for t in on_screen(ln):
+            if any(w in t for w in EXPLAINS): continue                   # «أسّس بعدها شركته MB&F»: the screen says what it is
+            for ac in re.findall(r'(?<![A-Za-z])[A-Z][A-Z&]{1,5}(?![A-Za-z])', t):
+                if not re.search(r'(?<![A-Za-z])' + re.escape(ac) + r'(?![A-Za-z])', said_all):
+                    out.append(f"{ln['id']}: «{ac}» on screen is never explained; a viewer can't know it (say what it is, or drop it)")
     for ln in lines:                                                     # the voice reads numbers as words (rule 9d)
         spoken = ln.get('say') or ln['text']
         m = re.search(r'[0-9٠-٩][0-9٠-٩,٬.]*', spoken)
