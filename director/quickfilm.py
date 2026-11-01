@@ -81,7 +81,44 @@ def load(path) -> dict:
         clips.spec(ln)                                                   # a clip's mode, fit and end are known ones
     bad = clips.problems(f)                                              # a watch is never generated (rule 18l)
     if bad: raise ValueError('; '.join(bad))
+    if house(f):                                                         # names written in Arabic, said in their own language
+        table = house_names(f)
+        for ln in f['lines']:
+            v = B.to_voice(ln.get('say') or ln['text'], table)
+            if v != (ln.get('say') or ln['text']): ln['say'] = v
     return f
+
+
+def house(film: dict) -> bool:
+    """The news group's house style (rule 9e): on by the brand's `narration.house_style`, off by a film's
+    `house_style: false` (Halter, made before it)."""
+    if 'house_style' in film: return bool(film['house_style'])
+    return bool((B.load(film.get('brand', 'timekeeper')).get('narration') or {}).get('house_style'))
+
+
+def house_names(film: dict) -> dict:
+    """Arabic on screen → said in its own language: the brand's names, the foreign places, the film's own `names:`."""
+    return B.names(film.get('brand', 'timekeeper'), {**FOREIGN_PLACES, **(film.get('names') or {})})
+
+
+# House words (rule 9e, from the editors' corrections in the news group): what the news never writes → what it writes
+HOUSE_WORDS = [
+    (r'(?<![\u0600-\u06FF])كيان', 'مجموعة / شركة'),
+    (r'(?<![\u0600-\u06FF])منشأة', 'مصنع'),
+    (r'(?<![\u0600-\u06FF])(?:ال)?وداعي', 'الإصدار الأخير'),
+    (r'ذهب(?:ٍ)? (?:ال)?وردي', 'ذهب احمر'),
+    (r'(?<![\u0600-\u06FF])(?:ال)?فولاذ', 'ستيل'),
+    (r'(?<![\u0600-\u06FF])(?:ال)?ميناء', 'مينا'),
+    (r'(?<![\u0600-\u06FF])(?:ال)?أنثوية', 'النسائية'),
+    (r'(?<![\u0600-\u06FF])(?:و)?لقد(?![\u0600-\u06FF])', 'leave it out'),
+    (r'(?<![\u0600-\u06FF])ثمّ?ة(?![\u0600-\u06FF])', 'في / هناك'),
+    (r'(?<![\u0600-\u06FF])سوف(?![\u0600-\u06FF])', 'سـ'),
+    (r'من الجدير بالذكر', 'leave it out'),
+    (r'(?<![\u0600-\u06FF])يهال', 'طفل / أطفال'),
+    (r'غير مسبوق', 'مميزة'),
+    (r'تحفة خالدة|(?<![\u0600-\u06FF])اللافتة(?![\u0600-\u06FF])', 'describe it plainly'),
+    (r'(?:^|[.؟!]\s*)إنّ?(?![\u0600-\u06FF])', 'start without «إنّ»'),
+]
 
 
 PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro', 'paper_cutout'}
@@ -161,14 +198,29 @@ def story_check(film: dict) -> list[str]:
     if any(ln.get('event') for ln in lines) and not any(ln.get('mood') for ln in lines):
         out.append('the story has events but no line carries its feeling (mood:)')
     nar = (B.load(film.get('brand', 'timekeeper')).get('narration') or {})
-    if nar.get('keep_latin'):                                            # foreign names in Latin letters (as Gérald Genta)
+    if house(film):                                                      # rule 9e: written in Arabic, said in their own language
+        latin = {en: ar for ar, en in house_names(film).items()}
+        for ln in lines:
+            for t in [ln['text']] + on_screen(ln):
+                for en, ar in latin.items():
+                    if re.search(r'(?<![A-Za-z])' + re.escape(en) + r'(?![A-Za-z])', t):
+                        out.append(f"{ln['id']}: write «{en}» on screen in Arabic as the news does («{ar}»); the voice still says {en}")
+            for t in [ln['text']] + on_screen(ln):
+                if re.search('[\u064B-\u064D]', t):                     # tanween: the news reads in pause form («إطاراً» → «إطار»)
+                    out.append(f"{ln['id']}: no tanween on screen («{t[:24]}…»): the news writes «إطار» not «إطاراً»; put it in say: if the voice needs it")
+                    break
+            for pat, easy in HOUSE_WORDS:
+                m = re.search(pat, ' '.join([ln['text']] + on_screen(ln)))
+                if m:
+                    out.append(f"{ln['id']}: «{m.group(0).strip()}» is not how the news writes it; use {easy}")
+    if nar.get('keep_latin') and not house(film):                        # foreign names in Latin letters (as Gérald Genta)
         arabic = {v: k for k, v in B.lexicon(film.get('brand', 'timekeeper')).items() if re.search(r'[A-Za-z]', k) and not re.search(r'[A-Za-z]', v)}
         for ln in lines:
             said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
             for v, k in arabic.items():
                 if re.search(r'(?<![\u0600-\u06FF])' + re.escape(v) + r'(?![\u0600-\u06FF])', said):
                     out.append(f"{ln['id']}: write «{v}» in English letters ({k}), in the script and on screen")
-    if nar.get('keep_latin'):                                            # foreign places and countries too (the owner: «اسامي الدول الاجنبية تنقال بالانجليزي»)
+    if nar.get('keep_latin') and not house(film):                        # foreign places and countries too (the owner: «اسامي الدول الاجنبية تنقال بالانجليزي»)
         for ln in lines:
             said = ' '.join([ln['text'], ln.get('say', '')] + on_screen(ln))
             for ar, en in FOREIGN_PLACES.items():

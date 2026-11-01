@@ -139,6 +139,25 @@ def lexicon(brand: str | None = None) -> dict:
     return {k: v for k, v in json.loads((ROOT / p).read_text(encoding='utf-8')).items() if not k.startswith('_')}
 
 
+def names(brand: str | None = None, extra: dict | None = None) -> dict:
+    """House style: the Arabic spelling written on screen → the name in its own language, as the voice says it
+    (brand/names.json, pronunciation.json read the other way, a film's own `names:`)."""
+    out = {v: k for k, v in lexicon(brand).items() if re.search(r'[A-Za-z]', k) and not re.search(r'[A-Za-z]', v)}
+    f = ROOT / 'brand' / 'names.json'
+    if f.is_file():
+        out.update({k: v for k, v in json.loads(f.read_text(encoding='utf-8')).items() if not k.startswith('_')})
+    out.update(extra or {})
+    return out
+
+
+def to_voice(text: str, table: dict) -> str:
+    """The screen's Arabic names swapped for the names in their own language (longest first; a joined و ب ل ف, or two of them, stays)."""
+    for ar in sorted(table, key=len, reverse=True):
+        text = re.sub(r'(?<![\u0600-\u06FF])([وبلف]{0,2})' + re.escape(ar) + r'(?![\u0600-\u06FF])',
+                      lambda m, en=table[ar]: (m.group(1) + ' ' if m.group(1) else '') + en, text)
+    return text
+
+
 def spoken(text: str, brand: str | None = None, lex: dict | None = None) -> str:
     """The text the voice is given: watch names replaced by how they are said (longest names first, whole words)."""
     lex = lexicon(brand) if lex is None else lex

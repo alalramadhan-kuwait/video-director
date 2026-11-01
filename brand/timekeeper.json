@@ -33,6 +33,8 @@
     "instruct": "male, middle-aged, low pitch, calm and natural documentary narration",
     "keep_latin": true,
     "_keep_latin": "Foreign names and English words are written in Latin letters in the script and on screen, and the voice reads them as they are (as in the Gérald Genta films): the local engines skip the Latin-to-Arabic entries of pronunciation.json; the free draft voice still uses them.",
+    "house_style": true,
+    "_house_style": "The news group's style (rule 9e, references/house-style.md): names written in Arabic as the news posts spell them (brand/names.json) and said in their own language (load() gives the voice the Latin); numbers on screen in English digits; plain letters on screen; the house words. A film made before it sets house_style: false.",
     "engine_pronunciation": {
       "_note": "Respellings one engine needs on top of pronunciation.json, chosen by listening (Whisper) to the variants. VoxCPM2 shortens the first vowel of بانيراي and misreads the Italian bridge name.",
       "voxcpm2": {

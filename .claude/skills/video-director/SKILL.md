@@ -48,8 +48,10 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
 1. **Research** — trustworthy sources only (museum, archive, patent office, the brand only for its own claims,
    established references); each claim keeps its source link. Drop or soften what you cannot source. Find the causes
    (why each change happened), the human stories and their feelings, and the historical photographs.
-2. **Hook + script** — pick the strongest honest hook yourself; Modern Standard Arabic, clear for listening, one idea
-   per line, in chronological acts where each line leads into the next (`references/storytelling.md`).
+2. **Hook + script** — pick the strongest honest hook yourself; written the way the Time Keeper news is written
+   (`references/house-style.md`: news fusha in pause form, light, names in Arabic on screen and said in their own
+   language), clear for listening, one idea per line, in chronological acts where each line leads into the next
+   (`references/storytelling.md`).
    Then the reader panel (rule 6d, `references/reader-panel.md`): a novice, a medium and an expert reader, a
    filter, and their vote, before the owner sees it.
 3. **Voice** — OmniVoice with the brand settings (`arabic-narration` → `references/omnivoice.md`, pass `--brand`):
