@@ -54,10 +54,13 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    (`references/storytelling.md`).
    Then the reader panel (rule 6d, `references/reader-panel.md`): a novice, a medium and an expert reader, a
    filter, and their vote, before the owner sees it.
-3. **Voice** — OmniVoice with the brand settings (`arabic-narration` → `references/omnivoice.md`, pass `--brand`):
-   calm, natural documentary delivery, watch names from `brand/pronunciation.json`, natural speed. Listen-check the
+3. **Voice** — the owner's chosen voice: Abdullah on ElevenLabs (voice XdoLPWNt7ytn6BtU4FBf, eleven_multilingual_v2,
+   seed 1234, stability .5, similarity .75, style 0, speaker boost; speed 1.0, or up to 1.2 when the film must fit
+   90 s), then silence trim and atempo 1.06; words from `brand/pronunciation.json` and the studio's pronunciation tab.
+   OmniVoice (`arabic-narration` → `references/omnivoice.md`) stays the free fallback. Listen-check the
    take yourself (Whisper for omissions/repetitions) and regenerate a passage that is wrong.
-4. **Look** — the brand's default look (`paper-story`); another only if the subject clearly calls for it
+4. **Look** — the brand's default look (`paper-story`), or `look: data` in the film file (rule 18o: a dark stage,
+   big numbers, one ruby/gold accent, as the owner chose for the rubies film); another only if the subject clearly calls for it
    (`motion-graphics`).
 5. **Pictures** — real photos first: `python3 tools/find_photo.py "<what>" --save <dir>`, credited on screen;
    a drawing of a person when none is found; a watch is never drawn, only its real photo (rule 12h).
