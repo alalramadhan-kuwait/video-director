@@ -119,7 +119,7 @@ HOUSE_WORDS = [
 ]
 
 
-PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro', 'paper_cutout'}
+PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'product_reveal', 'product_macro', 'paper_cutout', 'jewel_photo'}
 
 
 SCREEN = ('text', 'title', 'body', 'label', 'value', 'values', 'name', 'sub', 'card', 'quote', 'who', 'header', 'banner', 'lines',
@@ -274,7 +274,7 @@ def story_check(film: dict) -> list[str]:
         elif not any(n in t for t in on_screen(ln) for n in _known_as(who, film)):
             out.append(f"{ln['id']}: {who} is on screen but not introduced (put the name in the banner or the card)")
     for ln in lines:                                                     # every scene has a related picture, of the right time
-        slot = ln.get('photo') or (ln.get('params') or {}).get('asset')
+        slot = ln.get('photo') or (ln.get('params') or {}).get('asset') or next(iter([pr.get('asset') for pr in (ln.get('params') or {}).get('prints', [])]), None)
         if ln is lines[0]: continue                                      # the opening is a drawing from the archive
         if not slot and ln['template'] != 'city_zoom' and not ln.get('no_photo') and not (ln.get('params') or {}).get('drawn') and not ln.get('clip'):
             out.append(f"{ln['id']}: no picture (give it a related photo: photo: <slot>, or say why: no_photo)")

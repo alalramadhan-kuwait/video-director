@@ -229,7 +229,7 @@ def _movement(cx, cy, R, ink, n, t0, step, label_at, extra_from=None, instant=Fa
     else:                                                # the count runs up while the jewels light
         els.append({'type': 'kit', 'still': True, 'colors': {'ink': GOLD if extra_from else ink, 'acc': GOLD, 'clay': '#8A6A3A', 'mut': '#A8A49A'},
                     'draw': [{'fn': 'odometer', 's': t0, 'dur': max(.6, end - t0), 'val': n, 'cx': cx * 1.5,
-                              'cy': (cy + R + 18 + size * .5) * 1.5, 'size': size * 1.5, 'prefix': '', 'suffix': ''}]})
+                              'cy': (cy + R + 18 + size * .5) * 1.5, 'size': size * 1.5, 'prefix': '', 'suffix': '', 'roll': False}]})
     return els
 
 
@@ -752,7 +752,46 @@ def b_watch_movement(p, theme, dur):
     return {'theme': theme, 'floor': False, 'elements': els}
 
 
-BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_timeline, 'map': b_map,
+def _ring_svg() -> str:
+    return ('<svg viewBox="0 0 40 40" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">'
+            '<circle cx="20" cy="20" r="16" fill="none" stroke="#FF4F7B" stroke-width="3.2"/>'
+            '<circle cx="20" cy="20" r="19" fill="none" stroke="#FF4F7B" stroke-width="1.2" opacity=".55"/></svg>')
+
+
+def b_jewel_photo(p, theme, dur):
+    """Real movements, their visible jewels ringed one by one, then the calibre's count lands (the owner:
+    «ليش ماتستخدم تصميم لمحرك حقيقي»). `prints`: one or two {asset, desc, aspect, marks: [[fx, fy], …] (where each jewel
+    sits, as fractions of the photo, read from the photo), count, label (the calibre's name), credit}. Only the jewels
+    the photo really shows are ringed; the number gives the whole count. `instant`: prints and counts on frame 0."""
+    prints, t0, step = p['prints'], p.get('at', .4), p.get('step', .12)
+    ink, els = ink_for(theme), []
+    two = len(prints) == 2
+    slots = [(520, 300), (200, 300)] if two else [(360, 460)]            # right to left: the first on the right (RTL); 50 px margins so a wide shot keeps both
+    for (cx, w), pr in zip(slots, prints):
+        a = pr.get('aspect', 1.0); h = w / a; cy = 540 if two else 440
+        inst = p.get('instant')
+        els.append({'type': 'photo', 'asset': pr['asset'], 'desc': pr['desc'], 'w': w, 'aspect': a, 'x': cx, 'y': cy, 'rot': 0,
+                    'polaroid': False, 'frame': False, **({} if inst else {'in': {'type': 'fade', 'at': 0, 'dur': .3}})})
+        marks = pr.get('marks', [])
+        run = max(.6, len(marks) * step)
+        for i, (fx, fy) in enumerate(marks):
+            d = max(18, w * .075)
+            els.append({'type': 'svg', 'svg': _ring_svg(), 'w': d, 'h': d, 'x': round(cx - w / 2 + fx * w, 1), 'y': round(cy - h / 2 + fy * h, 1),
+                        'in': {'type': 'pop', 'at': round(t0 + i * run / max(1, len(marks)), 2)}})
+        size = 96 if two else 120
+        ny = cy + h / 2 + (22 if two else 110) + size * .5
+        els.append({'type': 'text', 'text': str(pr['count']), 'font': 'title', 'size': size, 'color': GOLD, 'x': cx, 'y': ny, 'w': w, 'align': 'center',
+                    **({} if inst else {'in': {'type': 'pop', 'at': round(t0 + run, 2)}})})   # the rings count, then the number lands
+        if pr.get('label'):
+            els.append({'type': 'text', 'text': pr['label'], 'font': 'ui', 'size': 22 if two else 26, 'color': ink, 'opacity': .85,
+                        'x': cx, 'y': ny + size * .78, 'w': w + 20, 'align': 'center'})
+        if pr.get('credit'):
+            els.append({'type': 'text', 'text': short_credit(pr['credit']), 'font': 'cap', 'size': 15, 'color': PAPER, 'paper': INK,
+                        'x': cx, 'y': cy - h / 2 - 16, 'w': w, 'align': 'center', 'depth': 0})
+    return {'theme': theme, 'floor': False, 'elements': els, 'camera': _cam(dur, 1.0, 1.03, 360, 600)}
+
+
+BUILDERS = {'kinetic_type': b_kinetic_type, 'jewel_photo': b_jewel_photo, 'animated_timeline': b_animated_timeline, 'map': b_map,
             'technical_illustration': b_technical_illustration, 'paper_cut': b_paper_cut, 'parallax_25d': b_parallax_25d,
             'archival_collage': b_archival_collage, 'product_macro': b_product_macro, 'neutral_placeholder': b_neutral_placeholder,
             'newspaper_card': b_newspaper_card, 'dark_keynote': b_dark_keynote, 'swiss_grid': b_swiss_grid,
@@ -760,6 +799,7 @@ BUILDERS = {'kinetic_type': b_kinetic_type, 'animated_timeline': b_animated_time
             'archive_photo': b_archive_photo, 'blueprint': b_blueprint,
             'watch_movement': b_watch_movement, 'paper_cutout': b_paper_cutout, 'stat_counter': b_stat_counter, 'part_of_whole': b_part_of_whole, 'trend_chart': b_trend_chart, 'compare_bars': b_compare_bars}
 NEEDS_ASSETS = {'archival_collage': lambda p: [ph['asset'] for ph in p.get('photos', [])],
+                'jewel_photo': lambda p: [pr['asset'] for pr in p.get('prints', [])],
                 'product_macro': lambda p: [p['asset']], 'product_reveal': lambda p: [p['asset']], 'archive_photo': lambda p: [p['asset']],
                 'blueprint': lambda p: [p['asset']], 'paper_cutout': lambda p: [p['asset']] if p.get('asset') else []}
 

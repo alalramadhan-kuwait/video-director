@@ -54,8 +54,10 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    (`references/storytelling.md`).
    Then the reader panel (rule 6d, `references/reader-panel.md`): a novice, a medium and an expert reader, a
    filter, and their vote, before the owner sees it.
-3. **Voice** — the owner's chosen voice: **Nasser AlJubaily** on ElevenLabs (voice cFUFIbKkO2iZFwS8cRnY, a Saudi
-   «white dialect», warm storyteller; the owner, 1 Nov 2026: «عجبني ناصر», after «وايد واضح انه صوت الي»).
+3. **Voice** — the owner's own voice: **«Ali TK»**, the voice the owner cloned on ElevenLabs (voice WBd6y9HGGbIZZafgVlGr;
+   1 Nov 2026: «I create voice in eleven labs can you use it?» … «Yes»). Before it: Nasser AlJubaily (cFUFIbKkO2iZFwS8cRnY),
+   chosen after «وايد واضح انه صوت الي». A cloned voice can add a word the script does not have (it said «مرحبا»):
+   send each line with previous_text only (no next_text) and Whisper-check every line against the script.
    eleven_multilingual_v2, seed 1234, stability .4, similarity .8, style .2, speaker boost, **speed 1.0 and no atempo**
    (speeding it up is what made the voice sound artificial), and each line sent with `previous_text`/`next_text` so the
    delivery flows across lines. A film that runs long is cut in the script (with the owner), never sped up. Silence

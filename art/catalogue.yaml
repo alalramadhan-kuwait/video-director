@@ -58,6 +58,13 @@ templates:
     about: years on a drawn line, one card each (2–4 events)
     example: {events: [{year: '1926', label: أويستر · أول علبة محكمة}, {year: '1953', label: صبمارينر · ١٠٠ متر}, {year: '1960', label: «ديب سي» · قاع ماريانا, hero: true}]}
   # ---------------------------------------------------------------- technical
+  - id: jewel_photo
+    status: implemented
+    purpose: [mechanism, number, product]
+    name_ar: حجار محرك حقيقي
+    about: real movement photos, their visible jewels ringed one by one, then the calibre's jewel count lands
+    example: {prints: [{asset: m17, desc: a 17-jewel movement, aspect: 1.5, marks: [[0.4, 0.5]], count: 17, label: Omega 321}]}
+
   - id: technical_illustration
     status: implemented
     purpose: [mechanism, detail]
