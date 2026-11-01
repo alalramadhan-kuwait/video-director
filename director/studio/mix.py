@@ -38,12 +38,13 @@ TICK_UNDER = 36                       # dB under the voice at most: a repetitive
 REPETITIVE = {'tick', 'tock', 'tick_pair', 'tick_slow', 'watch_run'}
 MUSIC_UNDER = 14                      # dB under the voice's measured level, the music in the pauses: the master's limiter
                                       # brings the voice ~3-4 dB nearer, so pauses land 7-10 dB under it in the film
-SHOT_UNDER = (3, 6)                   # dB under the voice, a one-shot effect
+SHOT_UNDER = (16, 20)                 # dB under the voice, a one-shot effect: felt, not heard (the owner: «the sound effects
+                                      # are really bad and it's affecting the focus»; it was 3-6 under)
 STRIKES = {'tower_strike', 'gavel', 'bell', 'bell_far', 'chime', 'stamp'}   # a strike rings out: a hit, whatever its tail
 LONG_SHOT, LONG_UNDER = 2.0, 20       # an effect that runs over 2 s (a train passing, a horn, footsteps) is levelled
                                       # like a bed: its running level 20 dB under the voice, not its peak 3-6 under
 LEAD = 0.5                            # s: a bed starts this long before its cut
-PER_MINUTE = 15
+PER_MINUTE = 6                        # was 15: a cue every 4 s pulled the ear off the story
 PAPER = {'paper_place', 'paper_slide', 'fold', 'tape', 'paper_tear'}
 PAPER_GAP, PAPER_MAX = 0.8, 2
 # how much a sound matters to the story when the film has too many: the least important go first
@@ -205,18 +206,20 @@ def levels(scenes: list[dict], voice_db: dict[int, float], sfx_dir: Path | None 
                 if v is not None: b['settle'] = round(b['gain'] - max(0, BED_SETTLE - _aim(b['name'])), 1)
         if v is None: continue
         for c in sc.get('sfx', []):
-            if c.get('fixed') or c.get('endcard'): continue
+            asked = c.get('gain') if (c.get('fixed') or c.get('endcard')) else None
             f = sound_file(c['name'], False, sfx_dir)
             if f and seconds(str(f)) > LONG_SHOT and c['name'] not in STRIKES:   # the owner: «صوت القطار لا زال عالي»
                 lv = level(str(f), 'active')
                 if lv is not None: c['gain'] = round(v - LONG_UNDER - lv, 1)
+                if asked is not None: c['gain'] = min(asked, c.get('gain', asked))
                 continue
             lv = f and level(str(f), 'peak')
             if lv is None: continue
             g = c.get('gain', -12)
-            under = SHOT_UNDER[1] - (SHOT_UNDER[1] - SHOT_UNDER[0]) * min(1, max(0, (g + 20) / 12))     # -20 dB -> 6 under, -8 -> 3
+            under = SHOT_UNDER[1] - (SHOT_UNDER[1] - SHOT_UNDER[0]) * min(1, max(0, (g + 20) / 12))     # -20 dB -> 20 under, -8 -> 16
             if c['name'] in PAPER: under = SHOT_UNDER[1]
             c['gain'] = round(v + 3 - under - lv, 1)        # the voice's loudest moments run ~3 dB over its spoken mean
+            if asked is not None: c['gain'] = min(asked, c['gain'])          # the film's own gain, never louder than this
 
 
 def settle(scenes: list[dict]) -> None:
@@ -243,6 +246,21 @@ def jcut(scenes: list[dict], lead: float = LEAD) -> None:
                 b['lead'] = lead
 
 
+def recorded_only(scenes: list[dict], sfx_dir: Path | None) -> list[dict]:
+    """Only real recorded sounds (the film's `sounds:`, fetched into sfx_dir) play as one-shots; the synthetic kit
+    (whoosh, shutter, click, chime, stamp, sonar…) is dropped, even where the film file asked for it. The owner: «the
+    sound effects are really bad and it's affecting the focus». Returns the cues dropped."""
+    real = {f.stem for f in Path(sfx_dir).glob('*.wav')} if sfx_dir and Path(sfx_dir).is_dir() else set()
+    out = []
+    for sc in scenes:
+        keep = []
+        for c in sc.get('sfx', []):
+            (keep if c['name'] in real else out).append(c)
+            if c['name'] not in real: out[-1] = {'name': c['name'], 'scene': sc.get('id'), 'why': 'synthetic'}
+        sc['sfx'] = keep
+    return out
+
+
 def apply(scenes: list[dict], voice_db: dict[int, float] | None = None, per_minute: int = PER_MINUTE,
           sfx_dir: Path | None = None, bed_gain: float = 0.0) -> dict:
     """The whole mix on the film's scenes (the end card included, last). Returns a report: one-shots kept and dropped,
@@ -251,6 +269,7 @@ def apply(scenes: list[dict], voice_db: dict[int, float] | None = None, per_minu
         if sc.get('endcard'):
             for c in sc.get('sfx', []): c['endcard'] = True
     paper_cues(scenes)
+    synthetic = recorded_only(scenes, sfx_dir)
     dropped = cap(scenes, per_minute)
     jcut(scenes)
     levels(scenes, voice_db or {}, sfx_dir, bed_gain)
@@ -262,5 +281,5 @@ def apply(scenes: list[dict], voice_db: dict[int, float] | None = None, per_minu
             c.pop('endcard', None); c.pop('owner', None); c.pop('fixed', None)
         for b in sc.get('beds', []):
             b.pop('fixed', None)
-    return {'one_shots': n, 'per_minute': round(n / max(total, 1) * 60, 1), 'dropped': dropped,
+    return {'one_shots': n, 'per_minute': round(n / max(total, 1) * 60, 1), 'dropped': dropped, 'synthetic': synthetic,
             'beds': [s.get('id') for s in scenes if s.get('beds')]}

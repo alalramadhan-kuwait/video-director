@@ -909,6 +909,13 @@
         const rr = sc.bannerTilt + (sc.bannerKeep ? 0 : (1 - kk) * -7);
         sc.banner.style.transform = 'translate(' + (S.width / 2) + 'px,' + (sc.bannerY + dy) + 'px) rotate(' + rr.toFixed(2) + 'deg)';
         sc.banner.style.opacity = sc.bannerKeep ? 1 : clamp((lt - at) * 10);
+        if (sc.spec.bannerOut != null) {                          // the banner leaves before the scene's card or line
+          const q = clamp((lt - sc.spec.bannerOut) / 0.35);       // (captions + one block of words at a time)
+          if (q > 0) {
+            sc.banner.style.opacity = (1 - q).toFixed(3);
+            sc.banner.style.transform = 'translate(' + (S.width / 2) + 'px,' + (sc.bannerY - q * 40) + 'px) rotate(' + rr.toFixed(2) + 'deg)';
+          }
+        }
       }
     });
     setCaptions(t);
