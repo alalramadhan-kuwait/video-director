@@ -204,24 +204,30 @@ JEWELS_EXTRA = [(-.38, -.34), (-.33, -.29), (.12, .47), (-.09, .54)]
 
 
 def _movement(cx, cy, R, ink, n, t0, step, label_at, extra_from=None, instant=False):
-    """One movement of radius R at (cx, cy): plate, wheels, then `n` jewels lighting up one by one from t0 (the
-    ones past `extra_from` in gold), then its count. `instant`: plate and wheels already drawn on frame 0 (a hook)."""
-    q = .01 if instant else 1
-    paths = [{'d': _circle(R, R, R * .98), 'at': 0, 'dur': .7 * q, 'stroke': ink, 'width': 3, 'fill': '#16161A', 'fillAt': .2 * q, 'fillDur': .4 * q}]
-    for k, (x, y, r) in enumerate(WHEELS):
-        paths.append({'d': _circle(R + x * R, R + y * R, r * R), 'at': (.25 + k * .08) * q, 'dur': .5 * q, 'stroke': '#6E6A60', 'width': 2})
-    els = [{'type': 'sketch', 'x': cx, 'y': cy, 'w': 2 * R, 'h': 2 * R, 'paths': paths, 'technical': True, 'pencil': False}]
-    spots = JEWELS17 + JEWELS_EXTRA
-    for i in range(n):
-        x, y = spots[i]
-        gold = extra_from is not None and i >= extra_from
-        d = max(9, round(R * .085))
-        els.append({'type': 'shape', 'kind': 'circle', 'w': d, 'h': d, 'x': round(cx + x * R, 1), 'y': round(cy + y * R, 1),
-                    'color': GOLD if gold else '#C21F3A', 'in': {'type': 'pop', 'at': round(t0 + i * step, 2)}})
-    size = max(64, min(110, int(R * .5)))
-    els.append({'type': 'text', 'text': str(n), 'font': 'title', 'size': size, 'color': GOLD if extra_from else ink,
-                'x': cx, 'y': cy + R + 18 + size * .5, 'w': 2 * R, 'align': 'center',
-                **({} if instant else {'in': {'type': 'rise', 'at': label_at}})})   # a hook shows its numbers on frame 0
+    """One movement of radius R at (cx, cy), drawn as a real one looks from the back (movement_svg.py), its visible
+    jewels lighting up while a counter runs to `n`; a 21 adds four jewels ringed in gold. `instant`: on screen with
+    its number from frame 0 (a hook)."""
+    from . import movement_svg as M
+    D = 2 * R
+    els = [{'type': 'svg', 'svg': M.plate_svg(f'{n} JEWELS'), 'w': D, 'h': D, 'x': cx, 'y': cy,
+            **({} if instant else {'in': {'type': 'fade', 'at': 0, 'dur': .35}})}]
+    js = D * 34 / 600
+    seen = M.VISIBLE + (M.EXTRA if extra_from is not None else [])
+    run = max(.6, (17 if extra_from is None else 17) * step)
+    for i, (x, y) in enumerate(seen):
+        gold = i >= len(M.VISIBLE)
+        at = t0 + (i * run / len(M.VISIBLE) if not gold else run + (i - len(M.VISIBLE)) * .25)
+        els.append({'type': 'svg', 'svg': M.jewel_svg(gold), 'w': js, 'h': js, 'x': round(cx - R + x * D / 600, 1),
+                    'y': round(cy - R + y * D / 600, 1), 'in': {'type': 'pop', 'at': round(at, 2)}})
+    size = max(64, min(120, int(R * .55)))
+    end = t0 + run + (1.0 if extra_from is not None else 0)
+    if instant:
+        els.append({'type': 'text', 'text': str(n), 'font': 'title', 'size': size, 'color': GOLD if extra_from else ink,
+                    'x': cx, 'y': cy + R + 18 + size * .5, 'w': D, 'align': 'center'})
+    else:                                                # the count runs up while the jewels light
+        els.append({'type': 'kit', 'still': True, 'colors': {'ink': GOLD if extra_from else ink, 'acc': GOLD, 'clay': '#8A6A3A', 'mut': '#A8A49A'},
+                    'draw': [{'fn': 'odometer', 's': t0, 'dur': max(.6, end - t0), 'val': n, 'cx': cx * 1.5,
+                              'cy': (cy + R + 18 + size * .5) * 1.5, 'size': size * 1.5, 'prefix': '', 'suffix': ''}]})
     return els
 
 
@@ -231,10 +237,10 @@ def _jewels(p, ink, dur):
     counts, t0, step = p.get('counts', [17, 21]), p.get('at', .5), p.get('step', .09)
     if len(counts) == 1:
         n = counts[0]
-        return _movement(360, 540, 200, ink, n, t0, step, t0 + n * step, extra_from=17 if n > 17 else None, instant=p.get('instant'))
+        return _movement(360, 520, 235, ink, n, t0, step, t0 + n * step, extra_from=17 if n > 17 else None, instant=p.get("instant"))
     els = []
-    for (cx, n) in zip((525, 195), counts):              # right to left: the first number on the right (RTL)
-        els += _movement(cx, 560, 140, ink, n, t0, step, t0 + n * step, extra_from=17 if n > 17 else None, instant=p.get('instant'))
+    for (cx, n) in zip((522, 198), counts):              # right to left: the first number on the right (RTL)
+        els += _movement(cx, 560, 132, ink, n, t0, step, t0 + n * step, extra_from=17 if n > 17 else None, instant=p.get('instant'))
     return els
 
 

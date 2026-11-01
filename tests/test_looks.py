@@ -35,12 +35,20 @@ class DataLook(unittest.TestCase):
         cr = [e for e in sc['elements'] if e.get('type') == 'text' and e.get('font') == 'cap'][0]
         self.assertEqual(cr['paper'], '#0B0B0B'); self.assertEqual(cr['color'], looks.SAND)
 
-    def test_two_movements_light_17_and_21_jewels_the_four_extra_in_gold(self):
+    def test_two_movements_drawn_as_real_ones_the_21_with_four_more_jewels(self):
         els = art.scene_visual('technical_illustration', {'kind': 'jewels', 'counts': [17, 21], 'instant': True}, 'tk-black', 5)['elements']
-        dots = [e for e in els if e.get('type') == 'shape']
-        self.assertEqual(len(dots), 38)
-        self.assertEqual(sum(1 for e in dots if e['color'] == art.GOLD), 4)
-        self.assertEqual(sorted(e['text'] for e in els if e.get('type') == 'text' and e['text'].isdigit()), ['17', '21'])
+        plates = [e for e in els if e.get('type') == 'svg' and 'JEWELS' in e['svg']]
+        self.assertEqual(len(plates), 2)
+        self.assertIn('id="geneve', plates[0]['svg'])                          # Geneva stripes: drawn as a real movement looks
+        self.assertNotEqual(plates[0]['svg'], plates[1]['svg'])                  # each drawing has its own ids (a hidden scene's gradients don't paint)
+        jewels = [e for e in els if e.get('type') == 'svg' and 'JEWELS' not in e['svg']]
+        from director.studio import movement_svg as M
+        self.assertEqual(len(jewels), 2 * len(M.VISIBLE) + len(M.EXTRA))
+
+    def test_a_movement_counts_its_jewels_up(self):
+        els = art.scene_visual('technical_illustration', {'kind': 'jewels', 'counts': [17]}, 'tk-black', 5)['elements']
+        kit = [e for e in els if e.get('type') == 'kit']
+        self.assertEqual(kit[0]['draw'][0]['val'], 17)
 
     def test_a_hook_s_movements_show_their_numbers_on_frame_0(self):
         els = art.scene_visual('technical_illustration', {'kind': 'jewels', 'counts': [17, 21], 'instant': True}, 'tk-black', 5)['elements']
