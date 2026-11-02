@@ -18,9 +18,12 @@ accent colour from the topic (ruby red for jewels), the TK overlay on every slid
 - **The language is Kuwaiti** by default (the kit), or the film's `language:` from the script library; watch terms in
   English. `director/carousel.py` holds the slides to the language's words.
 - **Facts verified** as for a Reel (reuse the Reel's sources); institutions in their own words.
-- **People:** a slide about a person shows that person, from the owner's `people/` portraits or one they attach. **Do
-  not download portraits of real people from the web for a carousel**: list the missing names to the owner in one
-  line, and meanwhile show the slide's object with the person's name and verified years under the title (`name`).
+- **People:** a slide about a person shows that person, as a real photo: from the owner's `people/` portraits, one they
+  attach, or the person's own official press kit (made for the press; credit it «ملف X الصحفي» in the caption). A real
+  photo beats an AI drawing of them (the owner, 2 Nov 2026: «استخدم صوره حقيقيه له افضل»). Never other photos of real
+  people from the web: when none of those has one, list the missing names to the owner in one line, and meanwhile show
+  the slide's object with the person's name and verified years under the title (`name`). A photo with its background
+  stays a rounded photo (rembg frays hair and faces), padded so it sits inside the slide.
 - **Images:** frames of the matching Reel, the owner's own photos, or Higgsfield (credits, confirm the cost first);
   never brand press photos from the web. Each slide image is a clean cut-out
   (`var/cutenv/bin/python tools/cutout_photo.py frame.png cut.png`). The cover is a full-bleed photo.
