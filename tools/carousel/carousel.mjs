@@ -31,6 +31,7 @@ body{font-family:TK,sans-serif;direction:rtl;background:${PAPER};color:${INK};po
 .nm{font-size:28px;font-weight:500;opacity:.75;direction:ltr;text-align:right;margin:-14px 0 22px}
 .bd{font-size:40px;font-weight:500;line-height:1.55}
 .bd b{color:${ACCENT};font-weight:800}
+.ask{font-size:58px;font-weight:800;line-height:1.3;color:${ACCENT};margin-top:26px}
 .rule{width:120px;height:6px;background:${ACCENT};margin:0 0 26px auto}`;
 const LAYOUTS = {
   topImage: { fig: 'left:-40px;top:130px;width:1160px;height:700px;object-fit:contain', txt: 'right:80px;left:80px;top:850px' },
@@ -58,7 +59,7 @@ function slideHtml(s, i, n) {
   const fig = (s.watch && WHOLE[name]) || L.fig;
   return `<html><head><style>${css}</style></head><body>${s.image ? `<img class="fig" style="${fig}" src="${A(s.image)}">` : ''}
   <div class="txt" style="${L.txt}"><div class="num">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</div><div class="rule"></div>
-  <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div></div>${overlay(true)}</body></html>`;
+  <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div>${s.ask ? `<div class="ask">${s.ask}</div>` : ''}</div>${overlay(true)}</body></html>`;
 }
 const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
 fs.mkdirSync(outDir, { recursive: true }); const files = [];
