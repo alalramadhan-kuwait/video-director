@@ -189,7 +189,7 @@ class TestOmniVoicePlugin(unittest.TestCase):
             voice.generate(args)
 
     def test_skill_copies_match(self):
-        for name in ['arabic-narration', 'video-director']:
+        for name in ['arabic-narration', 'reel-master']:
             source = ROOT / 'skills' / name
             target = ROOT / '.claude/skills' / name
             for p in source.rglob('*'):

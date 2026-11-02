@@ -1,14 +1,4 @@
----
-name: arabic-narration
-description: >-
-  تعليق صوتي عربي محلي باستخدام OmniVoice عند طلبه، أو مسار Fasih: Fasih-TTS-V1 بصوت مرجعي، تشكيل كامل بالإعراب يكتبه Claude بسياق الجملة مع فحوص حماية،
-  قاموس نطق للمشروع، اختيار أفضل محاولة بالفونيمات، وصفحة يسمع فيها المستخدم الحلقة كاملة ويضغط على الكلمة الغلط.
-  Use this skill whenever the user wants Arabic (MSA / فصحى) voiceover, narration, or TTS for a video, series episode,
-  podcast, ad, or explainer; asks for a free Arabic voice; complains that an Arabic voice mispronounces words, case
-  endings (إعراب), tashkeel, medical or foreign terms; wants to review, mark, or fix narration word by word; or asks
-  how to check Arabic pronunciation automatically — even if they only say «سجّل الصوت», «الصوت ينطق غلط», or
-  «جهز التعليق للحلقة». Also use it before trusting Whisper scores on Arabic audio.
----
+<!-- Part of the reel-master skill (skills/reel-master/SKILL.md, step 4): the free Arabic voice engines. Not a skill of its own. -->
 
 # تعليق صوتي عربي فصيح — نظام النطق المجرّب
 

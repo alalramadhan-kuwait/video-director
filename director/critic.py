@@ -22,7 +22,7 @@ from PIL import Image, ImageDraw, ImageFont
 from . import quality
 
 FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
-RULES = 'skills/video-director/references/storytelling.md'
+RULES = 'skills/reel-master/references/storytelling.md'
 
 
 def _font(size):

@@ -1,7 +1,7 @@
 {
   "name": "video-director",
-  "version": "0.6.0",
-  "description": "Arabic-first short documentary videos for Time Keeper: research with sources, script, free Arabic narration, real licensed photos first, paper-story motion graphics, one Instagram-ready film. Every important step waits for the owner's approval; nothing paid runs by itself.",
+  "version": "0.7.0",
+  "description": "One master skill (reel-master) for Time Keeper Reels: idea → research → hook and script in the house style → reader panel → voice (one take per act) → pace and transitions → a style from the library (engine looks, 66 code-film styles, Wood Marquetry, AI route) → real credited photos → film → critic → cover, caption and credits. The owner approves the hook, the script, the style and the finished film; nothing paid runs without a yes.",
   "author": {
     "name": "Time Keeper"
   }

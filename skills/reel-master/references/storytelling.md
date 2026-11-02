@@ -20,7 +20,7 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
    لسؤالنا…»). A line that only opens on a date («وفي 1902…») is not led into: say what the jump of years carried
    («وبقي الياقوت غاليًا قرنين… حتى…»); make_film flags it. **When a script is cut for length, cut a fact, never a
    bridge**: the rubies film lost its bridges to cuts and the ideas jumped. The sound follows the same acts: the voice
-   is one take per act (SKILL.md step 3, `tools/record_flow.py`), and the cuts follow them too (rule 18e).
+   is one take per act (SKILL.md step 4, `tools/record_flow.py`), and the cuts follow them too (rule 18e).
 4. **Explain why** ✓ — every change (a new material, a new design, a new partner) says its reason (`change: true` +
    `because:`), in the narration itself: why Rolex, why the crown bridge, why radium was replaced.
    The same for a fact the listener cannot place: say what it means (not «he bought his first tower clock at eleven»

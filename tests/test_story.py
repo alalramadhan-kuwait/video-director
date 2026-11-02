@@ -185,10 +185,10 @@ class TestRulesLiveInThePlugin(unittest.TestCase):
     def test_the_owner_standards_ship_with_the_plugin_and_the_studio(self):
         from director.copilot import ai
         for root in ('skills', '.claude/skills'):
-            rules = (engine.ROOT / root / 'video-director/references/storytelling.md').read_text()
+            rules = (engine.ROOT / root / 'reel-master/references/storytelling.md').read_text()
             for must in ('In order', 'led into', 'Explain why', 'Sadness for human moments', 'historical photograph',
                          'Each scene shows only what is said', 'Never imply a link', 'city_zoom', 'merge your own pull requests'):
                 self.assertIn(must, rules, (root, must))
-            self.assertIn('references/storytelling.md', (engine.ROOT / root / 'video-director/SKILL.md').read_text())
+            self.assertIn('references/storytelling.md', (engine.ROOT / root / 'reel-master/SKILL.md').read_text())
         self.assertIn('chronological order', ai.SYSTEM['script'])
         self.assertIn('only what its own line says', ai.system_prompt('art_brief'))
