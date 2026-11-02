@@ -69,7 +69,7 @@ class ReaderQuestion(unittest.TestCase):
     def test_the_renderer_sets_it_large(self):
         src = carousel.RENDERER.read_text(encoding='utf-8')
         self.assertIn('class="ask"', src)
-        self.assertIn('.ask{font-size:58px', src)
+        self.assertIn('.ask{font-size:${SIZE.ask}px', src)
 
 
 @unittest.skipUnless(shutil.which('node'), 'node is not installed')
@@ -101,3 +101,47 @@ class WholeWatch(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TextSize(unittest.TestCase):
+    """The owner: «the size of the text, it is small… increase it about 10%». One size table in the renderer, the same
+    in the studio's editor, each at least 10% over the old (title 74, body 40, question 58, name 28, number 30, cover 78)."""
+    OLD = {'title': 74, 'body': 40, 'ask': 58, 'name': 28, 'num': 30, 'cover': 78}
+
+    @staticmethod
+    def table(src, pat):
+        import re
+        return {k: int(v) for k, v in re.findall(r'(\w+): (\d+)', re.search(pat, src).group(1))}
+
+    def test_ten_percent_bigger_and_the_editor_in_step(self):
+        mjs = self.table(carousel.RENDERER.read_text(encoding='utf-8'), r'const SIZE = \{([^}]*)\}')
+        page = (carousel.RENDERER.parents[2] / 'studio-page/index.html').read_text(encoding='utf-8')
+        kit = self.table(page, r'SIZE: \{([^}]*)\}')
+        self.assertEqual(mjs, kit)
+        for k, old in self.OLD.items():
+            self.assertGreaterEqual(mjs[k], round(old * 1.09), k)
+
+
+@unittest.skipUnless(shutil.which('node'), 'node is not installed')
+class Fit(unittest.TestCase):
+    """Bigger text takes room from the picture (topImage, bottomImage); when the picture would be squeezed too small,
+    or the text runs off the slide, the renderer says so (WARN), and make.py prints it."""
+    def render(self, body, layout='topImage'):
+        from PIL import Image
+        d = Path(tempfile.mkdtemp())
+        Image.new('RGB', (800, 600), 'gray').save(d / 'p.png'); Image.new('RGB', (1080, 1350), 'gray').save(d / 'c.jpg')
+        s = {'cover': {'top': 'ليش', 'bottom': 'ياقوت؟', 'image': 'c.jpg'}, 'slides': [{'title': 'عنوان قصير', 'body': body, 'image': 'p.png', 'layout': layout}]}
+        (d / 'spec.json').write_text(__import__('json').dumps(s, ensure_ascii=False), encoding='utf-8')
+        try:
+            return carousel.render_report(d / 'spec.json', d / 'out')
+        except (subprocess.CalledProcessError, FileNotFoundError) as e:
+            self.skipTest(f'no browser to render with: {e}')
+
+    def test_a_normal_slide_fits(self):
+        files, warns = self.render(' '.join(['كلمة'] * 30))
+        self.assertEqual(len(files), 2); self.assertEqual(warns, [])
+
+    def test_too_much_text_is_named(self):
+        for layout in ('topImage', 'bottomImage'):
+            files, warns = self.render(' '.join(['كلمة طويلة'] * 60), layout)
+            self.assertTrue(any(w.startswith('slide 1:') for w in warns), (layout, warns))

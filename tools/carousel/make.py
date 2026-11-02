@@ -30,7 +30,8 @@ def main(argv=None) -> int:
     for p in problems: print('  ' + p)
     if not caption: print('  caption.txt is missing (2 lines and 3–5 hashtags, the photo credits)')
     if a.check_only: return 1 if problems else 0
-    files = carousel.render(folder / 'spec.json', folder / 'out')
+    files, drawn = carousel.render_report(folder / 'spec.json', folder / 'out')
+    for w in drawn: print('  ' + w)
     sheet(files, folder / 'out' / 'sheet.jpg')
     for f in files: print('FILE:' + str(f))
     print('SHEET:' + str(folder / 'out' / 'sheet.jpg'))

@@ -471,6 +471,8 @@ const KIT = {
   FIG: { topImage: [-40, 130, 1160, 700], rightBleed: [480, 200, 900, 950], leftBleed: [-300, 200, 900, 950], bottomImage: [-20, 650, 1120, 760], bigCorner: [-200, 800, 880, 850] },
   WHOLE: { topImage: [60, 150, 960, 680], bottomImage: [60, 680, 960, 620] },
   NORMAL: 1.5,                                   // CSS line-height: normal for the kit's font (calibrated against carousel.mjs)
+  SIZE: { title: 81, body: 44, ask: 64, name: 31, num: 33, cover: 86 },   // the owner: «increase it about 10%» (was 74/40/58/28/30/78)
+  BOTTOM: 1290, GAP: 24, PIC_MIN: 420,           // topImage/bottomImage: the picture takes the room the text leaves
 };
 const AR = /[ء-ي]/;
 let kitFonts = null; const kitImgs = {};
@@ -549,7 +551,7 @@ async function kitSlide(canvas, spec, base, k) {          // k = 0: the cover; k
     const ov = await kitImg(`carousel-kit/${light ? 'Black' : 'White'}_temp.png`); if (ov) ctx.drawImage(ov, 0, -25, KIT.W, KIT.H);
     const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
     const rows = [c.top, c.bottom].filter(Boolean).map((s) => {
-      let px = 78; ctx.font = kfont(800, px);
+      let px = KIT.SIZE.cover; ctx.font = kfont(800, px);
       const tw = () => tokens(s).reduce((a, t, i) => a + ctx.measureText(t.t).width + (i ? ctx.measureText(' ').width : 0), 0);
       while (tw() + 44 > 940 && px > 32) { px -= 2; ctx.font = kfont(800, px); }
       return { s, px, w: tw() + 44, h: px * 1.02 + 11 };
@@ -560,26 +562,35 @@ async function kitSlide(canvas, spec, base, k) {          // k = 0: the cover; k
       drawLines(ctx, [wrap(ctx, tokens(r.s), 9999, r.px, 800)[0]], KIT.W - 52 - 22, y + 5, r.px, r.px * 1.02, 800, box[1], box[1]);
       y += r.h + 7;
     }
-    info.coverPx = Math.min(...rows.map((r) => r.px), 78);
+    info.coverPx = Math.min(...rows.map((r) => r.px), KIT.SIZE.cover);
     return info;
   }
-  const s = spec.slides[k - 1], n = spec.slides.length, name = s.layout || KIT.ORDER[(k - 1) % 5];
+  const s = spec.slides[k - 1], n = spec.slides.length, name = s.layout || KIT.ORDER[(k - 1) % 5], Z = KIT.SIZE;
   ctx.fillStyle = spec.paper || KIT.PAPER; ctx.fillRect(0, 0, KIT.W, KIT.H);
+  const [right, left, top0] = KIT.TXT[name], width = KIT.W - right - left, R = KIT.W - right;
+  const tl = wrap(ctx, tokens(s.title, true), width, Z.title, 800), bl = wrap(ctx, tokens(s.body), width, Z.body, 500), al = s.ask ? wrap(ctx, tokens(s.ask, true), width, Z.ask, 800) : [];
+  const h = Z.num * KIT.NORMAL + 18 + 6 + 26 + tl.length * Z.title * 1.12 + 26 + (s.name ? Z.name * KIT.NORMAL + 8 : 0)
+    + bl.length * Z.body * 1.55 + (al.length ? 26 + al.length * Z.ask * 1.3 : 0);
+  const top = name === 'topImage' ? Math.min(top0, KIT.BOTTOM - h) : top0;
   const im = s.image && await kitImg(base + s.image);
-  if (im) { const r = contain(im, (s.watch && KIT.WHOLE[name]) || KIT.FIG[name]); ctx.drawImage(im, ...r); info.figTop = r[1]; info.figBottom = r[1] + r[3]; }
-  const ov = await kitImg('carousel-kit/Black_temp.png'); if (ov) ctx.drawImage(ov, 0, -25, KIT.W, KIT.H);
-  const [right, left, top] = KIT.TXT[name], width = KIT.W - right - left, R = KIT.W - right;
-  let y = top;
-  ctx.font = kfont(800, 30); ctx.fillStyle = accent; ctx.direction = 'ltr'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-  ctx.fillText(`${String(k).padStart(2, '0')} / ${String(n).padStart(2, '0')}`, R, y + 30 * KIT.NORMAL / 2); y += 30 * KIT.NORMAL + 18;
-  ctx.fillStyle = accent; ctx.fillRect(R - 120, y, 120, 6); y += 6 + 26;
-  y = drawLines(ctx, wrap(ctx, tokens(s.title, true), width, 74, 800), R, y, 74, 74 * 1.12, 800, ink, ink) + 26;
-  if (s.name) {
-    y -= 14; ctx.font = kfont(500, 28); ctx.globalAlpha = .75; ctx.fillStyle = ink; ctx.direction = 'ltr'; ctx.textAlign = 'right';
-    ctx.fillText(s.name, R, y + 28 * KIT.NORMAL / 2); ctx.globalAlpha = 1; y += 28 * KIT.NORMAL + 22;
+  if (im) {
+    let box = [...((s.watch && KIT.WHOLE[name]) || KIT.FIG[name])];
+    if (name === 'topImage') box[3] = Math.max(0, top - KIT.GAP - box[1]);
+    if (name === 'bottomImage') { const y0 = top + h + KIT.GAP; box = [box[0], y0, box[2], Math.max(0, (s.watch ? 1300 : 1410) - y0)]; }
+    const r = contain(im, box); ctx.drawImage(im, ...r); info.figTop = r[1]; info.figBottom = r[1] + r[3]; info.figH = box[3];
   }
-  y = drawLines(ctx, wrap(ctx, tokens(s.body), width, 40, 500), R, y, 40, 40 * 1.55, 500, ink, accent);
-  if (s.ask) y = drawLines(ctx, wrap(ctx, tokens(s.ask, true), width, 58, 800), R, y + 26, 58, 58 * 1.3, 800, accent, accent);
+  const ov = await kitImg('carousel-kit/Black_temp.png'); if (ov) ctx.drawImage(ov, 0, -25, KIT.W, KIT.H);
+  let y = top;
+  ctx.font = kfont(800, Z.num); ctx.fillStyle = accent; ctx.direction = 'ltr'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${String(k).padStart(2, '0')} / ${String(n).padStart(2, '0')}`, R, y + Z.num * KIT.NORMAL / 2); y += Z.num * KIT.NORMAL + 18;
+  ctx.fillStyle = accent; ctx.fillRect(R - 120, y, 120, 6); y += 6 + 26;
+  y = drawLines(ctx, tl, R, y, Z.title, Z.title * 1.12, 800, ink, ink) + 26;
+  if (s.name) {
+    y -= 14; ctx.font = kfont(500, Z.name); ctx.globalAlpha = .75; ctx.fillStyle = ink; ctx.direction = 'ltr'; ctx.textAlign = 'right';
+    ctx.fillText(s.name, R, y + Z.name * KIT.NORMAL / 2); ctx.globalAlpha = 1; y += Z.name * KIT.NORMAL + 22;
+  }
+  y = drawLines(ctx, bl, R, y, Z.body, Z.body * 1.55, 500, ink, accent);
+  if (al.length) y = drawLines(ctx, al, R, y + 26, Z.ask, Z.ask * 1.3, 800, accent, accent);
   info.textBottom = y; info.layout = name;
   return info;
 }
@@ -600,7 +611,8 @@ function kitWarnings(spec, k, info) {
   const s = spec.slides[k - 1], n = words(s.body).length + words(s.ask).length, t = words(s.title).length;
   if (n < 12 || n > 32) out.push(`${n} كلمة؛ الشريحة من 12 لـ32`);
   if (t < 2 || t > 4) out.push(`العنوان ${t} كلمات؛ من 2 لـ4`);
-  if (info.figTop !== undefined && ['bottomImage', 'bigCorner'].includes(info.layout) && info.textBottom > info.figTop - 8) out.push('النص يدخل على الصورة: اختصره');
+  if (info.figH !== undefined && ['topImage', 'bottomImage'].includes(info.layout) && info.figH < KIT.PIC_MIN) out.push('النص طويل: الصورة صغرت وايد، اختصره');
+  else if (info.figTop !== undefined && info.layout === 'bigCorner' && info.textBottom > info.figTop - 8) out.push('النص يدخل على الصورة: اختصره');
   else if (info.textBottom > KIT.H) out.push('النص طويل: ينزل تحت الشريحة');
   if (k === spec.slides.length && !(s.ask || '').trim().endsWith('؟')) out.push('آخر شريحة تنتهي بسؤال للقارئ (؟)');
   return out;
@@ -622,6 +634,7 @@ function viewEdit(id) {
       + field('body', 'النص (الكلمة الملونة بين **نجمتين**)', toMark(s.body), true) + (k === sp.slides.length ? field('ask', 'سؤال القارئ (الكبير)', s.ask) : '');
   }
   h += `<label class="note" for="cap-ed" style="color:var(--ink);font-weight:700">الكابشن</label><textarea id="cap-ed" class="inp" data-ef="caption" maxlength="2200" style="min-height:140px">${esc(ed.caption)}</textarea>`;
+  h += `<label class="note" for="why-ed" style="color:var(--ink);font-weight:700">ليش غيّرته؟ <span style="font-weight:400">(اختياري، أتعلم منه للجاية)</span></label><input id="why-ed" class="inp" data-ef="why" maxlength="300" value="${esc(ed.why || '')}">`;
   h += `<div class="two"><button type="button" class="btn dark" data-act="edsave" data-id="${esc(id)}">احفظ${ed.dirty.size ? ` (${ed.dirty.size})` : ''}</button><button type="button" class="btn line" data-act="edcancel" data-id="${esc(id)}">إلغاء</button></div>`;
   if (f.history?.length) h += `<button type="button" class="chip" data-act="edundo" data-id="${esc(id)}">↶ رجّع النسخة السابقة (${esc(f.history[0].version || '')})</button>`;
   return h;
@@ -644,6 +657,7 @@ function bindEdit() {
   document.querySelectorAll('[data-ef]').forEach((el) => el.addEventListener('input', () => {
     const key = el.dataset.ef, v = el.value;
     if (key === 'caption') { ed.caption = v; return; }
+    if (key === 'why') { ed.why = v; return; }
     if (ed.k === 0) ed.spec.cover[key] = v;
     else ed.spec.slides[ed.k - 1][key] = key === 'body' ? fromMark(v) : v;
     ed.dirty.add(ed.k);
@@ -679,6 +693,32 @@ async function shareFilm(f, b) {
   catch (e) { if (e?.code !== 'declined') toast('ما قدرت أحفظ. جرّب مرة ثانية.'); }
   finally { b.disabled = false; }
 }
+// The owner: «I want you to understand every change I'm doing in the carousel so it can be updated for the future». Each
+// save keeps exactly what changed, before and after, field by field (and the owner's «ليش» when given): it goes with the
+// version's change log and the inbox note, and the session writes it into references/carousel-edits.md with its lesson.
+const ED_FIELDS = { top: 'السطر الأول', bottom: 'السطر الثاني', title: 'العنوان', name: 'الاسم', body: 'النص', ask: 'سؤال القارئ' };
+function edDiff(was, now, capWas, capNow) {
+  const out = [], plain = (h) => String(h || '').replace(/<b>([\s\S]*?)<\/b>/g, '**$1**').trim();
+  const pairs = [['الغلاف', was.cover || {}, now.cover || {}], ...now.slides.map((s, i) => [`الشريحة ${i + 1}`, was.slides?.[i] || {}, s])];
+  for (const [where, a, z] of pairs) for (const key of Object.keys(ED_FIELDS)) {
+    if (plain(a[key]) !== plain(z[key])) out.push({ where, field: ED_FIELDS[key], key, before: plain(a[key]), after: plain(z[key]) });
+  }
+  if ((capWas || '').trim() !== (capNow || '').trim()) out.push({ where: 'الكابشن', field: 'الكابشن', key: 'caption', before: capWas || '', after: capNow || '' });
+  return out;
+}
+function wdiff(a, z) {                                   // the changed runs of words: [[before, after], …]
+  const A = String(a || '').split(/\s+/).filter(Boolean), Z = String(z || '').split(/\s+/).filter(Boolean);
+  const L = A.map(() => Array(Z.length + 1).fill(0)).concat([Array(Z.length + 1).fill(0)]);
+  for (let i = A.length - 1; i >= 0; i--) for (let j = Z.length - 1; j >= 0; j--) L[i][j] = A[i] === Z[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const out = []; let i = 0, j = 0, cur = null;
+  const flush = () => { if (cur) out.push([cur[0].join(' '), cur[1].join(' ')]); cur = null; };
+  while (i < A.length || j < Z.length) {
+    if (i < A.length && j < Z.length && A[i] === Z[j]) { flush(); i++; j++; }
+    else if (j < Z.length && (i >= A.length || L[i][j + 1] >= L[i + 1][j])) { (cur ||= [[], []])[1].push(Z[j++]); }
+    else { (cur ||= [[], []])[0].push(A[i++]); }
+  }
+  flush(); return out;
+}
 async function edSave(f, b) {
   const assets = await window.claude?.use?.('assets').catch(() => null);
   if (!assets || !db) { toast('الحفظ يحتاج صلاحية تعديل الاستوديو.'); return; }
@@ -691,12 +731,14 @@ async function edSave(f, b) {
       const r = await assets.upload(blob, { type: 'image/png' });
       slides[k] = '/_blob/' + r.id;
     }
-    const version = nextVersion(f);
+    const version = nextVersion(f), edits = edDiff(f.spec, ed.spec, f.caption, ed.caption), why = (ed.why || '').trim();
     const history = [{ version: f.version || 'v1', spec: f.spec, slides: f.slides, caption: f.caption || '', at: new Date().toISOString() }, ...(f.history || [])].slice(0, 10);
     await db.doc(`films/${f.id}`).update({ spec: ed.spec, slides, caption: ed.caption, version, versions: [version, ...(f.versions || [])], history,
       state: 'waiting', waiting: 'موافقتك على الكاروسيل', edited: 'studio', updated: new Date().toISOString(),
-      changes: [{ v: version, at: new Date().toISOString(), what: [`عدّلت النص بنفسك: ${[...ed.dirty].sort((a, z) => a - z).map((k) => (k ? `الشريحة ${k}` : 'الغلاف')).join('، ')}`] }, ...(f.changes || [])].slice(0, 20) });
-    try { await db.collection('inbox').add({ film: f.id, kind: 'edit', version, text: `الاستوديو: عدّلت نص «${f.name}» (${version}) بنفسي.`, sent: false, at: new Date().toISOString() }); } catch (e) {}
+      changes: [{ v: version, at: new Date().toISOString(), by: 'owner', edits, ...(why ? { why } : {}),
+        what: edits.length ? edits.map((e) => `${e.where} · ${e.field}: ${wdiff(e.before, e.after).map(([x, y]) => `«${x || '—'}» ← «${y || '—'}»`).join('، ')}`) : ['عدّلت النص بنفسك'] }, ...(f.changes || [])].slice(0, 20) });
+    try { await db.collection('inbox').add({ film: f.id, kind: 'edit', version, edits, ...(why ? { why } : {}), sent: false, at: new Date().toISOString(),
+      text: `الاستوديو: عدّلت نص «${f.name}» (${version}) بنفسي: ${edits.map((e) => `${e.where} · ${e.field}`).join('، ') || 'بدون فرق'}${why ? ` — ليش: ${why}` : ''}` }); } catch (e) {}
     toast(`انحفظ ${version} ✓`); ed = null; location.hash = 'film-' + f.id;
   } catch (e) { toast('ما قدرت أحفظ. جرّب مرة ثانية.'); b.disabled = false; b.textContent = 'احفظ'; }
 }

@@ -70,8 +70,14 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
 
 def render(spec_path: Path, out: Path) -> list[Path]:
     """The PNGs, 01_cover then the slides, as the renderer printed them."""
+    return render_report(spec_path, out)[0]
+
+
+def render_report(spec_path: Path, out: Path) -> tuple[list[Path], list[str]]:
+    """The PNGs and what the drawn slides break: text off the slide or into the picture, a cover line that shrank."""
     r = subprocess.run(['node', str(RENDERER), str(spec_path), str(out)], capture_output=True, text=True, check=True)
-    return [Path(l[5:]) for l in r.stdout.splitlines() if l.startswith('FILE:')]
+    lines = r.stdout.splitlines()
+    return [Path(l[5:]) for l in lines if l.startswith('FILE:')], [l[5:] for l in lines if l.startswith('WARN:')]
 
 
 def load(folder: Path) -> tuple[dict, str]:
