@@ -124,7 +124,7 @@ PHOTO_TEMPLATES = {'archive_photo', 'archival_collage', 'newspaper_card', 'produ
 
 SCREEN = ('text', 'title', 'body', 'label', 'value', 'values', 'name', 'sub', 'card', 'quote', 'who', 'header', 'banner', 'lines',
           'rows', 'events', 'stamp', 'labels', 'pins', 'year', 'columns')
-LEADS = {'ثم', 'لكن', 'لكنّ', 'لكنه', 'لكنها', 'لكنهم', 'غير', 'بينما', 'حين', 'عندما', 'بعد', 'إلى', 'الى', 'حتى', 'هناك', 'أما', 'في', 'منذ', 'لذلك', 'لأن', 'مع', 'هكذا'}
+LEADS = {'ثم', 'لكن', 'لكنّ', 'لكنه', 'لكنها', 'لكنهم', 'غير', 'بينما', 'حين', 'عندما', 'بعد', 'إلى', 'الى', 'حتى', 'هناك', 'أما', 'في', 'منذ', 'لذلك', 'لأن', 'مع', 'هكذا', 'لدرجة', 'نرجع', 'والمفارقة'}
 
 
 # Foreign (non-Arab) places and countries the voice must say in English (rule 9b): the Arabic spelling is caught here
@@ -306,8 +306,14 @@ def story_check(film: dict) -> list[str]:
         for t in on_screen(ln):
             if not ln.get('screen_ok') and not _says(t, said):
                 out.append(f"{ln['id']}: the screen shows «{t}», which this line does not say")
+    flow = any(x.get('act') for x in lines)                               # a film told in acts (rule 3b): a date is no bridge
     for prev, ln in zip(lines, lines[1:]):                               # every change of scene is led into
         first = (checks.words(ln['text']) or [''])[0]
+        ws = checks.words(ln['text'])[:3]
+        if flow and first in ('وفي', 'في') and len(ws) > 1 and re.match(r'(1[5-9]\d\d|20\d\d)$', ws[1]) and not ln.get('cold_open'):
+            out.append(f"{ln['id']}: opens on a date («{' '.join(ws[:2])}»): a date is not a bridge; say how it follows from {prev['id']} "
+                       "(the owner, on the rubies film: «not connected… no transition in the wording»)")
+            continue
         if ln.get('closing') or ln.get('continues') or first in LEADS or first in ('و', 'ف') or (first[:1] in 'وف' and len(first) > 2): continue
         # `continues: true`: the line goes on with the sentence before it («ليثبتوا…», «ياقوت حقيقي…» after its subject)
         same = lambda k: ln.get(k) == prev.get(k) and ln.get(k)
@@ -479,10 +485,13 @@ CUTS = {'push': 'through', 'through': 'through', 'match': 'match', 'whip': 'whip
         'slide': 'slide', 'rise': 'rise', 'drop': 'drop'}
 
 
-def cut_for(ln: dict, prev: dict | None, sc: dict, world, template: str, last: str | None) -> str:
+def cut_for(ln: dict, prev: dict | None, sc: dict, world, template: str, last: str | None, flow: bool = False) -> str:
     """How the camera crosses into this scene: the line's `cut:` (push | match | whip | fade | cut; the older
     `transition:` still works), else chosen: two pictures line up (match), the same world carries on (push), a new
-    world is whipped to or pushed into in turn, and a city zoom flies in from a plain cut."""
+    world is whipped to or pushed into in turn, and a city zoom flies in from a plain cut.
+    A film told in acts (`act: true` on the line that opens each, `flow`) flows instead (the owner, on the rubies film:
+    «the video is not connected… jumping from scene to scene without any transition»): inside an act the scenes
+    dissolve into each other (two pictures line up, else a soft fade), and only a new act is pushed into. No whips."""
     if prev is None: return 'cut'
     asked = ln.get('cut') or ln.get('transition')
     if asked:
@@ -490,6 +499,9 @@ def cut_for(ln: dict, prev: dict | None, sc: dict, world, template: str, last: s
         return CUTS[asked]
     if template in motion.OWN_CAMERA or prev.get('endcard'): return 'cut'
     a, b = motion.hero(prev), motion.hero(sc)
+    if flow:
+        if ln.get('act'): return 'through'
+        return 'match' if a and b and a['kind'] == b['kind'] == 'picture' else 'fade'
     if a and b and a['kind'] == b['kind'] == 'picture': return 'match'
     if world and prev.get('set') == world: return 'through'
     return 'through' if last == 'whip' else 'whip'
@@ -718,6 +730,9 @@ def voice_label(voice_dir: Path | None) -> tuple[str, str]:
     prov = {r.get('provider', '') for r in recs if r.get('provider')}
     if 'omnivoice' in prov:                                  # the owner's chosen narration voice
         return 'OmniVoice narration', ''
+    if prov == {'elevenlabs'}:                                # read by tools/record_flow.py: the voice by its name
+        names = sorted({r.get('voice_name') or r.get('voice_id', '') for r in recs})
+        return 'Voice: ' + ', '.join(names) + ' (ElevenLabs)', '; '.join(sorted(lic))
     if prov == {'voxcpm2'}:
         return 'VoxCPM2 narration (Apache-2.0 model, commercial use permitted)', '; '.join(sorted(lic))
     return 'Narration from ' + str(voice_dir), '; '.join(sorted(lic))
@@ -820,7 +835,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
         motion.direct(sc, dur, ln['id'], words=words, shots=ln.get('shots'), pixels=motion.pixels(out / 'assets'), template=template)
         voice_db[len(scenes)] = mix.level(str(t['wav']), 'active')
-        cut = cut_for(ln, scenes[-1] if scenes else None, sc, world, template, scenes[-1].get('transition') if scenes else None)
+        cut = cut_for(ln, scenes[-1] if scenes else None, sc, world, template, scenes[-1].get('transition') if scenes else None,
+                      flow=any(x.get('act') for x in film['lines']))
         sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
                   words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']], transition=cut)
         scenes.append(sc)

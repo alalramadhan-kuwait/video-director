@@ -54,15 +54,18 @@ without being asked; `tools/make_film.py` checks the checkable ones (`story:` mu
    (`references/storytelling.md`).
    Then the reader panel (rule 6d, `references/reader-panel.md`): a novice, a medium and an expert reader, a
    filter, and their vote, before the owner sees it.
-3. **Voice** — the owner's own voice: **«Ali TK»**, the voice the owner cloned on ElevenLabs (voice WBd6y9HGGbIZZafgVlGr;
-   1 Nov 2026: «I create voice in eleven labs can you use it?» … «Yes»). Before it: Nasser AlJubaily (cFUFIbKkO2iZFwS8cRnY),
-   chosen after «وايد واضح انه صوت الي». A cloned voice can add a word the script does not have (it said «مرحبا»):
-   send each line with previous_text only (no next_text) and Whisper-check every line against the script.
-   eleven_multilingual_v2, seed 1234, stability .4, similarity .8, style .2, speaker boost, **speed 1.0 and no atempo**
-   (speeding it up is what made the voice sound artificial), and each line sent with `previous_text`/`next_text` so the
-   delivery flows across lines. A film that runs long is cut in the script (with the owner), never sped up. Silence
-   trim only. Words from `brand/pronunciation.json` and the studio's pronunciation tab. (Abdullah, XdoLPWNt7ytn6BtU4FBf,
-   made Halter 1 and 2.)
+3. **Voice** — **«Jarnathan - Confident and Versatile»** (ElevenLabs library voice c6SfcYrb2t09NHXiT80T; the owner,
+   2 Nov 2026: «Use Jarnathan - Confident and Versatile»). Before it: the owner's cloned «Ali TK» (WBd6y9HGGbIZZafgVlGr),
+   Nasser AlJubaily (cFUFIbKkO2iZFwS8cRnY), Abdullah (XdoLPWNt7ytn6BtU4FBf, Halter 1 and 2). Jarnathan reads about a
+   quarter slower than Ali TK: budget about 10 spoken characters a second.
+   **One take per act, never line by line** (the owner, on the rubies film: «not connected… no transition in the
+   wording and also in the sound»): `python3 tools/record_flow.py films/<film>.yaml <voice_dir> --voice <id> --name <name>`
+   reads each act (`act: true` opens one) as one paragraph, with the acts around it as previous/next text, and cuts it
+   into one take per line in the silences, on ElevenLabs' own timings. A voice read line by line restarts on every
+   cut. eleven_multilingual_v2, seed 1234, stability .4, similarity .8, style .2, speaker boost, **speed 1.0 and no
+   atempo** (speeding it up is what made the voice sound artificial). A film that runs long is cut in the script (with
+   the owner), never sped up. Whisper-check every line against the script (a cloned voice once added «مرحبا»).
+   Words from `brand/pronunciation.json` and the studio's pronunciation tab.
    OmniVoice (`arabic-narration` → `references/omnivoice.md`) stays the free fallback.
    **Anything audio the owner must hear (a voice test, a take, a music choice) is sent as an MP4** (a dark still
    with its name, the audio under it): the owner's chat does not play MP3 («I cant hear mp3 in this chat always make it mp4»). Listen-check the
