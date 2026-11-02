@@ -12,6 +12,15 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 3. **Every change of scene is led into** ✓ — the line opens with a connective or a sentence that prepares the change:
    «لكن البحرية احتاجت…», «غير أن الراديوم نفسه أخفى سرًّا مظلمًا…», «وبينما كان العالم يكتشف خطر الراديوم…»,
    «ثم انتهت الحرب…». Only the final echo may stand alone (`closing: true`).
+3b. **A film flows: told in acts, every line handed on** ✓ (the owner, on the rubies film, 2 Nov 2026: «I feel the
+   video is not connected as a workflow… jumping from scene to scene without any transition in the wording and also in
+   the sound, also in ideas»). Plan the film as 3–5 acts (`act: true` on the line that opens each) and read the
+   narration aloud as one paragraph before anything is built: each line must answer, continue or turn the line before
+   it («وقبل الجواب…», «لأن…», «والحل جاء من…», «لكنهم طمعوا…», «ونجحوا…», «والمفارقة؟», «ولما رخص…», «نرجع
+   لسؤالنا…»). A line that only opens on a date («وفي 1902…») is not led into: say what the jump of years carried
+   («وبقي الياقوت غاليًا قرنين… حتى…»); make_film flags it. **When a script is cut for length, cut a fact, never a
+   bridge**: the rubies film lost its bridges to cuts and the ideas jumped. The sound follows the same acts: the voice
+   is one take per act (SKILL.md step 3, `tools/record_flow.py`), and the cuts follow them too (rule 18e).
 4. **Explain why** ✓ — every change (a new material, a new design, a new partner) says its reason (`change: true` +
    `because:`), in the narration itself: why Rolex, why the crown bridge, why radium was replaced.
    The same for a fact the listener cannot place: say what it means (not «he bought his first tower clock at eleven»
@@ -241,7 +250,7 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     frame). A photo is never shown bigger than its pixels allow: the zoom is capped from its real size, so give a
     close-up a large scan. The camera **crosses the cut**: `cut: push` (push-through), `match` (two shapes line up),
     `whip` (a whip pan, right to left for Arabic), `fade` or `cut`; left unsaid, two pictures match, one place pushes
-    on, a new world whips. No plain fade inside one place. Words glide in slowly and leave fast before a cut, blurred
+    on, a new world whips. No plain fade inside one place. **A film told in acts flows instead** (rule 3b): inside an act the scenes dissolve into each other (two pictures match, else a soft fade, the camera still moving), only a new act is pushed into, and no whips: a whip or a push on every cut made the rubies film feel like separate clips. Words glide in slowly and leave fast before a cut, blurred
     along their travel. make_film's `stage` line flags a scene with fewer than 8 moving things (its world counted).
 18f. **How a watch works is shown running** (`watch_movement`, from the "awesome Opus 5.5 videos" prompts): when a line
     explains the mechanism (the mainspring, the balance, the escapement), the movement drawn in code turns and ticks and
