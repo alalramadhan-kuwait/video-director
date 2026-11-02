@@ -1,0 +1,47 @@
+# The topic as a carousel (the owner's tk-topic-carousel kit)
+
+The owner, 2 Nov 2026: «the option to generate the topic as a carousel instead of video if required… integrated into
+dashboard with availability to save along with caption». A topic becomes a **Reel**, a **carousel**, or **both**
+(`format:` at step 1; the studio's «ابدأ» sends it). A carousel is the written companion of a Reel: the same topic,
+read in six swipes.
+
+## What it is
+A TK cover (a full-bleed photo, the TK overlay, two headline boxes bottom-right, at most 73 characters together, a
+question or a surprise), then **4–5 written slides**, 1080×1350 PNGs: one idea each, a title of 2–4 words, a body of
+25–32 words (the fact and one line of why or what follows; one or two key words in `<b>`, the accent colour), and one
+large cut-out image that never touches the text. The layouts rotate (topImage, rightBleed, bottomImage, leftBleed,
+bigCorner), never the same twice in a row; a portrait uses rightBleed or leftBleed. The order follows the Reel's arc:
+problem → history or mechanism → twist → answer, the last slide ending on the viewer's question. Paper ground, one
+accent colour from the topic (ruby red for jewels), the TK overlay on every slide.
+
+## The owner's rules for a carousel
+- **The language is Kuwaiti** by default (the kit), or the film's `language:` from the script library; watch terms in
+  English. `director/carousel.py` holds the slides to the language's words.
+- **Facts verified** as for a Reel (reuse the Reel's sources); institutions in their own words.
+- **People:** a slide about a person shows that person, from the owner's `people/` portraits or one they attach. **Do
+  not download portraits of real people from the web for a carousel**: list the missing names to the owner in one
+  line, and meanwhile show the slide's object with the person's name and verified years under the title (`name`).
+- **Images:** frames of the matching Reel, the owner's own photos, or Higgsfield (credits, confirm the cost first);
+  never brand press photos from the web. Each slide image is a clean cut-out
+  (`var/cutenv/bin/python tools/cutout_photo.py frame.png cut.png`). The cover is a full-bleed photo.
+- **Caption:** two lines in the same language, the photo credits (CC BY / BY-SA must be credited), 3–5 hashtags.
+
+## Make it
+Folder `carousels/<name>/` (outside git when it holds third-party photos): `spec.json`, the images, `caption.txt`.
+
+```json
+{"language": "kuwaiti", "accent": "#a3172e",
+ "cover": {"top": "ليش داخل ساعتك", "bottom": "ياقوت حقيقي؟", "image": "cover.jpg", "box": "light"},
+ "slides": [{"title": "النحاس يتآكل", "body": "…", "image": "cut1.png", "layout": "topImage"},
+            {"title": "لندن، 1704", "name": "Fatio de Duillier · 1664–1753", "body": "…", "image": "cut2.png"}]}
+```
+
+`python3 tools/carousel/make.py carousels/<name>` checks it, renders `out/01_cover.png … 06_slide.png` and a contact
+sheet `out/sheet.jpg`: look at it (text never on the image, nothing under the top band, Arabic right to left, Latin
+not reversed, the cover logo readable). The TK overlay (`Black_temp.png`, `White_temp.png`) and the Bahij font go in
+`brand/carousel/` (outside git; the owner supplies them); without them the renderer draws a plain TIME KEEPER band.
+
+## Deliver it in the studio
+Publish the PNGs to the studio (`carousel/<id>/NN.png`) and write the film record with `kind: carousel`, `slides`
+(their paths in order) and `caption` (`references/studio.md`). The owner sees the slides, copies the caption, saves
+every PNG and the caption from the studio, and approves or asks for a change by slide number.
