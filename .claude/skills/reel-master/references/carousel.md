@@ -5,6 +5,10 @@ dashboard with availability to save along with caption». A topic becomes a **Re
 (`format:` at step 1; the studio's «ابدأ» sends it). A carousel is the written companion of a Reel: the same topic,
 read in six swipes.
 
+**First read `carousel-edits.md`** («Apply every time»): every change the owner has made to a carousel, word for
+word, and what it teaches. Log each new one there (the owner: «I want you to understand every change I'm doing in the
+carousel… to keep it as a reference and learn from it»).
+
 ## What it is
 A TK cover (a full-bleed picture, the TK overlay, two headline boxes bottom-right, at most 73 characters together),
 then **4–5 written slides**, 1080×1350 PNGs: one idea each, a title of 2–4 words, a short body of 12–32 words (as
@@ -67,6 +71,12 @@ Folder `carousels/<name>/` (outside git when it holds third-party photos): `spec
  "slides": [{"title": "النحاس يتآكل", "body": "…", "image": "cut1.png", "layout": "topImage"},
             {"title": "لندن، 1704", "name": "Fatio de Duillier · 1664–1753", "body": "…", "image": "cut2.png"}]}
 ```
+
+**Text sizes** (the owner, 2 Nov 2026: «the size of the text, it is small… increase it about 10%»): title 81, body 44,
+reader's question 64, name 31, slide number 33, cover lines up to 86 px (they shrink to fit 940 px). One table,
+`const SIZE` in tools/carousel/carousel.mjs, the same as `KIT.SIZE` in the studio's editor. On topImage and
+bottomImage the text is measured first and the picture takes the room left (at least 420 px tall); the renderer
+prints `WARN:` when the text runs off the slide, into a picture, or squeezes it: shorten the text, never the type.
 
 `python3 tools/carousel/make.py carousels/<name>` checks it, renders `out/01_cover.png … 06_slide.png` and a contact
 sheet `out/sheet.jpg`: look at it (text never on the image, nothing under the top band, Arabic right to left, Latin

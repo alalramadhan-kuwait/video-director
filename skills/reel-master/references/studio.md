@@ -61,6 +61,10 @@ and the TK overlays published under `carousel-kit/`), with live checks (the cove
 word title, text running into the picture or off the slide, words outside the carousel's language, the reader's
 question on the last slide). Saving uploads only the changed slides as assets (`/_blob/<id>` in `slides`), writes the
 new `spec`, caption and version, keeps the old one in `history`, and leaves a note in `inbox`.
+Each save also keeps **what the owner changed, word for word**: `changes[0].edits` (`[{where, field, key, before,
+after}]`, the change log shows the changed words «before» ← «after») and the owner's optional «ليش غيّرته؟» (`why`),
+copied into the inbox note. Log every one in `references/carousel-edits.md` with its lesson
+(`tools/carousel/edits.py <record.json>` prints the entry) before the next carousel is written.
 So when Claude next changes that carousel, **the record's `spec` is the truth**: write it to the working folder's
 spec.json before rendering. A new carousel gets `spec` and `src` when it is first delivered (its folder published under
 `src/carousel/<id>/`). Keep `carousel.mjs` and `kitSlide` in step: a layout change goes into both.
