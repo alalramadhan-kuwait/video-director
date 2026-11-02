@@ -38,6 +38,8 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `slides` | a carousel's PNGs in order, as published files (`carousel/<id>/01.png` …) |
 | `caption` | the post caption; «شارك الكل» saves one zip of every slide and the caption (the Claude app allows one file per prompt, and its share sheet one file) and copies the caption; the numbers under it save one slide each |
 | `of` | the record of the same topic in the other format (a carousel's Reel, a Reel's carousel): the page links the two, or offers «سوّ منه كاروسيل/ريل» |
+| `spec`, `src` | a carousel's spec.json (its texts, layouts, pictures) and the published folder of its pictures (`src/carousel/<id>/`): with them the owner edits the text in the studio himself (below) |
+| `history`, `edited` | the last 10 versions before an edit in the studio (`{version, spec, slides, caption, at}`; «رجّع النسخة السابقة» restores the newest), and `edited: studio` once the owner has changed it there |
 
 The percentage is the share of steps done (step − 1 of 9; 100 when done). `studio/now` holds the line at the top:
 `{busy, text, at}`.
@@ -48,3 +50,15 @@ when the platform allows it, and always add a document to `inbox` (`{film, kind,
 carousel the change box shows the slides to pick (one or more); the message names them («الغلاف، الشريحة 3») and the
 inbox document carries their files in `slides`. On
 «شيّك الاستوديو», or when a film waits, read `inbox` and act on what is new.
+
+## The owner edits a carousel's text himself
+The owner, 2 Nov 2026: «some time to edit or change the text on the carousel… shouldn't require a regeneration of the
+whole picture». A carousel record with `spec` and `src` shows «✎ عدّل النص بنفسك»: the page draws each slide on the
+phone with the kit's own layout (studio-page/index.html, `kitSlide`, a port of tools/carousel/carousel.mjs, the fonts
+and the TK overlays published under `carousel-kit/`), with live checks (the cover's 73 characters, 12–32 words, a 2–4
+word title, text running into the picture or off the slide, words outside the carousel's language, the reader's
+question on the last slide). Saving uploads only the changed slides as assets (`/_blob/<id>` in `slides`), writes the
+new `spec`, caption and version, keeps the old one in `history`, and leaves a note in `inbox`.
+So when Claude next changes that carousel, **the record's `spec` is the truth**: write it to the working folder's
+spec.json before rendering. A new carousel gets `spec` and `src` when it is first delivered (its folder published under
+`src/carousel/<id>/`). Keep `carousel.mjs` and `kitSlide` in step: a layout change goes into both.
