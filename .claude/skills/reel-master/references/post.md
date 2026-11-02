@@ -7,6 +7,7 @@
 3. **The credits** (`<out>/credits.txt`, cleaned): every photo with its author, licence and page; found sounds; music;
    the voice («Voice: Jarnathan (ElevenLabs)»); AI drawings, if any, credited here only (never on screen). Remove
    local paths and duplicates; name every licence (e.g. «Licence Ouverte» for BIU Santé).
+   **Write it as the owner writes it** (below, «The caption, as the owner writes it»).
 4. **The sources** list, so the owner can answer a comment.
 5. **The cover** (`<out>/cover.png`): the hook's frame with the title; check it reads in the 4:5 grid crop too.
 
