@@ -5,7 +5,7 @@ you need from them. No long reports, no approval requests for small steps.
 
 When the owner asks for a video, a Reel, an episode, a script, a voice or a style, or sends an idea («سوّ لي فيديو
 عن…»), follow the **`reel-master`** skill (`.claude/skills/reel-master/SKILL.md`): idea → research → hook + script →
-the reader panel → voice (one take per act) → pace and transitions → style from the library → real credited photos →
+the reader panel → voice (one take of the whole script, the scenes laid on it) → pace and transitions → style from the library → real credited photos →
 build → critic → the post. It is the one skill for Reels; it replaced video-director, motion-graphics,
 arabic-narration (now `skills/arabic-narration/GUIDE.md`, its free voice engines), story-reel-script, code-film-styles,
 wood-marquetry-video and the Reel side of timekeeper-post.
