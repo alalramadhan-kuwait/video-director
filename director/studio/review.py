@@ -189,10 +189,6 @@ def run(studio, pid, task, render_id, profile, other_profiles, research, platfor
             if e.get('type') == 'watch' and re.search(r'rolex|رولكس|oyster|أويستر', str(e.get('brand', '')) + str(e.get('label', '')), re.I):
                 add('DRAWN_BRAND_WATCH', 'critical', 'historical_product', 'a drawn watch is labelled as the real brand: its parts are not the real ones',
                     'use a licensed photograph of the real watch, or remove the brand label', s['id'], s['start'] + 0.5, 'art')
-            if e.get('type') == 'sketch' and e.get('technical') and not any('توضيحي' in str(x.get('text', '')) for x in s['src']['elements']):
-                add('DRAWING_UNLABELLED', 'major', 'historical_product', 'a technical drawing without the "simplified principle" label',
-                    'add the label so it is not read as the maker\'s engineering drawing', s['id'], s['start'] + 0.5, 'art')
-                break
             if e.get('asset') and not e.get('src') and not (studio.pdir(pid) / 'assets').glob(e['asset'] + '.*'):
                 pass
         for e in s['src'].get('elements', []):

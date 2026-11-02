@@ -10,10 +10,10 @@ def scene(stage, **kw):
 
 
 class Pivot(unittest.TestCase):
-    def test_each_stage_draws_and_says_it_is_a_principle(self):
-        for st in ('brass', 'worn', 'jewel'):
-            sc = scene(st)
-            self.assertIn(art.DRAWING_NOTE, json.dumps(sc, ensure_ascii=False))
+    def test_each_stage_draws_with_no_simplified_label(self):
+        for st in ('brass', 'worn', 'jewel'):                            # the owner: «واضح انه مبسط»
+            self.assertNotIn('توضيحي', json.dumps(scene(st), ensure_ascii=False))
+        self.assertIn('مبدأ', json.dumps(scene('brass', note='مبدأ'), ensure_ascii=False))   # a line can still ask for one
 
     def test_the_worn_hole_takes_the_brass_hole_s_place_and_the_axle_wobbles(self):
         els = scene('worn', wear_at=1.0)['elements']
