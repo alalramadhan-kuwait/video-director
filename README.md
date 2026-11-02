@@ -28,12 +28,13 @@ stores live under `var/` (git-ignored).
 
 ## Use it as a Claude plugin (any Claude Code chat)
     /plugin install video-director --marketplace alalramadhan-kuwait/video-director
-Then `/video <the idea>` or just ask for a video: Claude follows the `video-director` skill (research → script → voice →
-real photos → motion graphics → film), and you approve each step in the chat. Styles: the `motion-graphics` skill.
+Then `/video <the idea>` or just ask for a video: Claude follows the `reel-master` skill (idea → research → script →
+reader panel → voice → pace and transitions → style from the library → real photos → film → post), and you approve
+the hook, the script, the style and the finished film in the chat.
 
 ## Optional local narration: OmniVoice
 
-The chat plugin supports OmniVoice voice design through the `arabic-narration` skill. See
+The chat plugin supports OmniVoice voice design through `skills/arabic-narration/GUIDE.md` (part of `reel-master`). See
 [setup and generation](skills/arabic-narration/references/omnivoice.md). It preserves approved text, generates
 at natural speed, and writes a new candidate WAV with provenance. No paid API key is needed.
 The upstream pretrained checkpoint is **non-commercial (CC-BY-NC)**; this path is for non-commercial review,

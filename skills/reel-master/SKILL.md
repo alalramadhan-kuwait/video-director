@@ -1,0 +1,170 @@
+---
+name: reel-master
+description: >-
+  The one skill for making a Time Keeper Reel (or a Diabetes History episode), from an idea to the posted film:
+  research with sources, the hook and the script in the house style, the reader panel's review, the voice (one take
+  per act, tuned and paced), the transitions, choosing the style from the whole library (the paper-story engine
+  looks, the 66 code-film styles, Wood Marquetry, an AI route), real credited photos, the build, the critic, and the
+  cover, caption and credits for the post. Use it whenever the user sends an idea or asks for a video, a Reel, a
+  script, a voice, a style, a cover or a post for a film: «سوّ لي فيديو عن…», «فيديو عن ساعة…», «اكتب سكربت»,
+  «سجّل الصوت», «اختار ستايل», «غيّر الانتقالات», a watch history, a brand story, even if they name none of these
+  steps. It replaces video-director, motion-graphics, arabic-narration, story-reel-script, code-film-styles,
+  wood-marquetry-video and the Reel side of timekeeper-post.
+---
+
+# Reel Master: from an idea to the posted Reel
+
+The owner writes from an iPhone, in Kuwaiti Arabic or English. Reply in their language, short: **what is done, what
+remains, what you need from them.** Run every step yourself. The owner decides only at the gates marked **(owner)**:
+the hook, the script, the voice when it changes, the style, and the finished film. Nothing else waits for them.
+
+This skill joins seven earlier ones. Where they disagreed, **the owner's latest correction wins**; the table in
+§ "Which rule wins" lists each conflict and its answer, so never fall back on an older skill's rule.
+
+## Rules that never bend
+- **Facts need sources.** Every claim maps to a source; quote institutions in their own words. A popular myth is said
+  only as a belief, or becomes the twist.
+- **Real photos, credited.** Never a generated, replica or invented picture of a real watch, person or place; a watch
+  is never drawn as a real model. A diagram of a principle is fine, **with no «رسم توضيحي مبسّط» label** (rule 18f).
+- **No paid generation without an explicit yes in this chat** (paid image/video models, a new paid voice, credits).
+  The voice the owner chose (step 4) is already approved.
+- **Never publish** without the owner's approval of the finished film. A change makes a new version; keep the old one.
+- **Audio the owner must hear goes as an MP4** (a still with the audio under it); their chat does not play MP3.
+- **The repository is public**: no staff names, private chats or downloaded photos in it.
+- Every correction the owner makes becomes a rule in `references/storytelling.md`, applied from the next film on.
+
+## The flow (always in this order)
+
+### 1. Idea → format and research
+Pick the format (`references/story-engine.md` §1): **B, hidden true history** (most watch topics: a mechanism, a
+brand, an event behind something everyone takes for granted); **A, parable → life lesson**; **C, parable → brand**.
+Then research: museums, archives, patent offices, established references; the brand only for its own claims. Keep
+every source link. Find the causes (why each thing happened), the human stories and their feelings, the numbers, the
+ironic final fact, and the real photographs (`python3 tools/find_photo.py "<what>" --save <dir>`). For a big topic,
+split the research across parallel agents, one per angle, each saving notes with sources.
+
+### 2. Hook and script
+- **Hook (owner):** offer 3–4 true hooks from the research and recommend one (rule 6; hooks in
+  `vendor/paper-story/references/hooks.md`). A physical first image or the owner's own question beats a teaser. The
+  first frame shows the real subject, named.
+- **Script:** in **acts** (3–5; `act: true` on the line that opens each), told in order after the hook, each line
+  leading into the next (rule 3b): read it aloud as one paragraph; every line answers, continues or turns the one
+  before. A date is not a bridge. One idea per line, 6–10 words.
+- **House style** (`references/house-style.md`, rule 9e): the middle ground between fusha and Kuwaiti that the final
+  news posts use; names written in Arabic on screen and said in their own language (`names:`); numbers on screen in
+  English digits, said as words (`say:`); every abbreviation explained.
+- **Length:** 60–90 s. Budget the voice at about **10 spoken characters a second** (Jarnathan). Over budget: cut a fact,
+  **never a bridge**, and never speed the voice up.
+- Beats, writing rules and the shot direction for each format: `references/story-engine.md`.
+- All the owner's standing rules for the story, the pictures, the look and the sound: `references/storytelling.md`
+  (`tools/make_film.py` checks the checkable ones; `story:` must come back clean).
+
+### 3. Review the script
+The reader panel (`references/reader-panel.md`, rule 6d) before the owner sees it: **Noura** (knows nothing of watches,
+simplifies every sentence), **Fahad** (medium), **Bu Khaled** (expert collector: facts, and «which watch? show it»),
+**Salem** the filter (checks each concern against the research), and **Étienne** (brand, design and Reel specialist;
+his brand «no» blocks). They read what the viewer gets: what is said, written and seen. At most three rounds. Then
+send the script **(owner)** as a short numbered list by act, with a line on what the readers changed.
+
+### 4. Voice
+- **The voice:** «Jarnathan - Confident and Versatile», ElevenLabs `c6SfcYrb2t09NHXiT80T` (the owner, 2 Nov 2026). A new
+  voice is tried on two lines first and sent as an MP4 **(owner)**. Earlier voices and fallbacks: the owner's cloned
+  «Ali TK» `WBd6y9HGGbIZZafgVlGr`, Nasser `cFUFIbKkO2iZFwS8cRnY`, Abdullah `XdoLPWNt7ytn6BtU4FBf`; free: OmniVoice or
+  Fasih (`skills/arabic-narration/GUIDE.md`, the full Arabic pronunciation system).
+- **One take per act, never line by line:**
+  `python3 tools/record_flow.py films/<film>.yaml <voice_dir> --voice <id> --name "<name>"` reads each act as one
+  paragraph (the acts around it as context) and cuts it into one take per line in the silences, on ElevenLabs' own
+  timings, so the voice carries across the cuts. eleven_multilingual_v2, seed 1234, stability .4, similarity .8,
+  style .2, speaker boost, **speed 1.0, no atempo**.
+- **Check:** `python3 tools/hear.py <voice_dir>/*.wav` (Whisper): every word there, nothing added (a
+  cloned voice once added «مرحبا»). Whisper misspells Arabic; it judges missing or extra words, not pronunciation.
+  Fix a mispronounced word in `brand/pronunciation.json`, then re-record that act.
+
+### 5. Tune: pace, pauses, transitions, sound
+- **Pace:** `gap: {tail: 0.1, pause: 0}` in the film file; the takes' own breaths join the lines. The last line of an
+  act gets `pause: 0.35`; the pause before the twist is the longest in the film (up to 1 s). Never speed up.
+- **Transitions** (rule 18e): in a film told in acts, scenes inside an act dissolve (`match` when two pictures line up,
+  else `fade`, the camera still moving); only a new act is pushed into (`through`). No whips. A line can still ask
+  (`cut: push|match|fade|cut|whip`).
+- **Camera:** each scene changes shot size on the words that carry it; a still frame never holds. A whole drawing or
+  two prints side by side get `shots: [{at: 0, to: wide}]` (add `focus: [x, y]` to centre them).
+- **Sound** (rules 18m, 18n): music from the brand library (Kevin MacLeod, CC BY 4.0, credited), ducked under the voice,
+  its beats under the cuts. **Only real recorded effects** (`tools/find_sound.py`, CC0/CC BY), at most 6 a minute,
+  16–20 dB under the voice, felt more than heard; never a synthetic whoosh. One signature sound for the hook and the
+  close (a tick, a crown click) is enough.
+- **On screen:** the captions plus **one** block of text at a time; no AI caption (an AI drawing is credited only in
+  the credits).
+
+### 6. Choose the style from the library (owner)
+Read the story (faces and acting? a mechanism or object? numbers? a period? luxury?) and recommend **three** styles
+from `references/style-library.md`, best first, each with why it fits, its trade-off, the tool and its cost; ask once
+with AskUserQuestion. Show a real still of this film in the engine looks when you can. The library:
+- **Engine looks** (free, `tools/make_film.py`): `paper` (the brand default), `data` (dark stage, big numbers, one
+  ruby/gold accent: the rubies film), technical drawing, dark keynote, archival collage; 30+ scene templates
+  (`art/catalogue.yaml`), worlds, city zooms, real-movement photos with ringed jewels (`jewel_photo`).
+- **The 66 code-film styles** (lemo-opuscar, free): newsreel, copperplate engraving, Art Deco, blueprint, exploded
+  teardown, ukiyo-e… (`references/code-styles.md`).
+- **Wood Marquetry**, Time Keeper's own signature style (`references/wood-marquetry.md`).
+- **AI route** (Higgsfield, credits, explicit yes): clay 3D, stylized 3D, cinematic, for character-heavy parables.
+
+### 7. Pictures and build
+- **Engine route:** write `films/<name>.yaml` (example: `films/panerai.yaml`): per line `text`, `say`, `template`,
+  `params`, `banner`, `set`, `mood`, `act`, `shots`, `cut`, `sfx`; plus `photos` (with `credit`, `page`, `licence`),
+  `sources`, `names`, `look`, `gap`. Then `python3 tools/make_film.py films/<name>.yaml <out> --voice-dir <voice_dir>`
+  (`--stills-only` first). Fix every `story:` and `safe zones:` warning; look at every still in `<out>/scenes/`
+  (text cut, overlaps, a cropped drawing, the wrong photo, a missing photo panel). Then the full render (in the
+  background). Photos and private files live in `films/private/` (never in git).
+- **Code route:** hand the timeline (each line's start and end from the voice takes, its caption chunks, its sound
+  cues) to the chosen style's build (`references/code-styles.md` or `references/wood-marquetry.md`), mux with the
+  narration and the ducked music.
+- **AI route:** per-shot prompts (`references/story-engine.md` §7), confirm the credits first, assemble on the voice
+  timeline.
+
+### 8. Review the film
+- A contact sheet of the film (one frame every ~4.5 s) and the stills of every scene: look at each.
+- **The critic loop** (rule 19c): `python3 tools/critic.py pack <out>`; a fresh critic and Étienne review the round;
+  fix the worst; at most three rounds.
+- **The expert check:** anything a collector would catch (which jewels are ringed, which watch is shown, a date) goes
+  to Bu Khaled with the frames before the owner sees it.
+
+### 9. Deliver (owner)
+Send the MP4 (with a one-line caption saying what changed), then the credits (`<out>/credits.txt`, cleaned: no local
+paths, licences named), the sources, and the post caption in the house style with the music credit. For the post:
+the cover (`<out>/cover.png`) and, if wanted, a carousel in the Time Keeper template (`references/post.md`). The owner
+approves or comments with time codes; fix only that and resend. Never post without their yes.
+
+## Which rule wins (the older skills disagreed)
+| Topic | Older rule | The owner's rule now |
+|---|---|---|
+| Language | «Kuwaiti dialect, not MSA» (story-reel-script) | the house style: between fusha and Kuwaiti, from the final news posts (rule 9e) |
+| Voice | OmniVoice, or one file per line | Jarnathan on ElevenLabs, one take per act (`tools/record_flow.py`); OmniVoice/Fasih are the free fallback |
+| Speed | `speed` to fit a shot | never sped up; cut the script |
+| Transitions | «no generic dissolves», whips on movement | dissolves inside an act, a push into a new act, no whips (rule 3b, 18e) |
+| Sound effects | synthesised kit (`pluck.py`, `sfx.py`, paper sounds) | real recordings only, ≤ 6 a minute, 16–20 dB under the voice |
+| Text on screen | captions, titles, cards, labels | captions plus one block of text; no «simplified drawing» label; no AI caption |
+| Captions | yellow Clayrified captions | the brand's captions (gold active word; flat dark chips in the data look), 2–5-word chunks |
+| Approvals | one approval at the end (video-director) / don't ask before the script (story-reel-script) | the gates above: hook, script, voice change, style, film |
+| Comparing watches | two dial photos side by side | real movements with their visible jewels ringed, checked by an expert |
+| Numbers on screen | Arabic-Indic or English | English digits |
+
+## Setup in a fresh cloud session (once)
+```bash
+git clone https://github.com/alalramadhan-kuwait/video-director && cd video-director   # if the session lacks it
+pip install numpy pyyaml gTTS faster-whisper imageio-ffmpeg
+python3 vendor/paper-story/scripts/make-sfx.py
+python3 -m venv var/cutenv && var/cutenv/bin/pip install "rembg[cpu]"   # paper cut-outs (VD_CUTOUT_PYTHON)
+./run_tests.sh                                                             # before any pull request
+```
+The ElevenLabs key comes from the environment or the session's proxy; never write it anywhere. Merge your own pull
+requests once the tests pass.
+
+## Files
+- `references/storytelling.md`: every rule the owner set (the story, facts, pictures, look and sound, delivery).
+- `references/house-style.md`: how Time Keeper writes, from 1,792 final news posts.
+- `references/reader-panel.md`: the readers, the filter, the vote, Étienne.
+- `references/story-engine.md`: formats A/B/C, beats, writing rules, delivery marks, shot direction, AI prompts.
+- `references/style-library.md`: every style and template, fit rules, how to present three.
+- `references/code-styles.md`: building in one of the 66 lemo-opuscar styles.
+- `references/wood-marquetry.md` + `assets/wood.js`: the Wood Marquetry rules and veneer engine.
+- `references/post.md`: the cover, the carousel template, the caption and the credits.
+- `skills/arabic-narration/GUIDE.md`: the free Arabic voice engines and the pronunciation review page.
