@@ -11,7 +11,14 @@ question or a surprise), then **4–5 written slides**, 1080×1350 PNGs: one ide
 25–32 words (the fact and one line of why or what follows; one or two key words in `<b>`, the accent colour), and one
 large cut-out image that never touches the text. The layouts rotate (topImage, rightBleed, bottomImage, leftBleed,
 bigCorner), never the same twice in a row; a portrait uses rightBleed or leftBleed. The order follows the Reel's arc:
-problem → history or mechanism → twist → answer, the last slide ending on the viewer's question. That question is
+problem → history or mechanism → twist → answer, the last slide ending on the viewer's question.
+**A chain, not a timeline** (the owner, 2 Nov 2026, of Altivère's jewels Reel against our rubies carousel: «more
+organized as flow and ideas»): the cover is a concrete puzzle the reader can see (two movements, 17 and 25 jewels:
+which is better?); each slide answers the question the one before it leaves open (why jewels → the wear, in numbers →
+the fix → why ruby, in numbers → but it was dear → made cheap → so how many are needed, counted out → the count became
+marketing → the rule); the last slide answers the cover and hands the reader the choice. Every slide carries one
+number or one mechanism the reader can check, drawn as a diagram when a photo cannot show it. A side story that does
+not answer the open question (the 1705 parliament fight) is cut, however good. That question is
 its own line, `ask`, set large in the accent colour under the body, and it pulls the reader in to answer (the owner,
 2 Nov 2026: «دائما سؤال القارئ يكون أكبر ويشد القارئ عشان يشارك»): a real question about them or their watch, not a
 teaser. Only the last slide asks; its words count in the slide's 25–32. Paper ground, one
