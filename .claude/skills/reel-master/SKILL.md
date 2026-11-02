@@ -87,8 +87,11 @@ together.
 
 ### 4. Voice
 - **The voice:** «Faisal», the owner's cloned Kuwaiti voice, ElevenLabs `ACGeXdn44RW29fHPITsl` (the owner, 2 Nov 2026:
-  «I just added voice called faisal use it»); calm: stability .55–.7, style 0–.1, `…` read as «،» for the reel's short
-  pauses. Before it, «Jarnathan - Confident and Versatile» `c6SfcYrb2t09NHXiT80T` (too hurried, below). A new
+  «I just added voice called faisal use it»), **at speed 0.7** (the owner: «I like faisal at 0.7 feels calm»):
+  stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
+  like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
+  say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
+  جدام, ك → چ («چم، چذب»), numbers in Kuwaiti words («ألف وتسعمية…، خمسطعش، سبعمية»). Before it, «Jarnathan - Confident and Versatile» `c6SfcYrb2t09NHXiT80T` (too hurried, below). A new
   voice is tried on two lines first and sent as an MP4 **(owner)**. Earlier voices and fallbacks: the owner's cloned
   «Ali TK» `WBd6y9HGGbIZZafgVlGr`, Nasser `cFUFIbKkO2iZFwS8cRnY`, Abdullah `XdoLPWNt7ytn6BtU4FBf`; free: OmniVoice or
   Fasih (`skills/arabic-narration/GUIDE.md`, the full Arabic pronunciation system).
