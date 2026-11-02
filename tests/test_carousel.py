@@ -11,7 +11,8 @@ BODY = ' '.join(['كلمة'] * 27)
 
 def spec(n=5, **kw):
     return {'cover': {'top': 'ليش داخل ساعتك', 'bottom': 'ياقوت حقيقي؟', 'image': 'c.jpg'},
-            'slides': [{'title': 'النحاس يتآكل', 'body': BODY, 'image': f'{i}.png'} for i in range(n)], **kw}
+            'slides': [{'title': 'النحاس يتآكل', 'body': BODY, 'image': f'{i}.png'} for i in range(n - 1)]
+            + [{'title': 'النحاس يتآكل', 'body': BODY, 'image': f'{n - 1}.png', 'ask': 'وأنت شرايك؟'}], **kw}
 
 
 class Rules(unittest.TestCase):
@@ -50,6 +51,23 @@ class Rules(unittest.TestCase):
     def test_missing_images_are_named(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertTrue(any('is missing' in m for m in carousel.check(spec(), Path(d))))
+
+
+@unittest.skipUnless(shutil.which('node'), 'node is not installed')
+class ReaderQuestion(unittest.TestCase):
+    """The owner: «دائما سؤال القارئ يكون أكبر ويشد القارئ»: the last slide asks, in its own large line."""
+    def test_the_last_slide_asks_the_reader(self):
+        s = spec(); s['slides'][-1].pop('ask')
+        self.assertTrue(any("reader's question" in m for m in carousel.check(s)))
+
+    def test_only_the_last_slide_asks(self):
+        s = spec(); s['slides'][0]['ask'] = 'ليش؟'
+        self.assertTrue(any('only the last slide' in m for m in carousel.check(s)))
+
+    def test_the_renderer_sets_it_large(self):
+        src = carousel.RENDERER.read_text(encoding='utf-8')
+        self.assertIn('class="ask"', src)
+        self.assertIn('.ask{font-size:58px', src)
 
 
 @unittest.skipUnless(shutil.which('node'), 'node is not installed')

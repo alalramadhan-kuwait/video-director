@@ -11,7 +11,10 @@ question or a surprise), then **4–5 written slides**, 1080×1350 PNGs: one ide
 25–32 words (the fact and one line of why or what follows; one or two key words in `<b>`, the accent colour), and one
 large cut-out image that never touches the text. The layouts rotate (topImage, rightBleed, bottomImage, leftBleed,
 bigCorner), never the same twice in a row; a portrait uses rightBleed or leftBleed. The order follows the Reel's arc:
-problem → history or mechanism → twist → answer, the last slide ending on the viewer's question. Paper ground, one
+problem → history or mechanism → twist → answer, the last slide ending on the viewer's question. That question is
+its own line, `ask`, set large in the accent colour under the body, and it pulls the reader in to answer (the owner,
+2 Nov 2026: «دائما سؤال القارئ يكون أكبر ويشد القارئ عشان يشارك»): a real question about them or their watch, not a
+teaser. Only the last slide asks; its words count in the slide's 25–32. Paper ground, one
 accent colour from the topic (ruby red for jewels), the TK overlay on every slide.
 
 ## The owner's rules for a carousel

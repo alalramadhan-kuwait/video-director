@@ -40,9 +40,15 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     if not cover.get('top'): out.append('cover: the top headline line is required')
     if len(head) > COVER_MAX: out.append(f'cover: {len(head)} characters in the headline; at most {COVER_MAX}')
     if not SLIDES[0] <= len(slides) <= SLIDES[1]: out.append(f'{len(slides)} written slides; the carousel has {SLIDES[0]}–{SLIDES[1]}')
+    last = slides[-1] if slides else {}
+    if slides and not (last.get('ask') or '').strip().endswith('؟'):
+        out.append(f'slide {len(slides)}: the last slide ends on the reader\'s question, set large in `ask` '
+                   '(the owner: «دائما سؤال القارئ يكون أكبر ويشد القارئ»)')
+    for i, s in enumerate(slides[:-1], 1):
+        if s.get('ask'): out.append(f'slide {i}: only the last slide asks the reader (`ask`)')
     seq = layouts(spec)
     for i, s in enumerate(slides, 1):
-        n = len(words(s.get('body')))
+        n = len(words(s.get('body'))) + len(words(s.get('ask')))
         if not BODY_WORDS[0] <= n <= BODY_WORDS[1]:
             out.append(f'slide {i}: {n} words; a slide is {BODY_WORDS[0]}–{BODY_WORDS[1]} (the fact and one line of why)')
         t = len(words(s.get('title')))
@@ -56,7 +62,7 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     if base is not None:
         for what, p in [('cover', cover.get('image'))] + [(f'slide {i}', s.get('image')) for i, s in enumerate(slides, 1)]:
             if p and not (Path(p) if Path(p).is_absolute() else base / p).is_file(): out.append(f'{what}: image {p} is missing')
-    lines = [{'id': 'cover', 'text': head}] + [{'id': f'slide {i}', 'text': f"{s.get('title', '')} {re.sub(r'<[^>]+>', ' ', s.get('body', ''))}"}
+    lines = [{'id': 'cover', 'text': head}] + [{'id': f'slide {i}', 'text': f"{s.get('title', '')} {re.sub(r'<[^>]+>', ' ', s.get('body', ''))} {s.get('ask', '')}"}
                                              for i, s in enumerate(slides, 1)]
     out += [m for m in scripts.check({'lines': lines, 'language': language}) if 'belong' in m]   # the language's words
     return out
