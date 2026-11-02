@@ -39,6 +39,11 @@ const LAYOUTS = {
   bottomImage: { fig: 'left:-20px;bottom:-60px;width:1120px;height:760px;object-fit:contain', txt: 'right:80px;left:80px;top:270px' },
   bigCorner: { fig: 'left:-200px;bottom:-300px;width:880px;height:850px;object-fit:contain', txt: 'right:80px;left:300px;top:270px' },
 };
+// A watch or a movement is shown whole (references/carousel.md): its picture stays inside the slide, never bled off it.
+const WHOLE = {
+  topImage: 'left:60px;top:150px;width:960px;height:680px;object-fit:contain',
+  bottomImage: 'left:60px;bottom:50px;width:960px;height:620px;object-fit:contain',
+};
 const order = ['topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner'];
 function bright(img) { try { return parseFloat(execFileSync('python3', ['-c', "import sys;from PIL import Image;im=Image.open(sys.argv[1]).convert('L').resize((64,64));print(sum(im.getpixel((x,y)) for x in range(8,56) for y in range(4,12))/384)", img]).toString()); } catch { return 0; } }
 function coverHtml(c) {
@@ -49,8 +54,9 @@ function coverHtml(c) {
   <script>for(const b of document.querySelectorAll('.hb')){let f=78;b.style.fontSize=f+'px';while(b.scrollWidth>940&&f>32){f-=2;b.style.fontSize=f+'px'}}</script></body></html>`;
 }
 function slideHtml(s, i, n) {
-  const L = LAYOUTS[s.layout || order[i % order.length]];
-  return `<html><head><style>${css}</style></head><body>${s.image ? `<img class="fig" style="${L.fig}" src="${A(s.image)}">` : ''}
+  const name = s.layout || order[i % order.length], L = LAYOUTS[name];
+  const fig = (s.watch && WHOLE[name]) || L.fig;
+  return `<html><head><style>${css}</style></head><body>${s.image ? `<img class="fig" style="${fig}" src="${A(s.image)}">` : ''}
   <div class="txt" style="${L.txt}"><div class="num">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</div><div class="rule"></div>
   <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div></div>${overlay(true)}</body></html>`;
 }
