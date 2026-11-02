@@ -30,6 +30,7 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `waiting` | while waiting: what the owner decides («موافقتك على السكربت») |
 | `after_min` | while waiting: minutes to finish once they decide |
 | `version`, `seconds`, `versions` | the latest version, its length, the version list newest first |
+| `updated`, `changes` | **with every new version** (the owner: «شلون اعرف اذا هذي اخر نسخة تم تحديثها متى؟ وشنو كانت اخر التغيرات؟»): `updated` the time (ISO, UTC) and `changes` `[{v, at, what: [one short line per change, in the owner's words]}]`, newest first, at most 20. The film page shows «آخر تحديث» in Kuwait time with its age and the latest changes, the older ones folded; the cards show the version and its age. The studio's own text editor writes its entry itself |
 | `video`, `poster` | a published file of the page: a light copy of the film (720 px, crf ~29, under 15 MB) and its cover |
 | `final`, `caption` (a film) | **on the owner's approval, at once** (the owner: «مفروض بعد الموافقه يعطيني الفيديو جاهز للحفظ مع الكابشن»): the film at full size (1080×1920, two-pass to under 16 MB, a published file's limit) and its post caption (hook, the story in two lines, the reader's question, sources, credits, hashtags). An approved film shows «احفظ الفيلم ↗» (the share sheet's Save Video; the caption goes to the clipboard on the same tap) and its caption |
 | `acts` | `[{name, time}]` once the voice exists |
