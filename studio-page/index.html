@@ -115,6 +115,9 @@ nav.tabs svg{width:22px;height:22px;fill:none;stroke-width:2;stroke-linecap:roun
 .pick button[aria-pressed="true"] img{opacity:.55}
 .pick button[aria-pressed="true"] span{background:var(--ink);color:var(--bg)}
 .pick button[aria-pressed="true"]::after{content:"✓";position:absolute;top:6px;inset-inline-end:6px;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:800 14px var(--body)}
+.kitc{width:100%;height:auto;aspect-ratio:4/5;border-radius:18px;box-shadow:0 1px 0 var(--line);background:var(--soft)}
+.warn{list-style:none;margin:0;padding:0;display:grid;gap:4px;font:700 13.5px var(--body);color:#a3172e}.warn .ok{color:var(--ok)}
+.inp{font:inherit;font-size:16px;width:100%;border-radius:14px;border:0;background:var(--card);padding:10px 12px;box-shadow:0 1px 0 var(--line)}
 .kind{font:800 11.5px var(--body);background:var(--bg);border-radius:999px;padding:2px 9px}
 </style>
 
@@ -216,6 +219,7 @@ function viewFilm(id) {
       <label class="note" for="note" style="color:var(--ink)">وش تبي يتغيّر؟</label><textarea id="note" maxlength="1200" placeholder="مثلًا: النص طويل، أو الصورة صغيرة"></textarea>
       <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
     h += `</section>`;
+    if (f.spec) h += `<a class="short" href="#edit-${esc(f.id)}" style="background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line)">✎ عدّل النص بنفسك</a>`;
     if (f.caption) h += `<section class="caption" aria-label="الكابشن"><div class="row"><b style="font:800 17px var(--display)">الكابشن</b><button type="button" class="chip" data-act="savecap" data-id="${esc(f.id)}">احفظه ملف</button></div><pre id="cap">${esc(f.caption)}</pre></section>`;
   }
   if (f.video) {
@@ -288,6 +292,7 @@ function viewTeam() {
 
 function route() {
   const h = (location.hash || '#films').slice(1);
+  if (h.startsWith('edit-')) { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewEdit(h.slice(5)); bind(); bindEdit(); return; }
   const [tab, id] = h.startsWith('film-') ? ['films', h.slice(5)] : [h, null];
   const t = TABS.some((x) => x.id === tab) ? tab : 'films';
   tabs(t);
@@ -326,6 +331,9 @@ async function act(b) {
     return;
   }
   if (kind === 'share') { share(f, b); return; }
+  if (kind === 'edsave') { edSave(f, b); return; }
+  if (kind === 'edundo') { edUndo(f, b); return; }
+  if (kind === 'edcancel') { ed = null; location.hash = 'film-' + id; return; }
   if (kind === 'one') { one(f, +b.dataset.k, b); return; }
   if (kind === 'saveall' || kind === 'savecap') { await save(kind, f, b); return; }
   b.disabled = true;
@@ -427,9 +435,236 @@ async function save(kind, f, b) {                                   // the viewe
   } catch (e) { toast('ما قدرت أحفظ. جرّب مرة ثانية.'); }
   finally { b.disabled = false; }
 }
+// ===== The carousel text editor. The owner: «I need for the carousel some time to edit or change the text… it is very
+// simple, so shouldn't require a regeneration of the whole picture». The slide is drawn here, on the phone, from the
+// record's `spec` and its saved pictures (`src`), with the kit's own layout (tools/carousel/carousel.mjs): the text
+// changes, the pictures never do. Saving uploads only the changed slides (assets) and keeps the version before it.
+const KIT = {
+  W: 1080, H: 1350, PAPER: '#f3ead6', INK: '#1c1510',
+  ORDER: ['topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner'],
+  TXT: { topImage: [80, 80, 850], rightBleed: [620, 60, 300], leftBleed: [70, 620, 300], bottomImage: [80, 80, 270], bigCorner: [80, 300, 270] },   // right, left, top
+  FIG: { topImage: [-40, 130, 1160, 700], rightBleed: [480, 200, 900, 950], leftBleed: [-300, 200, 900, 950], bottomImage: [-20, 650, 1120, 760], bigCorner: [-200, 800, 880, 850] },
+  WHOLE: { topImage: [60, 150, 960, 680], bottomImage: [60, 680, 960, 620] },
+  NORMAL: 1.5,                                   // CSS line-height: normal for the kit's font (calibrated against carousel.mjs)
+};
+const AR = /[ء-ي]/;
+let kitFonts = null; const kitImgs = {};
+function kitLoad() {
+  if (!kitFonts) kitFonts = Promise.all([['800', 'carousel-kit/fonts/tajawal-arabic-800-normal.woff2'], ['500', 'carousel-kit/fonts/tajawal-arabic-500-normal.woff2']]
+    .map(([w, u]) => new FontFace('TK', `url(${u})`, { weight: w }).load().then((f) => document.fonts.add(f)))).catch(() => {});
+  return kitFonts;
+}
+function kitImg(src) {
+  if (!kitImgs[src]) kitImgs[src] = new Promise((ok) => { const i = new Image(); i.onload = () => ok(i); i.onerror = () => ok(null); i.src = src; });
+  return kitImgs[src];
+}
+const kfont = (w, px) => `${w} ${px}px TK, "Helvetica Neue", Arial, sans-serif`;
+function tokens(html, bold = false) {          // words with their weight and whether they touch the word before them
+  const out = []; const re = /<b>([\s\S]*?)<\/b>|([^<]+)|<[^>]*>/g; let m, prevSpace = true;
+  while ((m = re.exec(html || ''))) {
+    if (m[1] === undefined && m[2] === undefined) continue;
+    const b = m[1] !== undefined || bold, s = (m[1] ?? m[2]).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+    s.split(/(\s+)/).forEach((p) => {
+      if (!p) return;
+      if (/^\s+$/.test(p)) { prevSpace = true; return; }
+      out.push({ t: p, b, glue: !prevSpace && out.length > 0 }); prevSpace = false;
+    });
+  }
+  const g = [];                                  // neighbouring words with no Arabic letter read left to right as one run
+  for (const w of out) { const l = g[g.length - 1]; if (l && !w.glue && !AR.test(w.t) && !AR.test(l.t) && l.b === w.b) l.t += ' ' + w.t; else g.push({ ...w }); }
+  return g;
+}
+function wrap(ctx, toks, width, px, weight) {
+  ctx.font = kfont(weight, px); const sp = ctx.measureText(' ').width;
+  const lines = []; let line = [], w = 0;
+  for (const t of toks) {
+    ctx.font = kfont(t.b ? 800 : weight, px); const tw = ctx.measureText(t.t).width; const gap = line.length && !t.glue ? sp : 0;
+    if (line.length && w + gap + tw > width) { lines.push(line); line = []; w = 0; }
+    line.push({ ...t, w: tw, gap: line.length && !t.glue ? sp : 0 }); w += (line.length > 1 ? line[line.length - 1].gap : 0) + tw;
+  }
+  if (line.length) lines.push(line);
+  return lines;
+}
+function drawLines(ctx, lines, right, top, px, lh, weight, color, accent) {
+  let y = top;
+  for (const line of lines) {
+    let x = right;
+    for (const t of line) {
+      x -= t.gap; ctx.font = kfont(t.b ? 800 : weight, px); ctx.fillStyle = t.b ? accent : color;
+      ctx.direction = 'rtl'; ctx.textAlign = 'right';   // the paragraph is RTL: «1963.» shows its stop on the left, Latin runs stay LTR ctx.textBaseline = 'middle';
+      ctx.fillText(t.t, x, y + lh / 2); x -= t.w;
+    }
+    y += lh;
+  }
+  return y;
+}
+function contain(im, [bx, by, bw, bh]) {
+  const r = Math.min(bw / im.width, bh / im.height), w = im.width * r, h = im.height * r;
+  return [bx + (bw - w) / 2, by + (bh - h) / 2, w, h];
+}
+async function kitSlide(canvas, spec, base, k) {          // k = 0: the cover; k = 1…n: the slides. Returns what the checks need.
+  await kitLoad();
+  const ctx = canvas.getContext('2d'); canvas.width = KIT.W; canvas.height = KIT.H;
+  const accent = spec.accent || '#a3172e', ink = spec.ink || KIT.INK;
+  const info = {};
+  if (k === 0) {
+    const c = spec.cover || {}, im = await kitImg(base + c.image);
+    ctx.fillStyle = '#111'; ctx.fillRect(0, 0, KIT.W, KIT.H);
+    let light = c.palette ? c.palette === 'light' : false;
+    if (im) {
+      const r = Math.max(KIT.W / im.width, KIT.H / im.height), w = im.width * r, h = im.height * r;
+      ctx.drawImage(im, (KIT.W - w) / 2, (KIT.H - h) / 2, w, h);
+      if (!c.palette) {                                    // a bright top band takes the black overlay (the kit's rule)
+        const t = document.createElement('canvas'); t.width = t.height = 64; const tc = t.getContext('2d'); tc.drawImage(im, 0, 0, 64, 64);
+        const d = tc.getImageData(8, 4, 48, 8).data; let sum = 0;
+        for (let i = 0; i < d.length; i += 4) sum += .299 * d[i] + .587 * d[i + 1] + .114 * d[i + 2];
+        light = sum / (d.length / 4) > 150;
+      }
+    }
+    const ov = await kitImg(`carousel-kit/${light ? 'Black' : 'White'}_temp.png`); if (ov) ctx.drawImage(ov, 0, -25, KIT.W, KIT.H);
+    const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
+    const rows = [c.top, c.bottom].filter(Boolean).map((s) => {
+      let px = 78; ctx.font = kfont(800, px);
+      const tw = () => tokens(s).reduce((a, t, i) => a + ctx.measureText(t.t).width + (i ? ctx.measureText(' ').width : 0), 0);
+      while (tw() + 44 > 940 && px > 32) { px -= 2; ctx.font = kfont(800, px); }
+      return { s, px, w: tw() + 44, h: px * 1.02 + 11 };
+    });
+    let y = KIT.H - 196 - rows.reduce((a, r) => a + r.h + 7, 0);
+    for (const r of rows) {
+      ctx.fillStyle = box[0]; ctx.fillRect(KIT.W - 52 - r.w, y, r.w, r.h);
+      drawLines(ctx, [wrap(ctx, tokens(r.s), 9999, r.px, 800)[0]], KIT.W - 52 - 22, y + 5, r.px, r.px * 1.02, 800, box[1], box[1]);
+      y += r.h + 7;
+    }
+    info.coverPx = Math.min(...rows.map((r) => r.px), 78);
+    return info;
+  }
+  const s = spec.slides[k - 1], n = spec.slides.length, name = s.layout || KIT.ORDER[(k - 1) % 5];
+  ctx.fillStyle = spec.paper || KIT.PAPER; ctx.fillRect(0, 0, KIT.W, KIT.H);
+  const im = s.image && await kitImg(base + s.image);
+  if (im) { const r = contain(im, (s.watch && KIT.WHOLE[name]) || KIT.FIG[name]); ctx.drawImage(im, ...r); info.figTop = r[1]; info.figBottom = r[1] + r[3]; }
+  const ov = await kitImg('carousel-kit/Black_temp.png'); if (ov) ctx.drawImage(ov, 0, -25, KIT.W, KIT.H);
+  const [right, left, top] = KIT.TXT[name], width = KIT.W - right - left, R = KIT.W - right;
+  let y = top;
+  ctx.font = kfont(800, 30); ctx.fillStyle = accent; ctx.direction = 'ltr'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(`${String(k).padStart(2, '0')} / ${String(n).padStart(2, '0')}`, R, y + 30 * KIT.NORMAL / 2); y += 30 * KIT.NORMAL + 18;
+  ctx.fillStyle = accent; ctx.fillRect(R - 120, y, 120, 6); y += 6 + 26;
+  y = drawLines(ctx, wrap(ctx, tokens(s.title, true), width, 74, 800), R, y, 74, 74 * 1.12, 800, ink, ink) + 26;
+  if (s.name) {
+    y -= 14; ctx.font = kfont(500, 28); ctx.globalAlpha = .75; ctx.fillStyle = ink; ctx.direction = 'ltr'; ctx.textAlign = 'right';
+    ctx.fillText(s.name, R, y + 28 * KIT.NORMAL / 2); ctx.globalAlpha = 1; y += 28 * KIT.NORMAL + 22;
+  }
+  y = drawLines(ctx, wrap(ctx, tokens(s.body), width, 40, 500), R, y, 40, 40 * 1.55, 500, ink, accent);
+  if (s.ask) y = drawLines(ctx, wrap(ctx, tokens(s.ask, true), width, 58, 800), R, y + 26, 58, 58 * 1.3, 800, accent, accent);
+  info.textBottom = y; info.layout = name;
+  return info;
+}
+const words = (h) => (h || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter((w) => /[\w؀-ۿ]/.test(w));
+const toMark = (h) => (h || '').replace(/<b>([\s\S]*?)<\/b>/g, '**$1**');
+const fromMark = (t) => esc(t || '').replace(/\*\*([\s\S]+?)\*\*/g, '<b>$1</b>');
+function kitWarnings(spec, k, info) {
+  const out = [], avoid = (lib?.languages?.[spec.language || 'kuwaiti']?.avoid) || [];
+  const said = k === 0 ? `${spec.cover.top || ''} ${spec.cover.bottom || ''}` : `${spec.slides[k - 1].title} ${spec.slides[k - 1].body} ${spec.slides[k - 1].ask || ''}`;
+  const hit = avoid.filter((w) => new RegExp(`(^|[^\\u0621-\\u064A])[وف]?${w}([^\\u0621-\\u064A]|$)`).test(said.replace(/<[^>]+>/g, ' ')));
+  if (hit.length) out.push(`كلمات مو كويتية: ${hit.join('، ')}`);
+  if (k === 0) {
+    const n = ((spec.cover.top || '') + (spec.cover.bottom || '')).length;
+    if (n > 73) out.push(`الغلاف ${n} حرف؛ الحد 73`);
+    if (info.coverPx < 60) out.push('السطر طويل: الخط صغر');
+    return out;
+  }
+  const s = spec.slides[k - 1], n = words(s.body).length + words(s.ask).length, t = words(s.title).length;
+  if (n < 12 || n > 32) out.push(`${n} كلمة؛ الشريحة من 12 لـ32`);
+  if (t < 2 || t > 4) out.push(`العنوان ${t} كلمات؛ من 2 لـ4`);
+  if (info.figTop !== undefined && ['bottomImage', 'bigCorner'].includes(info.layout) && info.textBottom > info.figTop - 8) out.push('النص يدخل على الصورة: اختصره');
+  else if (info.textBottom > KIT.H) out.push('النص طويل: ينزل تحت الشريحة');
+  if (k === spec.slides.length && !(s.ask || '').trim().endsWith('؟')) out.push('آخر شريحة تنتهي بسؤال للقارئ (؟)');
+  return out;
+}
+let ed = null;                                           // {id, spec, k, caption, dirty: Set, base}
+function viewEdit(id) {
+  const f = films.find((x) => x.id === id);
+  if (!f) return header('تعديل النص', ready ? 'ما لقيته' : 'جاري التحميل…');
+  if (!f.spec || !f.src) return header('تعديل النص', esc(f.name)) + `<p class="note">ملفات هالكاروسيل مو محفوظة بالاستوديو، فما يتعدّل من هني. اكتب التعديل من «تعديل» وأسويه لك.</p><a class="chip" href="#film-${esc(id)}">→ رجوع</a>`;
+  if (!ed || ed.id !== id) ed = { id, spec: JSON.parse(JSON.stringify(f.spec)), k: 0, caption: f.caption || '', dirty: new Set(), base: f.src };
+  const sp = ed.spec, k = ed.k, names = ['الغلاف', ...sp.slides.map((_, i) => String(i + 1))];
+  let h = `<header class="top fhead"><button type="button" class="back" aria-label="رجوع" data-go="film-${esc(id)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBF7EF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button><h1 style="font-size:26px">تعديل النص</h1><span class="tag" style="background:${f.color || '#F2C230'}">${esc(f.name)}</span></header>`;
+  h += `<div class="chips" role="group" aria-label="الشرائح">${names.map((n, i) => `<button type="button" class="chip${i === k ? ' on' : ''}" data-ek="${i}">${n}${ed.dirty.has(i) ? ' •' : ''}</button>`).join('')}</div>`;
+  h += `<canvas id="kit" class="kitc" width="1080" height="1350" aria-label="الشريحة"></canvas><ul id="warn" class="warn"></ul>`;
+  if (k === 0) h += field('top', 'السطر الأول', sp.cover.top) + field('bottom', 'السطر الثاني', sp.cover.bottom);
+  else {
+    const s = sp.slides[k - 1];
+    h += field('title', 'العنوان', s.title) + (s.name !== undefined ? field('name', 'الاسم تحت العنوان', s.name) : '')
+      + field('body', 'النص (الكلمة الملونة بين **نجمتين**)', toMark(s.body), true) + (k === sp.slides.length ? field('ask', 'سؤال القارئ (الكبير)', s.ask) : '');
+  }
+  h += `<label class="note" for="cap-ed" style="color:var(--ink);font-weight:700">الكابشن</label><textarea id="cap-ed" class="inp" data-ef="caption" maxlength="2200" style="min-height:140px">${esc(ed.caption)}</textarea>`;
+  h += `<div class="two"><button type="button" class="btn dark" data-act="edsave" data-id="${esc(id)}">احفظ${ed.dirty.size ? ` (${ed.dirty.size})` : ''}</button><button type="button" class="btn line" data-act="edcancel" data-id="${esc(id)}">إلغاء</button></div>`;
+  if (f.history?.length) h += `<button type="button" class="chip" data-act="edundo" data-id="${esc(id)}">↶ رجّع النسخة السابقة (${esc(f.history[0].version || '')})</button>`;
+  return h;
+}
+function field(key, label, val, area) {
+  return `<label class="note" for="ef-${key}" style="color:var(--ink);font-weight:700">${label}</label>` +
+    (area ? `<textarea id="ef-${key}" class="inp" data-ef="${key}" maxlength="600">${esc(val || '')}</textarea>` : `<input id="ef-${key}" data-ef="${key}" class="inp" maxlength="120" value="${esc(val || '')}">`);
+}
+let kitTimer = null;
+function kitPaint() {
+  clearTimeout(kitTimer);
+  kitTimer = setTimeout(async () => {
+    const c = document.getElementById('kit'); if (!c || !ed) return;
+    const info = await kitSlide(c, ed.spec, ed.base, ed.k);
+    const w = document.getElementById('warn'); if (w) w.innerHTML = kitWarnings(ed.spec, ed.k, info).map((m) => `<li>⚠ ${esc(m)}</li>`).join('') || '<li class="ok">✓ جاهزة</li>';
+  }, 120);
+}
+function bindEdit() {
+  document.querySelectorAll('[data-ek]').forEach((b) => b.addEventListener('click', () => { ed.k = +b.dataset.ek; route(); }));
+  document.querySelectorAll('[data-ef]').forEach((el) => el.addEventListener('input', () => {
+    const key = el.dataset.ef, v = el.value;
+    if (key === 'caption') { ed.caption = v; return; }
+    if (ed.k === 0) ed.spec.cover[key] = v;
+    else ed.spec.slides[ed.k - 1][key] = key === 'body' ? fromMark(v) : v;
+    ed.dirty.add(ed.k);
+    if (key === 'title' && ed.k) {}                       // the slide numbers never change; the other slides stay as they are
+    const chip = document.querySelector(`[data-ek="${ed.k}"]`); if (chip && !chip.textContent.endsWith('•')) chip.textContent += ' •';
+    const sv = document.querySelector('[data-act="edsave"]'); if (sv) sv.textContent = `احفظ (${ed.dirty.size})`;
+    kitPaint();
+  }));
+  if (document.getElementById('kit')) kitPaint();
+}
+const nextVersion = (f) => `v${Math.max(0, ...[f.version, ...(f.versions || [])].map((v) => parseInt(String(v || '').replace(/\D/g, ''), 10) || 0)) + 1}`;
+async function edSave(f, b) {
+  const assets = await window.claude?.use?.('assets').catch(() => null);
+  if (!assets || !db) { toast('الحفظ يحتاج صلاحية تعديل الاستوديو.'); return; }
+  b.disabled = true; b.textContent = 'أحفظ…';
+  try {
+    const slides = [...f.slides], c = document.createElement('canvas');
+    for (const k of [...ed.dirty].sort((a, z) => a - z)) {
+      await kitSlide(c, ed.spec, ed.base, k);
+      const blob = await new Promise((ok) => c.toBlob(ok, 'image/png'));
+      const r = await assets.upload(blob, { type: 'image/png' });
+      slides[k] = '/_blob/' + r.id;
+    }
+    const version = nextVersion(f);
+    const history = [{ version: f.version || 'v1', spec: f.spec, slides: f.slides, caption: f.caption || '', at: new Date().toISOString() }, ...(f.history || [])].slice(0, 10);
+    await db.doc(`films/${f.id}`).update({ spec: ed.spec, slides, caption: ed.caption, version, versions: [version, ...(f.versions || [])], history,
+      state: 'waiting', waiting: 'موافقتك على الكاروسيل', edited: 'studio', updated: new Date().toISOString() });
+    try { await db.collection('inbox').add({ film: f.id, kind: 'edit', version, text: `الاستوديو: عدّلت نص «${f.name}» (${version}) بنفسي.`, sent: false, at: new Date().toISOString() }); } catch (e) {}
+    toast(`انحفظ ${version} ✓`); ed = null; location.hash = 'film-' + f.id;
+  } catch (e) { toast('ما قدرت أحفظ. جرّب مرة ثانية.'); b.disabled = false; b.textContent = 'احفظ'; }
+}
+async function edUndo(f, b) {
+  const last = f.history?.[0]; if (!last || !db) return;
+  b.disabled = true;
+  try {
+    const version = nextVersion(f);
+    await db.doc(`films/${f.id}`).update({ spec: last.spec, slides: last.slides, caption: last.caption, version, versions: [version, ...(f.versions || [])],
+      history: [{ version: f.version, spec: f.spec, slides: f.slides, caption: f.caption || '', at: new Date().toISOString() }, ...f.history.slice(1)].slice(0, 10), updated: new Date().toISOString() });
+    toast(`رجعت نسخة ${last.version} (${version}) ✓`); ed = null; location.hash = 'film-' + f.id;
+  } catch (e) { toast('ما قدرت أرجّعها.'); b.disabled = false; }
+}
+
 function toast(t) { const n = $('#toast'); n.textContent = t; n.hidden = false; clearTimeout(n._t); n._t = setTimeout(() => (n.hidden = true), 6000); }
 
 function refresh() {                                                // live data never interrupts a playing film or a note being typed
+  if ((location.hash || '').startsWith('#edit-') && document.getElementById('kit')) return;   // nor an edit in progress
   const v = document.querySelector('video'), t = document.getElementById('note');
   if ((v && !v.paused) || (t && t.value.trim()) || document.activeElement?.tagName === 'TEXTAREA') return;
   route();
