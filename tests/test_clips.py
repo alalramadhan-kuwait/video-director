@@ -210,3 +210,18 @@ class TestRender(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class Slices(unittest.TestCase):
+    """references/ai-film.md: one multi-shot generation serves several lines, each from its own second (`from`)."""
+    def test_a_line_takes_its_slice(self):
+        c = clips.spec({'id': 'l2', 'clip': {'file': 'x.mp4', 'from': 3.5}})
+        self.assertEqual(c['from'], 3.5)
+        e = clips.element(c, 'assets/x.mp4', 2.0, {'seconds': 10.0, 'w': 720, 'h': 1280})
+        self.assertEqual(e['from'], 3.5); self.assertEqual(e['rate'], 1.0)
+        self.assertNotIn('from', clips.element(clips.spec({'id': 'l1', 'clip': 'x.mp4'}), 'a', 2.0, {'seconds': 10.0}))
+        self.assertAlmostEqual(clips.clip_time(1.0, 1.0, 10.0, start=3.5), 4.5)
+
+    def test_from_before_the_clip_is_refused(self):
+        with self.assertRaises(ValueError):
+            clips.spec({'id': 'l1', 'clip': {'file': 'x.mp4', 'from': -1}})

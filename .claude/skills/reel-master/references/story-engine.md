@@ -110,6 +110,8 @@ above the bottom safe zone. A chunk with Arabic runs right to left; a chunk of o
 to right, or it renders reversed.
 
 ## 7. AI route prompts (only with the owner's yes to the credits)
+A whole film in AI video (paper cut through Seedance 2.5): `ai-film.md`, with the measured Clayrified benchmark
+(shots, voice, camera, light) and the route. Measure any new reference with `tools/reel_measure.py`.
 One English line per shot: `[style lock], [shot size + angle], [subject + action], [setting], [light/colour], [camera
 move], 9:16`. Every prompt starts with the same style-lock sentence and the same character and watch bible. No text,
 logos or real brand marks in prompts; a real watch is never generated (it is a real photo, composited). Real brand
