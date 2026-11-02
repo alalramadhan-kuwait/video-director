@@ -69,7 +69,14 @@ retakes. Drafts come first; ask Higgsfield the draft and final prices before sta
 (about 100 credits) to see that Seedance holds the paper look and the characters across cuts. The voice is
 ElevenLabs, as for any film.
 
-## Open with the owner
-- **Cuts:** the reel cuts hard on phrases, our rule says dissolves inside an act. Which?
-- **Pauses:** the reel never stops for more than 0.4 s, our rule allows a 1–1.5 s silence before the twist.
-- **Captions:** their yellow serif, or ours.
+## The owner's choice: follow the reel
+The owner, 2 Nov 2026: «Follow this one. It is really doing good.» For an AI-video film (this route) the reel wins
+over our older rules:
+- **Hard cuts on phrase ends**, one caption chunk ≈ one shot; a dissolve only into a memory or a dream. (Rules 3b and
+  18e, dissolves inside an act, stay for the engine looks.)
+- **No silence over about 0.4 s**, the twist included: the beat comes from a short sentence and a held shot, not a
+  gap. The bed under the voice never stops.
+- **Captions as the reel's:** 2–3 words, bold yellow serif with a dark edge, centred just under the middle, no
+  highlighted word.
+- Everything measured above is the target: 33–40 shots a minute, a still or slowly pushing camera, the acting and
+  the in-shot changes carrying the emotion, light by act, one warm close take.
