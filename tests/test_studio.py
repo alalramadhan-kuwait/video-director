@@ -480,9 +480,9 @@ class TestArtAndReview(Env):
         self.assertEqual(st['art']['approved'], {})
         self.assertEqual(st['art']['concepts']['l9-map']['versions'][0]['status'], 'withdrawn')
 
-    def test_builders_label_drawings_and_never_fabricate_photos(self):
+    def test_builders_draw_without_a_simplified_label_and_never_fabricate_photos(self):
         sc = art.scene_visual('technical_illustration', {'kind': 'screw_crown'}, 'tk-bone', 5)
-        self.assertTrue(any(e.get('text') == art.DRAWING_NOTE for e in sc['elements']))
+        self.assertFalse(any('توضيحي' in str(e.get('text', '')) for e in sc['elements']))
         self.assertTrue(all(e.get('type') != 'watch' for e in sc['elements']))
         miss = art.missing_assets('product_macro', {'asset': 'gleitze_oyster_photo', 'desc': 'x'}, Path(self.tmp.name) / 'none')
         self.assertEqual(miss, ['gleitze_oyster_photo'])

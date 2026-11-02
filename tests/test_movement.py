@@ -9,11 +9,11 @@ from director.studio import art, engine
 
 
 class TestTemplate(unittest.TestCase):
-    def test_it_is_catalogued_ready_and_always_labelled_simplified(self):
+    def test_it_is_catalogued_ready_and_carries_no_simplified_label(self):
         self.assertTrue(art.production_ready('watch_movement'))
         sc = art.scene_visual('watch_movement', {'explode_at': 2.0}, 'tk-bone', 5.0)
         self.assertEqual(sc['theme'], 'tk-ink')                           # metal on a dark ground
-        self.assertTrue(any(e.get('text') == art.DRAWING_NOTE for e in sc['elements']))
+        self.assertFalse(any('توضيحي' in str(e.get('text', '')) for e in sc['elements']))
         mv = next(e for e in sc['elements'] if e['type'] == 'movement3d')
         self.assertEqual((mv['explode_at'], mv['depth']), (2.0, 0))
         self.assertEqual([c['name'] for c in sc['sfx']], ['watch_run', 'whoosh'])

@@ -254,8 +254,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     along their travel. make_film's `stage` line flags a scene with fewer than 8 moving things (its world counted).
 18f. **How a watch works is shown running** (`watch_movement`, from the "awesome Opus 5.5 videos" prompts): when a line
     explains the mechanism (the mainspring, the balance, the escapement), the movement drawn in code turns and ticks and
-    then lifts apart with its names. 3D only where it explains something physical, and always labelled as a simplified
-    principle, never as the brand's own calibre.
+    then lifts apart with its names. 3D only where it explains something physical, never named as the brand's own
+    calibre. **No «رسم توضيحي مبسّط» label on a drawing** (the owner, on the rubies film: «وليش كاتب رسم مبسط واضح انه
+    مبسط»): a diagram is plainly a diagram, and the label is one more line of text on the screen. What protects the
+    viewer is never naming a drawing as a real watch or calibre; real watches are real photos (rule 12i).
 
 18o. **The data look** ✓ (the owner, on the rubies film: «The video you created is different style than the original» —
     the Altivère video). `look: data` in the film file (`director/studio/looks.py`): one near-black stage for the whole
