@@ -90,6 +90,13 @@ together.
   voice is tried on two lines first and sent as an MP4 **(owner)**. Earlier voices and fallbacks: the owner's cloned
   «Ali TK» `WBd6y9HGGbIZZafgVlGr`, Nasser `cFUFIbKkO2iZFwS8cRnY`, Abdullah `XdoLPWNt7ytn6BtU4FBf`; free: OmniVoice or
   Fasih (`skills/arabic-narration/GUIDE.md`, the full Arabic pronunciation system).
+- **Calm, and Kuwaiti or plain Arabic, never Levantine** (the owner, 2 Nov 2026, on the Gleitze film: «this one feels
+  he is like in a hurry… the other voice feel more calm», then of the calm ones: «مشكلة فيهم لهجة شامية. وانا احتاج
+  لهجة كويتي او عربية مبسطة بدون لهجة»). Jarnathan is an English «confident, conversational» voice: in Arabic it
+  talks about 15% faster than the reference storyteller and then stops long (stop-start). Pick a storytelling voice
+  with a Kuwaiti or Gulf accent (ElevenLabs library: Hasan, Mustafa Abdulla, Mohamed, Ahmed, Mohammed, AbuTaha), or
+  a plain-fusha script read by a calm voice; a library voice tagged «modern standard» can still sound Levantine.
+  Compare candidates on the same opening (`voice-compare.mp4`, one labelled segment each) and let the owner choose.
 - **One narrator, one story, one take** (the owner, 2 Nov 2026: «The narrator is telling one continuous story, not
   performing each scene independently. His emotions should develop naturally with the story, not restart with every
   scene»). The order of work is the owner's: **the full script → one voice take → the timings of its sentences and
