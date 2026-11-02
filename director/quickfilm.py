@@ -52,7 +52,7 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              down, never a third); one-shots 3-6 dB under the voice and at most 15 a minute, paper sounds only when
              paper comes in. A line can ask for its own effects and bed:  sfx: [{name: gavel, on: «word»}, {name:
              train_horn, at: 2.5, gain: -8}]  ·  bed: train (or {name, gain}, a list, or none). The film can turn every
-             bed down further:  beds: {gain: -4}; or drop every effect and bed:  effects: none (voice and music only)
+             bed down further:  beds: {gain: -4}; or drop every effect and bed:  effects: none (voice and music only); and the music:  music: none
              real recordings (director/copilot/sounds.py): `sounds: {gavel: "gavel on wood", train_bed: "steam train"}`
              finds each on Openverse (CC0, then CC BY; cached outside git) and plays it wherever the film uses that
              name; `name: "found:<openverse id>"` (with `fallback: gavel`) uses one sound directly. Not found or
@@ -644,11 +644,11 @@ def given_take(line: dict, src: Path, vdir: Path) -> tuple[Path, Path]:
     """A take read elsewhere (src/<id>.wav), copied into the film folder at 24 kHz mono with what Whisper heard in it;
     cached by the take's own bytes, so a line read again is listened to again."""
     data = src.read_bytes()
-    key = hashlib.sha256(data).hexdigest()[:10]
+    key = hashlib.sha256(data + b'|tone1').hexdigest()[:10]             # tone1: a boomy take is evened out (voice.tone)
     wav, meta = vdir / f"{line['id']}-given-{key}.wav", vdir / f"{line['id']}-given-{key}.json"
     if not (wav.is_file() and meta.is_file()):
         vdir.mkdir(parents=True, exist_ok=True)
-        a = voice.trim(voice.decode(data))
+        a = voice.tone(voice.trim(voice.decode(data)))
         out = voice.encode(a, 'wav'); wav.write_bytes(out)
         meta.write_text(json.dumps({'heard': voice.hear(out), 'seconds': round(len(a) / voice.SR, 3), 'source': str(src)},
                                    ensure_ascii=False), encoding='utf-8')
@@ -859,7 +859,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
           'audio': {'autoSfx': False, **({'duck': {k: v for k, v in duck.items() if not k.startswith('_')}} if duck else {})},
           'scenes': scenes + ending}
     seconds = round(sum(s['dur'] for s in sb['scenes']), 1)
-    mus = B.music(brand, seconds=seconds, seed=film.get('seed') or Path(path).stem, title=film.get('music'))
+    no_music = film.get('music') is False or str(film.get('music', '')).strip().lower() in ('none', 'off', 'false')
+    mus = None if no_music else B.music(brand, seconds=seconds, seed=film.get('seed') or Path(path).stem, title=film.get('music'))
     report['music'] = mus and {k: mus[k] for k in ('title', 'licence', 'source', 'credit')}
     if mus:                                                              # the cuts land on the music's beats
         cuts = [round(sum(s['dur'] for s in sb['scenes'][:i]), 3) for i in range(1, len(sb['scenes']))]
