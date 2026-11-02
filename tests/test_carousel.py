@@ -36,6 +36,12 @@ class Rules(unittest.TestCase):
         self.assertTrue(any('no image' in m for m in carousel.check(s)))
         self.assertEqual(carousel.layouts(spec()), list(carousel.LAYOUTS))
 
+    def test_a_watch_is_never_bled_off_the_slide(self):
+        s = spec(); s['slides'][4].update(watch=True, layout='bigCorner')
+        self.assertTrue(any('shown whole' in m for m in carousel.check(s)))
+        s['slides'][4]['layout'] = 'topImage'
+        self.assertEqual([m for m in carousel.check(s) if 'shown whole' in m], [])
+
     def test_the_language_holds(self):
         s = spec(); s['slides'][0]['body'] = 'ليش ' + BODY
         self.assertEqual([m for m in carousel.check(s, language='kuwaiti') if 'belong' in m], [])

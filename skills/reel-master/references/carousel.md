@@ -24,6 +24,10 @@ accent colour from the topic (ruby red for jewels), the TK overlay on every slid
 - **Images:** frames of the matching Reel, the owner's own photos, or Higgsfield (credits, confirm the cost first);
   never brand press photos from the web. Each slide image is a clean cut-out
   (`var/cutenv/bin/python tools/cutout_photo.py frame.png cut.png`). The cover is a full-bleed photo.
+- **A watch or a movement is shown whole** (the owner, on the rubies carousel: «محرك جزا كبير منه رايح»): the
+  background remover can eat the dark parts of a movement, and a bleed layout pushes half of it off the slide. A round
+  watch or movement is cut with a circle around its case (geometry, not the remover); look at the cut-out before
+  rendering; a watch never takes rightBleed, leftBleed or bigCorner (they cut it), only topImage or bottomImage.
 - **Caption:** two lines in the same language, the photo credits (CC BY / BY-SA must be credited), 3–5 hashtags.
 
 ## Make it
