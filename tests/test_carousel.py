@@ -60,5 +60,24 @@ class Renderer(unittest.TestCase):
         self.assertTrue((carousel.RENDERER.parent / 'fonts/tajawal-arabic-800-normal.woff2').is_file())
 
 
+class WholeWatch(unittest.TestCase):
+    """The owner, of a movement cut off a slide: «محرك جزا كبير منه رايح». A layout the check allows for a watch keeps
+    its picture inside the 1080×1350 slide; bottomImage alone bleeds 60 px off the bottom."""
+    def test_a_watch_picture_stays_inside_the_slide(self):
+        import re
+        src = carousel.RENDERER.read_text(encoding='utf-8')
+        whole = re.search(r'const WHOLE = \{(.*?)\n\};', src, re.S).group(1)
+        boxes = dict(re.findall(r"(\w+): '([^']+)'", whole))
+        self.assertEqual(set(boxes), {'topImage', 'bottomImage'})
+        for name, css in boxes.items():
+            v = {k: int(n) for k, n in re.findall(r'(left|top|bottom|width|height):(-?\d+)px', css)}
+            self.assertGreaterEqual(v['left'], 0, name)
+            self.assertLessEqual(v['left'] + v['width'], 1080, name)
+            top = v['top'] if 'top' in v else 1350 - v['bottom'] - v['height']
+            self.assertGreaterEqual(top, 0, name)
+            self.assertLessEqual(top + v['height'], 1350, name)
+        self.assertIn('s.watch && WHOLE[name]', src)
+
+
 if __name__ == '__main__':
     unittest.main()
