@@ -93,7 +93,11 @@ together.
   audio tag the voice performs and never says, the film's `voice.settings` (stability .5, speed .8) winning; the
   take is streamed, since a long v3 take outlasts the proxy. **The owner reviews the pronunciation** before pictures
   are made: a page per take (each line playable on its own, the words the transcription missed or heard differently
-  highlighted, words to tap as wrong, notes) whose notes come back as a comment. Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
+  highlighted, words to tap as wrong, notes) whose notes come back as a comment. **What his first review taught**
+  (2 Nov 2026, 8 words): on v3, spelling «گ» by hand made it worse («تْگول، گطعت، يگنع، گيمتك» all marked): v3 says
+  ق the Kuwaiti way by itself, so write the normal letter and keep گ/چ only where it was not marked («تگطع، جدام، چم،
+  چذب، بوگت أگل، صدّگوها»); a formal verb gets the Kuwaiti one («يراقبون» → «يطالعون»); a vowel v3 reads the fusha
+  way gets one light mark, never full tashkeel («سِباحة»، «نْحِسب»). Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
   stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
   like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
   say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
