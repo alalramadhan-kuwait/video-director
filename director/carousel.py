@@ -20,7 +20,7 @@ RENDERER = ROOT / 'tools/carousel/carousel.mjs'
 LAYOUTS = ('topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner')
 COVER_MAX = 73                     # top + bottom headline characters (the TK post template)
 SLIDES = (4, 5)
-BODY_WORDS = (25, 32)
+BODY_WORDS = (12, 32)                # as little as the idea needs (the owner: «قلل النصوص»)
 TITLE_WORDS = (2, 4)
 
 
@@ -50,7 +50,7 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     for i, s in enumerate(slides, 1):
         n = len(words(s.get('body'))) + len(words(s.get('ask')))
         if not BODY_WORDS[0] <= n <= BODY_WORDS[1]:
-            out.append(f'slide {i}: {n} words; a slide is {BODY_WORDS[0]}–{BODY_WORDS[1]} (the fact and one line of why)')
+            out.append(f'slide {i}: {n} words; a slide is {BODY_WORDS[0]}–{BODY_WORDS[1]} (as little as the idea needs)')
         t = len(words(s.get('title')))
         if not TITLE_WORDS[0] <= t <= TITLE_WORDS[1]:
             out.append(f'slide {i}: a title of {t} words; {TITLE_WORDS[0]}–{TITLE_WORDS[1]}')
