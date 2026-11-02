@@ -13,6 +13,8 @@ scenes. The narration, the captions and the banner stay; the clip is only the pi
   fit            cover (default) or contain
   end            pingpong (default) or hold: what a clip shorter than its scene does once it has played
   label          the line on screen that says it is generated, where a photo's credit goes («مشهد بالذكاء الاصطناعي»)
+  from           seconds into the clip where this line starts (default 0): one multi-shot generation (a 10–15 s
+                 Seedance clip with its own cuts) serves several lines, each taking its slice (references/ai-film.md)
 
 Timing (`timing`): a scene longer than its clip plays it slower, rate = clip / scene, never below MIN_RATE (0.7); if it
 is still short, it runs backwards from its end at the same rate and on again (ping-pong), so the picture never stops.
@@ -44,6 +46,8 @@ def spec(ln: dict) -> dict | None:
     if c['mode'] not in MODES: raise ValueError(f"{ln.get('id')}: clip mode {c['mode']!r} is not one of {', '.join(MODES)}")
     if c['fit'] not in ('cover', 'contain'): raise ValueError(f"{ln.get('id')}: clip fit {c['fit']!r} is not cover or contain")
     if c['end'] not in ENDS: raise ValueError(f"{ln.get('id')}: clip end {c['end']!r} is not one of {', '.join(ENDS)}")
+    c['from'] = float(c.get('from') or 0)
+    if c['from'] < 0: raise ValueError(f"{ln.get('id')}: clip from {c['from']} is before the clip starts")
     return c
 
 
@@ -100,9 +104,11 @@ def clip_time(t: float, rate: float, length: float, end: str = 'pingpong', start
 
 def element(c: dict, src: str, dur: float, info: dict) -> dict:
     """The engine element for a clip (vendor/studio-ext/clip.js)."""
-    tm = timing(float(info.get('seconds') or 0), dur)
+    start = float(c.get('from') or 0)
+    tm = timing(max(0.0, float(info.get('seconds') or 0) - start), dur)
     e = {'type': 'video', 'src': src, 'desc': c['label'], 'w': 720, 'h': 1280, 'x': 360, 'y': 640, 'fit': c['fit'], 'pos': c.get('pos', '50% 50%'),
          'rate': tm['rate'], 'end': c['end'], 'noBoil': True, 'noBlur': True, 'clip': True}
+    if start: e['from'] = start
     if info.get('w') and info.get('h'): e['px'] = [info['w'], info['h']]
     if c['mode'] == 'behind':
         e.update(behind=True, depth=0)                 # pinned to the screen: the camera comes close to the print, not the clip
