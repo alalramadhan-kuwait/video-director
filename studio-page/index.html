@@ -34,17 +34,15 @@ button{font:inherit;color:inherit}
 @media (prefers-reduced-motion:no-preference){.dot.on{animation:pulse 1.6s infinite}}
 @keyframes pulse{50%{opacity:.4}}
 /* film cards */
-.film{border:0;width:100%;text-align:start;border-radius:24px;padding:14px 18px;display:grid;gap:8px;cursor:pointer;color:var(--ink)}
 .row{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .fname{font:800 20px/1.2 var(--display)}
-.pct{font:800 22px/1 var(--display);direction:ltr;font-variant-numeric:tabular-nums}
 .track{height:8px;border-radius:999px;background:rgba(27,27,27,.18);overflow:hidden}
 .track i{display:block;height:100%;border-radius:999px;background:var(--ink)}
 .state{display:flex;gap:6px;align-items:center;font:700 13.5px var(--body)}
 .pill{background:var(--bg);border-radius:999px;padding:6px 13px;font:800 13.5px var(--body)}
 .empty{background:var(--card);border-radius:24px;padding:18px;display:grid;gap:6px;box-shadow:0 1px 0 var(--line)}
 .shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.short{border:0;border-radius:22px;padding:14px 16px;min-height:78px;display:flex;align-items:center;gap:10px;font:800 17px var(--display);cursor:pointer;text-decoration:none}
+.short{border:0;border-radius:18px;padding:10px 16px;min-height:50px;display:flex;align-items:center;gap:10px;font:800 16px var(--display);cursor:pointer;text-decoration:none}
 /* film page */
 .back{width:44px;height:44px;border-radius:50%;background:var(--ink);border:0;display:grid;place-items:center;cursor:pointer}
 .fhead{display:flex;align-items:center;gap:12px}
@@ -120,6 +118,19 @@ nav.tabs svg{width:22px;height:22px;fill:none;stroke-width:2;stroke-linecap:roun
 .warn{list-style:none;margin:0;padding:0;display:grid;gap:4px;font:700 13.5px var(--body);color:#a3172e}.warn .ok{color:var(--ok)}
 .inp{font:inherit;font-size:16px;width:100%;border-radius:14px;border:0;background:var(--card);padding:10px 12px;box-shadow:0 1px 0 var(--line)}
 .kind{font:800 11.5px var(--body);background:var(--bg);border-radius:999px;padding:2px 9px}
+/* the films list, by topic (the owner: «too bulky… group the topics together… the latest update shown»): one card per
+   topic, one slim row per Reel or carousel with its kind, version, when it was last made and whether it has the newest rules */
+.topic{border-radius:22px;padding:10px 10px 8px;display:grid;gap:6px}
+.thead{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:2px 6px 0}
+.thead b{font:800 19px/1.2 var(--display)}.thead span{font:700 12.5px var(--body)}
+.item{border:0;width:100%;text-align:start;background:rgba(255,255,255,.62);border-radius:14px;padding:7px 10px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:2px 9px;align-items:center;cursor:pointer;color:var(--ink);min-height:52px}
+.item svg{width:20px;height:20px;fill:none;stroke:var(--ink);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;grid-row:span 2}
+.iname{font:800 15px/1.25 var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.imeta{font:600 12px/1.3 var(--body);color:#3b3732;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;grid-column:2}
+.ist{grid-row:1 / span 2;grid-column:3;font:800 12px var(--body);border-radius:999px;padding:3px 10px;background:var(--ink);color:var(--bg);white-space:nowrap}
+.ist.ok{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.rok{color:#1f6b3f}.rold{color:#8a1426}
+.rules{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:3px;font-size:14px}
 </style>
 
 <div class="app" dir="rtl" lang="ar">
@@ -152,6 +163,21 @@ const CODE = [['وثائقي', 'نشرة 1920، أخبار بالكابشن، ت
   ['معلومات', 'قصص بالبيانات، إنفوجرافيك، عرض داكن، خريطة مترو…', 8], ['كرتون وألعاب وسينما ومواد', 'أنمي الثمانينات، بكسل، فيلم صامت، خيال ظل، كتاب منبثق…', 21]];
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// The newest rules, so each version shows whether it was made with them (the owner: «so I can know the new rules are
+// applied to this or no»). A record's `rules` lists the ids it follows; without it, a version made after a rule's `at`
+// counts as following it. `studio/rules` ({list: [...]}) adds to or replaces these without a new page.
+let RULES = [
+  { id: 'no-boom', kind: 'reel', at: '2026-11-02T12:54:00Z', name: 'الصوت بدون تضخم' },
+  { id: 'one-take', kind: 'reel', at: '2026-11-02T13:10:00Z', name: 'الصوت تسجيلة وحدة، والمشاهد تتبعه' },
+  { id: 'whole-figure', kind: 'reel', at: '2026-11-02T13:38:00Z', name: 'الشخصية كاملة، ما ينقص منها شي' },
+  { id: 'whole-watch', kind: 'carousel', at: '2026-11-02T10:40:00Z', name: 'الساعة كاملة داخل الشريحة' },
+  { id: 'real-photo', kind: 'carousel', at: '2026-11-02T11:51:00Z', name: 'الأشخاص بصور حقيقية' },
+  { id: 'ask-big', kind: 'carousel', at: '2026-11-02T11:58:00Z', name: 'سؤال القارئ كبير بآخر شريحة' },
+  { id: 'principles', kind: 'carousel', at: '2026-11-02T12:47:00Z', name: 'غلاف واضح، رسم بسيط، أرقام دقيقة، النهاية تجاوب الغلاف' },
+  { id: 'text-size', kind: 'carousel', at: '2026-11-02T16:20:00Z', name: 'الخط أكبر 10%' }];
+let topics = {};                                                   // studio/topics: {<topic id>: {name, order}}
+const kindOf = (f) => (f.kind === 'carousel' ? 'carousel' : 'reel');
+const ruleState = (f) => RULES.filter((r) => r.kind === kindOf(f)).map((r) => ({ ...r, ok: Array.isArray(f.rules) ? f.rules.includes(r.id) : Date.parse(f.updated || 0) >= Date.parse(r.at) }));
 let films = [], now = null, lib = null, db = null, comments = null, ready = false, openType = null, openLang = 'tk', openFormat = 'reel';
 const picks = {};                                                  // slides chosen for a change, per carousel (kept across live refreshes)
 let chgOpen = null;
@@ -188,22 +214,41 @@ function tabs(active) {
 }
 function header(title, sub) { return `<header class="top"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${sub}</span>` : ''}</header>`; }
 function nowLine() {
-  if (!now) return '';
+  if (!now || (!now.busy && Date.now() - Date.parse(now.at || 0) > 3 * 3600e3)) return '';   // an old note is not news
   return `<div class="now"><span class="dot${now.busy ? ' on' : ''}"></span>${now.busy ? 'Claude يشتغل' : 'Claude واقف'}${now.text ? ' · ' + esc(now.text) : ''}</div>`;
 }
 
+const ICON = { reel: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="3"/><path d="M10.5 9.5v5l4-2.5z"/></svg>',
+  carousel: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="4" width="10" height="13" rx="2"/><path d="M4 7v7M20 7v7"/><path d="M10 20h4"/></svg>' };
+const topicOf = (f) => f.topic || (f.of && films.find((x) => x.id === f.of)?.topic) || f.id;
+function topicName(id, list) {
+  return topics[id]?.name || String(list[0].name || id).split(' · ')[0];
+}
+function itemLabel(f, tname) {
+  const kind = f.kind === 'carousel' ? 'كاروسيل' : 'ريل';
+  const rest = String(f.name || '').split(' · ').slice(1).join(' · ') || (String(f.name || '').startsWith(tname) ? '' : f.name || '');
+  return `${kind}${rest ? ' · ' + rest : ''}`;
+}
 function viewFilms() {
   const waiting = films.filter((f) => f.state === 'waiting').length, working = films.filter((f) => f.state === 'working').length;
   let h = header('أفلامنا', ready ? `${waiting} بانتظارك · ${working} يشتغل` : 'جاري التحميل…') + nowLine();
   if (ready && !films.length) h += `<div class="empty"><b style="font:800 18px var(--display)">ما فيه أفلام للحين</b><p class="note">أرسل لي فكرة في المحادثة، ويطلع الفلم هنا بنسبته ووقته.</p></div>`;
-  films.forEach((f, i) => {
-    const s = stateLine(f), p = pct(f);
-    h += `<button type="button" class="film" style="background:${color(f, i)}" data-film="${esc(f.id)}">
-      <span class="row"><span class="fname">${esc(f.name)} ${f.kind === 'carousel' ? '<span class="kind">كاروسيل</span>' : ''}</span><span class="pct">${p}%</span></span>
-      ${f.updated ? `<span class="state" style="font-size:12.5px;opacity:.8">${esc(f.version || '')} · محدّث ${ago(f.updated)}</span>` : ''}
-      <span class="track" aria-hidden="true"><i style="width:${p}%"></i></span>
-      <span class="row"><span class="state">${s.icon} ${esc(s.text)}</span>${s.action ? '<span class="pill">افتح ▶</span>' : s.eta != null ? `<span class="state">باقي ${eta(s.eta)}</span>` : ''}</span>
-    </button>`;
+  const groups = {};
+  for (const f of films) (groups[topicOf(f)] ||= []).push(f);
+  const rank = (f) => (f.state === 'waiting' ? 0 : f.state === 'working' ? 1 : 2);
+  const order = Object.entries(groups).map(([id, list]) => [id, list.sort((a, b) => rank(a) - rank(b) || Date.parse(b.updated || 0) - Date.parse(a.updated || 0))])
+    .sort(([a, x], [b, y]) => (topics[a]?.order ?? 99) - (topics[b]?.order ?? 99) || rank(x[0]) - rank(y[0]) || Date.parse(y[0].updated || 0) - Date.parse(x[0].updated || 0));
+  order.forEach(([id, list], gi) => {
+    const tname = topicName(id, list), w = list.filter((f) => f.state === 'waiting').length;
+    h += `<section class="topic" style="background:${topics[id]?.color || list[0].color || COLORS[gi % COLORS.length]}" aria-label="${esc(tname)}"><div class="thead"><b>${esc(tname)}</b><span>${w ? `${w} بانتظارك` : 'كله جاهز ✓'}</span></div>`;
+    for (const f of list) {
+      const old = ruleState(f).filter((r) => !r.ok);
+      const rules = old.length ? `<span class="rold">⚠ قبل ${old.length === 1 ? 'قاعدة جديدة' : `${old.length} قواعد جديدة`}</span>` : '<span class="rok">✓ آخر القواعد</span>';
+      const st = f.state === 'waiting' ? '<span class="ist">بانتظارك</span>' : f.state === 'working' ? `<span class="ist">يشتغل ${pct(f)}%</span>` : `<span class="ist ok">${f.state === 'done' ? 'جاهز ✓' : esc(STEPS[(f.step || 1) - 1])}</span>`;
+      h += `<button type="button" class="item" data-film="${esc(f.id)}">${ICON[kindOf(f)]}<span class="iname">${esc(itemLabel(f, tname))} <span style="font-weight:600;opacity:.75">${esc(f.version || '')}</span></span>${st}
+        <span class="imeta">${f.updated ? esc(when(f.updated)) + ' · ' : ''}${rules}</span></button>`;
+    }
+    h += `</section>`;
   });
   h += `<div class="shortcuts"><a class="short" href="#recreate" style="background:var(--yellow);color:var(--ink)">ريل عجبك</a><a class="short" href="#library" style="background:var(--blue);color:#fff">فكرة جديدة</a></div>`;
   return h;
@@ -229,6 +274,9 @@ function viewFilm(id) {
       + (ch.length ? `<ul class="chg">${ch[0].what.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` + (ch.length > 1 ? `<details><summary class="note" style="cursor:pointer;color:var(--ink);font-weight:700">النسخ اللي قبل</summary>${ch.slice(1).map((c) => `<p class="note" style="color:var(--ink);font-weight:700;margin-top:6px">${esc(c.v)} · ${esc(when(c.at))}</p><ul class="chg">${c.what.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>`).join('')}</details>` : '') : '<p class="note">ما فيه سجل تغييرات لهالنسخة.</p>')
       + `</section>`;
   }
+  { const rs = ruleState(f), n = rs.filter((r) => !r.ok).length;
+    h += `<section class="group" aria-label="القواعد"><div class="row"><b>القواعد الجديدة</b><span class="note" style="color:var(--ink)">${n ? `${n} مو مطبّقة بهالنسخة` : 'كلها مطبّقة ✓'}</span></div>
+      <ul class="rules">${rs.map((r) => `<li class="${r.ok ? 'rok' : 'rold'}">${r.ok ? '✓' : '⚠'} ${esc(r.name)}</li>`).join('')}</ul>${n ? '<p class="note">انسوت هالنسخة قبل هالقواعد. قل لي إذا تبي أعيدها عليها.</p>' : ''}</section>`; }
   if (f.kind === 'carousel' && f.slides?.length) {
     h += `<section class="gate" style="background:${c}" aria-label="الكاروسيل"><div class="slides">${f.slides.map((src, k) => `<img src="${esc(src)}" alt="شريحة ${k + 1}" loading="lazy">`).join('')}</div>
       <div class="two"><button type="button" class="btn dark" data-act="share" data-id="${esc(f.id)}">شارك الكل ↗</button><button type="button" class="btn line" data-act="copy" data-id="${esc(f.id)}">انسخ الكابشن</button></div>
@@ -776,6 +824,8 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
       ready = true; refresh();
     }, () => { ready = true; refresh(); });
     db.doc('studio/now').onSnapshot((d) => { now = d.exists ? d.data() : null; refresh(); }, () => {});
+    db.doc('studio/rules').onSnapshot((d) => { const l = d.exists ? d.data().list : null; if (Array.isArray(l) && l.length) { RULES = l; refresh(); } }, () => {});
+    db.doc('studio/topics').onSnapshot((d) => { topics = d.exists ? d.data() : {}; refresh(); }, () => {});
   } catch (e) { ready = true; route(); }
 })();
 })();

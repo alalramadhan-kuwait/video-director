@@ -41,10 +41,12 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `caption` | the post caption; «شارك الكل» saves one zip of every slide and the caption (the Claude app allows one file per prompt, and its share sheet one file) and copies the caption; the numbers under it save one slide each |
 | `of` | the record of the same topic in the other format (a carousel's Reel, a Reel's carousel): the page links the two, or offers «سوّ منه كاروسيل/ريل» |
 | `spec`, `src` | a carousel's spec.json (its texts, layouts, pictures) and the published folder of its pictures (`src/carousel/<id>/`): with them the owner edits the text in the studio himself (below) |
+| `topic` | **every record** (the owner: «group the topics together, because some are the same topic»): the topic's id (`rubies`, `halter`, `tenten`); the list shows one card per topic, its Reels and carousels as slim rows (kind, version, when it was made in Kuwait time, rules). `studio/topics` names it: `{<id>: {name, color}}`; a new topic gets its entry there |
+| `rules` | **with every new version** (the owner: «so I can know the new rules are applied to this or no»): the ids of the newest rules this version follows (the page's `RULES`, or `studio/rules` `{list: [{id, kind: reel|carousel, at, name}]}` when set). Without it a version made after a rule's `at` counts as following it, so write it whenever that would be wrong (a re-render of old work). A new permanent rule goes into `RULES` (and `studio/rules`) with the time it became law, so older versions show «⚠ قبل … قواعد جديدة» |
 | `history`, `edited` | the last 10 versions before an edit in the studio (`{version, spec, slides, caption, at}`; «رجّع النسخة السابقة» restores the newest), and `edited: studio` once the owner has changed it there |
 
 The percentage is the share of steps done (step − 1 of 9; 100 when done). `studio/now` holds the line at the top:
-`{busy, text, at}`.
+`{busy, text, at}` (hidden once it is over 3 hours old and Claude is not busy: keep it current).
 
 ## What the owner sends back
 The film page's buttons (approve, change with a note) and the library's «ابدأ فلم بهالنوع» send a comment to Claude
