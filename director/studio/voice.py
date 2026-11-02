@@ -99,6 +99,29 @@ def encode(a: np.ndarray, fmt: str) -> bytes:
                inp=a.clip(-.99, .99).tobytes())
 
 
+# A boomy narration (the owner on Halter 2 v5, the Abdullah voice: «عدل الصوت في تضخم»): its speech had 58% of its
+# energy under 150 Hz (-2.4 dB of the whole; Jarnathan sits at -9), and the loudness step then limited it hard.
+BOOM_DB = -5.0                                                         # share of the energy under 150 Hz that counts as boomy
+TONE = 'highpass=f=90,bass=g=-6:f=200:w=0.6,equalizer=f=3000:t=q:w=1.2:g=3'   # Halter 2: -2.7 dB → -6.5
+
+
+def low_share(a: np.ndarray) -> float:
+    """dB of a take's speech energy at 60–150 Hz against 60 Hz up (frames quieter than -34 dBFS left out)."""
+    n = 4096
+    fr = [a[i:i + n] for i in range(0, len(a) - n, n)]
+    fr = [f for f in fr if np.sqrt((f ** 2).mean()) > 0.02]
+    if not fr: return -99.0
+    s = np.mean([np.abs(np.fft.rfft(f * np.hanning(n))) ** 2 for f in fr], 0)
+    hz = np.fft.rfftfreq(n, 1 / SR)
+    return float(10 * np.log10(s[(hz >= 60) & (hz < 150)].sum() / max(s[hz >= 60].sum(), 1e-12)))
+
+
+def tone(a: np.ndarray) -> np.ndarray:
+    """The take as it is, or, when it is boomy (low_share over BOOM_DB), its low end cut and its presence lifted."""
+    if len(a) < 4096 or low_share(a) <= BOOM_DB: return a
+    return decode(_ff('-i', '-', '-af', TONE, '-f', 'wav', '-', inp=encode(a, 'wav')))
+
+
 def peaks(a: np.ndarray, bins=160) -> list[float]:
     if not len(a): return []
     chunks = np.array_split(np.abs(a), bins)
