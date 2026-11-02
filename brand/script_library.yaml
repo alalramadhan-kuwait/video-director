@@ -1,0 +1,217 @@
+# The script library (the owner, 2 Nov 2026: «there are type of scripts… build a library to guide the video type from this
+# script… set the language of these scripts and have the rules: is it light Arabic or Kuwaiti or TK style, with examples»).
+# A film names its type and its language in its file (`script_type:`, `language:`); story_check holds it to them.
+# Examples use [brackets] where a real fact goes: a skeleton never invents one.
+
+languages:
+  tk:
+    name: أسلوب تايم كيبر
+    default: true
+    base: فصحى خفيفة تنقرأ مثل الكلام، مثل أخبار تايم كيبر المنشورة (1,792 خبر)
+    when: الأخبار والتاريخ والآليات، وأغلب أفلام الحساب
+    rules:
+      - فصحى بصيغة الوقف، بدون تنوين ولا إعراب ظاهر («حققت نجاح كبير»، «150 عام»)
+      - قواعد خليجية حيث الفصحى ثقيلة («ساعتين»، «وليس»)
+      - روابط الأخبار («مع»، «حيث»، «كما»، «أما… ف»، «بينما»، «تجمع بين»)
+      - الكويتي لمسة خفيفة، في السؤال الأول أو الأخير غالبًا («شنو»، «شرايكم؟»)
+      - كلمات الأخبار («ستيل» وليس «فولاذ»، «مينا»، «تكويك يدوي» وليس «تعبئة يدوية»)
+      - الأسماء بالعربي على الشاشة وتنقال بلغتها، والأرقام إنجليزية
+    avoid: [فولاذ, تعبئة يدوية, يهال]
+    example:
+      hook: شنو الفرق بين ساعة فيها 17 حبة ياقوت… وساعة فيها 21؟
+      line: وبقي الياقوت غالي قرنين… حتى صنعه فيرنوي في 1902 في اللهب، حقيقي ورخيص
+      close: وساعتك… شكم حبة فيها؟
+  light:
+    name: عربي خفيف
+    base: فصحى بسيطة يفهمها كل العرب (العربية البيضاء)، بدون لهجة
+    when: جمهور عربي واسع خارج الخليج، والمواضيع الرسمية
+    rules:
+      - جمل قصيرة وكلمات مألوفة، بدون مصطلحات ثقيلة
+      - بدون كلمات لهجة («ما» و«لماذا» بدل «شنو» و«ليش»)
+      - الإعراب ما يُنطق في نهاية الجملة (وقف)، والتنوين بس حيث يسهل السمع
+      - الأسماء بالعربي على الشاشة وتنقال بلغتها، والأرقام إنجليزية
+    avoid: [شنو, ليش, وايد, شلون, يبي, لين, جذي, عقب, شكم, شكثر, يهال]
+    example:
+      hook: ما الفرق بين ساعة فيها 17 حجر ياقوت… وأخرى فيها 21؟
+      line: وظل الياقوت غاليًا قرنين… حتى صنعه فيرنوي عام 1902 في اللهب، حقيقيًا ورخيصًا
+      close: وساعتك أنت… كم حجرًا فيها؟
+  kuwaiti:
+    name: كويتي
+    base: اللهجة الكويتية كاملة، مثل ما نسولف
+    when: الحكايات القريبة من الناس، والريلات الخفيفة، وسؤال المتابع
+    caution: >-
+      رفضت السرد الكويتي الكامل في Halter («النطق الكويتي سيء خلك في خطتنا»): الأصوات الحالية تنطقه غلط.
+      نجرّب سطرين بالصوت أول ونرسلهم MP4 قبل التسجيل الكامل.
+    rules:
+      - كلمات كويتية طبيعية («شنو»، «ليش»، «وايد»، «لين»، «يبي»، «عقب»، «جذي»)
+      - جمل قصيرة مثل الكلام، بدون تكلّف ولا مبالغة في اللهجة
+      - بدون «يهال»: «طفل» و«أطفال» (طلبك)
+      - الأسماء بالعربي على الشاشة وتنقال بلغتها، والأرقام إنجليزية
+    avoid: [يهال, سوف, لماذا, ماذا, هكذا]
+    example:
+      hook: شنو الفرق بين ساعة فيها 17 حبة ياقوت… وساعة فيها 21؟
+      line: وظل الياقوت غالي ميتين سنة… لين ما صنعه فيرنوي في 1902 بالنار، حقيقي ورخيص
+      close: وإنت… ساعتك كم حبة فيها؟ قولوا لنا بالتعليقات
+
+# Each type: what it is for, its length, its acts (each opens with `act: true` in the film; share = part of the film),
+# the hooks that suit it, the languages and styles that fit it, and a film of ours that follows it.
+types:
+  hidden_history:
+    name: تاريخ خفي
+    job: حدث حقيقي ورا شي الكل يعتبره عادي، وآخر معلومة تقلب كل شي
+    seconds: [60, 90]
+    hooks: [سؤال المتابع, صورة في منتصف الحدث, رقم صادم]
+    languages: [tk, light]
+    styles: [data, paper, archival collage, copperplate engraving, 1920s newsreel]
+    acts:
+      - {name: الهوك والسؤال, share: 0.12, example: "«[الشي العادي]… بس منو اللي [القلبة]؟»"}
+      - {name: السياق, share: 0.25, example: "«والقصة تبدأ في [المكان] قبل [المدة]…»"}
+      - {name: الآلية, share: 0.43, example: "«لكن [المشكلة]… فجاء [الحل]»"}
+      - {name: القلبة الأخيرة, share: 0.2, example: "«والمفارقة؟ [المعلومة الأخيرة]»"}
+  numbers_explainer:
+    name: شرح بالأرقام
+    job: سؤال «شنو الفرق؟» بأرقام حقيقية، وجواب يرجع للسؤال
+    seconds: [60, 90]
+    hooks: [سؤال المتابع, رقمين متقابلين]
+    languages: [tk, light]
+    styles: [data, data storytelling, exploded teardown]
+    film: rubies
+    acts:
+      - {name: السؤال, share: 0.2, example: "«شنو الفرق بين [أ] فيها [رقم]… و[ب] فيها [رقم]؟»"}
+      - {name: ليش أصلًا, share: 0.25, example: "«وقبل الجواب… ليش أصلًا [السبب]؟»"}
+      - {name: القصة والأرقام, share: 0.35, example: "«ولما [تغيّر]… صار [الرقم] [المعنى]»"}
+      - {name: الجواب, share: 0.2, example: "«نرجع لسؤالنا… [الجواب]»"}
+  biography:
+    name: قصة وسيرة
+    job: شخص أو براند بالترتيب، بداية ومنعطف ومهمة وبعدها
+    seconds: [60, 90]
+    hooks: [أقوى لحظة حقيقية, صورة الشخص في منتصف الحدث]
+    languages: [tk, light]
+    styles: [paper, archival collage, wood marquetry]
+    film: panerai
+    acts:
+      - {name: الهوك, share: 0.1, example: "«[أقوى لحظة]… في [السنة]»"}
+      - {name: البداية, share: 0.25, example: "«وكل شي بدأ في [المدينة]، عام [السنة]»"}
+      - {name: المنعطف, share: 0.3, example: "«لكن [المشكلة]… فقرر [القرار]»"}
+      - {name: المهمة, share: 0.2, example: "«وبينما [الحدث]…»"}
+      - {name: بعدها, share: 0.15, example: "«هكذا صارت [الاسم]…»"}
+  how_it_works:
+    name: كيف تشتغل
+    job: آلية خطوة بخطوة، كل خطوة مفاجأة صغيرة
+    seconds: [45, 75]
+    hooks: [سؤال عن شي داخل الساعة, صورة القطعة]
+    languages: [tk, light]
+    styles: [technical, data, exploded teardown, blueprint, microscope story]
+    acts:
+      - {name: السؤال, share: 0.15, example: "«شلون [القطعة] تعرف [الشي]؟»"}
+      - {name: الخطوات, share: 0.65, example: "«أول شي [خطوة]… بعدها [خطوة]… وهنا السر: [المفاجأة]»"}
+      - {name: الخلاصة, share: 0.2, example: "«يعني كل [رقم] ثانية، [النتيجة]»"}
+  myth_fact:
+    name: خرافة أو حقيقة
+    job: الكل يقول كذا… والحقيقة غير، والخرافة نفسها هي المفاجأة
+    seconds: [40, 60]
+    hooks: [الخرافة كما ينقالها الناس]
+    languages: [tk, kuwaiti]
+    styles: [dark keynote, data, archival collage]
+    acts:
+      - {name: الخرافة, share: 0.2, example: "«يُقال إن [الخرافة]…»"}
+      - {name: الحقيقة, share: 0.55, example: "«لكن [المصدر] يقول [الحقيقة]»"}
+      - {name: ليش انتشرت, share: 0.25, example: "«وانتشرت لأن [السبب]»"}
+  comparison:
+    name: مقارنة
+    job: ساعتين أو حقبتين جنب بعض، بأرقام موثقة
+    seconds: [45, 70]
+    hooks: [سؤال «أيهم؟», رقمين متقابلين]
+    languages: [tk, kuwaiti]
+    styles: [data, paper]
+    acts:
+      - {name: السؤال, share: 0.15, example: "«[أ] ولا [ب]؟»"}
+      - {name: الفروق, share: 0.6, example: "«[أ] [ميزة] بينما [ب] [ميزة]»"}
+      - {name: الحكم, share: 0.25, example: "«يعني إذا تبي [الشي] ف[أ]»"}
+  evolution:
+    name: تطوّر عبر الزمن
+    job: خط زمني من أول نسخة لليوم
+    seconds: [60, 80]
+    hooks: [أول نسخة جنب آخر نسخة]
+    languages: [tk, light]
+    styles: [paper, archival collage, 1920s newsreel]
+    acts:
+      - {name: البداية, share: 0.2, example: "«في [السنة] كانت [الساعة] [الوصف]»"}
+      - {name: المحطات, share: 0.6, example: "«بعدها بـ[المدة]… [التغيير] لأن [السبب]»"}
+      - {name: اليوم, share: 0.2, example: "«واليوم [الحال]»"}
+  top_list:
+    name: أفضل 5
+    job: ثلاث أو خمس، من الأقل للأقوى، والأخيرة تفاجئ
+    seconds: [45, 70]
+    hooks: [الرقم الأول مباشرة]
+    languages: [kuwaiti, tk]
+    styles: [data, dark keynote, paper]
+    acts:
+      - {name: الوعد, share: 0.1, example: "«[العدد] [أشياء] ما تعرفها عن [الموضوع]»"}
+      - {name: القائمة, share: 0.75, example: "«رقم [ن]: [الشي]… لأن [السبب]»"}
+      - {name: الأخيرة, share: 0.15, example: "«والأخيرة؟ [المفاجأة]»"}
+  record_auction:
+    name: رقم قياسي ومزاد
+    job: كم بيعت، ليش، ومنو اشتراها
+    seconds: [45, 70]
+    hooks: [السعر]
+    languages: [tk, light]
+    styles: [data, paper]
+    acts:
+      - {name: السعر, share: 0.2, example: "«[المبلغ]… هذا سعر ساعة وحدة»"}
+      - {name: ليش, share: 0.6, example: "«لأن [السبب]… و[السبب]»"}
+      - {name: منو, share: 0.2, example: "«واللي اشتراها [المشتري إن كان معروف]»"}
+  news_launch:
+    name: خبر وإطلاق
+    job: الإصدار الجديد، شنو الجديد، ليش يهم، وكم سعره
+    seconds: [30, 50]
+    hooks: [الساعة نفسها]
+    languages: [tk]
+    styles: [data, dark keynote]
+    acts:
+      - {name: الخبر, share: 0.25, example: "«[البراند] تطلق [الساعة]»"}
+      - {name: الجديد, share: 0.5, example: "«مع [الميزة]… وتتميز بـ[الميزة]»"}
+      - {name: السعر والسؤال, share: 0.25, example: "«سعرها [السعر]… شرايكم؟»"}
+  parable_lesson:
+    name: حكاية ودرس
+    job: قصة رمزية بطلها ساعة، ثم «تدري؟ بالحياة…»
+    seconds: [65, 78]
+    hooks: [صورة في منتصف الحدث]
+    languages: [kuwaiti, tk]
+    styles: [ai route, crayon picture book, paper pop-up book, shadow puppetry]
+    acts:
+      - {name: الحكاية, share: 0.65, example: "«كل يوم [الشخص] [الفعل] بنفس الطريقة…»"}
+      - {name: القلبة, share: 0.1, example: "«[جملة قصيرة تقلب الحكاية]»"}
+      - {name: الدرس, share: 0.25, example: "«تدري؟ بالحياة… [ثلاث أمثلة]»"}
+  parable_brand:
+    name: حكاية وبراند
+    job: قصة قصيرة درسها يصير سبب تتابعنا
+    seconds: [55, 60]
+    hooks: [البطل يحاول ثلاث مرات]
+    languages: [kuwaiti, tk]
+    styles: [ai route, wood marquetry, paper]
+    acts:
+      - {name: الحكاية, share: 0.4, example: "«[البطل] حاول [ثلاث مرات]…»"}
+      - {name: الجسر, share: 0.1, example: "«اليوم… [الشي] هو [شي حديث]»"}
+      - {name: البراند, share: 0.5, example: "«[تايم كيبر من 2018]… تابعنا»"}
+  behind_scenes:
+    name: ورا الكواليس
+    job: الورشة واليد والأداة، كيف تنصنع
+    seconds: [45, 70]
+    hooks: [يد الصانع على القطعة]
+    languages: [tk, kuwaiti]
+    styles: [paper, wood marquetry, microscope story]
+    acts:
+      - {name: اليد, share: 0.2, example: "«هذي [القطعة] تاخذ [المدة]»"}
+      - {name: الخطوات, share: 0.6, example: "«أول [خطوة]… وبعدها [خطوة]»"}
+      - {name: النتيجة, share: 0.2, example: "«والنتيجة [الشي]»"}
+  viewer_question:
+    name: سؤال للمتابع
+    job: معلومة واحدة تنتهي بسؤال يفتح التعليقات
+    seconds: [20, 40]
+    hooks: [المعلومة مباشرة]
+    languages: [kuwaiti, tk]
+    styles: [data, dark keynote]
+    acts:
+      - {name: المعلومة, share: 0.7, example: "«[المعلومة]»"}
+      - {name: السؤال, share: 0.3, example: "«وإنت؟ [السؤال]»"}

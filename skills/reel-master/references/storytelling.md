@@ -98,6 +98,13 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     `house_style: false` (Halter 1 and 2 stay as approved). For new films this replaces rule 9b's Latin letters on
     screen; the voice still says names in English.
 
+9f. **Every script has a type and a language** ✓ (the owner, 2 Nov 2026: «build a library to guide the video type
+    from this script… set the language of these scripts and have the rules: is it light Arabic or Kuwaiti or TK style,
+    with examples»). The film file names its `script_type:` (14 in `brand/script_library.yaml`) and its `language:`:
+    **tk**, Time Keeper style (rule 9e, the default), **light**, light Arabic with no dialect, or **kuwaiti**, full
+    Kuwaiti (voiced on two lines and sent as an MP4 first: the owner found full Kuwaiti narration badly pronounced on
+    Halter). story_check holds the lines to the language's rules (Kuwaiti a light touch in tk; no dialect in light) and
+    the spoken length to the type's range, before any voice is paid for.
 9d. **The voice reads every number as words** ✓ (the owner, hearing «71,400» read from digits: «نطق الرقم سيء»). Prices,
     counts and years go to the voice in words in `say:` («واحدٍ وسبعين ألفًا وأربعمئة دينار كويتي»); the screen and the
     captions keep the digits. `story_check` flags a digit in what the voice reads. Test recordings follow the same rule.

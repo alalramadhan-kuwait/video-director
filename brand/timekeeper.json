@@ -35,6 +35,10 @@
     "_keep_latin": "Foreign names and English words are written in Latin letters in the script and on screen, and the voice reads them as they are (as in the Gérald Genta films): the local engines skip the Latin-to-Arabic entries of pronunciation.json; the free draft voice still uses them.",
     "house_style": true,
     "_house_style": "The news group's style (rule 9e, references/house-style.md): names written in Arabic as the news posts spell them (brand/names.json) and said in their own language (load() gives the voice the Latin); numbers on screen in English digits; plain letters on screen; the house words. A film made before it sets house_style: false.",
+    "script_language": "tk",
+    "_script_language": "The default language of a script (brand/script_library.yaml): tk (Time Keeper style), light (light Arabic) or kuwaiti. A film sets its own with language:.",
+    "chars_per_second": 10,
+    "_chars_per_second": "The voice's pace for estimating a script's length before recording (Jarnathan, 2 Nov 2026: about 10 spoken characters a second).",
     "engine_pronunciation": {
       "_note": "Respellings one engine needs on top of pronunciation.json, chosen by listening (Whisper) to the variants. VoxCPM2 shortens the first vowel of بانيراي and misreads the Italian bridge name.",
       "voxcpm2": {

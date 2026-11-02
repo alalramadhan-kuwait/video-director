@@ -71,6 +71,7 @@ from . import beats, platforms, quality, brand as B
 from .copilot import commons, sounds
 from .studio import art, checks, clips, engine, looks, mix, moods, motion, sets, textload, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
+from . import scripts
 
 
 def load(path) -> dict:
@@ -204,6 +205,7 @@ def story_check(film: dict) -> list[str]:
                     if re.search(r'(?<![A-Za-z])' + re.escape(en) + r'(?![A-Za-z])', t):
                         out.append(f"{ln['id']}: write «{en}» on screen in Arabic as the news does («{ar}»); the voice still says {en}")
             for pat, easy in HOUSE_WORDS:
+                if scripts.language(film) != 'tk' and 'يهال' not in pat: continue     # the news words are Time Keeper style's
                 m = re.search(pat, ' '.join([ln['text']] + on_screen(ln)))
                 if m:
                     out.append(f"{ln['id']}: «{m.group(0).strip()}» is not how the news writes it; use {easy}")
@@ -306,6 +308,7 @@ def story_check(film: dict) -> list[str]:
         for t in on_screen(ln):
             if not ln.get('screen_ok') and not _says(t, said):
                 out.append(f"{ln['id']}: the screen shows «{t}», which this line does not say")
+    out.extend(scripts.check(film))                                      # its script type and language (brand/script_library.yaml)
     flow = any(x.get('act') for x in lines)                               # a film told in acts (rule 3b): a date is no bridge
     for prev, ln in zip(lines, lines[1:]):                               # every change of scene is led into
         first = (checks.words(ln['text']) or [''])[0]
