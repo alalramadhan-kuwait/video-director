@@ -22,6 +22,10 @@ waits for them.
 This skill joins seven earlier ones. Where they disagreed, **the owner's latest correction wins**; the table in
 § "Which rule wins" lists each conflict and its answer, so never fall back on an older skill's rule.
 
+**The studio** (`references/studio.md`, https://claude.ai/artifact/UQ2iS18beg8zt9DztSLNZ6) shows the owner every film's
+percentage, time left and what waits for them: update its film record at the start and end of every step and at every
+gate, and read its inbox when a film waits.
+
 ## Rules that never bend
 - **Facts need sources.** Every claim maps to a source; quote institutions in their own words. A popular myth is said
   only as a belief, or becomes the twist.
@@ -180,4 +184,5 @@ requests once the tests pass.
 - `references/code-styles.md`: building in one of the 66 lemo-opuscar styles.
 - `references/wood-marquetry.md` + `assets/wood.js`: the Wood Marquetry rules and veneer engine.
 - `references/post.md`: the cover, the carousel template, the caption and the credits.
+- `references/studio.md`: the owner's dashboard, its records and how to keep it current.
 - `skills/arabic-narration/GUIDE.md`: the free Arabic voice engines and the pronunciation review page.

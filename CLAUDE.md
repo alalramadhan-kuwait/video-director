@@ -10,6 +10,10 @@ build → critic → the post. It is the one skill for Reels; it replaced video-
 arabic-narration (now `skills/arabic-narration/GUIDE.md`, its free voice engines), story-reel-script, code-film-styles,
 wood-marquetry-video and the Reel side of timekeeper-post.
 
+The owner follows films in the studio artifact (`references/studio.md`); keep it current at every step. The older
+phone app in this repository (`tools/run_mac.sh`, `studio-app/`, the copilot and dashboard screens) is retired (the
+owner, 2 Nov 2026): do not extend it.
+
 Every film follows the owner's standards in `.claude/skills/reel-master/references/storytelling.md` (told in order
 and connected, a lead-in to every change of scene, each scene showing what is said in it, causes explained, feelings
 named, historical photos, precise wording, worlds, city zooms) without being asked again. When the owner corrects
