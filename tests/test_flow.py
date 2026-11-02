@@ -66,3 +66,29 @@ class OneTakePerAct(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class Emotion(unittest.TestCase):
+    """The owner chose Faisal on eleven_v3 with emotion («اعتمد ٢»): a line's `emotion:` is an audio tag the voice
+    performs on v3, never on the older model, and the screen text never carries it."""
+    def test_the_tag_goes_in_front_on_v3_only(self):
+        ln = {'id': 'l0', 'text': 'بنت تسبح بالبحر…', 'emotion': 'calm, curious'}
+        self.assertEqual(rf.tagged(ln, 'بنت تسبح بالبحر…', rf.V3), '[calm, curious] بنت تسبح بالبحر…')
+        self.assertEqual(rf.tagged(ln, 'بنت تسبح بالبحر…', 'eleven_multilingual_v2'), 'بنت تسبح بالبحر…')
+        self.assertEqual(rf.tagged({'id': 'l1', 'text': 'x'}, 'x', rf.V3), 'x')
+
+    def test_v3_settings_are_its_own(self):
+        self.assertNotIn('style', rf.SETTINGS_V3)
+        self.assertLess(rf.SETTINGS_V3['speed'], 1.0)
+
+
+class Streamed(unittest.TestCase):
+    def test_pieces_join_into_one_answer(self):
+        import base64, json
+        a = {'audio_base64': base64.b64encode(b'AB').decode(), 'alignment': {'characters': ['x'], 'character_start_times_seconds': [0.0], 'character_end_times_seconds': [.1]}}
+        b = {'audio_base64': base64.b64encode(b'CD').decode(), 'alignment': {'characters': ['y'], 'character_start_times_seconds': [.1], 'character_end_times_seconds': [.2]}}
+        d = rf.joined(json.dumps(a) + '\n' + json.dumps(b) + '\n')
+        self.assertEqual(base64.b64decode(d['audio_base64']), b'ABCD')
+        self.assertEqual(d['alignment']['characters'], ['x', 'y'])
+        with self.assertRaises(RuntimeError):
+            rf.joined('{"detail": "quota"}')

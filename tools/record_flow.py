@@ -65,20 +65,47 @@ def cuts(spans: list[tuple[int, int]], starts: list[float], ends: list[float], t
     return list(zip(bounds, bounds[1:]))
 
 
+V3 = 'eleven_v3'
+SETTINGS_V3 = {'stability': .5, 'similarity_boost': .8, 'speed': .8}   # «Natural»; v3 takes no style or speaker boost
+
+
+def tagged(ln: dict, spoken: str, model: str) -> str:
+    """The line as the voice reads it: on eleven_v3 its `emotion:` goes in front as an audio tag («[calm, curious] …»),
+    which the voice performs and never says (the owner, 2 Nov 2026, choosing Faisal on v3 with emotion: «اعتمد ٢»).
+    The screen and the captions keep `text`."""
+    e = (ln.get('emotion') or '').strip()
+    return f'[{e}] {spoken}' if e and model == V3 else spoken
+
+
 def speak(voice: str, text: str, prev: str | None, nxt: str | None, seed: int, model: str) -> dict:
     body = {'text': text, 'model_id': model, 'seed': seed, 'voice_settings': SETTINGS}
+    if model == V3: body.pop('seed'); prev = nxt = None      # v3 reads the whole take at once, without context fields
     if prev: body['previous_text'] = prev
     if nxt: body['next_text'] = nxt
     with tempfile.NamedTemporaryFile('w', suffix='.json', delete=False, encoding='utf-8') as f:
         json.dump(body, f, ensure_ascii=False); req = f.name
-    cmd = ['curl', '-sS', '--max-time', '300', '-H', 'Content-Type: application/json', '-X', 'POST',
-           f'https://api.elevenlabs.io/v1/text-to-speech/{voice}/with-timestamps?output_format=mp3_44100_128', '--data-binary', '@' + req]
+    stream = model == V3          # a long v3 take outlasts the proxy's wait for a whole answer: it is streamed in pieces
+    cmd = ['curl', '-sS', '-N', '--max-time', '600', '-H', 'Content-Type: application/json', '-X', 'POST',
+           f"https://api.elevenlabs.io/v1/text-to-speech/{voice}/{'stream/' if stream else ''}with-timestamps?output_format=mp3_44100_128",
+           '--data-binary', '@' + req]
     if os.environ.get('ELEVENLABS_API_KEY'): cmd[1:1] = ['-H', 'xi-api-key: ' + os.environ['ELEVENLABS_API_KEY']]
     r = subprocess.run(cmd, capture_output=True, text=True, check=True)
     os.unlink(req)
-    d = json.loads(r.stdout)
+    d = joined(r.stdout) if stream else json.loads(r.stdout)
     if 'audio_base64' not in d: raise RuntimeError(f'ElevenLabs: {r.stdout[:300]}')
     return d
+
+
+def joined(ndjson: str) -> dict:
+    """A streamed answer (one JSON object a line: a piece of audio and the timings of its characters, in seconds from
+    the start) as one answer: the audio end to end, the timings in order."""
+    parts = [json.loads(x) for x in ndjson.splitlines() if x.strip()]
+    if not parts or not any('audio_base64' in p for p in parts): raise RuntimeError(f'ElevenLabs: {ndjson[:300]}')
+    audio = b''.join(base64.b64decode(p['audio_base64']) for p in parts if p.get('audio_base64'))
+    al = {'characters': [], 'character_start_times_seconds': [], 'character_end_times_seconds': []}
+    for p in parts:
+        for k in al: al[k] += (p.get('alignment') or {}).get(k) or []
+    return {'audio_base64': base64.b64encode(audio).decode(), 'alignment': al}
 
 
 def pcm(mp3: bytes) -> bytes:
@@ -101,6 +128,9 @@ def main(argv=None) -> int:
     ap.add_argument('--anyway', action='store_true', help='record even when the delivery plan breaks one performance')
     a = ap.parse_args(argv)
     film = quickfilm.load(a.film); brand = film.get('brand', 'timekeeper')
+    global SETTINGS
+    if a.model == V3: SETTINGS = dict(SETTINGS_V3)
+    SETTINGS = {**SETTINGS, **((film.get('voice') or {}).get('settings') or {})}   # the film's own voice settings win
     out = Path(a.out); (out / 'raw').mkdir(parents=True, exist_ok=True)
     problems = narration.check(film['lines'])
     for p_ in problems: print('delivery:', p_)
@@ -108,7 +138,7 @@ def main(argv=None) -> int:
     allsaid = [B.spoken(ln.get('say') or ln['text'], brand) for ln in film['lines']]
     whole = sum(len(t) + 1 for t in allsaid) <= MAX_CHARS and not a.per_act
     groups = [film['lines']] if whole else acts(film['lines'])
-    said = [[B.spoken(ln.get('say') or ln['text'], brand) for ln in g] for g in groups]
+    said = [[tagged(ln, B.spoken(ln.get('say') or ln['text'], brand), a.model) for ln in g] for g in groups]
     paras = [paragraph(t) for t in said]
     for k, (g, (text, spans)) in enumerate(zip(groups, paras)):
         d = speak(a.voice, text, paras[k - 1][0] if k else None, paras[k + 1][0] if k + 1 < len(paras) else None, a.seed, a.model)

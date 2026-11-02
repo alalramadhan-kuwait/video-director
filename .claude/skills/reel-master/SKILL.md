@@ -87,7 +87,13 @@ together.
 
 ### 4. Voice
 - **The voice:** «Faisal», the owner's cloned Kuwaiti voice, ElevenLabs `ACGeXdn44RW29fHPITsl` (the owner, 2 Nov 2026:
-  «I just added voice called faisal use it»), **at speed 0.7** (the owner: «I like faisal at 0.7 feels calm»):
+  «I just added voice called faisal use it»), **on ElevenLabs v3 with emotion** (the owner chose it, «اعتمد ٢», over
+  the older model, which read Faisal flat and in fusha): `python3 tools/record_flow.py films/<f>.yaml <dir> --voice
+  ACGeXdn44RW29fHPITsl --model eleven_v3`, each line's `emotion:` («calm, curious», «proud», «sad, quietly»…) sent as an
+  audio tag the voice performs and never says, the film's `voice.settings` (stability .5, speed .8) winning; the
+  take is streamed, since a long v3 take outlasts the proxy. **The owner reviews the pronunciation** before pictures
+  are made: a page per take (each line playable on its own, the words the transcription missed or heard differently
+  highlighted, words to tap as wrong, notes) whose notes come back as a comment. Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
   stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
   like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
   say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
