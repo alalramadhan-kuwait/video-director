@@ -97,7 +97,10 @@ together.
   (2 Nov 2026, 8 words): on v3, spelling «گ» by hand made it worse («تْگول، گطعت، يگنع، گيمتك» all marked): v3 says
   ق the Kuwaiti way by itself, so write the normal letter and keep گ/چ only where it was not marked («تگطع، جدام، چم،
   چذب، بوگت أگل، صدّگوها»); a formal verb gets the Kuwaiti one («يراقبون» → «يطالعون»); a vowel v3 reads the fusha
-  way gets one light mark, never full tashkeel («سِباحة»، «نْحِسب»). Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
+  way gets one light mark, never full tashkeel («سِباحة»، «نْحِسب»). His second review marked the last two («تگطع»,
+  «بوگت»): **on v3 never write «گ» by hand.** **Pace** (the owner: «نخليها اسرع شوي»): speed .9, and since v3's own
+  rhythm barely follows that setting while its held beats leave 0.7 s pauses, `python3 tools/tighten_take.py
+  <voice_dir> --cap 0.5` cuts every silence over half a second to half a second, the voice untouched (127 → 110 s). Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
   stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
   like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
   say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
