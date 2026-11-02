@@ -16,7 +16,8 @@ description: >-
 
 The owner writes from an iPhone, in Kuwaiti Arabic or English. Reply in their language, short: **what is done, what
 remains, what you need from them.** Run every step yourself. The owner decides only at the gates marked **(owner)**:
-the hook, the script, the voice when it changes, the style, and the finished film. Nothing else waits for them.
+the script with its hook (one question), the voice when it changes, the style, and the finished film. Nothing else
+waits for them.
 
 This skill joins seven earlier ones. Where they disagreed, **the owner's latest correction wins**; the table in
 § "Which rule wins" lists each conflict and its answer, so never fall back on an older skill's rule.
@@ -35,25 +36,34 @@ This skill joins seven earlier ones. Where they disagreed, **the owner's latest 
 
 ## The flow (always in this order)
 
-### 1. Idea → format and research
-Pick the format (`references/story-engine.md` §1): **B, hidden true history** (most watch topics: a mechanism, a
-brand, an event behind something everyone takes for granted); **A, parable → life lesson**; **C, parable → brand**.
-Then research: museums, archives, patent offices, established references; the brand only for its own claims. Keep
+### 1. Idea → script type, language and research
+Pick the **script type** and the **language** from the script library (`brand/script_library.yaml`;
+`python3 tools/script_library.py` lists them, `… <type> --language <lang>` shows a type's acts, skeleton lines and an
+example). 14 types (hidden history, numbers explainer, biography, how it works, myth or fact, comparison, evolution,
+top 5, record and auction, news and launch, parable → lesson, parable → brand, behind the scenes, question to the
+viewer), each with its length, acts, hooks, languages and styles. Three languages, each with its rules and the same
+lines written in it: **tk** (Time Keeper style, the default: the news' light fusha), **light** (light Arabic for every
+Arab), **kuwaiti** (full Kuwaiti; the owner rejected it for Halter's voice, so two lines are voiced and sent as an MP4
+before a full recording). The owner may name both with the idea; otherwise pick them and say so with the script.
+The film file carries them: `script_type:` and `language:`; story_check holds the script to them and to the type's
+length. The formats in `references/story-engine.md` §1 are the beats behind A/B/C. Then research: museums, archives, patent offices, established references; the brand only for its own claims. Keep
 every source link. Find the causes (why each thing happened), the human stories and their feelings, the numbers, the
 ironic final fact, and the real photographs (`python3 tools/find_photo.py "<what>" --save <dir>`). For a big topic,
 split the research across parallel agents, one per angle, each saving notes with sources.
 
 ### 2. Hook and script
-- **Hook (owner):** offer 3–4 true hooks from the research and recommend one (rule 6; hooks in
-  `vendor/paper-story/references/hooks.md`). A physical first image or the owner's own question beats a teaser. The
-  first frame shows the real subject, named.
+- **Hook:** pick the strongest true hook from the research (rule 6; the type's `hooks`;
+  `vendor/paper-story/references/hooks.md`) and write the script from it; two alternatives go with the script so the
+  owner can swap it at the script gate (one question, not two: the owner's choice, 2 Nov 2026). A physical first image
+  or the owner's own question beats a teaser. The first frame shows the real subject, named.
 - **Script:** in **acts** (3–5; `act: true` on the line that opens each), told in order after the hook, each line
   leading into the next (rule 3b): read it aloud as one paragraph; every line answers, continues or turns the one
   before. A date is not a bridge. One idea per line, 6–10 words.
 - **House style** (`references/house-style.md`, rule 9e): the middle ground between fusha and Kuwaiti that the final
   news posts use; names written in Arabic on screen and said in their own language (`names:`); numbers on screen in
   English digits, said as words (`say:`); every abbreviation explained.
-- **Length:** 60–90 s. Budget the voice at about **10 spoken characters a second** (Jarnathan). Over budget: cut a fact,
+- **Length:** the type's range. `python3 tools/script_library.py --check films/<film>.yaml` gives the spoken length
+  before any voice is paid for (`narration.chars_per_second`, about 10 for Jarnathan). Over budget: cut a fact,
   **never a bridge**, and never speed the voice up.
 - Beats, writing rules and the shot direction for each format: `references/story-engine.md`.
 - All the owner's standing rules for the story, the pictures, the look and the sound: `references/storytelling.md`
@@ -64,7 +74,9 @@ The reader panel (`references/reader-panel.md`, rule 6d) before the owner sees i
 simplifies every sentence), **Fahad** (medium), **Bu Khaled** (expert collector: facts, and «which watch? show it»),
 **Salem** the filter (checks each concern against the research), and **Étienne** (brand, design and Reel specialist;
 his brand «no» blocks). They read what the viewer gets: what is said, written and seen. At most three rounds. Then
-send the script **(owner)** as a short numbered list by act, with a line on what the readers changed.
+send the script **(owner)** as a short numbered list by act, with its type and language, the chosen hook and two
+alternatives, its estimated length, and a line on what the readers changed. The owner approves the script and the hook
+together.
 
 ### 4. Voice
 - **The voice:** «Jarnathan - Confident and Versatile», ElevenLabs `c6SfcYrb2t09NHXiT80T` (the owner, 2 Nov 2026). A new
@@ -143,7 +155,7 @@ approves or comments with time codes; fix only that and resend. Never post witho
 | Sound effects | synthesised kit (`pluck.py`, `sfx.py`, paper sounds) | real recordings only, ≤ 6 a minute, 16–20 dB under the voice |
 | Text on screen | captions, titles, cards, labels | captions plus one block of text; no «simplified drawing» label; no AI caption |
 | Captions | yellow Clayrified captions | the brand's captions (gold active word; flat dark chips in the data look), 2–5-word chunks |
-| Approvals | one approval at the end (video-director) / don't ask before the script (story-reel-script) | the gates above: hook, script, voice change, style, film |
+| Approvals | one approval at the end (video-director) / don't ask before the script (story-reel-script) | the gates above: script with its hook, voice change, style, film |
 | Comparing watches | two dial photos side by side | real movements with their visible jewels ringed, checked by an expert |
 | Numbers on screen | Arabic-Indic or English | English digits |
 
@@ -160,6 +172,7 @@ requests once the tests pass.
 
 ## Files
 - `references/storytelling.md`: every rule the owner set (the story, facts, pictures, look and sound, delivery).
+- `brand/script_library.yaml` (+ `tools/script_library.py`): the script types and the three languages with rules and examples.
 - `references/house-style.md`: how Time Keeper writes, from 1,792 final news posts.
 - `references/reader-panel.md`: the readers, the filter, the vote, Étienne.
 - `references/story-engine.md`: formats A/B/C, beats, writing rules, delivery marks, shot direction, AI prompts.
