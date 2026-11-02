@@ -1,0 +1,456 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>ستوديو تايم كيبر</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="theme-color" content="#FBF7EF">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<style>
+/* layout: a phone app in the celebration-dial look the owner chose (theme A): cream ground, one bright colour per film,
+   rounded cards, a dark floating tab bar; one light look on purpose */
+:root{
+  --bg:#FBF7EF; --card:#FFFFFF; --ink:#1B1B1B; --mute:#5B5650; --soft:#EFE8DA; --line:#E6DECD;
+  --teal:#2BB5B8; --yellow:#F2C230; --coral:#F2765F; --pink:#E9A0C0; --green:#A8D8A0; --blue:#2F5BD3; --ok:#2E8B57;
+  --display:'Baloo Bhaijaan 2','IBM Plex Sans Arabic',system-ui,sans-serif; --body:'IBM Plex Sans Arabic',system-ui,-apple-system,sans-serif; --mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font:400 15px/1.6 var(--body);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 calc(110px + env(safe-area-inset-bottom,0px));overflow-x:hidden}
+.app{max-width:560px;margin:0 auto;position:relative}
+h1,h2,h3{margin:0;text-wrap:balance}
+h1{font:800 34px/1.1 var(--display)}
+h2{font:800 21px/1.25 var(--display)}
+p{margin:0}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.bubbles{position:absolute;inset:0 auto auto 0;width:200px;height:150px;pointer-events:none;z-index:0}
+.bubbles span{position:absolute;border-radius:50%}
+.top{position:relative;z-index:1;padding-block:26px 6px;display:grid;gap:2px}
+.sub{font:700 14px var(--body);color:var(--mute)}
+.view{position:relative;z-index:1;display:grid;gap:12px;padding-top:12px}
+.now{display:flex;gap:8px;align-items:center;font:700 13.5px var(--body);background:var(--card);border-radius:999px;padding:8px 14px;justify-self:start;box-shadow:0 1px 0 var(--line)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--mute);flex:none}
+.dot.on{background:var(--teal);box-shadow:0 0 0 4px color-mix(in srgb,var(--teal) 30%,transparent)}
+@media (prefers-reduced-motion:no-preference){.dot.on{animation:pulse 1.6s infinite}}
+@keyframes pulse{50%{opacity:.4}}
+/* film cards */
+.film{border:0;width:100%;text-align:start;border-radius:24px;padding:14px 18px;display:grid;gap:8px;cursor:pointer;color:var(--ink)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.fname{font:800 20px/1.2 var(--display)}
+.pct{font:800 22px/1 var(--display);direction:ltr;font-variant-numeric:tabular-nums}
+.track{height:8px;border-radius:999px;background:rgba(27,27,27,.18);overflow:hidden}
+.track i{display:block;height:100%;border-radius:999px;background:var(--ink)}
+.state{display:flex;gap:6px;align-items:center;font:700 13.5px var(--body)}
+.pill{background:var(--bg);border-radius:999px;padding:6px 13px;font:800 13.5px var(--body)}
+.empty{background:var(--card);border-radius:24px;padding:18px;display:grid;gap:6px;box-shadow:0 1px 0 var(--line)}
+.shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.short{border:0;border-radius:22px;padding:14px 16px;min-height:78px;display:flex;align-items:center;gap:10px;font:800 17px var(--display);cursor:pointer;text-decoration:none}
+/* film page */
+.back{width:44px;height:44px;border-radius:50%;background:var(--ink);border:0;display:grid;place-items:center;cursor:pointer}
+.fhead{display:flex;align-items:center;gap:12px}
+.fhead .tag{margin-inline-start:auto;border-radius:999px;padding:4px 12px;font:700 13px var(--body);white-space:nowrap}
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px}
+.steps li{display:grid;place-items:center}
+.steps span{width:34px;height:34px;max-width:100%;border-radius:50%;display:grid;place-items:center;font:800 14px var(--display)}
+.steps .todo{background:var(--soft);color:var(--mute)}
+.steps .cur{border:3px solid var(--ink)}
+.stepname{text-align:center;font:700 14px var(--body)}
+.prog{background:var(--card);border-radius:22px;padding:14px 16px;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;align-items:center;box-shadow:0 1px 0 var(--line)}
+.prog b.big{grid-row:span 2;font:800 40px/1 var(--display);direction:ltr;font-variant-numeric:tabular-nums}
+.prog .track{background:var(--soft);height:10px}.prog .track i{background:var(--teal)}
+.gate{border-radius:28px;padding:16px;display:grid;gap:12px;justify-items:center}
+video{width:min(100%,240px);aspect-ratio:9/16;border-radius:18px;background:#000;display:block}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;width:100%}
+.btn{min-height:52px;border-radius:999px;font:800 17px var(--display);cursor:pointer;border:0;padding:8px 16px}
+.btn.dark{background:var(--ink);color:var(--bg)}.btn.line{background:transparent;box-shadow:inset 0 0 0 2px var(--ink)}
+.btn:disabled{opacity:.5;cursor:default}
+textarea{font:inherit;font-size:16px;width:100%;min-height:84px;border-radius:16px;border:0;background:var(--bg);padding:10px 12px;resize:vertical}
+.acts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.act{border-radius:20px;padding:12px 14px;display:grid;gap:0}
+.act b{font:800 17px var(--display)}.act span{font:700 12.5px var(--body)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:0;border-radius:999px;padding:6px 14px;font:700 13px var(--body);background:var(--soft);cursor:pointer;text-decoration:none;color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--bg)}
+/* library, styles, team */
+.lang{border-radius:24px;padding:14px 16px;display:grid;gap:8px}
+.lang ul{margin:0;padding-inline-start:18px;display:grid;gap:2px;font-size:14px}
+.ex{background:rgba(255,255,255,.7);border-radius:14px;padding:8px 12px;display:grid;gap:2px;font:600 14.5px/1.6 var(--body)}
+.types{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.type{border:0;border-radius:22px;padding:14px;min-height:92px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:8px;cursor:pointer;text-align:start}
+.type b{font:800 17px/1.25 var(--display)}.type span{font:700 12px var(--body)}
+.typecard{border-radius:26px;padding:16px;display:grid;gap:10px;background:var(--teal)}
+.beats{display:flex;gap:4px}
+.beats span{border-radius:999px;padding:5px 0;text-align:center;font:700 11px var(--body);min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.typecard ol{margin:0;padding-inline-start:20px;display:grid;gap:4px;font-size:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.sample{display:grid;gap:6px;justify-items:center;text-align:center}
+.sample img,.sample .ph{width:100%;aspect-ratio:9/16;object-fit:cover;border-radius:16px;background:var(--soft);max-width:100%}
+.sample .ph{display:grid;place-items:center;font:700 12px var(--body);color:var(--mute);padding:6px}
+.sample b{font:800 15px var(--display)}
+.badge{border-radius:999px;padding:2px 10px;font:700 12px var(--body);justify-self:start}
+.group{background:var(--card);border-radius:20px;padding:12px 14px;display:grid;gap:4px;box-shadow:0 1px 0 var(--line)}
+.group b{font:800 16px var(--display)}.group p{font-size:13px;color:var(--mute);line-height:1.7}
+.readers{display:flex;justify-content:space-between;gap:6px}
+.reader{display:grid;justify-items:center;gap:4px;text-align:center}
+.reader img{width:58px;height:58px;border-radius:50%;object-fit:cover;border:3px solid var(--c)}
+.reader b{font:800 13.5px var(--display)}.reader span{font:700 11px var(--body);color:var(--mute)}
+.voice{border-radius:20px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.voice b{font:800 18px var(--display)}
+/* tab bar */
+nav.tabs{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));max-width:528px;margin:0 auto;height:64px;background:var(--ink);border-radius:32px;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));align-items:center;z-index:20}
+nav.tabs a{justify-self:center;width:46px;height:46px;border-radius:50%;display:grid;place-items:center}
+nav.tabs a[aria-current="page"]{background:var(--c)}
+nav.tabs svg{width:22px;height:22px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#toast{position:fixed;inset-inline:16px;bottom:calc(92px + env(safe-area-inset-bottom,0px));max-width:528px;margin:0 auto;background:var(--teal);color:var(--ink);border-radius:16px;padding:12px 16px;font-weight:700;z-index:30}
+.note{font-size:13px;color:var(--mute)}
+.slides{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;width:100%;direction:rtl}
+.slides img{flex:none;width:min(78%,300px);aspect-ratio:4/5;object-fit:cover;border-radius:16px;scroll-snap-align:center;background:var(--soft);box-shadow:0 1px 0 var(--line)}
+.caption{background:var(--card);border-radius:20px;padding:12px 14px;display:grid;gap:8px;width:100%;box-shadow:0 1px 0 var(--line)}
+.caption pre{margin:0;white-space:pre-wrap;font:500 15px/1.7 var(--body)}
+.pick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.pick button{position:relative;border:0;padding:0;border-radius:12px;background:var(--soft);cursor:pointer;overflow:hidden;box-shadow:0 1px 0 var(--line)}
+.pick img{display:block;width:100%;aspect-ratio:4/5;object-fit:cover;transition:opacity .15s}
+.pick span{position:absolute;inset-block-end:6px;inset-inline-start:6px;background:var(--bg);color:var(--ink);border-radius:999px;padding:1px 9px;font:800 12.5px var(--body)}
+.pick button[aria-pressed="true"]{box-shadow:inset 0 0 0 4px var(--ink)}
+.pick button[aria-pressed="true"] img{opacity:.55}
+.pick button[aria-pressed="true"] span{background:var(--ink);color:var(--bg)}
+.pick button[aria-pressed="true"]::after{content:"✓";position:absolute;top:6px;inset-inline-end:6px;width:26px;height:26px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font:800 14px var(--body)}
+.kind{font:800 11.5px var(--body);background:var(--bg);border-radius:999px;padding:2px 9px}
+</style>
+
+<div class="app" dir="rtl" lang="ar">
+  <div class="bubbles" aria-hidden="true"><span style="top:-60px;left:-50px;width:190px;height:190px;background:var(--teal);opacity:.9"></span><span style="top:40px;left:80px;width:64px;height:64px;background:var(--yellow)"></span><span style="top:-20px;left:130px;width:40px;height:40px;background:var(--coral)"></span><span style="top:110px;left:20px;width:30px;height:30px;background:var(--pink)"></span></div>
+  <main id="view" class="view" aria-live="polite"></main>
+</div>
+<nav class="tabs" aria-label="الأقسام" id="tabs"></nav>
+<div id="toast" hidden role="status"></div>
+
+<script>
+(() => {
+const COLORS = ['#2BB5B8', '#F2765F', '#E9A0C0', '#A8D8A0', '#F2C230'];
+const STEPS = ['الفكرة والبحث', 'الهوك والسكربت', 'القرّاء', 'الصوت', 'الإيقاع والانتقالات', 'الستايل', 'الصور والتركيب', 'المراجعة', 'التسليم'];
+const TABS = [
+  { id: 'films', name: 'الأفلام', c: '#2BB5B8', icon: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2"/>' },
+  { id: 'library', name: 'المكتبة', c: '#F2765F', icon: '<path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8"/>' },
+  { id: 'styles', name: 'الستايلات', c: '#F2C230', icon: '<rect x="4" y="4" width="7" height="7"/><rect x="13" y="4" width="7" height="7"/><rect x="4" y="13" width="7" height="7"/><rect x="13" y="13" width="7" height="7"/>' },
+  { id: 'recreate', name: 'ريل عجبك', c: '#E9A0C0', icon: '<path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/>' },
+  { id: 'team', name: 'الفريق', c: '#A8D8A0', icon: '<circle cx="8" cy="9" r="3"/><circle cx="16" cy="9" r="3"/><path d="M3 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5M11 19c.8-3 2.8-4.5 5-4.5s4.2 1.5 5 4.5"/>' }];
+const READERS = [['نورة', 'noura', 'مبتدئة', '#E9A0C0'], ['فهد', 'fahad', 'متوسط', '#2BB5B8'], ['بو خالد', 'bukhaled', 'خبير', '#F2C230'], ['سالم', 'salem', 'الفلتر', '#A8D8A0'], ['إتيان', 'etienne', 'البراند', '#F2765F']];
+const VOICES = [['Jarnathan', 'المعتمد ✓', '#2BB5B8'], ['Ali TK', 'صوتك', '#EFE8DA'], ['OmniVoice', 'يشتغل · يستنسخ صوتك من مقطع 10–30 ث', '#EFE8DA'], ['ناصر', 'متاح', '#EFE8DA'], ['Abdullah', 'Halter', '#EFE8DA']];
+const LOOKS = [
+  { name: 'بيانات', fits: 'الأرقام والآليات', imgs: ['samples/data-1.jpg', 'samples/data-2.jpg', 'samples/data-3.jpg'], built: true, film: 'الياقوت' },
+  { name: 'ورقي', fits: 'الأشخاص والبراندات', imgs: ['samples/paper-1.jpg', 'samples/paper-2.jpg', 'posters/halter-1.jpg'], built: true, film: 'Halter' },
+  { name: 'رسم تقني', fits: 'كيف تشتغل القطعة', imgs: ['samples/technical-1.jpg'], built: true, film: 'الياقوت' },
+  { name: 'نقش النحاس', fits: 'التاريخ والوثائق والأشخاص', imgs: ['samples/engraving-7.jpg', 'samples/engraving-34.5.jpg', 'samples/engraving-59.jpg'], built: true, film: 'الياقوت · نقش' },
+  { name: 'آرت ديكو', fits: 'الإعلانات والفخامة والعشرينات', imgs: ['samples/deco-11.jpg', 'samples/deco-31.jpg', 'samples/deco-56.jpg'], built: true, film: '10:10' }];
+const CODE = [['وثائقي', 'نشرة 1920، أخبار بالكابشن، تحقيق بصري، مونتاج بنائي…', 8], ['أدلة', 'تفكيك القطع، المجهر، طاولة الأرشيف، لوحة هندسية…', 8],
+  ['رسم يدوي', 'ألوان مائية، حبر صيني، طباشير، كتاب بالشمع…', 8], ['طباعة ونقش', 'نقش النحاس، الحفر بالخشب، ريزوغراف…', 6], ['جرافيك', 'آرت ديكو، سويسري، بلوبرنت، زجاج معشّق…', 7],
+  ['معلومات', 'قصص بالبيانات، إنفوجرافيك، عرض داكن، خريطة مترو…', 8], ['كرتون وألعاب وسينما ومواد', 'أنمي الثمانينات، بكسل، فيلم صامت، خيال ظل، كتاب منبثق…', 21]];
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let films = [], now = null, lib = null, db = null, comments = null, ready = false, openType = null, openLang = 'tk', openFormat = 'reel';
+const picks = {};                                                  // slides chosen for a change, per carousel (kept across live refreshes)
+let chgOpen = null;
+const picked = (id) => picks[id] || (picks[id] = new Set());
+const slideName = (k) => (k === 0 ? 'الغلاف' : `${k}`);
+const FORMAT = { reel: 'ريل', carousel: 'كاروسيل', both: 'ريل وكاروسيل' };
+
+function pct(f) { return f.state === 'done' ? 100 : Math.round(100 * (Math.max(1, f.step || 1) - 1) / STEPS.length); }
+function color(f, i) { return f.color || COLORS[i % COLORS.length]; }
+function eta(m) { if (m == null) return ''; return m < 60 ? `~${m} د` : `~${Math.round(m / 6) / 10} س`; }
+function stateLine(f) {
+  if (f.state === 'waiting') return { icon: '⏸', text: 'بانتظارك · ' + (f.waiting || STEPS[(f.step || 1) - 1]), action: true };
+  if (f.state === 'working') return { icon: '⏱', text: 'يشتغل · ' + (f.now || STEPS[(f.step || 1) - 1]), eta: f.eta_min };
+  if (f.state === 'done') return { icon: '✓', text: f.done_text || 'جاهز للنشر' };
+  return { icon: '', text: STEPS[(f.step || 1) - 1] };
+}
+
+function tabs(active) {
+  $('#tabs').innerHTML = TABS.map((t) => `<a href="#${t.id}" style="--c:${t.c}" aria-label="${t.name}" ${t.id === active ? 'aria-current="page"' : ''}>
+    <svg viewBox="0 0 24 24" aria-hidden="true" stroke="${t.id === active ? '#1B1B1B' : t.c}">${t.icon}</svg></a>`).join('');
+}
+function header(title, sub) { return `<header class="top"><h1>${esc(title)}</h1>${sub ? `<span class="sub">${sub}</span>` : ''}</header>`; }
+function nowLine() {
+  if (!now) return '';
+  return `<div class="now"><span class="dot${now.busy ? ' on' : ''}"></span>${now.busy ? 'Claude يشتغل' : 'Claude واقف'}${now.text ? ' · ' + esc(now.text) : ''}</div>`;
+}
+
+function viewFilms() {
+  const waiting = films.filter((f) => f.state === 'waiting').length, working = films.filter((f) => f.state === 'working').length;
+  let h = header('أفلامنا', ready ? `${waiting} بانتظارك · ${working} يشتغل` : 'جاري التحميل…') + nowLine();
+  if (ready && !films.length) h += `<div class="empty"><b style="font:800 18px var(--display)">ما فيه أفلام للحين</b><p class="note">أرسل لي فكرة في المحادثة، ويطلع الفلم هنا بنسبته ووقته.</p></div>`;
+  films.forEach((f, i) => {
+    const s = stateLine(f), p = pct(f);
+    h += `<button type="button" class="film" style="background:${color(f, i)}" data-film="${esc(f.id)}">
+      <span class="row"><span class="fname">${esc(f.name)} ${f.kind === 'carousel' ? '<span class="kind">كاروسيل</span>' : ''}</span><span class="pct">${p}%</span></span>
+      <span class="track" aria-hidden="true"><i style="width:${p}%"></i></span>
+      <span class="row"><span class="state">${s.icon} ${esc(s.text)}</span>${s.action ? '<span class="pill">افتح ▶</span>' : s.eta != null ? `<span class="state">باقي ${eta(s.eta)}</span>` : ''}</span>
+    </button>`;
+  });
+  h += `<div class="shortcuts"><a class="short" href="#recreate" style="background:var(--yellow);color:var(--ink)">ريل عجبك</a><a class="short" href="#library" style="background:var(--blue);color:#fff">فكرة جديدة</a></div>`;
+  return h;
+}
+
+function viewFilm(id) {
+  const i = films.findIndex((f) => f.id === id), f = films[i];
+  if (!f) return header('الفلم', ready ? 'ما لقيت هالفلم' : 'جاري التحميل…') + '<a class="chip" href="#films">→ الأفلام</a>';
+  const c = color(f, i), p = pct(f), step = f.step || 1, s = stateLine(f);
+  const dots = STEPS.map((n, k) => {
+    const cls = k + 1 < step || f.state === 'done' ? '' : k + 1 === step ? 'cur' : 'todo';
+    const bg = cls === '' ? `background:${COLORS[k % COLORS.length]}` : '';
+    return `<li><span class="${cls}" style="${bg}" title="${n}">${k + 1}</span></li>`;
+  }).join('');
+  let h = `<header class="top fhead"><button type="button" class="back" aria-label="رجوع" data-go="films"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBF7EF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+    <h1 style="font-size:28px">${esc(f.name)}</h1>${f.version ? `<span class="tag" style="background:${c}">${esc(f.version)}${f.seconds ? ' · ' + f.seconds + 'ث' : ''}</span>` : ''}</header>`;
+  h += `<ol class="steps" aria-label="المراحل">${dots}</ol><p class="stepname">${esc(STEPS[step - 1])}</p>`;
+  h += `<div class="prog"><b class="big">${p}%</b><span class="track" aria-hidden="true"><i style="width:${p}%"></i></span>
+    <span class="row"><span class="state">${s.icon} ${esc(s.text)}</span><span class="note">${s.eta != null ? 'باقي ' + eta(s.eta) : f.after_min != null && f.state === 'waiting' ? 'بعدها ' + eta(f.after_min) : ''}</span></span></div>`;
+  if (f.kind === 'carousel' && f.slides?.length) {
+    h += `<section class="gate" style="background:${c}" aria-label="الكاروسيل"><div class="slides">${f.slides.map((src, k) => `<img src="${esc(src)}" alt="شريحة ${k + 1}" loading="lazy">`).join('')}</div>
+      <div class="two"><button type="button" class="btn dark" data-act="share" data-id="${esc(f.id)}">شارك الكل ↗</button><button type="button" class="btn line" data-act="copy" data-id="${esc(f.id)}">انسخ الكابشن</button></div>
+      <p class="note" style="color:var(--ink);text-align:center">«شارك الكل» ملف واحد فيه الصور والكابشن، والكابشن ينسخ بنفس الضغطة. بالآيفون: Save to Files ← افتحه في Files ← اختار الصور ← شارك ← Save Images ← إنستغرام.</p>
+      <div class="chips" role="group" aria-label="صورة صورة" style="justify-content:center"><span class="note" style="color:var(--ink)">أو صورة صورة:</span>${f.slides.map((_, k) => `<button type="button" class="chip" data-act="one" data-k="${k}" data-id="${esc(f.id)}">${k + 1}</button>`).join('')}</div>`;
+    if (f.state === 'waiting') h += `<div class="two"><button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">وافق ✓</button><button type="button" class="btn line" data-act="change" data-id="${esc(f.id)}">تعديل</button></div>
+      <div id="chg" ${chgOpen === f.id ? '' : 'hidden'} style="width:100%;display:grid;gap:8px"><p class="note" style="color:var(--ink);font-weight:700">اختار الشرائح اللي تبي تعدّلها (وحدة أو أكثر)</p>
+      <div class="pick" role="group" aria-label="الشرائح">${f.slides.map((src, k) => `<button type="button" data-pick="${k}" aria-pressed="${picked(f.id).has(k)}" aria-label="${slideName(k)}"><img src="${esc(src)}" alt="" loading="lazy"><span>${slideName(k)}</span></button>`).join('')}</div>
+      <label class="note" for="note" style="color:var(--ink)">وش تبي يتغيّر؟</label><textarea id="note" maxlength="1200" placeholder="مثلًا: النص طويل، أو الصورة صغيرة"></textarea>
+      <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
+    h += `</section>`;
+    if (f.caption) h += `<section class="caption" aria-label="الكابشن"><div class="row"><b style="font:800 17px var(--display)">الكابشن</b><button type="button" class="chip" data-act="savecap" data-id="${esc(f.id)}">احفظه ملف</button></div><pre id="cap">${esc(f.caption)}</pre></section>`;
+  }
+  if (f.video) {
+    h += `<section class="gate" style="background:${c}" aria-label="الفلم"><video controls playsinline preload="none" ${f.poster ? `poster="${esc(f.poster)}"` : ''} src="${esc(f.video)}"></video>`;
+    if (f.state === 'waiting') h += `<div class="two"><button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">وافق ✓</button><button type="button" class="btn line" data-act="change" data-id="${esc(f.id)}">تعديل</button></div>
+      <div id="chg" hidden style="width:100%;display:grid;gap:8px"><label class="note" for="note">وش تبي يتغيّر؟ (بالوقت إذا تقدر)</label><textarea id="note" maxlength="1200" placeholder="مثلًا: عند 0:42 الخط صغير"></textarea>
+      <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
+    h += `</section>`;
+  }
+  if (f.acts?.length) h += `<section class="acts" aria-label="الفصول">${f.acts.map((a, k) => `<div class="act" style="background:${COLORS[k % COLORS.length]}"><b>${esc(a.name)}</b><span>${esc(a.time || '')}</span></div>`).join('')}</section>`;
+  const twin = films.find((x) => x.id !== f.id && (x.of === f.id || f.of === x.id));     // the same topic in the other format
+  const other = f.kind === 'carousel' ? 'ريل' : 'كاروسيل';
+  h += twin ? `<a class="short" href="#film-${esc(twin.id)}" style="background:var(--yellow);color:var(--ink)">${twin.kind === 'carousel' ? 'شوف الكاروسيل' : 'شوف الريل'} ◀</a>`
+    : `<button type="button" class="short" style="background:var(--yellow);color:var(--ink);width:100%" data-act="twin" data-id="${esc(f.id)}">سوّ منه ${other}</button>`;
+  if (f.meta) h += `<p class="note">${esc(f.meta)}</p>`;
+  if (f.versions?.length) h += `<div class="chips">${f.versions.map((v, k) => `<span class="chip${k === 0 ? ' on' : ''}">${esc(v)}</span>`).join('')}</div>`;
+  return h;
+}
+
+function viewLibrary() {
+  let h = header('المكتبة', 'نوع السكربت ولغته');
+  if (!lib) return h + '<p class="note">جاري التحميل…</p>';
+  h += `<div class="chips" role="group" aria-label="اللغة">${Object.entries(lib.languages).map(([k, L]) => `<button type="button" class="chip${openLang === k ? ' on' : ''}" data-lang="${k}">${esc(L.name)}</button>`).join('')}</div>`;
+  const L = lib.languages[openLang];
+  h += `<section class="lang" style="background:${openLang === 'tk' ? 'var(--green)' : openLang === 'light' ? 'var(--yellow)' : 'var(--pink)'}">
+    <b style="font:800 19px var(--display)">${esc(L.name)}</b><p style="font-size:14px">${esc(L.base)}</p>
+    <div class="ex"><span>${esc(L.example.hook)}</span><span>${esc(L.example.line)}</span><span>${esc(L.example.close)}</span></div>
+    <details><summary style="cursor:pointer;font-weight:700">القواعد</summary><ul>${L.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ul>${L.caution ? `<p class="note" style="color:var(--ink)">⚠ ${esc(L.caution)}</p>` : ''}</details></section>`;
+  if (openType && lib.types[openType]) {
+    const T = lib.types[openType];
+    h += `<section class="typecard" aria-label="${esc(T.name)}"><div class="row"><b style="font:800 22px var(--display)">${esc(T.name)}</b><span class="pill">${T.seconds[0]}–${T.seconds[1]}ث</span></div>
+      <p style="font-size:14px">${esc(T.job)}</p>
+      <div class="beats">${T.acts.map((a, k) => `<span style="flex:${a.share};background:${COLORS[(k + 4) % COLORS.length]}">${esc(a.name)}</span>`).join('')}</div>
+      <ol>${T.acts.map((a) => `<li><b>${esc(a.name)}:</b> ${esc(a.example)}</li>`).join('')}</ol>
+      <p class="note" style="color:var(--ink)">اللغات: ${T.languages.map((k) => esc(lib.languages[k].name)).join('، ')} · الستايلات: ${esc(T.styles.join('، '))}</p>
+      <div class="chips" role="group" aria-label="الشكل">${[['reel', 'ريل'], ['carousel', 'كاروسيل'], ['both', 'الاثنين']].map(([k, n]) => `<button type="button" class="chip${openFormat === k ? ' on' : ''}" data-format="${k}">${n}</button>`).join('')}</div>
+      <button type="button" class="btn dark" data-act="start" data-type="${openType}">ابدأ بهالنوع ▶</button></section>`;
+  }
+  for (const R of [lib.direction, lib.carousel]) if (R) h += `<section class="group"><details><summary style="cursor:pointer;font:800 16px var(--display)">${esc(R.name)}</summary><ul style="margin:6px 0 0;padding-inline-start:18px;display:grid;gap:4px;font-size:14px">${R.rules.map((r) => `<li>${esc(r)}</li>`).join('')}</ul></details></section>`;
+  h += `<div class="types">${Object.entries(lib.types).map(([k, T], i) => `<button type="button" class="type" style="background:${k === openType ? 'var(--ink);color:var(--bg)' : COLORS[i % COLORS.length]}" data-type="${k}"><b>${esc(T.name)}</b><span>${T.seconds[0]}–${T.seconds[1]}ث</span></button>`).join('')}</div>`;
+  return h;
+}
+
+function viewStyles() {
+  let h = header('الستايلات', 'من أفلامنا الحقيقية');
+  h += `<div class="row"><h2>المحرك</h2><span class="badge" style="background:var(--green)">مبني · مجاني</span></div>`;
+  for (const L of LOOKS) h += `<div class="row"><b style="font:800 17px var(--display)">${esc(L.name)}</b><span class="note">${esc(L.fits)} · ${esc(L.film)}</span></div>
+    <div class="grid3">${L.imgs.map((src) => `<div class="sample"><img src="${src}" alt="${esc(L.name)}" loading="lazy"></div>`).join('')}</div>`;
+  h += `<div class="row"><h2>66 ستايل كود</h2><span class="badge" style="background:var(--green)">موصول · 2 مبني</span></div>
+    <p class="note">نقش النحاس وآرت ديكو مبنيين (فوق). قبل كل فلم Claude يقترح 3 ستايلات تناسب القصة وإنت تختار.</p>`;
+  h += CODE.map(([n, d, k]) => `<div class="group"><div class="row"><b>${esc(n)}</b><span class="badge" style="background:var(--soft)">${k}</span></div><p>${esc(d)}</p></div>`).join('');
+  h += `<div class="group" style="background:var(--coral)"><b>التطعيم بالخشب</b><p style="color:var(--ink)">ستايلنا الخاص. ملفاته في جهازك: أحتاج ربط الماك أو zip.</p></div>
+    <div class="group" style="background:var(--blue)"><b style="color:#fff">ذكاء اصطناعي</b><p style="color:#fff">برصيد Higgsfield، بموافقتك كل مرة.</p></div>`;
+  return h;
+}
+
+function viewRecreate() {
+  return header('ريل عجبك', 'أفككه ونصنع مثله بقصتنا') + `
+    <section class="lang" style="background:var(--yellow)"><b style="font:800 19px var(--display)">أرسل الفيديو في المحادثة</b>
+      <p style="font-size:14px">احفظ الريل من جوالك وأرسله لي. الروابط تحتاج جهازك أو حساب ثانوي لأن إنستغرام يمنع التنزيل من هنا.</p></section>
+    <section class="group"><div class="row"><b>أداة التحليل</b><span class="badge" style="background:var(--green)">جاهز</span></div>
+      <p>تفريغ الصوت لنص بالتوقيت، عدّ القطعات وطولها، شيت صور للقطات، ومقارنة جنب بجنب مع نسختنا. النتيجة تنضاف للمكتبة.</p></section>
+    <h2>حللناها قبل</h2><div class="chips"><span class="chip">Altivère · الجواهر</span><span class="chip">Clayrified ×6</span></div>`;
+}
+
+function viewTeam() {
+  return header('الفريق') + `<div class="readers">${READERS.map(([n, f, r, c]) => `<div class="reader" style="--c:${c}"><img src="panel/${f}.jpg" alt="${n}"><b>${n}</b><span>${r}</span></div>`).join('')}</div>
+    <h2>الأصوات</h2>${VOICES.map(([n, s, c]) => `<div class="voice" style="background:${c}"><b>${esc(n)}</b><span class="state">${esc(s)}</span></div>`).join('')}`;
+}
+
+function route() {
+  const h = (location.hash || '#films').slice(1);
+  const [tab, id] = h.startsWith('film-') ? ['films', h.slice(5)] : [h, null];
+  const t = TABS.some((x) => x.id === tab) ? tab : 'films';
+  tabs(t);
+  document.querySelector('.bubbles').hidden = !!id;
+  $('#view').innerHTML = id ? viewFilm(id) : t === 'library' ? viewLibrary() : t === 'styles' ? viewStyles() : t === 'recreate' ? viewRecreate() : t === 'team' ? viewTeam() : viewFilms();
+  bind();
+  if (id) prefetch(films.find((x) => x.id === id));
+}
+function bind() {
+  document.querySelectorAll('[data-film]').forEach((b) => b.addEventListener('click', () => { location.hash = 'film-' + b.dataset.film; }));
+  document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => { location.hash = b.dataset.go; }));
+  document.querySelectorAll('[data-lang]').forEach((b) => b.addEventListener('click', () => { openLang = b.dataset.lang; route(); }));
+  document.querySelectorAll('[data-format]').forEach((b) => b.addEventListener('click', () => { openFormat = b.dataset.format; route(); }));
+  document.querySelectorAll('.type[data-type]').forEach((b) => b.addEventListener('click', () => { openType = openType === b.dataset.type ? null : b.dataset.type; route(); window.scrollTo({ top: 0, behavior: 'smooth' }); }));
+  document.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => {
+    const id = (location.hash.match(/^#film-(.+)$/) || [])[1], set = picked(id), k = +b.dataset.pick;
+    set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k));
+  }));
+  document.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', (e) => act(b, e)));
+}
+
+async function tell(text, el, record) {
+  let sent = false;
+  try {
+    if (comments && (await comments.canSendToClaude()) === 'available') { await comments.sendToClaude({ anchor: await comments.anchorFor(el), text }); sent = true; }
+  } catch (e) { /* kept in the inbox below */ }
+  try { if (db) await db.collection('inbox').add({ ...record, text, sent, at: new Date().toISOString() }); } catch (e) {}
+  toast(sent ? 'وصلت لـ Claude ✓' : 'انحفظت هنا. قل لي «شيّك الاستوديو» في المحادثة.');
+}
+async function act(b) {
+  const kind = b.dataset.act, id = b.dataset.id, f = films.find((x) => x.id === id);
+  if (kind === 'change') { const box = $('#chg'); box.hidden = !box.hidden; chgOpen = box.hidden ? null : id; if (!box.hidden && f.kind !== 'carousel') $('#note').focus(); return; }
+  if (kind === 'copy') {
+    try { await navigator.clipboard.writeText(f.caption || ''); toast('انسخ الكابشن ✓'); }
+    catch (e) { const r = document.createRange(); r.selectNodeContents($('#cap')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('اضغط مطوّل وانسخ.'); }
+    return;
+  }
+  if (kind === 'share') { share(f, b); return; }
+  if (kind === 'one') { one(f, +b.dataset.k, b); return; }
+  if (kind === 'saveall' || kind === 'savecap') { await save(kind, f, b); return; }
+  b.disabled = true;
+  try {
+    if (kind === 'approve') await tell(`الاستوديو: موافق على «${f.name}» ${f.version || ''} (${STEPS[(f.step || 1) - 1]}).`, b, { film: id, kind: 'approve', step: f.step });
+    else if (kind === 'send') {
+      const note = $('#note').value.trim(), slides = f.kind === 'carousel' ? [...picked(id)].sort((a, c) => a - c) : [];
+      if (!note) { toast('اكتب وش تبي يتغيّر.'); return; }
+      const where = slides.length ? ' · ' + slides.map((k) => (k === 0 ? 'الغلاف' : `الشريحة ${k}`)).join('، ') : '';
+      await tell(`الاستوديو: تعديل على «${f.name}» ${f.version || ''}${where}: ${note}`, b, { film: id, kind: 'change', step: f.step, note, ...(slides.length ? { slides: slides.map((k) => f.slides[k]) } : {}) });
+      picked(id).clear(); chgOpen = null; route();
+    } else if (kind === 'twin') {
+      const want = f.kind === 'carousel' ? 'ريل' : 'كاروسيل';
+      await tell(`الاستوديو: سوّ ${want} من «${f.title || f.name}» (${f.version || ''}): نفس المعلومات والمصادر.`, b, { film: id, kind: 'twin', format: f.kind === 'carousel' ? 'reel' : 'carousel' });
+    } else if (kind === 'start') {
+      const T = lib.types[b.dataset.type];
+      await tell(`الاستوديو: ابدأ ${FORMAT[openFormat]} جديد من نوع «${T.name}» بلغة «${lib.languages[openLang].name}». (أرسل لي الموضوع في المحادثة.)`, b, { kind: 'start', type: b.dataset.type, language: openLang, format: openFormat });
+    }
+  } finally { b.disabled = false; }
+}
+// The owner: «instead of save, make it as I can share it… I want to share all along the caption». Inside the Claude app
+// the page cannot open the phone's share sheet with several files, and each save is one file with its own prompt; so
+// «شارك الكل» shares the slides where the viewer allows it (a browser), and otherwise saves ONE zip holding every
+// slide and the caption, which the phone's Files app opens into the images. The caption also goes to the clipboard.
+// The files are fetched when the page opens, so the tap reaches the share with nothing awaited first.
+const shareFiles = {};
+function prefetch(f) {
+  if (!f?.slides?.length || shareFiles[f.id]) return;
+  shareFiles[f.id] = Promise.all(f.slides.map(async (src, k) => new File([await (await fetch(src)).blob()], `${f.id}-${String(k + 1).padStart(2, '0')}.png`, { type: 'image/png' })))
+    .then((files) => (shareFiles[f.id] = files), () => { delete shareFiles[f.id]; });
+}
+function crc32(u8) {
+  const t = crc32.t || (crc32.t = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; }));
+  let x = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) x = t[(x ^ u8[i]) & 255] ^ (x >>> 8);
+  return (x ^ 0xFFFFFFFF) >>> 0;
+}
+function zip(items) {                                                // stored (PNGs are already compressed), UTF-8 names
+  const enc = new TextEncoder(), parts = [], dir = [], DATE = ((new Date().getFullYear() - 1980) << 9) | ((new Date().getMonth() + 1) << 5) | new Date().getDate();
+  let off = 0;
+  for (const it of items) {
+    const n = enc.encode(it.name), c = crc32(it.data), z = it.data.length;
+    const h = new DataView(new ArrayBuffer(30));
+    h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(12, DATE, true);
+    h.setUint32(14, c, true); h.setUint32(18, z, true); h.setUint32(22, z, true); h.setUint16(26, n.length, true);
+    parts.push(h, n, it.data);
+    const d = new DataView(new ArrayBuffer(46));
+    d.setUint32(0, 0x02014b50, true); d.setUint16(4, 20, true); d.setUint16(6, 20, true); d.setUint16(8, 0x0800, true); d.setUint16(14, DATE, true);
+    d.setUint32(16, c, true); d.setUint32(20, z, true); d.setUint32(24, z, true); d.setUint16(28, n.length, true); d.setUint32(42, off, true);
+    dir.push(d, n); off += 30 + n.length + z;
+  }
+  const size = dir.reduce((a, p) => a + p.byteLength, 0), e = new DataView(new ArrayBuffer(22));
+  e.setUint32(0, 0x06054b50, true); e.setUint16(8, items.length, true); e.setUint16(10, items.length, true); e.setUint32(12, size, true); e.setUint32(16, off, true);
+  return new Blob([...parts, ...dir, e], { type: 'application/zip' });
+}
+async function share(f, b) {
+  const files = Array.isArray(shareFiles[f.id]) ? shareFiles[f.id] : null;
+  if (!files) { toast('لحظة، الصور تتحمّل… اضغط مرة ثانية.'); prefetch(f); return; }
+  if (f.caption) navigator.clipboard?.writeText(f.caption).catch(() => {});
+  if (navigator.canShare?.({ files })) {
+    try { await navigator.share({ files }); toast(f.caption ? 'الكابشن منسوخ: الصقه مع البوست ✓' : 'تم ✓'); return; }
+    catch (e) { if (e?.name === 'AbortError') return; }
+  }
+  let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch (e) {}
+  if (!dl) { toast('المشاركة مو متاحة هنا. اضغط مطوّل على الصورة واحفظها.'); return; }
+  b.disabled = true;
+  try {
+    const items = await Promise.all(files.map(async (x) => ({ name: x.name, data: new Uint8Array(await x.arrayBuffer()) })));
+    if (f.caption) items.push({ name: `${f.id}-caption.txt`, data: new TextEncoder().encode(f.caption) });
+    await dl.save({ filename: `${f.id}.zip`, data: zip(items) });
+    toast(f.caption ? 'الكابشن منسوخ ✓ افتح الملف في Files' : 'افتح الملف في Files ✓');
+  } catch (e) { if (e?.code !== 'declined') toast('ما قدرت أجهز الملف. شارك الصور وحدة وحدة تحت.'); }
+  finally { b.disabled = false; }
+}
+async function one(f, k, b) {                                        // one slide: its own share sheet (Save Image)
+  let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch (e) {}
+  const files = Array.isArray(shareFiles[f.id]) ? shareFiles[f.id] : null;
+  if (files && navigator.canShare?.({ files: [files[k]] }) && !dl) { navigator.share({ files: [files[k]] }).catch(() => {}); return; }
+  if (!dl) { toast('اضغط مطوّل على الصورة واحفظها.'); return; }
+  b.disabled = true;
+  try {
+    const data = files ? files[k] : await (await fetch(f.slides[k])).blob();
+    await dl.save({ filename: `${f.id}-${String(k + 1).padStart(2, '0')}.png`, data });
+    b.classList.add('on');
+  } catch (e) { if (e?.code === 'rate_limited') toast('لحظة وجرّب مرة ثانية.'); }
+  finally { b.disabled = false; }
+}
+async function save(kind, f, b) {                                   // the viewer saves each file (a confirmation each time)
+  let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch (e) {}
+  if (!dl) { toast('الحفظ مو متاح هنا. اضغط مطوّل على الصورة واحفظها.'); return; }
+  b.disabled = true;
+  try {
+    if (kind === 'savecap') { await dl.save({ filename: `${f.id}-caption.txt`, data: new Blob([f.caption || ''], { type: 'text/plain;charset=utf-8' }) }); toast('انحفظ الكابشن ✓'); return; }
+    let n = 0;
+    for (const [k, src] of f.slides.entries()) {
+      const blob = await (await fetch(src)).blob();
+      try { await dl.save({ filename: `${f.id}-${String(k + 1).padStart(2, '0')}.png`, data: blob }); n++; } catch (e) { break; }
+    }
+    toast(n ? `انحفظت ${n} صور ✓` : 'ما انحفظ شي.');
+  } catch (e) { toast('ما قدرت أحفظ. جرّب مرة ثانية.'); }
+  finally { b.disabled = false; }
+}
+function toast(t) { const n = $('#toast'); n.textContent = t; n.hidden = false; clearTimeout(n._t); n._t = setTimeout(() => (n.hidden = true), 6000); }
+
+function refresh() {                                                // live data never interrupts a playing film or a note being typed
+  const v = document.querySelector('video'), t = document.getElementById('note');
+  if ((v && !v.paused) || (t && t.value.trim()) || document.activeElement?.tagName === 'TEXTAREA') return;
+  route();
+}
+window.addEventListener('hashchange', route);
+route();
+fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).catch(() => {});
+(async () => {
+  try {
+    if (!window.claude?.use) { ready = true; route(); return; }
+    db = await window.claude.use('db');
+    comments = await window.claude.use('comments');
+    if (!db) { ready = true; route(); return; }
+    db.collection('films').onSnapshot((snap) => {
+      films = snap.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+      ready = true; refresh();
+    }, () => { ready = true; refresh(); });
+    db.doc('studio/now').onSnapshot((d) => { now = d.exists ? d.data() : null; refresh(); }, () => {});
+  } catch (e) { ready = true; route(); }
+})();
+})();
+</script>
+
+</body></html>
