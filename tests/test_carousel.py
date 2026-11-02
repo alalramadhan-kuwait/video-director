@@ -24,8 +24,10 @@ class Rules(unittest.TestCase):
         s = spec(); s['cover']['bottom'] = 'ب' * 70
         self.assertTrue(any('characters in the headline' in m for m in carousel.check(s)))
 
-    def test_a_slide_is_one_idea_in_25_to_32_words(self):
+    def test_a_slide_is_one_idea_in_12_to_32_words(self):
         s = spec(); s['slides'][1]['body'] = 'قصير جدًا'
+        self.assertTrue(any(m.startswith('slide 2:') and 'words' in m for m in carousel.check(s)))
+        s = spec(); s['slides'][1]['body'] = ' '.join(['كلمة'] * 40)
         self.assertTrue(any(m.startswith('slide 2:') and 'words' in m for m in carousel.check(s)))
         s = spec(); s['slides'][0]['title'] = 'عنوان طويل جدًا من خمس كلمات'
         self.assertTrue(any('a title of' in m for m in carousel.check(s)))
