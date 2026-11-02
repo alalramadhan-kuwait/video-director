@@ -261,6 +261,22 @@ def recorded_only(scenes: list[dict], sfx_dir: Path | None) -> list[dict]:
     return out
 
 
+def silent(film: dict) -> bool:
+    """`effects: none` (or false/off) in the film file: no sound effect and no bed anywhere, the end card included; the
+    voice and the music stay. The owner on Halter 2 v4: «شيل كل المؤثرات الصوتية»."""
+    e = film.get('effects', True)
+    return e is False or str(e).strip().lower() in ('none', 'off', 'false', 'no')
+
+
+def silence(scenes: list[dict]) -> int:
+    """Drops every one-shot and bed from the scenes. Returns how many cues it dropped."""
+    n = 0
+    for sc in scenes:
+        n += len(sc.get('sfx', [])) + len(sc.get('beds', []))
+        sc['sfx'], sc['beds'] = [], []
+    return n
+
+
 def apply(scenes: list[dict], voice_db: dict[int, float] | None = None, per_minute: int = PER_MINUTE,
           sfx_dir: Path | None = None, bed_gain: float = 0.0) -> dict:
     """The whole mix on the film's scenes (the end card included, last). Returns a report: one-shots kept and dropped,
