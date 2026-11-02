@@ -31,6 +31,7 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `after_min` | while waiting: minutes to finish once they decide |
 | `version`, `seconds`, `versions` | the latest version, its length, the version list newest first |
 | `video`, `poster` | a published file of the page: a light copy of the film (720 px, crf ~29, under 15 MB) and its cover |
+| `final`, `caption` (a film) | **on the owner's approval, at once** (the owner: «مفروض بعد الموافقه يعطيني الفيديو جاهز للحفظ مع الكابشن»): the film at full size (1080×1920, two-pass to under 16 MB, a published file's limit) and its post caption (hook, the story in two lines, the reader's question, sources, credits, hashtags). An approved film shows «احفظ الفيلم ↗» (the share sheet's Save Video; the caption goes to the clipboard on the same tap) and its caption |
 | `acts` | `[{name, time}]` once the voice exists |
 | `meta` | type · language · look · voice |
 | `done_text` | when done («جاهز للنشر», «منشور») |
