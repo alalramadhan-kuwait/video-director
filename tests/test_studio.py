@@ -563,3 +563,17 @@ class TestFinalGate(Env):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class FilmsByTopic(unittest.TestCase):
+    """The owner: «too bulky… group the topics together… the latest update shown, so I can know the new rules are
+    applied to this or no». The list is one card per topic with slim rows, each with its time and rules."""
+    def test_grouped_rows_with_rules(self):
+        from pathlib import Path
+        page = (Path(__file__).resolve().parents[1] / 'studio-page/index.html').read_text(encoding='utf-8')
+        for s in ('const topicOf', 'class="topic"', 'class="item"', 'const ruleState', "doc('studio/rules')", "doc('studio/topics')", 'القواعد الجديدة'):
+            self.assertIn(s, page)
+        import re
+        ids = re.findall(r"\{ id: '([\w-]+)', kind: '(reel|carousel)', at: '([\dT:Z-]+)'", page)
+        self.assertGreaterEqual(len(ids), 6)
+        self.assertEqual(len({i for i, _, _ in ids}), len(ids))
