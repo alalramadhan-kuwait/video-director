@@ -227,7 +227,10 @@ function viewFilm(id) {
     if (f.state === 'waiting') h += `<div class="two"><button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">وافق ✓</button><button type="button" class="btn line" data-act="change" data-id="${esc(f.id)}">تعديل</button></div>
       <div id="chg" hidden style="width:100%;display:grid;gap:8px"><label class="note" for="note">وش تبي يتغيّر؟ (بالوقت إذا تقدر)</label><textarea id="note" maxlength="1200" placeholder="مثلًا: عند 0:42 الخط صغير"></textarea>
       <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
+    if (f.state === 'done' || f.final) h += `<div class="two"><button type="button" class="btn dark" data-act="sharefilm" data-id="${esc(f.id)}">احفظ الفيلم ↗</button><button type="button" class="btn line" data-act="copy" data-id="${esc(f.id)}">انسخ الكابشن</button></div>
+      <p class="note" style="color:var(--ink);text-align:center">${f.final ? 'بالجودة الكاملة (1080×1920). ' : ''}بالآيفون: Save Video يحفظه بالصور، والكابشن ينسخ بنفس الضغطة.</p>`;
     h += `</section>`;
+    if (f.caption) h += `<section class="caption" aria-label="الكابشن"><div class="row"><b style="font:800 17px var(--display)">الكابشن</b><button type="button" class="chip" data-act="savecap" data-id="${esc(f.id)}">احفظه ملف</button></div><pre id="cap">${esc(f.caption)}</pre></section>`;
   }
   if (f.acts?.length) h += `<section class="acts" aria-label="الفصول">${f.acts.map((a, k) => `<div class="act" style="background:${COLORS[k % COLORS.length]}"><b>${esc(a.name)}</b><span>${esc(a.time || '')}</span></div>`).join('')}</section>`;
   const twin = films.find((x) => x.id !== f.id && (x.of === f.id || f.of === x.id));     // the same topic in the other format
@@ -299,7 +302,7 @@ function route() {
   document.querySelector('.bubbles').hidden = !!id;
   $('#view').innerHTML = id ? viewFilm(id) : t === 'library' ? viewLibrary() : t === 'styles' ? viewStyles() : t === 'recreate' ? viewRecreate() : t === 'team' ? viewTeam() : viewFilms();
   bind();
-  if (id) prefetch(films.find((x) => x.id === id));
+  if (id) { const ff = films.find((x) => x.id === id); prefetch(ff); if (ff && ff.video && (ff.state === 'done' || ff.final)) prefetchFilm(ff); }
 }
 function bind() {
   document.querySelectorAll('[data-film]').forEach((b) => b.addEventListener('click', () => { location.hash = 'film-' + b.dataset.film; }));
@@ -331,6 +334,7 @@ async function act(b) {
     return;
   }
   if (kind === 'share') { share(f, b); return; }
+  if (kind === 'sharefilm') { shareFilm(f, b); return; }
   if (kind === 'edsave') { edSave(f, b); return; }
   if (kind === 'edundo') { edUndo(f, b); return; }
   if (kind === 'edcancel') { ed = null; location.hash = 'film-' + id; return; }
@@ -630,6 +634,30 @@ function bindEdit() {
   if (document.getElementById('kit')) kitPaint();
 }
 const nextVersion = (f) => `v${Math.max(0, ...[f.version, ...(f.versions || [])].map((v) => parseInt(String(v || '').replace(/\D/g, ''), 10) || 0)) + 1}`;
+// The owner, on an approved film: «مفروض بعد الموافقه يعطيني الفيديو جاهز للحفظ مع الكابشن». The full-quality file
+// (`final`, else the light copy) is fetched when the page opens, so the tap reaches the share sheet at once; in the
+// Claude app it is saved as one file (Save Video on the iPhone), and the caption goes to the clipboard on the same tap.
+const filmFiles = {};
+function prefetchFilm(f) {
+  if (filmFiles[f.id]) return;
+  const src = f.final || f.video;
+  filmFiles[f.id] = fetch(src).then((r) => r.blob()).then((b) => (filmFiles[f.id] = new File([b], `${f.id}-${f.version || 'film'}.mp4`, { type: 'video/mp4' })), () => { delete filmFiles[f.id]; });
+}
+async function shareFilm(f, b) {
+  const file = filmFiles[f.id] instanceof File ? filmFiles[f.id] : null;
+  if (f.caption) navigator.clipboard?.writeText(f.caption).catch(() => {});
+  if (!file) { toast('لحظة، الفيلم يتحمّل… اضغط مرة ثانية.'); prefetchFilm(f); return; }
+  if (navigator.canShare?.({ files: [file] })) {
+    try { await navigator.share({ files: [file] }); toast(f.caption ? 'الكابشن منسوخ: الصقه مع البوست ✓' : 'تم ✓'); return; }
+    catch (e) { if (e?.name === 'AbortError') return; }
+  }
+  let dl = null; try { dl = await window.claude?.use?.('downloads'); } catch (e) {}
+  if (!dl) { toast('الحفظ مو متاح هنا.'); return; }
+  b.disabled = true;
+  try { await dl.save({ filename: file.name, data: file }); toast(f.caption ? 'الكابشن منسوخ ✓ احفظ الفيديو وانشره' : 'تم ✓'); }
+  catch (e) { if (e?.code !== 'declined') toast('ما قدرت أحفظ. جرّب مرة ثانية.'); }
+  finally { b.disabled = false; }
+}
 async function edSave(f, b) {
   const assets = await window.claude?.use?.('assets').catch(() => null);
   if (!assets || !db) { toast('الحفظ يحتاج صلاحية تعديل الاستوديو.'); return; }
