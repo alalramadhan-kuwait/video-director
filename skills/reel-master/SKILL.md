@@ -100,7 +100,11 @@ together.
   way gets one light mark, never full tashkeel («سِباحة»، «نْحِسب»). His second review marked the last two («تگطع»,
   «بوگت»): **on v3 never write «گ» by hand.** **Pace** (the owner: «نخليها اسرع شوي»): speed .9, and since v3's own
   rhythm barely follows that setting while its held beats leave 0.7 s pauses, `python3 tools/tighten_take.py
-  <voice_dir> --cap 0.5` cuts every silence over half a second to half a second, the voice untouched (127 → 110 s). Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
+  <voice_dir> --cap 0.5` cuts every silence over half a second to half a second, the voice untouched (127 → 110 s).
+  His third review («أقل، القوارب، ثبت، كملتها»; «اسرع الى 0.9»): when v3 still reads a ق or ث word the fusha way, say
+  it as a Kuwaiti would instead («بوقت أقل» → «أسرع منها»، «على القوارب» → «معاها بالبحر»، «ثبت» → «انحسب لها»), screen
+  and voice alike; a doubled letter gets its shadda («كمّلتها»). The settled pace: speed 1.0 and `--cap 0.4`, as the
+  reference reel (≈103 s for this script). Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
   stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
   like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
   say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
