@@ -57,8 +57,8 @@ structure: fact-check it, split long lines, fix the hook if needed, and say in o
 
 Every format can end with the follow line after the last line: «تابعنا… لا تفوتك الحكاية الياية.»
 
-**The acts are the beats.** Mark the line that opens each beat group with `act: true`; the voice is read one take
-per act and the cuts follow the acts (SKILL.md steps 4–5).
+**The acts are the beats.** Mark the line that opens each beat group with `act: true`; the voice is read as one take
+of the whole script, its tone developing across the acts, and the cuts follow the acts (SKILL.md steps 4–5).
 
 ## 3. Writing
 - One line ≈ 2–3 s: 6–10 Arabic words. Split a longer line in two; one idea per line.

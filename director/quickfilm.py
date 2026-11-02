@@ -65,6 +65,7 @@ from __future__ import annotations
 import hashlib, html, json, re, shutil, subprocess, time
 from pathlib import Path
 
+import numpy as np
 import yaml
 
 from . import beats, platforms, quality, brand as B
@@ -640,22 +641,39 @@ def voice_script(film: dict) -> list[dict]:
     return [{'id': ln['id'], 'text': (ln.get('say') or ln['text']).strip()} for ln in film['lines']]
 
 
-def given_take(line: dict, src: Path, vdir: Path) -> tuple[Path, Path]:
+def continuous(src: Path) -> bool:
+    """The take is a piece of one narration read whole (tools/record_flow.py writes `continuous` in its record)."""
+    rec = src.with_suffix('.json')
+    try: return bool(rec.is_file() and json.loads(rec.read_text(encoding='utf-8')).get('continuous'))
+    except ValueError: return False
+
+
+def boomy(voice_dir: Path | None, lines: list[dict]) -> bool | None:
+    """One decision for the whole narration (the same tone on every line, never one line evened out and the next not)."""
+    if voice_dir is None: return None
+    parts = [voice.decode((voice_dir / f"{ln['id']}.wav").read_bytes()) for ln in lines if (voice_dir / f"{ln['id']}.wav").is_file()]
+    return bool(parts) and voice.low_share(np.concatenate(parts)) > voice.BOOM_DB
+
+
+def given_take(line: dict, src: Path, vdir: Path, boom: bool | None = None) -> tuple[Path, Path]:
     """A take read elsewhere (src/<id>.wav), copied into the film folder at 24 kHz mono with what Whisper heard in it;
-    cached by the take's own bytes, so a line read again is listened to again."""
+    cached by the take's own bytes, so a line read again is listened to again. A piece of one continuous narration
+    keeps its pauses (never trimmed: the scenes are laid end to end on it)."""
     data = src.read_bytes()
-    key = hashlib.sha256(data + b'|tone1').hexdigest()[:10]             # tone1: a boomy take is evened out (voice.tone)
+    cont = continuous(src)
+    key = hashlib.sha256(data + f'|tone2|{boom}|{cont}'.encode()).hexdigest()[:10]   # tone2: one tone decision per film
     wav, meta = vdir / f"{line['id']}-given-{key}.wav", vdir / f"{line['id']}-given-{key}.json"
     if not (wav.is_file() and meta.is_file()):
         vdir.mkdir(parents=True, exist_ok=True)
-        a = voice.tone(voice.trim(voice.decode(data)))
+        a = voice.decode(data)
+        a = voice.tone(a if cont else voice.trim(a), boom)
         out = voice.encode(a, 'wav'); wav.write_bytes(out)
-        meta.write_text(json.dumps({'heard': voice.hear(out), 'seconds': round(len(a) / voice.SR, 3), 'source': str(src)},
+        meta.write_text(json.dumps({'heard': voice.hear(out), 'seconds': round(len(a) / voice.SR, 3), 'source': str(src), 'continuous': cont},
                                    ensure_ascii=False), encoding='utf-8')
     return wav, meta
 
 
-def take(line: dict, brand: str, vdir: Path, given: Path | None = None) -> dict:
+def take(line: dict, brand: str, vdir: Path, given: Path | None = None, boom: bool | None = None) -> dict:
     """The line's voice take (cached by what is spoken), what Whisper heard, and the script words timed to it.
     `given` is a folder of takes read elsewhere (one <id>.wav per line), used instead of the draft voice."""
     spoken = B.spoken(line.get('say') or line['text'], brand)
@@ -663,7 +681,7 @@ def take(line: dict, brand: str, vdir: Path, given: Path | None = None) -> dict:
     key = hashlib.sha256(f'{voice.PROVIDER}|{speed}|{spoken}'.encode()).hexdigest()[:10]
     wav, meta = vdir / f"{line['id']}-{key}.wav", vdir / f"{line['id']}-{key}.json"
     if given is not None:
-        wav, meta = given_take(line, given / f"{line['id']}.wav", vdir)
+        wav, meta = given_take(line, given / f"{line['id']}.wav", vdir, boom)
     elif not (wav.is_file() and meta.is_file()):
         vdir.mkdir(parents=True, exist_ok=True)
         mp3 = voice.synth(spoken)
@@ -798,10 +816,16 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
     scenes, report, voice_db = [], {'lines': [], 'photos': pics, 'story': story_check(film), 'platform': plat['name']}, {}
     found = sounds.for_film(film, out / 'sfx')                           # real recorded sounds, else the procedural kit
     report['sounds'] = found['notes']
-    for ln in film['lines']:
-        t = take(ln, brand, out / 'voice', given=voice_dir)
+    boom = boomy(voice_dir, film['lines'])
+    flow = voice_dir is not None and all(continuous(voice_dir / f"{ln['id']}.wav") for ln in film['lines'])
+    report['voice_flow'] = 'one narration' if flow else 'line by line'
+    for k, ln in enumerate(film['lines']):
+        t = take(ln, brand, out / 'voice', given=voice_dir, boom=boom)
         gap = film.get('gap') or {}                                          # a slower voice keeps its words, the silences shorten
-        dur = round(VOICE_AT + t['seconds'] + gap.get('tail', TAIL) + ln.get('pause', gap.get('pause', 0.25)), 2)
+        # one narration read whole: the audio leads and the scenes follow it end to end, its own pauses kept (the owner:
+        # «الصوت يكون هو الأساس، والمشاهد تتبعه»); only the first scene waits VOICE_AT before the voice starts
+        v_at = (VOICE_AT if k == 0 else 0.0) if flow else VOICE_AT
+        dur = round(v_at + t['seconds'], 2) if flow else round(VOICE_AT + t['seconds'] + gap.get('tail', TAIL) + ln.get('pause', gap.get('pause', 0.25)), 2)
         params = json.loads(json.dumps(ln.get('params', {}), ensure_ascii=False))
         for slot in art.NEEDS_ASSETS.get(ln['template'], lambda p: [])(params):           # a photo's credit goes on screen
             if screen_credit(pics, slot) and ln['template'] in ('product_reveal', 'product_macro', 'archive_photo', 'blueprint'): params.setdefault('credit', screen_credit(pics, slot))
@@ -812,7 +836,7 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         if params.get('land_on'):                                            # a number lands when the voice says it (rule 18b)
             hit = next((w for w in t['words'] if w['w'] == str(params['land_on'])), None)
             params.pop('land_on')
-            if hit: params['land'] = round(VOICE_AT + hit['s'], 2)
+            if hit: params['land'] = round(v_at + hit['s'], 2)
         world = ln.get('set', film.get('set'))                               # the story world behind the template (sets.py)
         theme = ln.get('theme') or ('tk-ink' if ln.get('photo') else sets.theme_for(world, film.get('theme', 'tk-bone')))
         if look == 'data': world, theme = None, looks.theme(look, theme)       # one dark stage: no paper world behind
@@ -835,13 +859,13 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         report.setdefault('sound', []).extend(line_sound(sc, ln, t['words'], dur))     # the film file's own cues and bed
         report.setdefault('sound', []).extend(line_reveal(sc, ln, t['words'], dur))   # a print unveiled on its word
         report.setdefault('sound', []).extend(line_appear(sc, ln, t['words'], dur))   # a print that arrives on its word
-        words = [[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
+        words = [[round(v_at + w['s'], 2), w['w']] for w in t['words'] if w.get('s') is not None]
         motion.direct(sc, dur, ln['id'], words=words, shots=ln.get('shots'), pixels=motion.pixels(out / 'assets'), template=template)
         voice_db[len(scenes)] = mix.level(str(t['wav']), 'active')
         cut = cut_for(ln, scenes[-1] if scenes else None, sc, world, template, scenes[-1].get('transition') if scenes else None,
                       flow=any(x.get('act') for x in film['lines']))
-        sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=VOICE_AT,
-                  words=[[round(VOICE_AT + w['s'], 2), w['w']] for w in t['words']], transition=cut)
+        sc.update(id=ln['id'], dur=dur, voice=str(t['wav'].relative_to(out)), voiceAt=v_at,
+                  words=[[round(v_at + w['s'], 2), w['w']] for w in t['words']], transition=cut)
         scenes.append(sc)
         report['lines'].append({'id': ln['id'], 'seconds': dur, 'heard': t['heard'], 'not_heard': t['not_heard'], 'template': template})
     cross(scenes, rtl=True)                                              # the camera crosses each cut

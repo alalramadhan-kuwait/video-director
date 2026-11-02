@@ -1,16 +1,19 @@
-"""Record a film's narration as continuous takes, one per act, then split it into one take per line.
+"""Record a film's narration as ONE take of the whole script, then cut it into one take per line.
 
-The owner, on the rubies film: «the video is not connected… jumping from scene to scene without any transition in the
-wording and also in the sound». A voice read line by line starts afresh on every line: its pitch and energy reset at
-each cut. Read as one paragraph per act, the voice carries the story across the cuts; the lines are then cut apart in
-the silences between them, on the timings ElevenLabs returns with the audio, so the film still has one take per line.
+The owner, 2 Nov 2026: «The narrator is telling one continuous story, not performing each scene independently» and
+«النص الكامل ← توليد صوت واحد ← استخراج توقيت الجمل والكلمات ← إنشاء المشاهد حسب المعنى ← مزامنة المشاهد مع
+الصوت». So the whole script is read in one pass (one voice, one energy that develops with the story), the lines are cut
+apart in the middle of the silences between them on the timings ElevenLabs returns with the audio, and each piece keeps
+its share of the pauses: make_film lays the scenes on that audio end to end (`continuous` in each piece's record), so
+the narration plays exactly as it was read and the pictures follow it.
 
     python3 tools/record_flow.py films/<film>.yaml <voice_dir> --voice <voice_id> [--name "Voice name"] [--seed 1234]
 
-An act starts at each line marked `act: true` (the first line starts act one). Each act is read with the act before it
-as `previous_text` and the act after it as `next_text`, so the acts join too. The key comes from ELEVENLABS_API_KEY,
-or from the session's proxy. Natural speed only: a voice is never sped up (cut the script instead). Check every line
-with Whisper afterwards; a cloned voice can add words.
+Before anything is paid for, the script's delivery plan is checked (director/narration.py: each line's `tone:`, the
+arc across the film); a broken arc stops the recording unless --anyway. A script over MAX_CHARS is read act by act
+(`act: true` lines), each act with the acts around it as context, the same voice settings throughout. Natural speed
+only: a voice is never sped up (cut the script instead). Afterwards: tools/hear.py for the words, and
+tools/hear_flow.py for one performance (it also writes the narration alone as an MP4 to listen to without the film).
 """
 from __future__ import annotations
 
@@ -20,10 +23,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from director import brand as B, quickfilm  # noqa: E402
+from director import brand as B, narration, quickfilm  # noqa: E402
 
 SR = 24000
-SETTINGS = {'stability': .4, 'similarity_boost': .8, 'style': .2, 'use_speaker_boost': True, 'speed': 1.0}
+SETTINGS = {'stability': .5, 'similarity_boost': .8, 'style': .15, 'use_speaker_boost': True, 'speed': 1.0}   # steadier: one character all through
+MAX_CHARS = 4500                       # a longer script is read act by act, with context
 END = '.؟?!…:،,'
 
 
@@ -93,10 +97,17 @@ def main(argv=None) -> int:
     ap.add_argument('film'); ap.add_argument('out')
     ap.add_argument('--voice', required=True); ap.add_argument('--name', default='')
     ap.add_argument('--seed', type=int, default=1234); ap.add_argument('--model', default='eleven_multilingual_v2')
+    ap.add_argument('--per-act', action='store_true', help='read act by act even when the whole script fits one take')
+    ap.add_argument('--anyway', action='store_true', help='record even when the delivery plan breaks one performance')
     a = ap.parse_args(argv)
     film = quickfilm.load(a.film); brand = film.get('brand', 'timekeeper')
     out = Path(a.out); (out / 'raw').mkdir(parents=True, exist_ok=True)
-    groups = acts(film['lines'])
+    problems = narration.check(film['lines'])
+    for p_ in problems: print('delivery:', p_)
+    if problems and not a.anyway: print('the delivery plan breaks one performance: fix the tones (or --anyway)'); return 2
+    allsaid = [B.spoken(ln.get('say') or ln['text'], brand) for ln in film['lines']]
+    whole = sum(len(t) + 1 for t in allsaid) <= MAX_CHARS and not a.per_act
+    groups = [film['lines']] if whole else acts(film['lines'])
     said = [[B.spoken(ln.get('say') or ln['text'], brand) for ln in g] for g in groups]
     paras = [paragraph(t) for t in said]
     for k, (g, (text, spans)) in enumerate(zip(groups, paras)):
@@ -104,13 +115,16 @@ def main(argv=None) -> int:
         al = d.get('alignment') or {}
         chars, st, en = al.get('characters', []), al.get('character_start_times_seconds', []), al.get('character_end_times_seconds', [])
         if ''.join(chars) != text: raise RuntimeError(f'act {k + 1}: the timings do not follow the text ({len(chars)} vs {len(text)} characters)')
-        mp3 = base64.b64decode(d['audio_base64']); (out / 'raw' / f'act{k + 1}.mp3').write_bytes(mp3)
+        name = 'whole' if whole else f'act{k + 1}'
+        mp3 = base64.b64decode(d['audio_base64']); (out / 'raw' / f'{name}.mp3').write_bytes(mp3)
+        (out / 'raw' / f'{name}.json').write_text(json.dumps({'text': text, 'alignment': al}, ensure_ascii=False), encoding='utf-8')
         audio = pcm(mp3); total = len(audio) / 2 / SR
         for ln, (t0, t1), spoken in zip(g, cuts(spans, st, en, total), said[k]):
             i0, i1 = int(t0 * SR) * 2, int(t1 * SR) * 2
             write_wav(out / f"{ln['id']}.wav", audio[i0:i1])
             (out / f"{ln['id']}.json").write_text(json.dumps({'provider': 'elevenlabs', 'voice_id': a.voice, 'voice_name': a.name,
-                                                               'model': a.model, 'act': k + 1, 'from': t0, 'to': t1, 'text': spoken},
+                                                               'model': a.model, 'act': k + 1, 'from': t0, 'to': t1, 'text': spoken,
+                                                               'master': f'raw/{name}.mp3', 'continuous': True, 'settings': SETTINGS},
                                                               ensure_ascii=False), encoding='utf-8')
             print(f"act {k + 1}  {ln['id']:>5}  {t0:6.2f}-{t1:6.2f}  {spoken}", flush=True)
     print('characters', sum(len(p[0]) for p in paras))

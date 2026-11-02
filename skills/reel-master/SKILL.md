@@ -3,7 +3,7 @@ name: reel-master
 description: >-
   The one skill for making a Time Keeper Reel (or a Diabetes History episode), from an idea to the posted film:
   research with sources, the hook and the script in the house style, the reader panel's review, the voice (one take
-  per act, tuned and paced), the transitions, choosing the style from the whole library (the paper-story engine
+  as one narration, tuned and paced), the transitions, choosing the style from the whole library (the paper-story engine
   looks, the 66 code-film styles, Wood Marquetry, an AI route), real credited photos, the build, the critic, and the
   cover, caption and credits for the post. Use it whenever the user sends an idea or asks for a video, a Reel, a
   script, a voice, a style, a cover or a post for a film: «سوّ لي فيديو عن…», «فيديو عن ساعة…», «اكتب سكربت»,
@@ -90,11 +90,29 @@ together.
   voice is tried on two lines first and sent as an MP4 **(owner)**. Earlier voices and fallbacks: the owner's cloned
   «Ali TK» `WBd6y9HGGbIZZafgVlGr`, Nasser `cFUFIbKkO2iZFwS8cRnY`, Abdullah `XdoLPWNt7ytn6BtU4FBf`; free: OmniVoice or
   Fasih (`skills/arabic-narration/GUIDE.md`, the full Arabic pronunciation system).
-- **One take per act, never line by line:**
-  `python3 tools/record_flow.py films/<film>.yaml <voice_dir> --voice <id> --name "<name>"` reads each act as one
-  paragraph (the acts around it as context) and cuts it into one take per line in the silences, on ElevenLabs' own
-  timings, so the voice carries across the cuts. eleven_multilingual_v2, seed 1234, stability .4, similarity .8,
-  style .2, speaker boost, **speed 1.0, no atempo**.
+- **One narrator, one story, one take** (the owner, 2 Nov 2026: «The narrator is telling one continuous story, not
+  performing each scene independently. His emotions should develop naturally with the story, not restart with every
+  scene»). The order of work is the owner's: **the full script → one voice take → the timings of its sentences and
+  words → the scenes by meaning → the scenes laid on the audio.** The voice is the base; the pictures follow it.
+  1. *Read the whole story first* and give lines a `tone:` (calm, serious, warm, curious, surprised, excited; a line
+     without one carries the tone before it). `director/narration.py` checks the arc: open curious, never a jump of
+     more than one step between neighbours (nor a reset at a new act), surprise or excitement on two lines at most,
+     where the information deserves it.
+  2. *Record it whole:* `python3 tools/record_flow.py films/<film>.yaml <voice_dir> --voice <id> --name "<name>"`
+     reads the entire script in one pass (one personality, energy and pace that develop with the story), stops first
+     if the arc breaks, and cuts the take into one piece per line in the middle of the silences on ElevenLabs' own
+     timings. Only a script over 4,500 characters is read act by act, with the acts around it as context and the same
+     settings. eleven_multilingual_v2, seed 1234, stability .5, similarity .8, style .15, speaker boost, **speed 1.0,
+     no atempo**. Delivery is written into the text itself: «…» for a held beat, «؟» for a real question, commas for
+     breath; no stacked exclamations, no exaggerated excitement.
+  3. *The scenes follow the audio:* the pieces carry `continuous` in their records, so make_film keeps their pauses
+     (no trimming, no added gaps: `gap:` applies only to line-by-line takes) and lays the scenes end to end on them;
+     the narration in the film is the take exactly as it was read. One tone decision for the whole narration (a
+     boomy voice is evened out on every line or on none).
+  4. *Listen without the pictures:* `python3 tools/hear_flow.py films/<film>.yaml <voice_dir>` prints the arc, names
+     any join where loudness (>3 dB), pitch (>12%) or pace (>25%) jumps as if a new recording had started, and writes
+     `<voice_dir>/narration.mp4` to listen to on the phone. A narration that sounds stitched is re-recorded before
+     anything is built.
 - **Check:** `python3 tools/hear.py <voice_dir>/*.wav` (Whisper): every word there, nothing added (a
   cloned voice once added «مرحبا»). Whisper misspells Arabic; it judges missing or extra words, not pronunciation.
   Fix a mispronounced word in `brand/pronunciation.json`, then re-record that act.
@@ -156,7 +174,7 @@ approves or comments with time codes; fix only that and resend. Never post witho
 | Topic | Older rule | The owner's rule now |
 |---|---|---|
 | Language | «Kuwaiti dialect, not MSA» (story-reel-script) | the house style: between fusha and Kuwaiti, from the final news posts (rule 9e) |
-| Voice | OmniVoice, or one file per line | Jarnathan on ElevenLabs, one take per act (`tools/record_flow.py`); OmniVoice/Fasih are the free fallback |
+| Voice | OmniVoice, or one file per line | one take of the whole script (`tools/record_flow.py`), the scenes laid on it, checked by `tools/hear_flow.py`; Jarnathan on ElevenLabs; OmniVoice/Fasih are the free fallback |
 | Speed | `speed` to fit a shot | never sped up; cut the script |
 | Transitions | «no generic dissolves», whips on movement | dissolves inside an act, a push into a new act, no whips (rule 3b, 18e) |
 | Sound effects | synthesised kit (`pluck.py`, `sfx.py`, paper sounds) | real recordings only, ≤ 6 a minute, 16–20 dB under the voice |

@@ -30,7 +30,7 @@ class Tone(unittest.TestCase):
 
     def test_the_film_builder_uses_both(self):
         src = (Path(voice.__file__).resolve().parents[1] / 'quickfilm.py').read_text(encoding='utf-8')
-        self.assertIn('voice.tone(voice.trim(voice.decode(data)))', src)
+        self.assertIn('a = voice.tone(a if cont else voice.trim(a), boom)', src)
         self.assertIn('mus = None if no_music else', src)
 
 

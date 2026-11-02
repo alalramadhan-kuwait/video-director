@@ -116,9 +116,11 @@ def low_share(a: np.ndarray) -> float:
     return float(10 * np.log10(s[(hz >= 60) & (hz < 150)].sum() / max(s[hz >= 60].sum(), 1e-12)))
 
 
-def tone(a: np.ndarray) -> np.ndarray:
-    """The take as it is, or, when it is boomy (low_share over BOOM_DB), its low end cut and its presence lifted."""
-    if len(a) < 4096 or low_share(a) <= BOOM_DB: return a
+def tone(a: np.ndarray, boom: bool | None = None) -> np.ndarray:
+    """The take as it is, or, when it is boomy, its low end cut and its presence lifted. `boom` is the film's one
+    decision for the whole narration; None decides on this take alone (low_share over BOOM_DB)."""
+    if boom is None: boom = len(a) >= 4096 and low_share(a) > BOOM_DB
+    if not boom or len(a) < 64: return a
     return decode(_ff('-i', '-', '-af', TONE, '-f', 'wav', '-', inp=encode(a, 'wav')))
 
 
