@@ -52,7 +52,7 @@ params, the photos (licensed, with their evidence) and the sources. `make()` the
              down, never a third); one-shots 3-6 dB under the voice and at most 15 a minute, paper sounds only when
              paper comes in. A line can ask for its own effects and bed:  sfx: [{name: gavel, on: «word»}, {name:
              train_horn, at: 2.5, gain: -8}]  ·  bed: train (or {name, gain}, a list, or none). The film can turn every
-             bed down further:  beds: {gain: -4}
+             bed down further:  beds: {gain: -4}; or drop every effect and bed:  effects: none (voice and music only)
              real recordings (director/copilot/sounds.py): `sounds: {gavel: "gavel on wood", train_bed: "steam train"}`
              finds each on Openverse (CC0, then CC BY; cached outside git) and plays it wherever the film uses that
              name; `name: "found:<openverse id>"` (with `fallback: gavel`) uses one sound directly. Not found or
@@ -851,6 +851,8 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
     looks.endcard_logo(look, out)                                        # a light logo on the dark stage
     report['mix'] = mix.apply(scenes + ending, voice_db, sfx_dir=out / 'sfx',     # beds, J-cuts, one-shot levels and the cap
                               bed_gain=min(0.0, float((film.get('beds') or {}).get('gain', 0))))   # `beds: {gain: -4}`: every bed further down, never up
+    if mix.silent(film):                                                 # `effects: none`: voice and music only
+        report['mix'].update(one_shots=0, per_minute=0, beds=[], silenced=mix.silence(scenes + ending))
     played = sounds.used(scenes + ending, found['files'])                # the found sounds the film really plays
     duck = (B.load(brand).get('music') or {}).get('duck')
     sb = {'width': 720, 'height': 1280, 'fps': 30, 'dir': 'rtl', 'captionY': plat['caption_y'], **looks.style(look, art.style(brand)),
