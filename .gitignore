@@ -29,3 +29,6 @@ examples/explainer/out/
 
 # the frames render.mjs extracts from a video clip (cached next to the storyboard)
 .clip-frames/
+
+# the TK carousel overlay and fonts the owner supplies (tools/carousel/carousel.mjs)
+brand/carousel/

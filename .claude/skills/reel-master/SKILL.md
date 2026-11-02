@@ -40,7 +40,10 @@ gate, and read its inbox when a film waits.
 
 ## The flow (always in this order)
 
-### 1. Idea → script type, language and research
+### 1. Idea → format, script type, language and research
+**Format: a Reel, a carousel, or both** (the owner's choice; a Reel unless they ask). A carousel follows
+`references/carousel.md` after the research and the script (the same facts, written as 4–5 slides) and skips the voice,
+pace, style and film steps.
 Pick the **script type** and the **language** from the script library (`brand/script_library.yaml`;
 `python3 tools/script_library.py` lists them, `… <type> --language <lang>` shows a type's acts, skeleton lines and an
 example). 14 types (hidden history, numbers explainer, biography, how it works, myth or fact, comparison, evolution,
@@ -185,4 +188,5 @@ requests once the tests pass.
 - `references/wood-marquetry.md` + `assets/wood.js`: the Wood Marquetry rules and veneer engine.
 - `references/post.md`: the cover, the carousel template, the caption and the credits.
 - `references/studio.md`: the owner's dashboard, its records and how to keep it current.
+- `references/carousel.md` + `tools/carousel/`: the topic as a TK carousel, with its caption, saved from the studio.
 - `skills/arabic-narration/GUIDE.md`: the free Arabic voice engines and the pronunciation review page.

@@ -27,6 +27,9 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `acts` | `[{name, time}]` once the voice exists |
 | `meta` | type · language · look · voice |
 | `done_text` | when done («جاهز للنشر», «منشور») |
+| `kind` | `carousel` for a carousel (a Reel leaves it out) |
+| `slides` | a carousel's PNGs in order, as published files (`carousel/<id>/01.png` …) |
+| `caption` | the post caption; the studio copies it and saves it as a file, and saves every slide (downloads) |
 
 The percentage is the share of steps done (step − 1 of 9; 100 when done). `studio/now` holds the line at the top:
 `{busy, text, at}`.
