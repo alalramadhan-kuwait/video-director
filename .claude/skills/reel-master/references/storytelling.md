@@ -272,6 +272,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     recordings (`aporee_*`, mostly the Public Domain Mark: seas, harbours, a watchmaker's shop). Every file passes
     earshot `realness` (judge the trim you use: waves read «uncertain» as a whole, so pick the window with the
     highest p_real) and `sfx check` (fade in 5 ms, or it clicks), and its maker and licence go in credits.txt.
+    **The Time Keeper end card keeps its own sound** (the owner, 3 Nov 2026, after Rolex ep1 got real ticks on the
+    card: «ليش غيرت صوت النهاية كان حلو مال تايم كيبر»): the card's tick at 0.2 s and double tick at 1.8 s are the
+    brand's signature, the same in every film (`tk_endcard_clip.py`, as in «السباحة»). Never swap them for
+    recordings, even under this rule; real recordings are for the film's own effects.
 
 18n. **Captions and one more block of words, never more** ✓ (the owner: «the video have more than 3 lines of words it
     is hard to read for the viewers. caption title sub title. it is too much»). At any moment the screen holds the
