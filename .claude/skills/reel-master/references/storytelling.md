@@ -240,6 +240,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     Rolex ep1 show the real 1927 Daily Mail print, credited); a drawing never stands for a named model or reference;
     the credits say «مشاهد ورسومات بالذكاء الاصطناعي»; and any film outside such a series follows the rule above.
     The critic and Étienne still note the drawn watches, as a reminder and not a blocker, for these films only.
+    **Every drawn scene moves** (the owner, 3 Nov 2026, on Rolex ep1: «not all part of the video are scenes. Some of
+    them are just pictures. Fix that. All should be generated as a video»): in an AI-route film, a generated still is
+    only the first frame of a clip, never a picture on screen with a slow push. Plan a clip for every drawn scene
+    from the start and count its credits in the first quote (about 7 a second on Seedance 2.5). A long line takes a
+    clip as long as the line (up to 7 s) rather than several crops of one still. Only real archive prints and photos
+    stay pictures (12i), on their own cards.
 
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
