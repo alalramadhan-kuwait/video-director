@@ -106,7 +106,12 @@ together.
   His third review («أقل، القوارب، ثبت، كملتها»; «اسرع الى 0.9»): when v3 still reads a ق or ث word the fusha way, say
   it as a Kuwaiti would instead («بوقت أقل» → «أسرع منها»، «على القوارب» → «معاها بالبحر»، «ثبت» → «انحسب لها»), screen
   and voice alike; a doubled letter gets its shadda («كمّلتها»). The settled pace: speed 1.0 and `--cap 0.4`, as the
-  reference reel (≈103 s for this script). Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
+  reference reel (≈103 s for this script). **A watch name the voice clips** (the owner, 3 Nov 2026: «في خطا بكلام يقول
+  ويستر اهو يقصد اويستر… واهي كلمة انجليزية»): v3 swallowed the bare «أويستر» into «ويستر», and the English
+  «Oyster» came out «الايستر». Whisper (`tools/hear.py`) heard the right word in both of two takes only for
+  «أُوْيِسْتَر», the first syllable fully voweled, now its value in `brand/pronunciation.json`. A name that starts
+  with a hamza or a vowel gets its first syllable voweled the same way; on screen it stays in English letters
+  («Oyster», rule 9b). Check every name with Whisper on each take before it is used. Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
   stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
   like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
   say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
