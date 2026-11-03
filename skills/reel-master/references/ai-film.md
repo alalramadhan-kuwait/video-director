@@ -56,7 +56,12 @@ small set lit like a miniature. Every shot reads in a second.
    `generate_audio: false`, one English prompt per shot as story-engine §7 says (a style-lock sentence first:
    «handmade paper-cut stop-motion, layered card, visible paper edges and grain, miniature set, shallow depth of
    field»), then the size and angle, the action, the light, the camera move (a slow push-in, or locked). Use the
-   reel's shot vocabulary above. A watch is never generated: a real photo over a clip (`mode: behind`).
+   reel's shot vocabulary above. A watch is a real photo over a clip (`mode: behind`) **unless the owner asks for it
+   drawn** (3 Nov 2026, the Gleitze film: «خل مشاهد الساعة مرسومة لساعتهم وتكون الساعة واضحة واهي تسبح ولابستها»):
+   then it is the story's own model, faithful to a period source (the Oyster from the Daily Mail advert of 24 Nov
+   1927): first one paper-cut still of the watch from that source (Nano Banana, «keep its shape and dial faithful, no
+   brand name, no readable text»), then every watch scene takes that still as an `image_reference`, the watch clearly
+   visible (on her, in the box, under the water, under the lamp, at the auction). The real advert stays as the proof.
 4. **Draft, then final:** `draft: true` (480p) for every shot, the owner approves the cut, then the kept drafts are
    finalised (`draft_job_id`, 1080p). A shot that drifts from the paper look (clay, plastic 3D) is redone.
 5. **Assemble** with make_film: clips on their lines, the one-take voice, the bed under it, captions, credits
