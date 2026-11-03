@@ -55,6 +55,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     that is never said or explained.
     **Étienne**, the brand, design and Reel specialist, joins the script vote and reviews the finished film beside
     the critic; his brand «no» blocks it (`references/reader-panel.md` §4).
+6e. **The film ends on the brand, and it is there to fix one fact of the watch world** ✓ (the owner, on the Gleitze
+    film, 3 Nov 2026: «بالمستقبل النهاية لازم نرجع حق البراند هدفنا نثبت معلومة وقصه مهمه في عالم الساعات»). Every
+    script names the one fact it leaves in the viewer's head (`fact:` in the film file, one sentence), and its last
+    lines come back to the brand and the watch of the story (Rolex and its Oyster, not the swimmer's later life). A
+    lesson for the viewer may come before the close, never as the last word. The reader panel checks it: after the
+    film, can Noura say the fact and name the brand?
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
@@ -227,6 +233,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     An effect that runs over 2 s (a train passing, a horn, footsteps) is levelled like a bed, its running level 20 dB
     under the voice (the owner: «صوت القطار لا زال عالي»); a short hit (a gavel, a bell) sits 16-20 dB under.
 
+    **An AI-video film is the exception** ✓ (the owner, 3 Nov 2026, comparing the Gleitze film with the reel it
+    follows: «نعدل الموسيقى ونوصلها لنفس الريل»): its music sits about 5 dB under the voice between words, as the
+    reel's (references/ai-film.md, «The owner's notes on the first film»).
 18m. **Few effects, real ones, felt not heard** ✓ (the owner: «the sound effect are really bad and it effecting the
     focus. who's checking them?»). Only real recorded sounds play (the film's `sounds:`, fetched with their licence):
     the synthetic kit (whoosh, shutter, click, chime, stamp, sonar, bubbles, paper) never plays, even where a film
@@ -250,6 +259,18 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     themes are drawn as SVG/canvas in code with hex colours (`director/studio/sets.py`), not generated; paid image
     generation is kept for what code cannot draw (a real person's likeness), and only with the owner's yes. Watches
     are never drawn either way (12h).
+18p. **Faces that feel, close shots, light by act** ✓ (the owner, 3 Nov 2026, after the Gleitze film beside the
+    Clayrified reel: «قاعدة المشاعر والوجوه القريبة مع اضاءة تتغير مع كل جزء راح نخليها جزء من القواعد حق المشاريع
+    القادمة»). In every film with drawn or generated people:
+    - **the emotion shows on the face**: big readable eyes, and the feeling changing inside the shot (a face that
+      reddens with anger, pales with fear, a tear forming, a smile breaking). A mask-like face that only stands there
+      is redone;
+    - **close most of the time**: extreme close-ups and macro inserts (hands, the object, the eyes) carry the story;
+      a wide shot only when the place changes, then straight back in. Every exchange cuts action → reaction (a 0.7–1 s
+      reaction shot of the one who hears it). Never three shots of the same crowd in a row;
+    - **the light changes with each act**: the plan names one palette per act before any prompt is written (a warm day,
+      a deep blue night with one warm lamp, a cold grey sea, a golden close), and the prompts carry it. A whole film
+      in one grey is redone.
 18h. **The camera moves inside the story, not over a slideshow** (from Bang Motion, MIT): a few % of zoom reads as a
     still, so every scene changes **shot size** on the words that carry it (wide 1.08-1.14, medium 1.28-1.42, close-up
     1.6-1.9; never below 1.08), framed on what the words are about (the photo, the face, the number with its unit),

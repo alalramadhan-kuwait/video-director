@@ -17,7 +17,7 @@ its story or its clay identity (story-engine.md).
 | Pauses | 26 short ones (~0.3 s); **the longest is 0.42 s**: no long silence, even before the twist | `///` 1–1.5 s before the twist |
 | Loudness | every sentence within −14.4 to −18.4 dB: one take, one distance from the mic | one take (rule 4) |
 | Pitch | story ~130–170 Hz; the calm character's lines lower and quieter («I cannot forgive you»); the lesson rises to 170–215 Hz, warmer, speaking to «you» | ENERGY arc in director/narration.py |
-| Under the voice | a bed only ~5 dB below the speech between words (music and room tone, never silence) | felt, not heard |
+| Under the voice | a bed only ~5 dB below the speech between words (music and room tone, never silence) | the same, ~5 dB, in an AI film (the owner, 3 Nov 2026) |
 | Captions | 2–3 words, yellow bold serif with a dark edge, centred just under the middle, no highlighted word | the brand's gold active word |
 
 **The voice:** a close, warm male storyteller, unhurried but never slow. Present tense, short sentences, no
@@ -85,3 +85,24 @@ over our older rules:
   highlighted word.
 - Everything measured above is the target: 33–40 shots a minute, a still or slowly pushing camera, the acting and
   the in-shot changes carrying the emotion, light by act, one warm close take.
+
+## The owner's notes on the first film (Gleitze, 3 Nov 2026)
+The first film on this route («السباحة اللي باعت ساعة», 103 s), measured beside the reel with `tools/reel_measure.py`:
+27.9 shots a minute (the reel 33.5), 2.1 s a shot, the longest pause 0.54 s, the music 17 dB under the voice (the reel
+4.9). The owner's answers became these rules for every AI film:
+- **The music as the reel's** («نعدل الموسيقى ونوصلها لنفس الريل»): about 5 dB under the voice between words,
+  measured, not guessed. On Gleitze the Bittersweet bed went from `volume=-21dB` with a hard duck
+  (`sidechaincompress` threshold 0.03, ratio 4) to `volume=-5dB` with a light one (threshold 0.1, ratio 2) and a
+  limiter at the end: 4.7 dB under, the voice still at -16 LUFS. Measure the mix the way reel_measure does (the median
+  loudness of the words against the median of the gaps over 0.3 s) and set the bed until the gap is 4–6 dB. This
+  replaces «felt, not heard» (storytelling 18i) for this route only.
+- **Faces that feel, close shots, light by act** (storytelling 18p): the reel's biggest lead over Gleitze. Write the
+  per-act palette and the close-up/reaction list into the shot plan before the prompts, and prompt every face for
+  its feeling («her eyes wide, her face draining pale»).
+- **The length follows the story** («الطول زين لانه قصتنا فيها تفاصيل اكثر»): a story with more facts may run past
+  the reel's 77 s (Gleitze 103 s); never cut a fact or a bridge only to reach it. The pace inside it (shots a minute,
+  no silence over 0.4 s) still follows the reel.
+- **The close returns to the brand and fixes the fact** (storytelling 6e).
+- **A flat page is a paper object in the world**: an archive picture (the 1927 ad) sits on a desk or in a hand as a
+  paper-cut newspaper the camera pushes into, not as two flat cards in a row.
+
