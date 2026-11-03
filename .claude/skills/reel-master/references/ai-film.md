@@ -3,7 +3,8 @@
 The owner, 2 Nov 2026, sending a @clayrified_ reel (the spit on the Buddha, 77 s): «is it able to produce something
 similar… instead of the clay… the paper cut style that we are using… Higgsfield… Seedance 2.5… notice the tone of
 the speaking, the zooms, the camera movement, all of this I need to be recorded and able to achieve the same quality».
-This file records that reel, measured (`tools/reel_measure.py`), and the route that reaches it. Copy its engine, never
+This file records that reel, measured (`tools/reel_measure.py`), and the route that reaches it. A second reel of the same channel
+(the tree of troubles, 3 Nov 2026: 45 shots a minute, the music 6.8 dB under the voice) is in reference-reels.md. Copy its engine, never
 its story or its clay identity (story-engine.md).
 
 ## The benchmark, measured
