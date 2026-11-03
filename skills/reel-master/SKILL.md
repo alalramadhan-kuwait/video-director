@@ -88,6 +88,11 @@ alternatives, its estimated length, and a line on what the readers changed. The 
 together.
 
 ### 4. Voice
+- **Every take goes to the owner on the pronunciation review page** (the owner, 3 Nov 2026: «always send me the
+  artifact to check each word pronunciation»): https://claude.ai/artifact/U8RJAV2Qm8FdeBXkWdnEuT, one page per take
+  (the newest only), every line playable on its own, each word marked as Whisper heard it (missing / near), the
+  rules checked, and the owner's marks saved; the link goes with the MP4 every time, and nothing is built on a take
+  before the owner says it is done. The page is rebuilt from `heard.json` (Whisper word times) and the film file.
 - **The voice:** «Faisal», the owner's cloned Kuwaiti voice, ElevenLabs `ACGeXdn44RW29fHPITsl` (the owner, 2 Nov 2026:
   «I just added voice called faisal use it»), **on ElevenLabs v3 with emotion** (the owner chose it, «اعتمد ٢», over
   the older model, which read Faisal flat and in fusha): `python3 tools/record_flow.py films/<f>.yaml <dir> --voice
