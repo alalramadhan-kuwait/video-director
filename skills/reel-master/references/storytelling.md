@@ -232,6 +232,14 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     and the post turns on the platform's AI label. A film may still set `label:` on a line.
     The same goes for a pose drawn with AI from a person's photo (`licence: AI illustration`): its credit stays in
     credits.txt and never shows on screen (`quickfilm.screen_credit`).
+    **The paper-cut series are the one exception** (the owner, 3 Nov 2026, asked whether to keep the drawn watches in
+    «حكاية رولكس · الحلقة 1» or wait for real photos: «1 · نخليها مرسومة»): in a film made wholly in the paper-cut
+    world (Seedance paper-cut clips and Nano Banana paper-cut stills, as «السباحة» and «حكاية رولكس»), the watches in
+    the drawn scenes may be drawn too, because a real photo pasted into a drawn shop would break the world. What stays:
+    the watch a line names is still its real print or photo, never a drawing (12i: frame 1 and every «Oyster» line of
+    Rolex ep1 show the real 1927 Daily Mail print, credited); a drawing never stands for a named model or reference;
+    the credits say «مشاهد ورسومات بالذكاء الاصطناعي»; and any film outside such a series follows the rule above.
+    The critic and Étienne still note the drawn watches, as a reminder and not a blocker, for these films only.
 
 18i. **Background beds are felt, not heard** ✓ (the owner: «الاصوات اللي بالخلفية مزعجة جدا»). A bed sets the place in its
     first 1.5 s, then sits 34 dB or more under the voice. Never a loop that competes with the narration. `mix.py` does
@@ -250,6 +258,14 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     file asks for it. Six a minute at most, each 16-20 dB under the voice, a film's own gain never louder. `mix.py`
     does it (`recorded_only`, `PER_MINUTE`, `SHOT_UNDER`). Nobody in the studio can hear: the numbers are the check,
     and the owner's ears are the last one. So the rule leans quiet: when in doubt, no effect.
+    **Where real recordings come from** (3 Nov 2026, Rolex ep1): Wikimedia Commons (upload.wikimedia.org) answers 429
+    to the studio's shared address, and Freesound's files answer 403; never get round either (no browser
+    User-Agent). The Internet Archive works: `archive.org/advancedsearch.php` (filter on `licenseurl`), then
+    `archive.org/download/<id>/<file>`. Two good sets: «The Designer's Choice UCS Collection – CLOCKS» by Nicholas
+    A. Judy (`Designers-Choice-Collection-Clocks`, CC0: ticks, fast ticks, winding, chimes) and radio aporee field
+    recordings (`aporee_*`, mostly the Public Domain Mark: seas, harbours, a watchmaker's shop). Every file passes
+    earshot `realness` (judge the trim you use: waves read «uncertain» as a whole, so pick the window with the
+    highest p_real) and `sfx check` (fade in 5 ms, or it clicks), and its maker and licence go in credits.txt.
 
 18n. **Captions and one more block of words, never more** ✓ (the owner: «the video have more than 3 lines of words it
     is hard to read for the viewers. caption title sub title. it is too much»). At any moment the screen holds the
