@@ -24,7 +24,7 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `name`, `title` | the card's short name, the film's title |
 | `order`, `color` | position on the list; one of #2BB5B8 #F2765F #E9A0C0 #A8D8A0 #F2C230 |
 | `step` | 1–9, SKILL.md's steps: idea and research, hook and script, readers, voice, pace, style, pictures and build, review, delivery |
-| `state` | `working` (Claude on it), `waiting` (a gate for the owner), `done` |
+| `state` | `working` (Claude on it), `waiting` (a gate for the owner), `done`, `posted` (the owner pressed «تم النشر ✓») |
 | `now` | while working: what is happening, in a few words («أسجّل الفصل الثاني») |
 | `eta_min` | while working: minutes left, from what the step usually takes (voice ~1 min a section, stills ~3, full render ~8–12, critic round ~10) |
 | `waiting` | while waiting: what the owner decides («موافقتك على السكربت») |
@@ -36,6 +36,9 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `acts` | `[{name, time}]` once the voice exists |
 | `meta` | type · language · look · voice |
 | `done_text` | when done («جاهز للنشر», «منشور») |
+| `posted` | `{at, version}`, written by the page's «تم النشر ✓»; the reads fall due 48 h and 7 days after `at` |
+| `insights_shots` / `insights_sent` | the owner's uploaded screenshots `[{stage, at, shots}]` / the reads he has sent (`48h`, `7d`) |
+| `insights` | Claude's reads `[{stage, at, verdict: good|mid|bad, label, vs, numbers: {name: value}, lessons, next}]` (`references/insights.md`) |
 | `kind` | `carousel` for a carousel (a Reel leaves it out) |
 | `slides` | a carousel's PNGs in order, as published files (`carousel/<id>/01.png` …) |
 | `caption` | the post caption; «شارك الكل» saves one zip of every slide and the caption (the Claude app allows one file per prompt, and its share sheet one file) and copies the caption; the numbers under it save one slide each |
@@ -70,3 +73,6 @@ copied into the inbox note. Log every one in `references/carousel-edits.md` with
 So when Claude next changes that carousel, **the record's `spec` is the truth**: write it to the working folder's
 spec.json before rendering. A new carousel gets `spec` and `src` when it is first delivered (its folder published under
 `src/carousel/<id>/`). Keep `carousel.mjs` and `kitSlide` in step: a layout change goes into both.
+
+`studio/recipe` `{updated, items: [{rule, why, from}]}`: the algorithm recipe, shown on the films list; Claude writes it from
+analysed numbers only (`references/insights.md`).

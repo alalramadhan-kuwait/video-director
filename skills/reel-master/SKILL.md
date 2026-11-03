@@ -202,6 +202,11 @@ paths, licences named), the sources, and the post caption in the house style wit
 the cover (`<out>/cover.png`) and, if wanted, a carousel in the Time Keeper template (`references/post.md`). The owner
 approves or comments with time codes; fix only that and resend. Never post without their yes.
 
+### 10. After posting: read the numbers (owner)
+The owner presses «تم النشر ✓» in the studio. Its numbers are read at 48 hours and at 7 days from his Instagram
+screenshots, judged against our own earlier posts, and turned into lessons and the algorithm recipe
+(`references/insights.md`). Étienne's daily brief adds algorithm tips and reminds him when a read is due.
+
 ## Which rule wins (the older skills disagreed)
 | Topic | Older rule | The owner's rule now |
 |---|---|---|
@@ -239,4 +244,5 @@ requests once the tests pass.
 - `references/post.md`: the cover, the carousel template, the caption and the credits.
 - `references/studio.md`: the owner's dashboard, its records and how to keep it current.
 - `references/carousel.md` + `tools/carousel/`: the topic as a TK carousel, with its caption, saved from the studio.
+- `references/insights.md`: after posting: the 48 h and 7 day reads, the verdict against our own posts, the recipe.
 - `skills/arabic-narration/GUIDE.md`: the free Arabic voice engines and the pronunciation review page.

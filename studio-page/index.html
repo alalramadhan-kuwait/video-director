@@ -129,6 +129,15 @@ nav.tabs svg{width:22px;height:22px;fill:none;stroke-width:2;stroke-linecap:roun
 .imeta{font:600 12px/1.3 var(--body);color:#3b3732;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;grid-column:2}
 .ist{grid-row:1 / span 2;grid-column:3;font:800 12px var(--body);border-radius:999px;padding:3px 10px;background:var(--ink);color:var(--bg);white-space:nowrap}
 .ist.ok{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.checks{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:6px;font-size:14px}
+.checks li{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.checks .when{margin-inline-start:auto;font-size:12px;color:var(--mute);white-space:nowrap}
+.shots{margin:2px 0 0;padding-inline-start:18px;display:grid;gap:2px;font-size:13px}
+.up{display:flex;align-items:center;justify-content:center;width:100%}
+.vd{display:inline-block;border-radius:999px;padding:2px 10px;font:800 13px var(--body);color:#fff}
+.vd.good{background:#2E8B57}.vd.mid{background:#C98A12}.vd.bad{background:#C0392B}
+.nums{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin-top:6px}
+.nums div{background:var(--bg);border-radius:12px;padding:6px 10px;display:grid}.nums span{font-size:12px;color:var(--mute)}.nums b{font:800 16px var(--display)}
+.recipe ol{margin:6px 0 0;padding-inline-start:20px;display:grid;gap:6px;font-size:14px}.recipe summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
 .rok{color:#1f6b3f}.rold{color:#8a1426}
 .rules{list-style:none;margin:2px 0 0;padding:0;display:grid;gap:3px;font-size:14px}
 </style>
@@ -178,7 +187,7 @@ let RULES = [
 let topics = {};                                                   // studio/topics: {<topic id>: {name, order}}
 const kindOf = (f) => (f.kind === 'carousel' ? 'carousel' : 'reel');
 const ruleState = (f) => RULES.filter((r) => r.kind === kindOf(f)).map((r) => ({ ...r, ok: Array.isArray(f.rules) ? f.rules.includes(r.id) : Date.parse(f.updated || 0) >= Date.parse(r.at) }));
-let films = [], now = null, lib = null, db = null, comments = null, ready = false, openType = null, openLang = 'tk', openFormat = 'reel';
+let films = [], now = null, lib = null, db = null, comments = null, recipe = null, ready = false, openType = null, openLang = 'tk', openFormat = 'reel';
 const picks = {};                                                  // slides chosen for a change, per carousel (kept across live refreshes)
 let chgOpen = null;
 const picked = (id) => picks[id] || (picks[id] = new Set());
@@ -192,19 +201,46 @@ function ago(iso) {
   const m = Math.max(0, Math.round((Date.now() - t) / 60000));
   return m < 1 ? 'الحين' : m < 60 ? `قبل ${m} د` : m < 1440 ? `قبل ${Math.round(m / 60)} س` : `قبل ${Math.round(m / 1440)} يوم`;
 }
+// Posted, then read (the owner, 3 Nov 2026: «حط اوبشن تم النشر وتنطر التحليل بعد مدة معينه انت تحددها… ونحاول
+// نحسن لين نوصل حق افضل وصفه للخوارزمية»). «تم النشر ✓» writes `posted: {at}`; Instagram's numbers are read twice:
+// at 48 h (the hook, the watch time, and whether the algorithm took it past the followers) and at 7 days (the final
+// reach, shares, saves and follows). When a read is due the film waits for the owner's screenshots (uploaded here, or
+// sent in the chat); Claude writes `insights` [{stage, at, verdict: good|mid|bad, label, vs, numbers: {name: value},
+// lessons: [...], next: [...]}] and the shared recipe `studio/recipe` {updated, items: [{rule, why, from}]}.
+const CHECKS = [{ id: '48h', name: 'أول قراءة', h: 48 }, { id: '7d', name: 'القراءة النهائية', h: 168 }];
+const SHOTS = ['نظرة عامة: المشاهدات، الوصول، ونسبة اللي مو متابعين', 'وقت المشاهدة: المعدّل، ونسبة اللي تخطّوه (Skip rate)', 'رسم الاحتفاظ: وين الناس طلعوا من الفيديو',
+  'التفاعل: اللايكات، التعليقات، المشاركات (Shares)، الحفظ (Saves)، والمتابعين الجدد'];
+const VERDICT = { good: 'ناجح', mid: 'متوسط', bad: 'ضعيف' };
+function checks(f) {
+  if (!f.posted?.at) return [];
+  const t0 = Date.parse(f.posted.at), sent = f.insights_sent || [], ins = f.insights || [];
+  return CHECKS.map((c) => ({ ...c, due: t0 + c.h * 3600e3, sent: sent.includes(c.id), done: ins.some((x) => x.stage === c.id) }));
+}
+const dueCheck = (f) => (f.state === 'posted' ? checks(f).find((c) => !c.done && !c.sent && Date.now() >= c.due) : null);
+const isWaiting = (f) => f.state === 'waiting' || !!dueCheck(f);
+function left(ms) { const h = Math.max(1, Math.round(ms / 3600e3)); return h < 24 ? `${h} س` : `${Math.floor(h / 24)} يوم${h % 24 ? ` و${h % 24} س` : ''}`; }
+const lastInsight = (f) => (f.insights || []).slice().sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0))[0];
+function postedLine(f) {
+  const cs = checks(f), d = dueCheck(f), sent = cs.find((c) => c.sent && !c.done), next = cs.find((c) => !c.done && Date.now() < c.due), li = lastInsight(f);
+  if (d) return { icon: '⏸', text: `بانتظارك · صور الإحصائيات (${d.name})`, action: true };
+  if (sent) return { icon: '⏱', text: `Claude يحلل ${sent.name}` };
+  if (next) return { icon: '⏳', text: `منشور${li ? ' · ' + (li.label || VERDICT[li.verdict] || '') : ''} · ${next.name} بعد ${left(next.due - Date.now())}` };
+  return { icon: '✓', text: `منشور · ${li ? li.label || VERDICT[li.verdict] || 'انقرا' : 'التحليل خلص'}` };
+}
 function when(iso) {
   const t = Date.parse(iso || ''); if (!t) return '';
   const k = (d) => new Date(d).toLocaleDateString('en-CA', { timeZone: 'Asia/Kuwait' });
   const day = k(t) === k(Date.now()) ? 'اليوم' : k(t) === k(Date.now() - 864e5) ? 'أمس' : new Date(t).toLocaleDateString('ar-KW-u-nu-latn', { timeZone: 'Asia/Kuwait', day: 'numeric', month: 'long' });
   return `${day} ${new Date(t).toLocaleTimeString('ar-KW-u-nu-latn', { timeZone: 'Asia/Kuwait', hour: 'numeric', minute: '2-digit' })}`;
 }
-function pct(f) { return f.state === 'done' ? 100 : Math.round(100 * (Math.max(1, f.step || 1) - 1) / STEPS.length); }
+function pct(f) { return f.state === 'done' || f.state === 'posted' ? 100 : Math.round(100 * (Math.max(1, f.step || 1) - 1) / STEPS.length); }
 function color(f, i) { return f.color || COLORS[i % COLORS.length]; }
 function eta(m) { if (m == null) return ''; return m < 60 ? `~${m} د` : `~${Math.round(m / 6) / 10} س`; }
 function stateLine(f) {
   if (f.state === 'waiting') return { icon: '⏸', text: 'بانتظارك · ' + (f.waiting || STEPS[(f.step || 1) - 1]), action: true };
   if (f.state === 'working') return { icon: '⏱', text: 'يشتغل · ' + (f.now || STEPS[(f.step || 1) - 1]), eta: f.eta_min };
   if (f.state === 'done') return { icon: '✓', text: f.done_text || 'جاهز للنشر' };
+  if (f.state === 'posted') return postedLine(f);
   return { icon: '', text: STEPS[(f.step || 1) - 1] };
 }
 
@@ -230,26 +266,29 @@ function itemLabel(f, tname) {
   return `${kind}${rest ? ' · ' + rest : ''}`;
 }
 function viewFilms() {
-  const waiting = films.filter((f) => f.state === 'waiting').length, working = films.filter((f) => f.state === 'working').length;
+  const waiting = films.filter(isWaiting).length, working = films.filter((f) => f.state === 'working').length;
   let h = header('أفلامنا', ready ? `${waiting} بانتظارك · ${working} يشتغل` : 'جاري التحميل…') + nowLine();
   if (ready && !films.length) h += `<div class="empty"><b style="font:800 18px var(--display)">ما فيه أفلام للحين</b><p class="note">أرسل لي فكرة في المحادثة، ويطلع الفلم هنا بنسبته ووقته.</p></div>`;
   const groups = {};
   for (const f of films) (groups[topicOf(f)] ||= []).push(f);
-  const rank = (f) => (f.state === 'waiting' ? 0 : f.state === 'working' ? 1 : 2);
+  const rank = (f) => (isWaiting(f) ? 0 : f.state === 'working' ? 1 : 2);
   const order = Object.entries(groups).map(([id, list]) => [id, list.sort((a, b) => rank(a) - rank(b) || Date.parse(b.updated || 0) - Date.parse(a.updated || 0))])
     .sort(([a, x], [b, y]) => (topics[a]?.order ?? 99) - (topics[b]?.order ?? 99) || rank(x[0]) - rank(y[0]) || Date.parse(y[0].updated || 0) - Date.parse(x[0].updated || 0));
   order.forEach(([id, list], gi) => {
-    const tname = topicName(id, list), w = list.filter((f) => f.state === 'waiting').length;
+    const tname = topicName(id, list), w = list.filter(isWaiting).length;
     h += `<section class="topic" style="background:${topics[id]?.color || list[0].color || COLORS[gi % COLORS.length]}" aria-label="${esc(tname)}"><div class="thead"><b>${esc(tname)}</b><span>${w ? `${w} بانتظارك` : 'كله جاهز ✓'}</span></div>`;
     for (const f of list) {
       const old = ruleState(f).filter((r) => !r.ok);
       const rules = old.length ? `<span class="rold">⚠ قبل ${old.length === 1 ? 'قاعدة جديدة' : `${old.length} قواعد جديدة`}</span>` : '<span class="rok">✓ آخر القواعد</span>';
-      const st = f.state === 'waiting' ? '<span class="ist">بانتظارك</span>' : f.state === 'working' ? `<span class="ist">يشتغل ${pct(f)}%</span>` : `<span class="ist ok">${f.state === 'done' ? 'جاهز ✓' : esc(STEPS[(f.step || 1) - 1])}</span>`;
+      const li = f.state === 'posted' ? lastInsight(f) : null;
+      const st = isWaiting(f) ? '<span class="ist">بانتظارك</span>' : f.state === 'working' ? `<span class="ist">يشتغل ${pct(f)}%</span>`
+        : f.state === 'posted' ? `<span class="ist ok">${li ? esc(li.label || VERDICT[li.verdict] || 'منشور') : 'منشور'}</span>` : `<span class="ist ok">${f.state === 'done' ? 'جاهز ✓' : esc(STEPS[(f.step || 1) - 1])}</span>`;
       h += `<button type="button" class="item" data-film="${esc(f.id)}">${ICON[kindOf(f)]}<span class="iname">${esc(itemLabel(f, tname))} <span style="font-weight:600;opacity:.75">${esc(f.version || '')}</span></span>${st}
         <span class="imeta">${f.updated ? esc(when(f.updated)) + ' · ' : ''}${rules}</span></button>`;
     }
     h += `</section>`;
   });
+  if (ready) h += viewRecipe();
   h += `<div class="shortcuts"><a class="short" href="#recreate" style="background:var(--yellow);color:var(--ink)">ريل عجبك</a><a class="short" href="#library" style="background:var(--blue);color:#fff">فكرة جديدة</a></div>`;
   return h;
 }
@@ -259,7 +298,7 @@ function viewFilm(id) {
   if (!f) return header('الفلم', ready ? 'ما لقيت هالفلم' : 'جاري التحميل…') + '<a class="chip" href="#films">→ الأفلام</a>';
   const c = color(f, i), p = pct(f), step = f.step || 1, s = stateLine(f);
   const dots = STEPS.map((n, k) => {
-    const cls = k + 1 < step || f.state === 'done' ? '' : k + 1 === step ? 'cur' : 'todo';
+    const cls = k + 1 < step || f.state === 'done' || f.state === 'posted' ? '' : k + 1 === step ? 'cur' : 'todo';
     const bg = cls === '' ? `background:${COLORS[k % COLORS.length]}` : '';
     return `<li><span class="${cls}" style="${bg}" title="${n}">${k + 1}</span></li>`;
   }).join('');
@@ -287,7 +326,8 @@ function viewFilm(id) {
       <div class="pick" role="group" aria-label="الشرائح">${f.slides.map((src, k) => `<button type="button" data-pick="${k}" aria-pressed="${picked(f.id).has(k)}" aria-label="${slideName(k)}"><img src="${esc(src)}" alt="" loading="lazy"><span>${slideName(k)}</span></button>`).join('')}</div>
       <label class="note" for="note" style="color:var(--ink)">وش تبي يتغيّر؟</label><textarea id="note" maxlength="1200" placeholder="مثلًا: النص طويل، أو الصورة صغيرة"></textarea>
       <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
-    h += `</section>`;
+    h += postedButton(f) + `</section>`;
+    h += viewAnalysis(f);
     if (f.spec) h += `<a class="short" href="#edit-${esc(f.id)}" style="background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line)">✎ عدّل النص بنفسك</a>`;
     if (f.caption) h += `<section class="caption" aria-label="الكابشن"><div class="row"><b style="font:800 17px var(--display)">الكابشن</b><button type="button" class="chip" data-act="savecap" data-id="${esc(f.id)}">احفظه ملف</button></div><pre id="cap">${esc(f.caption)}</pre></section>`;
   }
@@ -296,9 +336,10 @@ function viewFilm(id) {
     if (f.state === 'waiting') h += `<div class="two"><button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">وافق ✓</button><button type="button" class="btn line" data-act="change" data-id="${esc(f.id)}">تعديل</button></div>
       <div id="chg" hidden style="width:100%;display:grid;gap:8px"><label class="note" for="note">وش تبي يتغيّر؟ (بالوقت إذا تقدر)</label><textarea id="note" maxlength="1200" placeholder="مثلًا: عند 0:42 الخط صغير"></textarea>
       <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
-    if (f.state === 'done' || f.final) h += `<div class="two"><button type="button" class="btn dark" data-act="sharefilm" data-id="${esc(f.id)}">احفظ الفيلم ↗</button><button type="button" class="btn line" data-act="copy" data-id="${esc(f.id)}">انسخ الكابشن</button></div>
+    if (f.state === 'done' || f.state === 'posted' || f.final) h += `<div class="two"><button type="button" class="btn dark" data-act="sharefilm" data-id="${esc(f.id)}">احفظ الفيلم ↗</button><button type="button" class="btn line" data-act="copy" data-id="${esc(f.id)}">انسخ الكابشن</button></div>
       <p class="note" style="color:var(--ink);text-align:center">${f.final ? 'بالجودة الكاملة (1080×1920). ' : ''}بالآيفون: Save Video يحفظه بالصور، والكابشن ينسخ بنفس الضغطة.</p>`;
-    h += `</section>`;
+    h += postedButton(f) + `</section>`;
+    h += viewAnalysis(f);
     if (f.caption) h += `<section class="caption" aria-label="الكابشن"><div class="row"><b style="font:800 17px var(--display)">الكابشن</b><button type="button" class="chip" data-act="savecap" data-id="${esc(f.id)}">احفظه ملف</button></div><pre id="cap">${esc(f.caption)}</pre></section>`;
   }
   if (f.acts?.length) h += `<section class="acts" aria-label="الفصول">${f.acts.map((a, k) => `<div class="act" style="background:${COLORS[k % COLORS.length]}"><b>${esc(a.name)}</b><span>${esc(a.time || '')}</span></div>`).join('')}</section>`;
@@ -362,6 +403,56 @@ function viewTeam() {
     <h2>الأصوات</h2>${VOICES.map(([n, s, c]) => `<div class="voice" style="background:${c}"><b>${esc(n)}</b><span class="state">${esc(s)}</span></div>`).join('')}`;
 }
 
+function postedButton(f) {
+  if (f.state === 'posted' || (f.state !== 'done' && !f.final)) return '';
+  return `<button type="button" class="btn dark" style="width:100%;background:#2E8B57" data-act="posted" data-id="${esc(f.id)}">تم النشر ✓</button>
+    <p class="note" style="color:var(--ink);text-align:center">اضغطها بعد ما تنشره بإنستغرام، وأقول لك متى ترسل لي صور الإحصائيات.</p>`;
+}
+function viewAnalysis(f) {
+  if (f.state !== 'posted' || !f.posted?.at) return '';
+  const cs = checks(f), d = dueCheck(f);
+  let h = `<section class="group" aria-label="التحليل"><div class="row"><b>التحليل</b><span class="note" style="color:var(--ink)">نشرته ${esc(when(f.posted.at))}</span></div><ul class="checks">`;
+  for (const c of cs) {
+    const ins = (f.insights || []).find((x) => x.stage === c.id);
+    const s = ins ? `<span class="vd ${esc(ins.verdict || 'mid')}">${esc(ins.label || VERDICT[ins.verdict] || 'انقرا')}</span>` : c.sent ? '⏱ وصلت الصور، أحللها' : Date.now() >= c.due ? '⏸ حان وقتها' : `⏳ بعد ${left(c.due - Date.now())}`;
+    h += `<li><b style="font:800 14px var(--display)">${c.name}</b> ${s}<span class="when">${esc(when(new Date(c.due).toISOString()))}</span></li>`;
+  }
+  h += `</ul>`;
+  if (d) h += `<p class="note" style="color:var(--ink);font-weight:700;margin-top:6px">صوّر لي من إنستغرام (الريل ← View insights):</p><ul class="shots">${SHOTS.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+    <label class="btn dark up" style="margin-top:6px">ارفع الصور (${esc(d.name)})<input type="file" accept="image/*" multiple hidden data-up="${esc(f.id)}" data-stage="${esc(d.id)}"></label>
+    <button type="button" class="chip" style="justify-self:center" data-act="shotschat" data-id="${esc(f.id)}" data-stage="${esc(d.id)}">أرسلتها بالمحادثة</button>`;
+  for (const ins of (f.insights || []).slice().sort((a, b) => Date.parse(b.at || 0) - Date.parse(a.at || 0))) {
+    const name = CHECKS.find((c) => c.id === ins.stage)?.name || ins.stage;
+    h += `<div style="border-top:1px solid var(--line);margin-top:8px;padding-top:8px;display:grid;gap:4px"><div class="row"><b style="font:800 15px var(--display)">${esc(name)}</b><span class="vd ${esc(ins.verdict || 'mid')}">${esc(ins.label || VERDICT[ins.verdict] || '')}</span></div>`
+      + (ins.vs ? `<p class="note" style="color:var(--ink)">${esc(ins.vs)}</p>` : '')
+      + (ins.numbers ? `<div class="nums">${Object.entries(ins.numbers).map(([k, v]) => `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`).join('')}</div>` : '')
+      + (ins.lessons?.length ? `<p class="note" style="color:var(--ink);font-weight:700">وش تعلمنا</p><ul class="chg">${ins.lessons.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '')
+      + (ins.next?.length ? `<p class="note" style="color:var(--ink);font-weight:700">الفيلم الياي</p><ul class="chg">${ins.next.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : '') + `</div>`;
+  }
+  if (!(f.insights || []).length) h += `<p class="note">ما أحكم على الريل بأرقام عامة: أقارنه بمعدّل أفلامنا (المشاهدات، وقت المشاهدة، المشاركات لكل وصول)، وكل درس يروح لوصفة الخوارزمية.</p>`;
+  if (!(f.insights || []).length) h += `<button type="button" class="chip" style="justify-self:start;margin-top:4px" data-act="unpost" data-id="${esc(f.id)}">ما نشرته، رجّعه</button>`;
+  return h + `</section>`;
+}
+function viewRecipe() {
+  const items = recipe?.items || [];
+  return `<details class="group recipe"><summary><b>وصفة الخوارزمية</b><span class="note" style="color:var(--ink)">${items.length ? `${items.length} ${items.length === 1 ? 'قاعدة' : 'قواعد'}${recipe.updated ? ' · ' + esc(ago(recipe.updated)) : ''}` : 'تنبني من التحاليل'}</span></summary>`
+    + (items.length ? `<ol>${items.map((x) => `<li><b style="font:800 14px var(--display)">${esc(x.rule)}</b>${x.why ? `<br><span class="note" style="color:var(--mute)">${esc(x.why)}${x.from ? ' · ' + esc(x.from) : ''}</span>` : ''}</li>`).join('')}</ol>`
+      : `<p>كل ريل ننشره، أقرا أرقامه بعد 48 ساعة وبعد 7 أيام، وأكتب هني اللي ينجح عندنا: الهوك، الطول، وقت النشر، الكابشن. ومعاها بحث إتيان اليومي عن الخوارزمية.</p>`) + `</details>`;
+}
+async function upShots(input) {
+  const id = input.dataset.up, stage = input.dataset.stage, f = films.find((x) => x.id === id), files = [...(input.files || [])];
+  if (!f || !files.length) return;
+  const assets = await window.claude?.use?.('assets').catch(() => null);
+  if (!assets || !db) { toast('الرفع يحتاج صلاحية تعديل الاستوديو. أرسلها لي بالمحادثة.'); return; }
+  toast(`أرفع ${files.length} صور…`);
+  try {
+    const urls = [];
+    for (const file of files) { const r = await assets.upload(file, { type: file.type || 'image/png' }); urls.push('/_blob/' + r.id); }
+    await db.doc(`films/${id}`).update({ insights_shots: [...(f.insights_shots || []), { stage, at: new Date().toISOString(), shots: urls }], insights_sent: [...new Set([...(f.insights_sent || []), stage])] });
+    await tell(`الاستوديو: صور إحصائيات «${f.name}» ${f.version || ''} (${CHECKS.find((c) => c.id === stage)?.name}): ${urls.length} صور. حللها.`, input.closest('section'), { film: id, kind: 'insights', stage, shots: urls });
+  } catch (e) { toast('ما قدرت أرفعها. أرسلها لي بالمحادثة.'); }
+}
+
 function route() {
   const h = (location.hash || '#films').slice(1);
   if (h.startsWith('edit-')) { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewEdit(h.slice(5)); bind(); bindEdit(); return; }
@@ -371,7 +462,7 @@ function route() {
   document.querySelector('.bubbles').hidden = !!id;
   $('#view').innerHTML = id ? viewFilm(id) : t === 'library' ? viewLibrary() : t === 'styles' ? viewStyles() : t === 'recreate' ? viewRecreate() : t === 'team' ? viewTeam() : viewFilms();
   bind();
-  if (id) { const ff = films.find((x) => x.id === id); prefetch(ff); if (ff && ff.video && (ff.state === 'done' || ff.final)) prefetchFilm(ff); }
+  if (id) { const ff = films.find((x) => x.id === id); prefetch(ff); if (ff && ff.video && (ff.state === 'done' || ff.state === 'posted' || ff.final)) prefetchFilm(ff); }
 }
 function bind() {
   document.querySelectorAll('[data-film]').forEach((b) => b.addEventListener('click', () => { location.hash = 'film-' + b.dataset.film; }));
@@ -384,6 +475,7 @@ function bind() {
     set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k));
   }));
   document.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', (e) => act(b, e)));
+  document.querySelectorAll('input[data-up]').forEach((i) => i.addEventListener('change', () => upShots(i)));
 }
 
 async function tell(text, el, record) {
@@ -409,6 +501,31 @@ async function act(b) {
   if (kind === 'edcancel') { ed = null; location.hash = 'film-' + id; return; }
   if (kind === 'one') { one(f, +b.dataset.k, b); return; }
   if (kind === 'saveall' || kind === 'savecap') { await save(kind, f, b); return; }
+  if (kind === 'posted') {
+    if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = 'نشرته؟ اضغط مرة ثانية ✓'; return; }
+    if (!db) { toast('يحتاج صلاحية تعديل الاستوديو.'); return; }
+    b.disabled = true;
+    try {
+      const at = new Date().toISOString();
+      await db.doc(`films/${id}`).update({ state: 'posted', posted: { at, version: f.version || '' }, insights_sent: [] });
+      await tell(`الاستوديو: نشرت «${f.name}» ${f.version || ''}. أول قراءة بعد 48 ساعة، والنهائية بعد 7 أيام.`, b, { film: id, kind: 'posted', at });
+    } catch (e) { toast('ما قدرت أحفظها.'); b.disabled = false; }
+    return;
+  }
+  if (kind === 'unpost') {
+    if (!db) return;
+    try { await db.doc(`films/${id}`).update({ state: 'done', posted: null, insights_sent: [] }); toast('رجع «جاهز للنشر».'); } catch (e) { toast('ما قدرت.'); }
+    return;
+  }
+  if (kind === 'shotschat') {
+    if (!db) return;
+    const stage = b.dataset.stage;
+    try {
+      await db.doc(`films/${id}`).update({ insights_sent: [...new Set([...(f.insights_sent || []), stage])] });
+      await tell(`الاستوديو: أرسلت لك صور إحصائيات «${f.name}» (${CHECKS.find((c) => c.id === stage)?.name}) بالمحادثة.`, b, { film: id, kind: 'insights', stage, via: 'chat' });
+    } catch (e) { toast('ما قدرت.'); }
+    return;
+  }
   b.disabled = true;
   try {
     if (kind === 'approve') await tell(`الاستوديو: موافق على «${f.name}» ${f.version || ''} (${STEPS[(f.step || 1) - 1]}).`, b, { film: id, kind: 'approve', step: f.step });
@@ -826,6 +943,8 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
     db.doc('studio/now').onSnapshot((d) => { now = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/rules').onSnapshot((d) => { const l = d.exists ? d.data().list : null; if (Array.isArray(l) && l.length) { RULES = l; refresh(); } }, () => {});
     db.doc('studio/topics').onSnapshot((d) => { topics = d.exists ? d.data() : {}; refresh(); }, () => {});
+    db.doc('studio/recipe').onSnapshot((d) => { recipe = d.exists ? d.data() : null; refresh(); }, () => {});
+    setInterval(refresh, 5 * 60e3);                                  // the countdowns move
   } catch (e) { ready = true; route(); }
 })();
 })();
