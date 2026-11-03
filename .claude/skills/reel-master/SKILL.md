@@ -69,6 +69,8 @@ split the research across parallel agents, one per angle, each saving notes with
 - **House style** (`references/house-style.md`, rule 9e): the middle ground between fusha and Kuwaiti that the final
   news posts use; names written in Arabic on screen and said in their own language (`names:`); numbers on screen in
   English digits, said as words (`say:`); every abbreviation explained.
+- **The close** (rule 6e): name the one fact the film leaves (`fact:`); the last lines return to the brand and the
+  watch of the story, never ending on a lesson or a side story.
 - **Length:** the type's range. `python3 tools/script_library.py --check films/<film>.yaml` gives the spoken length
   before any voice is paid for (`narration.chars_per_second`, about 10 for Jarnathan). Over budget: cut a fact,
   **never a bridge**, and never speed the voice up.
@@ -184,7 +186,8 @@ with AskUserQuestion. Show a real still of this film in the engine looks when yo
   cues) to the chosen style's build (`references/code-styles.md` or `references/wood-marquetry.md`), mux with the
   narration and the ducked music.
 - **AI route:** per-shot prompts (`references/story-engine.md` §7), confirm the credits first, assemble on the voice
-  timeline.
+  timeline. Faces that feel, close shots and one palette per act (rule 18p); the music about 5 dB under the voice
+  (`references/ai-film.md`).
 
 ### 8. Review the film
 - A contact sheet of the film (one frame every ~4.5 s) and the stills of every scene: look at each.
