@@ -24,7 +24,7 @@ and uses no other tool: their knowledge is the persona.
 |---|---|---|
 | **Noura** (نورة), the novice | knows nothing of the watch world; a smart Kuwaiti viewer scrolling Instagram; **loves simple sentences**: short, one idea each, plain words, nothing she has to read twice | words and names she cannot place, a missing «why», jumps, open questions, where she would swipe; and every long or tangled sentence, which she rewrites as short simple ones |
 | **Fahad** (فهد), medium | owns a few good watches, knows Rolex/Patek/AP, auctions, roughly what a complication is; not a collector of independents | the same, plus being talked down to (seconds spent explaining what they know) |
-| **Bu Khaled** (بو خالد), the expert | a collector who knows the subject deeply and comments publicly on mistakes | wrong or misleading facts, a picture that would not match, the thing that really matters left out, nothing new for a collector |
+| **Bu Khaled** (بو خالد), the expert | a collector who knows the subject deeply and comments publicly on mistakes | wrong or misleading facts, a picture that would not match, the thing that really matters left out, a complication described but not named (storytelling 8b), nothing new for a collector |
 
 The novice also flags **every word they would not say themselves** and every figure of speech they have to decode
 («يصنع في الظلّ», «جفّت الطلبات», «العتيقة», «دور»), even when they could guess it from the rest of the line: the

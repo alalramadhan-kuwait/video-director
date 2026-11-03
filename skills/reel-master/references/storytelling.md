@@ -75,6 +75,14 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     `sources:` (and `credits.txt`), not in the film. `story_check` flags a foreign currency and an unrounded KWD amount.
 8. **Precise words**: say exactly what the source says. «حصلن على تعويض» (a settlement), not «كسبن القضية»;
    «عاملات شابّات», not «فتيات صغيرات», unless the source says so.
+8b. **Name the complication** ✓ (the owner, 3 Nov 2026, on «تحسب بروحها إذا فبراير 28 يوم ولا 29»: «هذي تعقيدة ولها اسم
+    بعالم الساعات»). When a line describes what a watch does beyond the time, it says the complication's name, in
+    Arabic and in its English term, then what it does in plain words: «فيها تقويم دائم (Perpetual Calendar)، يعني
+    تعرف بروحها إذا فبراير 28 يوم ولا 29». The common names: تقويم دائم (Perpetual Calendar), تقويم سنوي (Annual
+    Calendar), مكرر الدقائق (Minute Repeater), توربيون (Tourbillon), كرونوغراف (Chronograph), منبّه (Alarm),
+    أطوار القمر (Moon Phase), توقيت عالمي (World Time), معادلة الوقت (Equation of Time), احتياطي الطاقة (Power
+    Reserve). A description without the name reads as if we did not know it; Bu Khaled checks for it in the reader
+    panel.
 9. **Never imply a link that does not exist.** Two similar things are named apart: the American dial painters used
    Undark, not Panerai's Radiomir; the link is radium itself. Before writing «the same light/the same watch», check
    that it is literally the same.
