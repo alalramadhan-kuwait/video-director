@@ -70,8 +70,8 @@ small set lit like a miniature. Every shot reads in a second.
    assembled by hand: «نسيت تحط المشهد الختامي مال تايم كيبر مع الصوت»). make_film adds it by itself; a film put
    together outside it adds `tools/tk_endcard_clip.py`'s clip at the end. Let the last word finish first (hold the
    last picture, without its caption, about 0.6 s), fade the music out under the last line so it is gone at the cut,
-   and check the sound runs to the very end: the ticks are heard alone. (Halter 2 v7's sound stopped 3 s early, so its
-   card played silent; make_film's mux must not use `-shortest` against a shorter mix.)
+   and check the sound runs to the very end: the ticks are heard alone. (Halter 2 v7's sound stops 3 s before its picture, so
+   its card plays silent: compare the sound's length with the picture's before sending.)
 
 **Cost (always confirmed with the owner first):** Seedance 2.5 has been about 35 credits a 5 s clip on this account
 (Nov 2026), about 7 a second. One 5 s clip per 1.8 s shot wastes two thirds of it: 40 clips ≈ 1,400 credits. With
