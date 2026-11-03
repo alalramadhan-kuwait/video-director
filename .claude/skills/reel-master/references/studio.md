@@ -76,3 +76,11 @@ spec.json before rendering. A new carousel gets `spec` and `src` when it is firs
 
 `studio/recipe` `{updated, items: [{rule, why, from}]}`: the algorithm recipe, shown on the films list; Claude writes it from
 analysed numbers only (`references/insights.md`).
+
+## One copy only (the owner, 3 Nov 2026: «امسح القديم دايما خل يكون بس في نسخه وحده من اخر تحديث»)
+The studio holds **one copy of each film or carousel: its latest version**. Every publish of a new version removes
+the files of the one before it in the same call (`files: {"film/<id>-vN.mp4": null, …}`), and the uploaded slides
+(`/_blob/…` assets) that only an older version used are deleted. A film keeps one video: once the 1080 final exists,
+`video` points to it too and the light copy is removed. The record keeps its `changes` log (text) and `versions`
+list, but no `history` of old slides. Local copies and the originals stay outside the studio (never deleted). The
+studio's size limit (256 MB a version) is reached quickly otherwise: on 3 Nov 2026 a publish was refused at 254 files.
