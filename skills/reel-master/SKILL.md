@@ -198,6 +198,18 @@ with AskUserQuestion. Show a real still of this film in the engine looks when yo
 - A contact sheet of the film (one frame every ~4.5 s) and the stills of every scene: look at each.
 - **The critic loop** (rule 19c): `python3 tools/critic.py pack <out>`; a fresh critic and Étienne review the round;
   fix the worst; at most three rounds.
+- **The sound check** (earshot, github.com/Leonxlnx/earshot, MIT, CPU only; the owner tried it on the Gleitze film,
+  3 Nov 2026: «جربه على فيلم السباحة»): on the finished MP4, `earshot measure <film> --light` must show 0 clipped
+  samples and a true peak at or under -1 dBTP; `earshot sheet <film> --detail normal` draws the frames, spectrogram,
+  loudness and cut sync (look at it); `earshot realness <effect.wav>` on every sound effect, since only real
+  recordings are allowed (rule 18m). Export the sound in stereo (two identical channels): on a mono file two
+  meters disagreed by 3 dB (-12.5 against -15.5 LUFS); in stereo both read -16.0. Gleitze v5's first final had
+  18 clipped samples (true peak +0.1 dBTP) after its AAC encodes: a limiter at 0.79 (`alimiter=limit=0.79:level=false`)
+  and stereo fixed it (-4.8 dBTP). It also showed the end card's ticks are code-synthesized (p_real 0.01).
+  Install once, outside the repo: `git clone https://github.com/Leonxlnx/earshot`, then `python3.11 -m venv .venv`,
+  `.venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu`, `.venv/bin/pip install -e .`;
+  its models (about 1.1 GB) download on first use. Never its `llm` command (it uploads audio). It does not judge
+  speech, pronunciation or taste: Whisper, the critic and the owner do.
 - **The expert check:** anything a collector would catch (which jewels are ringed, which watch is shown, a date) goes
   to Bu Khaled with the frames before the owner sees it.
 
