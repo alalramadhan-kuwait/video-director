@@ -245,4 +245,5 @@ requests once the tests pass.
 - `references/studio.md`: the owner's dashboard, its records and how to keep it current.
 - `references/carousel.md` + `tools/carousel/`: the topic as a TK carousel, with its caption, saved from the studio.
 - `references/insights.md`: after posting: the 48 h and 7 day reads, the verdict against our own posts, the recipe.
+- `references/reference-reels.md`: every reference Reel the owner sent, measured, and what we take from each (the "how it works" series format).
 - `skills/arabic-narration/GUIDE.md`: the free Arabic voice engines and the pronunciation review page.
