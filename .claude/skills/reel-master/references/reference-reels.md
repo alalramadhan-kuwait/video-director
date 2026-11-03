@@ -58,9 +58,10 @@ Scientists place 48 iron atoms in a ring on copper, and ripples appear inside it
    doing the strange thing, the question, «بنهاية الفيديو بتعرف…»), a title card after the hook, one idea per
    screen with its own big title and a diagram that builds while the voice speaks (the engine's `technical`,
    `blueprint` and `data` looks do this for free), the close back on the first image, explained, then the brand
-   (rule 6e) and «تابعنا للدرس الجاي». Each lesson is one complication, named (storytelling 8b): the first proposed is the
+   (rule 6e), and a last line that opens the next lesson (never a spoken «تابعنا»). Each lesson is one complication, named (storytelling 8b): the first proposed is the
    perpetual calendar (تقويم دائم), how a watch knows February has 28 or 29 days. Pace: about 2.9 words a second, pauses up to 0.9 s, the music felt, not heard.
 2. **Parables and stories (the AI-film route)** keep Reel 1's numbers, and may go as fast as Reel 2 (35–45 shots a
    minute): threes for the examples, a close-up for every reaction, one quotable line at the turn, light by act.
-3. **Every film:** the first and last shots rhyme; a follow request at the end has a reason (the next lesson, the
-   next part), never a bare «follow us».
+3. **Every film:** the first and last shots rhyme. **No spoken follow request** (the owner, 3 Nov 2026, on «حكاية
+   رولكس» episode 1: «remove this: تابعنا للحلقة الثانية»): the cliffhanger line («والحل… لقاه بالبحر.») and the series
+   name on screen carry the next episode; the voice never asks to follow.
