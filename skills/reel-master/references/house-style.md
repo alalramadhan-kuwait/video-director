@@ -36,6 +36,31 @@ The news is **light fusha that reads like speech**: news Arabic, but read in pau
 `story_check` only stops what the news practically never writes (فولاذ، تعبئة يدوية) and «يهال». Everything else
 here is how to write, not a rule a check enforces.
 
+## Kuwaiti words for the voice (the owner's choices, 3–4 Nov 2026)
+
+The owner heard «السباحة» and Rolex ep1 as Saudi («النطق فيه لهجه سعوديه»). He compared each line as it was and in
+Kuwaiti spelling learned from two Kuwaiti story Reels he sent, and chose the Kuwaiti spelling («ب احسن»). In a story Reel
+told in Kuwaiti, write the word a Kuwaiti says, not the standard one:
+
+| Write | Not | Note |
+|---|---|---|
+| عقب، عقبها | بعد، بعدها | «بس عقب چم يوم» |
+| چم | كم | v3 says the «ch» itself; «چذب» too |
+| يه | جا، دخل | «وهني يه هانز ويلسدورف» (the owner's fix) |
+| ريال | رجل | on screen «ريال» (no shadda, the owner); said «رَيَّيال», number 7 of 7 spellings he heard (`brand/pronunciation.json`) |
+| عطى | أهدى | |
+| صدق | فعلاً | |
+| عشان | لأننا | |
+| ومضبوطة مثل ما هي | وما فقدت دقتها | «فقد» reads fusha (his review) |
+
+Still no «گ» by hand (v3 says «تقول» as «تگول» in a Kuwaiti sentence by itself). The currency riyal is never said from
+«ريال» (the dictionary makes it «رَيَّيال»); prices are in KWD (7b), and a line that must say riyals writes «رِيال».
+
+**What spelling cannot do:** Faisal is an instant clone made from one sample, so it copies the voice, not the accent;
+the spelling and a «[Kuwaiti accent]» tag moved it a little («التطوير مو كبير»), and so did the owner's own reading
+converted to Faisal (ElevenLabs speech-to-speech, `eleven_multilingual_sts_v2`). A clearly Kuwaiti Faisal needs a clone
+made from more Kuwaiti speech by the same speaker; that is the owner's call.
+
 ## Names, numbers and pronunciation in a Reel (the owner's choices, 1 Nov 2026)
 
 - **Names are written in Arabic on screen**, spelled as the news spells them (بريغيه 94, فيليبس 42, سوذبيز 24,
