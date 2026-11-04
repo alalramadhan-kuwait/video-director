@@ -66,6 +66,8 @@ and short words (لها) stay, and the screen keeps the plain spelling. «منو
 Still no «گ» by hand (v3 says «تقول» as «تگول» in a Kuwaiti sentence by itself). The currency riyal is never said from
 «ريال» (the dictionary makes it «رَيَّيال»); prices are in KWD (7b), and a line that must say riyals writes «رِيال».
 
+**The full guide** (the owner's 50 rules, their status and the test method): `references/kuwaiti-voice.md`.
+
 **What spelling cannot do:** Faisal is an instant clone made from one sample, so it copies the voice, not the accent;
 the spelling and a «[Kuwaiti accent]» tag moved it a little («التطوير مو كبير»), and so did the owner's own reading
 converted to Faisal (ElevenLabs speech-to-speech, `eleven_multilingual_sts_v2`). A clearly Kuwaiti Faisal needs a clone
