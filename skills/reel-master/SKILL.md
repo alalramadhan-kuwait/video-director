@@ -171,6 +171,8 @@ together.
   its beats under the cuts. **Only real recorded effects** (`tools/find_sound.py`, CC0/CC BY), at most 6 a minute,
   16–20 dB under the voice, felt more than heard; never a synthetic whoosh. One signature sound for the hook and the
   close (a tick, a crown click) is enough.
+- **The watermark** (storytelling 18r): every film carries the tk monogram top left, off for the end card;
+  make_film adds it, an AI-route film runs `tools/tk_watermark.py` before its final encode.
 - **On screen:** the captions plus **one** block of text at a time; no AI caption (an AI drawing is credited only in
   the credits).
 
