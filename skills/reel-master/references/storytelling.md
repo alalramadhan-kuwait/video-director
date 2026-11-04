@@ -296,6 +296,13 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     animated scene that raises a question (in ep1, the Oyster rising out of the waves, which the episode's last line
     answers), never a document, a print or a still card. Archive prints come once the story has said why they matter.
     The opening line keeps its captions (they sit under the picture's subject, not over it).
+18r. **Every film carries the Time Keeper watermark** ✓ (the owner, 4 Nov 2026: «I want to add a little watermark to
+    show that this video is made by Timekeeper. I'm afraid that someone will see the video without mentioning us»; of
+    four mockups, the owner chose «1»): the tk monogram alone, white at about 80 % with a thin dark edge (so it reads on
+    a cream print as well as a night sea), about 14 % of the frame wide, top left just under the app's top bar
+    (Instagram's buttons hold the right side and the bottom). It leaves as the end card comes in, which draws the logo
+    itself. make_film does it from the brand's `watermark` (`director/watermark.py`); a film assembled outside it
+    (the AI route) runs `python3 tools/tk_watermark.py <film> <out> --ending 3` before its final encode.
 18d. **A written hook, when the opening has no words of its own** (`hook: {text, em, dur}` in the film file, from
     video-ad-editor; a city zoom's name is already the hook): a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
     line. The captions wait until it has gone: two texts at once and the viewer reads neither.

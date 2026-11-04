@@ -68,7 +68,7 @@ from pathlib import Path
 import numpy as np
 import yaml
 
-from . import beats, platforms, quality, brand as B
+from . import beats, platforms, quality, watermark, brand as B
 from .copilot import commons, sounds
 from .studio import art, checks, clips, engine, looks, mix, moods, motion, sets, textload, voice
 from .studio.storyboard import VOICE_AT, TAIL, _endcard
@@ -923,6 +923,11 @@ def make(path, out: Path, video=True, scale=1.5, voice_dir: Path | None = None, 
         extra = ('--crf', B.load(brand).get('export', {}).get('crf', 24)) + (('--music', str(mus['file']), '--music-gain', mus['gain']) if mus else ())
         if preview: scale, extra = 0.5, extra + ('--fps', 15)            # a quick look: 360x640 at 15 fps, about a tenth of the work
         engine.video(out / 'film.json', out / 'film-raw.mp4', scale=scale, extra=extra)
+        wm = watermark.config(B.load(brand))
+        if wm and not preview:                                           # the brand's sign, top left, off for the end card (the owner, 4 Nov 2026)
+            watermark.apply(out / 'film-raw.mp4', out / 'film-wm.mp4', B.ROOT / wm.get('file', B.load(brand)['logo']['file']),
+                            ending=sum(s['dur'] for s in ending), cfg=wm, crf=max(12, int(B.load(brand).get('export', {}).get('crf', 24)) - 6))
+            (out / 'film-wm.mp4').replace(out / 'film-raw.mp4')
         loudness(out / 'film-raw.mp4', out / 'film.mp4'); (out / 'film-raw.mp4').unlink()
         cap = B.load(brand).get('export', {}).get('max_mb')
         if cap and (out / 'film.mp4').stat().st_size / 1e6 > cap:          # too big to share: the same film, compressed harder

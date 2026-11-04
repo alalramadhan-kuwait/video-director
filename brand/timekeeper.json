@@ -152,6 +152,14 @@
       "release": 400
     }
   },
+  "watermark": {
+    "_why": "The owner, 4 Nov 2026: a small sign that the film is Time Keeper's, in case it is re-posted without credit. Option 1 of four mockups: the monogram alone, top left. Sizes are fractions of the frame (director/watermark.py).",
+    "file": "vendor/paper-story/tk-logo-512.png",
+    "size": 0.139,
+    "x": 0.042,
+    "y": 0.117,
+    "opacity": 0.8
+  },
   "export": {
     "width": 1080,
     "height": 1920,
