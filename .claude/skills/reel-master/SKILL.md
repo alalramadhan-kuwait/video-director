@@ -114,9 +114,10 @@ together.
   reference reel (≈103 s for this script). **A watch name the voice clips** (the owner, 3 Nov 2026: «في خطا بكلام يقول
   ويستر اهو يقصد اويستر… واهي كلمة انجليزية»): v3 swallowed the bare «أويستر» into «ويستر», and the English
   «Oyster» came out «الايستر». Whisper (`tools/hear.py`) heard the right word in both of two takes only for
-  «أُوْيِسْتَر», the first syllable fully voweled, now its value in `brand/pronunciation.json`. A name that starts
-  with a hamza or a vowel gets its first syllable voweled the same way; on screen it stays in English letters
-  («Oyster», rule 9b). Check every name with Whisper on each take before it is used. Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
+  «أُوْيِسْتَر», the first syllable fully voweled. On 4 Nov 2026 the owner heard six spellings in one sentence (same
+  voice, settings and seed) and chose the plain English «Oyster» by ear, so it has no entry in
+  `brand/pronunciation.json` and the voice reads it as written; on screen it stays in English letters (rule 9b). Whisper
+  is a hint for names, never the judge: a name's spelling is settled by the owner's ear on the review page. Before v3: speed 0.7 (the owner: «I like faisal at 0.7 feels calm»):
   stability .75, style 0, the script's «…» kept as held beats. **Kuwaiti sounds in `say`** (the owner: «some… sound
   like they are not Kuwaiti fix it»): the voice reads letters as written, so spell the Kuwaiti sound where Kuwaitis
   say it, the screen keeping the normal spelling: ق → گ («گالت، تگول، تگطع، گبل، أگل، بوگت، صدّگوها، گيمتك، يگنع»), قدام →
