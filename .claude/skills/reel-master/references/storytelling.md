@@ -258,6 +258,9 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     **An AI-video film is the exception** ✓ (the owner, 3 Nov 2026, comparing the Gleitze film with the reel it
     follows: «نعدل الموسيقى ونوصلها لنفس الريل»): its music sits about 5 dB under the voice between words, as the
     reel's (references/ai-film.md, «The owner's notes on the first film»).
+    **Then a little more room for the voice** (the owner, 4 Nov 2026, on Rolex ep1: «reduce it a little bit and
+    increase the volume of the voice a little bit»): the voice at -13 LUFS (was -14), the Bittersweet bed at
+    `volume=-6dB` (was -3), the same light duck; about 4 dB more between the words and the music than before.
 18m. **Few effects, real ones, felt not heard** ✓ (the owner: «the sound effect are really bad and it effecting the
     focus. who's checking them?»). Only real recorded sounds play (the film's `sounds:`, fetched with their licence):
     the synthetic kit (whoosh, shutter, click, chime, stamp, sonar, bubbles, paper) never plays, even where a film
@@ -272,6 +275,11 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     recordings (`aporee_*`, mostly the Public Domain Mark: seas, harbours, a watchmaker's shop). Every file passes
     earshot `realness` (judge the trim you use: waves read «uncertain» as a whole, so pick the window with the
     highest p_real) and `sfx check` (fade in 5 ms, or it clicks), and its maker and licence go in credits.txt.
+    **Never lift a quiet recording to its level** (4 Nov 2026, Rolex ep1: the owner heard the opening as «a little
+    bit noisy»): the antique-clock ticks are an old, quiet take (peak -30 dB, its hiss -49 dB) and the level rule
+    raised them 19 dB, hiss and all. Before using a file, read its peak and noise floor (`astats`); if the gain the
+    rule computes is above +6 dB, take a louder, cleaner file (the CLOCKS set's «Ticking, Slowly», `slow.flac`,
+    peaks at -8 dB) or leave the effect out.
     **The Time Keeper end card keeps its own sound** (the owner, 3 Nov 2026, after Rolex ep1 got real ticks on the
     card: «ليش غيرت صوت النهاية كان حلو مال تايم كيبر»): the card's tick at 0.2 s and double tick at 1.8 s are the
     brand's signature, the same in every film (`tk_endcard_clip.py`, as in «السباحة»). Never swap them for
@@ -282,6 +290,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     spoken captions and ONE block: the banner, OR the card, OR the line. A scene with a card or a line shows its banner
     first, alone, and the banner leaves 0.3 s before the card comes in; if the card comes in under 1.9 s, the scene has
     no banner. A photo's small credit is not a block. `textload.py` does it in make_film (`report.text`).
+18q. **The first shot moves** (the owner, 4 Nov 2026, on Rolex ep1 opening on the 1927 Daily Mail print: «It is always
+    good to show the animation first to hook the viewer and retain him, because you don't know what it is. But if you
+    see this is the first image of an old document, he might not be interested»): the opening line plays over an
+    animated scene that raises a question (in ep1, the Oyster rising out of the waves, which the episode's last line
+    answers), never a document, a print or a still card. Archive prints come once the story has said why they matter.
+    The opening line keeps its captions (they sit under the picture's subject, not over it).
 18d. **A written hook, when the opening has no words of its own** (`hook: {text, em, dur}` in the film file, from
     video-ad-editor; a city zoom's name is already the hook): a few of the opening line's own words (make_film warns when most of them are not said), `em` in gold, «|» breaks the
     line. The captions wait until it has gone: two texts at once and the viewer reads neither.
