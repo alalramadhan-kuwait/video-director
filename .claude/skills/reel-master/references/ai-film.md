@@ -103,6 +103,8 @@ The first film on this route («السباحة اللي باعت ساعة», 103
   limiter at the end: 4.7 dB under, the voice still at -16 LUFS. Measure the mix the way reel_measure does (the median
   loudness of the words against the median of the gaps over 0.3 s) and set the bed until the gap is 4–6 dB. This
   replaces «felt, not heard» (storytelling 18i) for this route only.
+  The owner then asked for the voice a little louder and the music a little lower (4 Nov 2026): voice -13 LUFS,
+  bed `volume=-6dB`, storytelling 18l. The first shot is always an animated scene, never a print (storytelling 18q).
 - **Faces that feel, close shots, light by act** (storytelling 18p): the reel's biggest lead over Gleitze. Write the
   per-act palette and the close-up/reaction list into the shot plan before the prompts, and prompt every face for
   its feeling («her eyes wide, her face draining pale»).
