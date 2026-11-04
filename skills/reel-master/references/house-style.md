@@ -45,7 +45,11 @@ told in Kuwaiti, write the word a Kuwaiti says, not the standard one:
 | Write | Not | Note |
 |---|---|---|
 | عقب، عقبها | بعد، بعدها | «بس عقب چم يوم» |
-| چم | كم | v3 says the «ch» itself; «چذب» too |
+| كم | چم | the owner's test (4 Nov) chose the plain «كم»; «چذب» and «چذي» keep the چ |
+| قعد | جلس | his test (4 Nov) |
+| أكو، ماكو أحد | فيه، محد | his test (4 Nov) |
+| مافي، شسالفة | ما فيه، شنو سالفة | his test (4 Nov); «ما أدري» stays apart |
+| عيل | إذن | his test (4 Nov) |
 | يه | جا، دخل | «وهني يه هانز ويلسدورف» (the owner's fix) |
 | صج | صدق | «إن الساعة صج ما يدخلْها ماي» |
 | خلصتها، نتوقع، قالب | كمّلتها، نحسب، علبة | his review of kw3 |

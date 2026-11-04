@@ -24,6 +24,12 @@ class TestBrand(unittest.TestCase):
         self.assertEqual(B.spoken(t), 'ساعة بانيراي لومينور مقابل رولكس صبمارينر و غراند سيكو و سيكو')
         self.assertEqual(B.spoken('Seikos'), 'Seikos')                      # whole words only
 
+    def test_kuwaiti_words_reach_the_voice(self):
+        # the owner's Kuwaiti test (4 Nov 2026): the voice says the chosen word, before Arabic punctuation too
+        self.assertEqual(B.spoken('الساعة جديدة، والطريق بعيد؟ وكتب بكتاب صغير، Rolex، والسمك.'),
+                         'الساعة يديدة، والطريج بْعيد؟ وكتب بكْتاب صْغير، رولكس، والسمْج.')
+        self.assertEqual(B.spoken('قريب وصديقه وكم'), 'قريب وصديقه وكم')     # the words he kept as they are
+
     def test_own_track_only_with_a_commercial_licence_record(self):
         with tempfile.TemporaryDirectory() as d:
             lib = Path(d)
