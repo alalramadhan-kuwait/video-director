@@ -159,8 +159,10 @@ def to_voice(text: str, table: dict) -> str:
 
 
 def spoken(text: str, brand: str | None = None, lex: dict | None = None) -> str:
-    """The text the voice is given: watch names replaced by how they are said (longest names first, whole words)."""
+    """The text the voice is given: watch names replaced by how they are said (longest names first, whole words).
+    A word is whole when no letter or vowel mark touches it; Arabic punctuation («،» «؟» «؛») ends it, as a Latin
+    comma does (it used to count as a letter, so «جديدة،» kept its spelling)."""
     lex = lexicon(brand) if lex is None else lex
     for k in sorted(lex, key=len, reverse=True):
-        text = re.sub(r'(?<![\w؀-ۿ])' + re.escape(k) + r'(?![\w؀-ۿ])', lex[k], text)
+        text = re.sub(r'(?<![\w\u064B-\u065F\u0670])' + re.escape(k) + r'(?![\w\u064B-\u065F\u0670])', lex[k], text)
     return text
