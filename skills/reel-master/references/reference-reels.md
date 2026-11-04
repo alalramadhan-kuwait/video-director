@@ -52,6 +52,24 @@ Scientists place 48 iron atoms in a ring on copper, and ripples appear inside it
 - It labels every picture as «reconstruction», «simulated scan» or «schematic». **Not for us:** the owner has ruled
   out «رسم توضيحي مبسّط» labels (storytelling 18f); our honesty goes in the credits and the caption.
 
+## Reel 4: a competitor's Rolex story, «Rolex were marketing geniuses» (94 s)
+Sent by the owner on 4 Nov 2026: «this is our competitor… almost we match in ideas, but we are in different style and
+different length». It covers in one English Reel what «حكاية رولكس» spreads over episode 1 and «السباحة», then three
+more proofs: the Oyster in a fish bowl in shop windows, Everest 1953, and the Trieste dive in 1960.
+- **The numbers:** 94 s; 50 shots, **31.9 a minute**, 1.9 s on average (1.0–4.2); 267 words, **2.87 words/s**, longest
+  pause 0.94 s; the music 11 dB under the voice; every sentence within -14.7 to -18.0 dB.
+- **The look:** flat mid-century editorial illustration (ochre, navy, cream), one palette for the whole film; most
+  shots move a little, a few hold. Captions are 1–3 words, condensed capitals, with one gold word.
+- **The hook is a claim with a promise:** «Rolex were marketing geniuses, and here's why». The viewer stays to see it
+  proven; every story after it is one piece of evidence.
+- **The close answers the hook in one line:** «Wilsdorf sold a tool and let the people who used it write the ads».
+- **Each phrase gets its own literal picture:** «in his pocket» shows a pocket watch, «on the wrist» shows a bracelet,
+  «like a jam jar» shows the screw-down crown. The cut lands on the phrase.
+- **Concrete, physical details carry the facts:** «the size of a coin», «the top deck of a horse-drawn bus», «a jam
+  jar», «51-degree water», «seven miles down».
+- **Its facts need care:** «got Hillary to the top» implies a Rolex on Hillary, whose summit watch is disputed (a
+  Smiths by his own account; Tenzing wore a Rolex). The fish bowl window has no firm year (a 1920s–1930s campaign).
+
 ## What Time Keeper takes
 1. **«How it works» as a numbered series** (script type `how_it_works`): the series name and the lesson number on
    every frame (for example «الساعات من الصفر · الدرس 3»), the hook in three beats (the real watch or movement
@@ -65,3 +83,8 @@ Scientists place 48 iron atoms in a ring on copper, and ripples appear inside it
 3. **Every film:** the first and last shots rhyme. **No spoken follow request** (the owner, 3 Nov 2026, on «حكاية
    رولكس» episode 1: «remove this: تابعنا للحلقة الثانية»): the cliffhanger line («والحل… لقاه بالبحر.») and the series
    name on screen carry the next episode; the voice never asks to follow.
+4. **From the competitor's Rolex Reel (Reel 4):** open a series episode on a claim that the episode proves, and close
+   on one line that answers it; give each phrase its own picture and the cut its phrase; carry the facts on
+   physical comparisons the viewer can see. Take its stories (the fish bowl window, Everest 1953, Trieste 1960) as
+   leads for our episodes, checked against our own sources and told in our words, never its script. Keep our own
+   look, Kuwaiti voice and one story per episode: the owner compares the numbers before deciding on length.
