@@ -47,11 +47,21 @@ told in Kuwaiti, write the word a Kuwaiti says, not the standard one:
 | عقب، عقبها | بعد، بعدها | «بس عقب چم يوم» |
 | چم | كم | v3 says the «ch» itself; «چذب» too |
 | يه | جا، دخل | «وهني يه هانز ويلسدورف» (the owner's fix) |
+| صج | صدق | «إن الساعة صج ما يدخلْها ماي» |
+| خلصتها، نتوقع، قالب | كمّلتها، نحسب، علبة | his review of kw3 |
 | ريال | رجل | on screen «ريال» (no shadda, the owner); said «رَيَّيال», number 7 of 7 spellings he heard (`brand/pronunciation.json`) |
 | عطى | أهدى | |
 | صدق | فعلاً | |
 | عشان | لأننا | |
 | ومضبوطة مثل ما هي | وما فقدت دقتها | «فقد» reads fusha (his review) |
+
+**«ـها» at the end of a word** (the owner's test, 4 Nov 2026: ten spellings of «من وراها» and four of each of وقتها،
+بعدها، منها، عليها، شافها in a Kuwaiti sentence, same voice, settings and seed): he chose the **sukun on the letter
+before «ها»** every time (وقتْها، بعدْها، منْها، عليْها، شافْها). That replaces «ـهه», which Whisper heard as the masculine
+«ـه» (عليه، شافه) and which his A/B test of six other lines rejected. The voice text (`say`) gets the sukun on every
+word of four letters or more whose letter before «ها» is a consonant or «ي»; a long vowel before it (وراها، طلّعوها)
+and short words (لها) stay, and the screen keeps the plain spelling. «منو وراها» stays as it is («كلهم نفس الشي»).
+**No letter added in front of a word by rule** (his A/B: «طلعت» stays): only where he marks it («اسبحت»، «اطلعت»، «إيد»).
 
 Still no «گ» by hand (v3 says «تقول» as «تگول» in a Kuwaiti sentence by itself). The currency riyal is never said from
 «ريال» (the dictionary makes it «رَيَّيال»); prices are in KWD (7b), and a line that must say riyals writes «رِيال».
