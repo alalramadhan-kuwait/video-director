@@ -239,6 +239,15 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     the watch a line names is still its real print or photo, never a drawing (12i: frame 1 and every «Oyster» line of
     Rolex ep1 show the real 1927 Daily Mail print, credited); a drawing never stands for a named model or reference;
     the credits say «مشاهد ورسومات بالذكاء الاصطناعي»; and any film outside such a series follows the rule above.
+    **Named models drawn too, from 5 Nov 2026** (the owner, on «حكاية رولكس» episodes 2 and 3, Explorer and the Deep
+    Sea Special: «استخدم رسومات مستلهمة من الساعة بنفس اسلوبنا على شان تمشي مع ستايل الفيديو»): in these series a named
+    model may now be drawn in the paper-cut style, replacing the real-print requirement above. The drawing must be
+    faithful to the model's real design as the sources describe it (the Explorer's black dial and large 3-6-9, the Oyster
+    case, 36 mm proportions; the Deep Sea Special's tall domed crystal and thick case; the Submariner's rotating bezel;
+    the Sea-Dweller's helium valve on the case side), never a different watch. It is drawn from a written description of
+    those features, never traced or fed from a copyrighted photo. A real photo still appears only when its licence is
+    checked on its own page (a US Navy or NOAA image, Smithsonian Open Access, a CC licence); a picture on the internet
+    is not a licence. The credits say the watches are illustrations inspired by the real models.
     The critic and Étienne still note the drawn watches, as a reminder and not a blocker, for these films only.
     **Every drawn scene moves** (the owner, 3 Nov 2026, on Rolex ep1: «not all part of the video are scenes. Some of
     them are just pictures. Fix that. All should be generated as a video»): in an AI-route film, a generated still is
