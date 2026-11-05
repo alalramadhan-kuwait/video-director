@@ -64,9 +64,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
 6f. **The hook is the story's strangest picture, asked as «why?»** ✓ (the owner, on Rolex part 3: «ليش ماخليتها تبلش
     بسوال او شي غريب… ساعة مربوطه برا الغواصه !! ليش»). The draft opened on «تخيّل ساعة تنزل 11 كيلو…»: a claim
     the viewer has to imagine, and the strange thing (the watch strapped outside the hull) waited until line 6. Look
-    for the one detail a viewer cannot explain to himself, show it in frame 1 and ask why in line 2
-    («ساعة رولكس مربوطة برّا غواصة… مو على يد أحد! / ليش يربطونها برّا…؟»). Answer it within a few lines, in
-    plain words, and let the closing come back to the same picture. Not «تخيّل…», not a bare number.
+    for the one detail a viewer cannot explain to himself, show it in frame 1 and make it the question itself, in one
+    short line. The owner cut the two-line version («…مو على يد أحد! / ليش يربطونها برّا…؟») to
+    «ساعة رولكس مربوطة برّا غواصة… ونازلة تحت البحر؟»: «مفروض السوال مايكون طويل». Answer it within a few lines,
+    in plain words, and let the closing come back to the same picture. Not «تخيّل…», not a bare number.
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
