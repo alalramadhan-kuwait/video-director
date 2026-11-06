@@ -44,7 +44,7 @@ natural it is** (words run together, doubled letters, stress, dropped vowels, th
 | 33–34 | ما for verbs, مو for nouns | ◐ |
 | 35–36 | ماكو، أكو | ✓ (4 Nov) «أكو» over «فيه», «ماكو أحد» over «محد» |
 | 37–46 | شنو، منو، شلون، كم، وين، ليش، أبي، چذي، هذيل، عيل | ◐ شنو، منو، شلون، أبي · ✓ (4 Nov) چذي، «عيل» over «إذن» |
-| ep2 | the owner's Rolex ep2 review (6 Nov) | ✓ «بعد» over «عقب», «مو كافي», «القليلة», «إيدك», «محرك»; by ear: «طِلْعت» (she went up), «تِعَرْف», «يِقِلّ» |
+| ep2 | the owner's Rolex ep2 review (6 Nov) | ✓ «بعد» over «عقب», «مو كافي», «القليلة», «إيدك», «محرك»; by ear: «طِلْعت» (she went up) ✓; «تِعَرْف» and «يِقِلّ» ✗ (still wrong on the second take: write تشوف and يخف) · «يُحتمل» over «ينطاق» |
 | 47–50 | the narrator's rhythm (questions, pauses, pace, the stressed word) | ○ needs Kuwaiti reference recordings, not spelling rules |
 
 **How the results reach the voice:** the words he chose for their sound are in `brand/pronunciation.json` (with و ف ب
