@@ -265,6 +265,11 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     reference. A copyrighted photo (an auction house, a dealer, Rolex press) is used only with written permission or a
     photo the owner supplies with his rights. No licensed photo of the exact reference: say so and ask, never draw it
     from memory. Name the reference photo and its licence in credits.txt.
+    The owner may decide to use a copyrighted auction photo as the drawing reference (6 Nov 2026, Rolex ep2: no free
+    photo of the Explorer 6350 existed, and he chose the Phillips lot photos: «use the photos from Phillips … to
+    generate the watches in our style»). Tell him first that its copyright stands; on his yes, use it only as a
+    reference for the paper-cut drawing (never the photo itself on screen) and credit «Reference photographs ©
+    Phillips» with the lot in credits.txt.
     The critic and Étienne still note the drawn watches, as a reminder and not a blocker, for these films only.
     **Every drawn scene moves** (the owner, 3 Nov 2026, on Rolex ep1: «not all part of the video are scenes. Some of
     them are just pictures. Fix that. All should be generated as a video»): in an AI-route film, a generated still is
