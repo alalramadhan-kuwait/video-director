@@ -363,6 +363,13 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     Keeper has permission, then take them from the brand's official site (not a reseller or a magazine), show the watch
     whole in its true colours, and credit «Watch photographs © <brand>, used with permission». Never draw or generate
     a current model of a brand we sell.
+18t. **A new scene every 2.5–3.5 s, so the viewer never gets bored** (the owner, 6 Nov 2026, on the Dennison
+    engraving film v1, which had about 20 shots in 108 s and a 21 s run over four photos: «احتاج نزيد المشاهد على شان
+    المشاهد لا يمل»). Counted in shots, not lines: a 107 s film has about 35–40. A slow drift across one picture
+    is not a new scene; a cut, a new composition or a close-up of a new detail is. A long line is split into two or
+    three shots (the whole watch, then its dial; the building, then the bench inside). No shot holds over 4 s except
+    the last one. Code-drawn films follow this as much as AI-video ones; the reader panel's «a visible change every
+    2–3 s» checks it.
 18p. **Faces that feel, close shots, light by act** ✓ (the owner, 3 Nov 2026, after the Gleitze film beside the
     Clayrified reel: «قاعدة المشاعر والوجوه القريبة مع اضاءة تتغير مع كل جزء راح نخليها جزء من القواعد حق المشاريع
     القادمة»). In every film with drawn or generated people:
