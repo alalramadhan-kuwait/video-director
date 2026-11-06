@@ -357,6 +357,12 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     only when no licensed picture exists, and the change list says so. Credit the source in credits.txt and the caption
     (Dennison: frontispiece of Abbott, 1904, public domain, Internet Archive). The same goes for carousels (rule 2 of
     `carousel-edits.md`): the face sits whole inside the visible part of the picture box.
+    **A brand Time Keeper sells** is shown with its own official product photos when the owner confirms permission
+    (the owner, 6 Nov 2026, Dennison: «اي عندنا» to «عندكم إذن من Dennison تستخدمون صورهم؟», after «شوف صور اون
+    لاين»). Search for free photos first; when only the brand's own photos exist, ask the owner once whether Time
+    Keeper has permission, then take them from the brand's official site (not a reseller or a magazine), show the watch
+    whole in its true colours, and credit «Watch photographs © <brand>, used with permission». Never draw or generate
+    a current model of a brand we sell.
 18p. **Faces that feel, close shots, light by act** ✓ (the owner, 3 Nov 2026, after the Gleitze film beside the
     Clayrified reel: «قاعدة المشاعر والوجوه القريبة مع اضاءة تتغير مع كل جزء راح نخليها جزء من القواعد حق المشاريع
     القادمة»). In every film with drawn or generated people:
