@@ -255,6 +255,16 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     those features, never traced or fed from a copyrighted photo. A real photo still appears only when its licence is
     checked on its own page (a US Navy or NOAA image, Smithsonian Open Access, a CC licence); a picture on the internet
     is not a licence. The credits say the watches are illustrations inspired by the real models.
+    **Every drawn watch is generated from a photo of the original model of that period** (the owner, 6 Nov 2026, after
+    Rolex ep2 v1: «Every watch … should be a reference to original watch … find original photo from that time, and based
+    on this you will generate the watch … the watch community … know all the details»). A written description alone is
+    no longer enough: the 1927 aquarium watch is the 1926–27 Oyster (cushion or octagonal case), the expedition watch
+    is a c.1953 Oyster Perpetual, the Explorer is the 1953 ref. 6350 with its own dial, hands and case, and so on. Find
+    the period photo first, check its licence on its own page (public domain, CC0, CC BY; CC BY-SA only if the result
+    can carry the same licence), and pass it to the image model as the reference together with the paper-cut style
+    reference. A copyrighted photo (an auction house, a dealer, Rolex press) is used only with written permission or a
+    photo the owner supplies with his rights. No licensed photo of the exact reference: say so and ask, never draw it
+    from memory. Name the reference photo and its licence in credits.txt.
     The critic and Étienne still note the drawn watches, as a reminder and not a blocker, for these films only.
     **Every drawn scene moves** (the owner, 3 Nov 2026, on Rolex ep1: «not all part of the video are scenes. Some of
     them are just pictures. Fix that. All should be generated as a video»): in an AI-route film, a generated still is
