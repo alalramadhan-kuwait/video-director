@@ -384,6 +384,10 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     you notice is too much): no shake, flash, whip or punch-impact jolt; entrances ease in; one thing moves at a time.
     When a pace note comes in, show the passages side by side (the same seconds from each version) so the owner
     hears and sees the difference.
+    **The approved reference** is Dennison v4 (the owner: «V4 ممتاز», 6 Nov 2026): 39 shots in 108 s (21.6 a
+    minute), 2.8 s on average, longest 3.8 s; straight cuts with dissolves only at time jumps and the close; varied
+    push, pull and slides; still holds on dates and numbers; date counters, simple arrows and a loupe. Stopping just
+    under 22 a minute was right: more cuts would have fallen mid-phrase. Measure a new film against it.
 18p. **Faces that feel, close shots, light by act** ✓ (the owner, 3 Nov 2026, after the Gleitze film beside the
     Clayrified reel: «قاعدة المشاعر والوجوه القريبة مع اضاءة تتغير مع كل جزء راح نخليها جزء من القواعد حق المشاريع
     القادمة»). In every film with drawn or generated people:
