@@ -47,6 +47,9 @@ told in Kuwaiti, write the word a Kuwaiti says, not the standard one:
 | بعد، بعدها | عقب، عقبها | the owner's review of Rolex ep2 (6 Nov) changed «عقب» back to «بعد» |
 | مو كافي | ما يكفي | his ep2 review (6 Nov): «الناس مو كافي يسمعون» |
 | القليلة (light) | الضعيفة | his ep2 review (6 Nov): «حتى بالإضاءة القليلة» |
+| يحتمل (said يُحتمل) | ينطاق | his second ep2 review (6 Nov): «برد ما يُحتمل» |
+| يخف | يقل | «يقل» sounded wrong twice (يِقِل، يِقِلّ): «والهوا يخف كل ما طلعوا» |
+| تشوف الوقت | تعرف الوقت | «تعرف» sounded wrong twice (تِعرف، تِعَرْف); use تشوف where it fits |
 | إيدك، إيده | يدك، يده | his ep2 review (6 Nov), screen and voice |
 | محرك (a watch's movement) | حركة | his ep2 review (6 Nov): «ومحركها أوتوماتيكي، يتعبّى من حركة إيدك»; masculine agreement |
 | كم | چم | the owner's test (4 Nov) chose the plain «كم»; «چذب» and «چذي» keep the چ |
