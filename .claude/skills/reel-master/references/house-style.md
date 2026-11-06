@@ -44,7 +44,11 @@ told in Kuwaiti, write the word a Kuwaiti says, not the standard one:
 
 | Write | Not | Note |
 |---|---|---|
-| عقب، عقبها | بعد، بعدها | «بس عقب چم يوم» |
+| بعد، بعدها | عقب، عقبها | the owner's review of Rolex ep2 (6 Nov) changed «عقب» back to «بعد» |
+| مو كافي | ما يكفي | his ep2 review (6 Nov): «الناس مو كافي يسمعون» |
+| القليلة (light) | الضعيفة | his ep2 review (6 Nov): «حتى بالإضاءة القليلة» |
+| إيدك، إيده | يدك، يده | his ep2 review (6 Nov), screen and voice |
+| محرك (a watch's movement) | حركة | his ep2 review (6 Nov): «ومحركها أوتوماتيكي، يتعبّى من حركة إيدك»; masculine agreement |
 | كم | چم | the owner's test (4 Nov) chose the plain «كم»; «چذب» and «چذي» keep the چ |
 | قعد | جلس | his test (4 Nov) |
 | أكو، ماكو أحد | فيه، محد | his test (4 Nov) |
