@@ -345,6 +345,18 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     themes are drawn as SVG/canvas in code with hex colours (`director/studio/sets.py`), not generated; paid image
     generation is kept for what code cannot draw (a real person's likeness), and only with the owner's yes. Watches
     are never drawn either way (12h).
+18s. **A real person is their real portrait, inside the frame** (the owner, 6 Nov 2026, on the Dennison engraving
+    test, where a generic drawn face stood in for Aaron Dennison: «If you need to put a real person image. Try to
+    search for it if there is any online you can use it and put it inside the frame»). When the story names a real
+    person, search for an original photo or engraving of them first, before drawing or generating anyone. Check its
+    licence on its own page (public domain, CC0, CC BY; a book published in 1930 or earlier is public domain in the US). Then
+    place that picture itself in the scene's frame or oval, toned into the film's style (ink colour multiplied onto the
+    paper, the scan's ground removed), scaled evenly so the face is never stretched, and revealed in the style's own
+    way. Never redraw or regenerate the face. If Wikimedia refuses (429), take the same public-domain scan from another
+    archive (the Internet Archive page of the same book), never by working around the block. A generic figure is used
+    only when no licensed picture exists, and the change list says so. Credit the source in credits.txt and the caption
+    (Dennison: frontispiece of Abbott, 1904, public domain, Internet Archive). The same goes for carousels (rule 2 of
+    `carousel-edits.md`): the face sits whole inside the visible part of the picture box.
 18p. **Faces that feel, close shots, light by act** ✓ (the owner, 3 Nov 2026, after the Gleitze film beside the
     Clayrified reel: «قاعدة المشاعر والوجوه القريبة مع اضاءة تتغير مع كل جزء راح نخليها جزء من القواعد حق المشاريع
     القادمة»). In every film with drawn or generated people:
