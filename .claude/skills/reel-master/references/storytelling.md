@@ -363,24 +363,27 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     Keeper has permission, then take them from the brand's official site (not a reseller or a magazine), show the watch
     whole in its true colours, and credit «Watch photographs © <brand>, used with permission». Never draw or generate
     a current model of a brand we sell.
-18t. **Pace by meaning, about 4 s a shot, and light movement** (the owner, 6 Nov 2026, twice on the Dennison
-    engraving film: v1 had about 20 shots in 108 s and a 21 s run over four photos, «احتاج نزيد المشاهد على شان
-    المشاهد لا يمل»; v2 then cut every 1–3 s with flying words, shakes and flashes, «صار وايد سريع ومزعج الحركة مفروض
-    تكون خفيفه ... ابحث عن قاعد يستخدمونها صناع الفيديو»). The editors' rules behind it:
-    - **Cut on meaning, not on a clock** (Walter Murch, Rule of Six: emotion, then story, then rhythm). A cut lands
-      where a thought ends: a «،» or «…» in the voice, never mid-word or on a fixed beat.
-    - **Shots average about 4 s and vary.** The hook can be quick (2–3 s); story beats hold 3.5–5 s; a reveal (a real
-      portrait, the key mark, the first product, the last frame) holds 5–6 s. A 107 s film has about 25–30 shots. No
-      shot over 6 s except the last, none under 2 s except one deliberate quick cut. (Documentary stills hold far
-      longer, about 12 s a picture in Ken Burns's series; a Reel is quicker, but the variation is the point.)
-    - **One gentle move per shot**: a slow push or drift of at most 5–8% over the shot, eased in and out. No shake,
-      flash, whip or punch-impact jolt; one thing moves at a time.
-    - **Entrances are slow**: a word or an object eases in over 0.8–1.2 s; nothing flies across the frame.
-    - **Transitions are one kind**: 0.6–0.8 s dissolves, or plain cuts, not a mix of effects.
-    - **Motion you notice is too much** (motion-design practice: the best motion goes unnoticed). If a shot's movement
-      pulls the eye from the picture, halve it.
-    The reader panel's pace check («a visible change every 2–3 s») is read with this rule: a change can be a new
-    caption or a slow reveal inside the shot, not only a cut.
+18t. **Modern documentary pace: cinematic, varied, never annoying** (the owner, 6 Nov 2026, after three Dennison
+    cuts: v1 about 20 shots in 108 s, «نزيد المشاهد على شان المشاهد لا يمل»; v2 a cut every 1–3 s with flying words,
+    shakes and flashes, «وايد سريع ومزعج الحركة مفروض تكون خفيفه»; v3 about 4 s a shot, which he feared «تصير بطيئة
+    وتفقد انتباه المشاهد»). His target is between them: «أسلوب وثائقي حديث يناسب Reels ويحافظ على فخامة الساعات»,
+    not as fast as a product ad, not as slow as a long documentary. His rules:
+    1. About **22–28 shots a minute** (a target, not a quota).
+    2. Most shots **2–4 s**; hold longer when a shot has a detail worth looking at (a real portrait, a hallmark, an
+       inscription, a dial).
+    3. **Light camera moves** (push-in, slide), with the direction and speed varied from scene to scene, not the same
+       push every time.
+    4. **Not every shot moves**: a still moment lands an important fact (a date, a number, a name).
+    5. **Wide and close, more than one angle** of the same scene (the building wide, then a window, then the bench).
+    6. **Straight cuts by default**; a soft dissolve only where the story calls for it (a time jump, the close).
+    7. **Every change serves the words or reveals a new detail**, never a change just for time.
+    8. **Simple motion graphics** for dates, names and mechanical details when they add value.
+    9. **The first 3 s are strong**, and the story keeps moving forward.
+    10. **Cut to the voice and its natural rhythm** («،» and «…»); never change the text or the recording to fit.
+    Kept from the editors' rules (Walter Murch, Rule of Six: emotion, then story, then rhythm; motion design: motion
+    you notice is too much): no shake, flash, whip or punch-impact jolt; entrances ease in; one thing moves at a time.
+    When a pace note comes in, show the passages side by side (the same seconds from each version) so the owner
+    hears and sees the difference.
 18p. **Faces that feel, close shots, light by act** ✓ (the owner, 3 Nov 2026, after the Gleitze film beside the
     Clayrified reel: «قاعدة المشاعر والوجوه القريبة مع اضاءة تتغير مع كل جزء راح نخليها جزء من القواعد حق المشاريع
     القادمة»). In every film with drawn or generated people:
