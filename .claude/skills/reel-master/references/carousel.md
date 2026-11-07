@@ -60,6 +60,12 @@ accent colour from the topic (ruby red for jewels), the TK overlay on every slid
   background remover can eat the dark parts of a movement, and a bleed layout pushes half of it off the slide. A round
   watch or movement is cut with a circle around its case (geometry, not the remover); look at the cut-out before
   rendering; a watch never takes rightBleed, leftBleed or bigCorner (they cut it), only topImage or bottomImage.
+- **A news carousel** (a launch, an awards list) is the exception to «4–5 slides» and «never brand press photos»
+  (the owner, 7 Nov 2026, GPHG 2026 winners: «استعرض الساعات الفايزة كخبر وكل وحده فازت باي فئة», then chose 20
+  slides and the official images): one watch a slide, up to 19 after the cover (Instagram's limit is 20), the
+  category as the title, `Brand · Watch` as the `name` line, one verified fact in the body. The images are the
+  official ones the organiser or the brand publishes for the press (the watch's own page on gphg.org), credited in
+  the caption; never resellers or social posts. A prize that is not a watch goes in the caption.
 - **Caption:** two lines in the same language, the photo credits (CC BY / BY-SA must be credited), 3–5 hashtags.
 
 ## Make it

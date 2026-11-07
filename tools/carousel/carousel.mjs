@@ -61,7 +61,7 @@ function coverHtml(c) {
   const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
   return `<html><head><style>${css}</style></head><body><img class="photo" src="${A(c.image)}">${overlay(dark)}
   <div id="hw">${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}</div>
-  <script>for(const b of document.querySelectorAll('.hb')){let f=${SIZE.cover};b.style.fontSize=f+'px';while(b.scrollWidth>940&&f>32){f-=2;b.style.fontSize=f+'px'}}</script></body></html>`;
+  <script>const fit=()=>{for(const b of document.querySelectorAll('.hb')){let f=${SIZE.cover};b.style.fontSize=f+'px';while(b.scrollWidth>940&&f>32){f-=2;b.style.fontSize=f+'px'}}};fit();document.fonts.ready.then(fit)</script></body></html>`;
 }
 function slideHtml(s, i, n) {
   const name = s.layout || order[i % order.length], L = LAYOUTS[name];
