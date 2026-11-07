@@ -68,6 +68,8 @@ asked: they are what any good documentary maker does. `tools/make_film.py` check
     short line. The owner cut the two-line version («…مو على يد أحد! / ليش يربطونها برّا…؟») to
     «ساعة رولكس مربوطة برّا غواصة… ونازلة تحت البحر؟»: «مفروض السوال مايكون طويل». Answer it within a few lines,
     in plain words, and let the closing come back to the same picture. Not «تخيّل…», not a bare number.
+    The owner's full opening guide (7 Nov 2026) is `hooks.md`: five kinds of opening, the fixed rules (5–12 words,
+    2–4 s, one question, never invented), the hook checklist, and «write 5 openings, pick one». Follow it.
 6b. **Never tie the brand itself to something bad.** The hook and the closing describe the brand by what it did for
    people («ساعة صُنعت لرجال يعملون في عتمة البحر»), not by the harm of a material it once used («وُلدت من ضوء قاتل»).
    The dark chapter is told in the middle, as part of the story, about the material and the people it hurt.
