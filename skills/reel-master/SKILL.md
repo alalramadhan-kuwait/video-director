@@ -89,7 +89,10 @@ together.
 
 ### 4. Voice
 - **Every take goes to the owner on the pronunciation review page** (the owner, 3 Nov 2026: «always send me the
-  artifact to check each word pronunciation»): https://claude.ai/artifact/U8RJAV2Qm8FdeBXkWdnEuT, one page per take
+  artifact to check each word pronunciation»): since 7 Nov 2026 that page is **the studio's «الصوت والنطق» view**
+  (`#filmvoice-<film id>` on the studio, fed by the record's `voice`, `references/studio.md`); send its link with the
+  MP4. The older standalone page (https://claude.ai/artifact/U8RJAV2Qm8FdeBXkWdnEuT) and separate pick pages are
+  retired, so his word choices live in one place. One view per take
   (the newest only), every line playable on its own, each word marked as Whisper heard it (missing / near), the
   rules checked, and the owner's marks saved; the link goes with the MP4 every time, and nothing is built on a take
   before the owner says it is done. The page is rebuilt from `heard.json` (Whisper word times) and the film file.
@@ -232,8 +235,8 @@ the cover (`<out>/cover.png`) and, if wanted, a carousel in the Time Keeper temp
 approves or comments with time codes; fix only that and resend. Never post without their yes.
 
 ### 10. After posting: read the numbers (owner)
-The owner presses «تم النشر ✓» in the studio. Its numbers are read at 48 hours and at 7 days from his Instagram
-screenshots, judged against our own earlier posts, and turned into lessons and the algorithm recipe
+The owner presses «تم النشر ✓» in the studio. Its numbers are read at 48 hours and at 7 days, straight from
+Instagram through Supabase (`studio/ig`; screenshots only when the sync is down), judged against our own earlier posts, and turned into lessons and the algorithm recipe
 (`references/insights.md`). Étienne's daily brief adds algorithm tips and reminds him when a read is due.
 
 ## Which rule wins (the older skills disagreed)

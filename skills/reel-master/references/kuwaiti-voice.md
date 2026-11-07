@@ -49,7 +49,8 @@ natural it is** (words run together, doubled letters, stress, dropped vowels, th
 | 47–50 | the narrator's rhythm (questions, pauses, pace, the stressed word) | ○ needs Kuwaiti reference recordings, not spelling rules |
 
 **When the owner marks a word without saying how it should sound**, record three spellings of that word in its own
-short phrase (vowel marks, sukun, or none), put them beside the current take on a small pick page with one play button
+short phrase (vowel marks, sukun, or none), put them beside the current take in the studio's voice view (`voice.words` on the film's record,
+`references/studio.md`; no separate pick page) with one play button
 each and «ولا وحدة صح؟» for his own words (the owner, 7 Nov: «show me options for each word and i will choose the
 correct»), then re-record only the lines he changed. A second guess without asking cost a take and changed nothing.
 
