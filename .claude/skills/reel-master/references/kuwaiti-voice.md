@@ -53,6 +53,11 @@ short phrase (vowel marks, sukun, or none), put them beside the current take on 
 each and «ولا وحدة صح؟» for his own words (the owner, 7 Nov: «show me options for each word and i will choose the
 correct»), then re-record only the lines he changed. A second guess without asking cost a take and changed nothing.
 
+**The final voice is one whole take** (the owner, 7 Nov 2026, on Rolex ep2 after four spliced fixes: «some part they
+seem off. That seemed like they was not done in a one recording»). Splicing re-recorded lines is for trying fixes
+cheaply while he reviews; once he has settled every word, record the whole script again in one take with every fix in
+its `say`, and build the film he approves from that take. Tell him the cost first (Rolex ep2: 1,858 characters).
+
 **How the results reach the voice:** the words he chose for their sound are in `brand/pronunciation.json` (with و ف ب
 in front), so every `say` gets them by itself and the screen keeps the normal spelling. The words he chose as words
 (قعد، أكو، ماكو أحد، مافي، شسالفة، عيل) are written in the script, screen and voice alike. Before a new take, check the
