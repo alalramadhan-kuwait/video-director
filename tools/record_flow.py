@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from director import brand as B, narration, quickfilm  # noqa: E402
+from director import brand as B, kw, narration, quickfilm  # noqa: E402
 
 SR = 24000
 SETTINGS = {'stability': .5, 'similarity_boost': .8, 'style': .15, 'use_speaker_boost': True, 'speed': 1.0}   # steadier: one character all through
@@ -126,6 +126,7 @@ def main(argv=None) -> int:
     ap.add_argument('--seed', type=int, default=1234); ap.add_argument('--model', default='eleven_multilingual_v2')
     ap.add_argument('--per-act', action='store_true', help='read act by act even when the whole script fits one take')
     ap.add_argument('--anyway', action='store_true', help='record even when the delivery plan breaks one performance')
+    ap.add_argument('--words-ok', action='store_true', help="record even with words the owner has not cleared (brand/kuwaiti-words.json)")
     a = ap.parse_args(argv)
     film = quickfilm.load(a.film); brand = film.get('brand', 'timekeeper')
     global SETTINGS
@@ -135,6 +136,12 @@ def main(argv=None) -> int:
     problems = narration.check(film['lines'])
     for p_ in problems: print('delivery:', p_)
     if problems and not a.anyway: print('the delivery plan breaks one performance: fix the tones (or --anyway)'); return 2
+    # the owner's word book: his picks are written in, and any word he has not cleared stops the take before it is paid for
+    flags = kw.check(film['lines'], film.get('kw_ok'))
+    for f_ in flags:
+        print(f"words: line {f_['line'] + 1}: «{f_['word']}»" + (f" → «{f_['say']}» ({f_.get('note', '')})" if f_['kind'] == 'ask' else ' is new: let the owner pick how it is said'))
+    if flags and not a.words_ok: print('words the owner has not cleared: put them on his script card (or list them under kw_ok:, or --words-ok)'); return 3
+    for ln in film['lines']: ln['say'] = kw.apply(ln.get('say') or ln['text'])
     allsaid = [B.spoken(ln.get('say') or ln['text'], brand) for ln in film['lines']]
     whole = sum(len(t) + 1 for t in allsaid) <= MAX_CHARS and not a.per_act
     groups = [film['lines']] if whole else acts(film['lines'])

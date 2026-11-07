@@ -87,6 +87,10 @@ send the script **(owner)** as a short numbered list by act, with its type and l
 alternatives, its estimated length, and a line on what the readers changed. The owner approves the script and the hook
 together.
 
+Before writing a script, read `references/script-edits.md` (the owner's past edits and their lessons). Before
+any paid take, `tools/record_flow.py` applies the owner's word book and stops on words he has not cleared
+(`references/kuwaiti-voice.md`). Put those on his script card instead of recording and fixing afterwards.
+
 ### 4. Voice
 - **Every take goes to the owner on the pronunciation review page** (the owner, 3 Nov 2026: «always send me the
   artifact to check each word pronunciation»): since 7 Nov 2026 that page is **the studio's «الصوت والنطق» view**
