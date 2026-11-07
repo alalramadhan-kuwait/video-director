@@ -46,6 +46,7 @@ natural it is** (words run together, doubled letters, stress, dropped vowels, th
 | 37–46 | شنو، منو، شلون، كم، وين، ليش، أبي، چذي، هذيل، عيل | ◐ شنو، منو، شلون، أبي · ✓ (4 Nov) چذي، «عيل» over «إذن» |
 | ep2 | the owner's Rolex ep2 review (6 Nov) | ✓ «بعد» over «عقب», «مو كافي», «القليلة», «إيدك», «محرك»; by ear: «طِلْعت» (she went up) ✓; «تِعَرْف» and «يِقِلّ» ✗ (still wrong on the second take: write تشوف and يخف) · «يُحتمل» over «ينطاق» |
 | ep2 (7 Nov) | the owner's word picks on Rolex ep2 v13, chosen by ear from three spoken spellings each | ✓ «بِعْثة» (kasra; «بَعْثة» ✗), «قبلْها» (sukun); the two that sounded wrong in every spelling became other words: «برد ما يحتمل» → «برد مو طبيعي», «كل ما طلعوا» (climbing) → «كل ما صعدوا» |
+| Dennison (7 Nov) | the owner's word picks on Dennison v5, chosen by ear from three spoken spellings each in the studio's voice view | ✓ «ليْش» (sukun; «لِيش» and «لَيش» ✗), applied to every «ليش» in the script; ✓ «السّاعه» (shadda, ending in «ه»; «السَّاعَة» ✗); «قَديمة» with fatha (ق said as a hard g) everywhere it means old |
 | 47–50 | the narrator's rhythm (questions, pauses, pace, the stressed word) | ○ needs Kuwaiti reference recordings, not spelling rules |
 
 **When the owner marks a word without saying how it should sound**, record three spellings of that word in its own
