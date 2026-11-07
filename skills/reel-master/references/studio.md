@@ -170,3 +170,22 @@ With every script sent for approval, write on the film:
 - After each paid whole take, `voice.takes` +1. Set `voice.learned` to the number of words in the word book.
 - His edit to a script starts one readers' round on the changed lines only. It does not count toward the 3 rounds.
   Log the edit in `script-edits.md`.
+
+## Every «no» has a written path (the owner, 7 Nov 2026: «طبق كل توصياتك»)
+- **Voice cost refused** («مو الحين» / «لا»): nothing is recorded. The film waits at the voice step («التسجيل موقّف
+  لين تقول»), and he can edit the script or say «رجّع اسألني بعدين». Do not ask again on your own; ask once more only
+  when the script changes.
+- **Every paid take asks first, re-takes included.** A take that sounds patched, or a word fix, is a new paid take: the
+  same voice-cost question (key `voice_cost`), with the billed characters, before any call. Splicing to try a fix is
+  free only when it reuses audio already paid for.
+- **No style fits**: «شنو تبي بداله؟» on the style card (`flow.more {text, round, of: 'style'}`), 3 new free options a
+  round, at most 3 rounds, then chat.
+- **Paid AI sample edits**: changing or regenerating an AI sample is a new paid call. Ask first, with the credit
+  estimate (`asks` key `ai_cost`).
+- **A missing picture**: write `flow.missing [{id, what, line?}]`. He answers in the studio: «عندي صورة» (his upload),
+  «استخدم بديل», or «شيل اللقطة» (`inbox` kind `missing`).
+- **Paid generation refused**: use a free alternative (a real photo, a code-drawn scene, a still with a slow move)
+  or drop the shot, keep building, and say which in the version's `changes`.
+- **«احذفه»**: the page hides the film itself (`hidden`, `hidden_at`) and offers «رجّعه». Once a week, list the films
+  hidden for over 30 days in chat, and delete them (records and their blobs) only on his yes.
+- **Styles marked «يحتاج بناء»**: before starting one, tell him the build time and any paid cost, as for any paid step.
