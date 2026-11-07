@@ -135,3 +135,24 @@ Known gaps stay on the map, flagged `gap:true`, until they are fixed.
   reference file or SKILL.md through a PR (merged when the tests pass), marks the row handled, and tells the owner
   in one line what now works differently. A change that breaks a rule that never bends («never publish without his
   approval», «no paid generation without his yes») is not applied: say so and ask.
+
+## Ideas: captured from the first tap (the owner, 7 Nov 2026)
+Every idea lives in the studio from the moment it is sent, whatever the door:
+- **«فكرة جديدة»** (home, or the top of المكتبة): the owner types the topic, the type (or «Claude يختار») and the
+  language, with an optional link or photo. The page writes `films/<id>` named after the topic, with
+  `idea {text, type, lang, link, image}` and `flow.stage: 'queued'`. When the type is `auto`, propose reel or
+  carousel with a one-line reason as an `asks` question; never start before he picks.
+- **«ريل عجبك»**: a video (up to 20 MiB, uploaded to the page) or a link, plus «شنو عجبك فيه؟»:
+  `idea {kind: 'recreate', video, link, note}`. Instagram links cannot be downloaded from the cloud; when only a
+  link arrives, ask him once for the saved video in chat.
+- **An idea sent in chat**: write its `films` record within minutes (`idea.via: 'chat'`, his words), and an inbox row
+  with `handled_at`, so the studio shows «Claude استلم ✓». A chat idea that is not started now goes to `ideas`.
+- **«أفكار تنتظر»**: the `ideas` collection `{text, type?, lang?, link?, image?, source: owner|claude|brief, at,
+  order, status: waiting|started|dropped, film?}`. Ideas from the daily brief or from research go here as
+  `source: claude` or `brief`, never straight into a film. «ابدأ» starts one; «احذف» marks it dropped.
+- **Before research**, check that the topic was not already made: the page shows «يشبه…» while he types, as a hint
+  only. Claude also searches `films`, `studio/topics` and `ideas`, and tells him in one line if it overlaps.
+- **«ما عجبني شي»** on the directions: he writes what he wants instead (`flow.more {text, round}`). Make 3 new free
+  directions each round. After 3 rounds, continue in chat.
+- A style marked «يحتاج بناء» shows its build time and cost only when `library.json` gives them; otherwise say both
+  before starting, as for any paid step.
