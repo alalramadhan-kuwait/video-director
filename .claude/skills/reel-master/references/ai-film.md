@@ -105,6 +105,12 @@ The first film on this route («السباحة اللي باعت ساعة», 103
   replaces «felt, not heard» (storytelling 18i) for this route only.
   The owner then asked for the voice a little louder and the music a little lower (4 Nov 2026): voice -13 LUFS,
   bed `volume=-6dB`, storytelling 18l. The first shot is always an animated scene, never a print (storytelling 18q).
+  **Quieter still, and it rises from silence** (the owner, 7 Nov 2026, on Rolex ep2: «reduce the sound of the
+  background music. It's too much. And I want to make more gap… start from zero and escalate it smoothly»): the bed
+  is now loudness-matched, then about 6 dB lower than the 4 Nov level (Aquarium at `volume=-12dB`); it fades in from
+  zero over 6 s on a sine curve (`afade=t=in:st=0:d=6:curve=qsin`); and it ducks harder under the words
+  (`sidechaincompress=threshold=0.05:ratio=4:attack=30:release=600`), about 20 dB under the voice in the gaps. This
+  replaces the 4–6 dB gap above. A sad bed under a curious hook is wrong: pick music for the opening's mood.
 - **Faces that feel, close shots, light by act** (storytelling 18p): the reel's biggest lead over Gleitze. Write the
   per-act palette and the close-up/reaction list into the shot plan before the prompts, and prompt every face for
   its feeling («her eyes wide, her face draining pale»).
