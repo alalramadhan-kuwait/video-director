@@ -1,0 +1,33 @@
+{
+  "_note": "The owner's Kuwaiti word book: every word he corrected, once. kind 'auto' = written into the voice's `say` before any recording (whole words; a joined و ب ل ف ك stays). kind 'ask' = a wording or context word: shown to him on the script card, never replaced by itself. Sources: references/kuwaiti-voice.md (the owner's reviews). New picks are added here the same day.",
+  "words": [
+    {"word": "جديدة", "say": "يديدة", "kind": "auto", "from": "4 Nov review"},
+    {"word": "وجهه", "say": "ويهه", "kind": "auto", "from": "4 Nov review"},
+    {"word": "جاب", "say": "ياب", "kind": "auto", "from": "4 Nov review"},
+    {"word": "جوعان", "say": "يوعان", "kind": "auto", "from": "4 Nov review"},
+    {"word": "جذي", "say": "چذي", "kind": "auto", "from": "4 Nov review"},
+    {"word": "كذا", "say": "چذي", "kind": "ask", "from": "4 Nov review", "note": "«چذي» over «كذا» when it means like this"},
+    {"word": "السمك", "say": "السمْج", "kind": "auto", "from": "4 Nov review (his own spelling)"},
+    {"word": "قدام", "say": "جدام", "kind": "auto", "from": "rule 8"},
+    {"word": "الطريق", "say": "الطريج", "kind": "auto", "from": "4 Nov review"},
+    {"word": "صغير", "say": "صْغير", "kind": "auto", "from": "4 Nov review"},
+    {"word": "كتاب", "say": "كْتاب", "kind": "auto", "from": "4 Nov review"},
+    {"word": "طويل", "say": "طْويل", "kind": "auto", "from": "4 Nov review"},
+    {"word": "سنين", "say": "سْنين", "kind": "auto", "from": "4 Nov review"},
+    {"word": "بعيد", "say": "بْعيد", "kind": "auto", "from": "4 Nov review"},
+    {"word": "جلس", "say": "قعد", "kind": "ask", "from": "rule 1-2", "note": "write «قعد», not «جلس»"},
+    {"word": "عقب", "say": "بعد", "kind": "ask", "from": "6 Nov ep2 review", "note": "«بعد» over «عقب»"},
+    {"word": "إذن", "say": "عيل", "kind": "ask", "from": "4 Nov review"},
+    {"word": "تعرف", "say": "تشوف", "kind": "ask", "from": "6 Nov ep2 review", "note": "«تِعَرْف» sounded wrong twice: write «تشوف»"},
+    {"word": "يقل", "say": "يخف", "kind": "ask", "from": "6 Nov ep2 review", "note": "«يِقِلّ» sounded wrong twice: write «يخف»"},
+    {"word": "بعثة", "say": "بِعْثة", "kind": "auto", "from": "7 Nov ep2 pick by ear"},
+    {"word": "قبلها", "say": "قبلْها", "kind": "auto", "from": "7 Nov ep2 pick by ear"},
+    {"word": "ماي", "say": "مايْ", "kind": "auto", "from": "7 Nov ep2"},
+    {"word": "يحتمل", "say": "مو طبيعي", "kind": "ask", "from": "7 Nov ep2 pick", "note": "«برد ما يحتمل» → «برد مو طبيعي»"},
+    {"word": "طلعوا", "say": "صعدوا", "kind": "ask", "from": "7 Nov ep2 pick", "note": "when it means climbing: «صعدوا»"},
+    {"word": "ليش", "say": "ليْش", "kind": "auto", "from": "7 Nov Dennison pick by ear"},
+    {"word": "الساعة", "say": "السّاعه", "kind": "auto", "from": "7 Nov Dennison pick by ear"},
+    {"word": "قديمة", "say": "قَديمة", "kind": "auto", "from": "7 Nov Dennison pick by ear", "note": "ق said as a hard g, when it means old"},
+    {"word": "شركاه", "say": "شركاءه", "kind": "auto", "from": "7 Nov Dennison review"}
+  ]
+}

@@ -49,6 +49,20 @@ natural it is** (words run together, doubled letters, stress, dropped vowels, th
 | Dennison (7 Nov) | the owner's word picks on Dennison v5, chosen by ear from three spoken spellings each in the studio's voice view | ✓ «ليْش» (sukun; «لِيش» and «لَيش» ✗), applied to every «ليش» in the script; ✓ «السّاعه» (shadda, ending in «ه»; «السَّاعَة» ✗); «قَديمة» with fatha (ق said as a hard g) everywhere it means old |
 | 47–50 | the narrator's rhythm (questions, pauses, pace, the stressed word) | ○ needs Kuwaiti reference recordings, not spelling rules |
 
+**The word book learns, so he never corrects a word twice** (the owner, 7 Nov 2026: «هل يتعلم من تصليح الاغلاط…
+متعب كل مره يرد يسجل»). `brand/kuwaiti-words.json` holds every word he corrected, once, and `tools/record_flow.py`
+applies it to every film before any take (`director/kw.py`):
+- `auto` words are written into the voice's text the way he chose («ليش» → «ليْش», «الساعة» → «السّاعه»…). The sukun
+  before the feminine «ـها» is added by itself (rules 13–15), but never after a long vowel (معاها، فيها).
+- `ask` words (wording he changed: عقب → بعد, تعرف → تشوف…) and **new risky words** (a word with ق or ج that he has
+  not heard in an approved take, `brand/kuwaiti-heard.json`) stop the take before it is paid for. Put them on his
+  script card in the studio. He clears them in one tap, or picks how a word is said, and the film lists what he
+  cleared under `kw_ok:`.
+- **The same day he picks a word** (studio voice view, a pick page or chat), add it to `kuwaiti-words.json` as `auto`
+  (as `ask` if it is a wording change or depends on meaning), and add the approved take's words to
+  `kuwaiti-heard.json`. A correction that only lives in one film's `say` is a correction he will have to make again.
+- Count the paid whole takes on the film (`voice.takes`) so the studio shows whether retakes are going down.
+
 **When the owner marks a word without saying how it should sound**, record three spellings of that word in its own
 short phrase (vowel marks, sukun, or none), put them beside the current take in the studio's voice view (`voice.words` on the film's record,
 `references/studio.md`; no separate pick page) with one play button
