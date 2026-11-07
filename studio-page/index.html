@@ -387,6 +387,96 @@ details.fold[open]>summary::after{transform:rotate(90deg)}
 .fp-hr{border:0;border-top:1px solid rgba(27,27,27,.15);margin:4px 0;width:100%}
 .fp-got{margin:0;font-size:13.5px;font-weight:700;color:var(--ok);background:#E3F2E8;border-radius:12px;padding:8px 12px}
 .fp-vcap small{font-size:12px;color:var(--mute);font-weight:500}
+/* «مسار الشغل»: the workflow map (swimlanes in SVG), its legend, the check and history panels, and the step sheet */
+.fl-lede{font-size:14px;line-height:1.6;color:var(--ink);max-width:62ch}
+.fl-legend{display:flex;flex-wrap:wrap;gap:6px 12px;font:600 12.5px var(--body);color:var(--mute)}
+.fl-legend span{display:inline-flex;align-items:center;gap:5px}
+.fl-legend i{display:inline-grid;place-items:center;font-style:normal;width:16px;height:12px;border:1.4px solid #BDB3A0;border-radius:4px;background:#fff;font-size:9px;color:#fff}
+.fl-legend .lg-dec{width:11px;height:11px;transform:rotate(45deg);border-radius:1px}
+.fl-legend .lg-gate{width:11px;height:11px;transform:rotate(45deg);border-radius:1px;box-shadow:inset 0 0 0 2px #fff,inset 0 0 0 3px #BDB3A0}
+.fl-legend .lg-loop{border:0;border-top:2px dashed #E8573F;border-radius:0;height:0;background:none}
+.fl-legend .lg-paid{background:#D4A72C;border-color:#D4A72C;border-radius:7px;color:#1B1B1B;font-weight:800}
+.fl-legend .lg-gap{background:#C2412A;border-color:#C2412A;border-radius:50%;width:13px;height:13px;font-weight:800}
+.fl-ctl{display:flex;flex-wrap:wrap;gap:8px}
+.fl-ctl .chip b{font-weight:700;color:var(--mute)}
+.fl-box{background:var(--card);border:1px solid var(--edge);border-radius:18px;overflow:hidden;min-width:0}
+.fl-svg{display:block;width:100%;height:auto;font-family:var(--body);touch-action:pan-y}
+.fl-svg text{fill:#1B1B1B}
+.fl-lane{font:700 12.5px var(--body);fill:#FFFFFF!important}
+.fl-bandt{font:800 13.5px var(--display)}.fl-bandn{font:700 12px var(--body);fill:#5B5650!important}
+.fl-band,.fl-bar,.fl-node,.fl-chip{cursor:pointer}
+.fl-band:focus-visible rect,.fl-node:focus-visible rect,.fl-node:focus-visible path,.fl-node:focus-visible circle,.fl-bar:focus-visible rect,.fl-chip:focus-visible rect{stroke:#2F5BD3;stroke-width:3}
+.fl-bart{font:700 12.5px var(--body)}
+.fl-t{font:700 12px var(--body)}.fl-dt{font:700 11px var(--body)}.fl-st{font:700 11.5px var(--body)}
+.fl-nt{font:500 10px var(--body);fill:#5B5650!important}
+.fl-el{pointer-events:none}.fl-el text{font:600 9.5px var(--body);fill:#3F3A30!important}
+.fl-paid text{font:800 8.5px var(--body)}.fl-gapb text{font:800 10px var(--body);fill:#fff!important}
+.fl-chip text{font:700 9.5px var(--body)}.fl-more{font:700 10px var(--body)}
+.fl-chip.focus rect{stroke:#2F5BD3;stroke-width:2.6}
+.fl-glow{fill:none;stroke:#F2C230;stroke-width:5;opacity:.75;animation:flglow 1.6s ease-in-out infinite}
+@keyframes flglow{50%{opacity:.25}}
+@media (prefers-reduced-motion:reduce){.fl-glow{animation:none}}
+.fl-node.drag{opacity:.75}
+.fl-dirty{background:var(--turn);border-radius:16px;padding:12px;display:grid;gap:8px}
+.fl-dirty span{font-size:13.5px}
+.fl-dirty .two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fl-dirty .btn{min-height:46px;font-size:15px}
+.fl-panel{background:var(--card);border:1px solid var(--edge);border-radius:18px;padding:14px 12px;display:grid;gap:10px;min-width:0}
+.fl-ph{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.fl-h3{font:700 15px var(--body);margin-top:4px}
+.fl-iss{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.fl-iss li{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:8px;align-items:center;background:var(--bg);border-radius:12px;padding:8px 10px;font-size:13.5px;line-height:1.5}
+.fl-iss .fl-lv{align-self:start;white-space:nowrap;font:800 11.5px/1.5 var(--body);border-radius:999px;padding:2px 8px;background:#FBEBC5;color:#7A5410}
+.fl-iss li.fl-err .fl-lv{background:#FBE0D9;color:#9A2F1C}
+.fl-iss .fl-m{min-width:0;overflow-wrap:anywhere}
+.fl-diff,.fl-rules{margin:0;padding-inline-start:18px;display:grid;gap:4px;font-size:13.5px;line-height:1.6}
+.fl-rules small{display:block;font-size:11.5px;color:var(--mute)}
+.fl-ack{display:flex;gap:8px;align-items:center;font:600 14px var(--body)}
+.fl-ack input{width:20px;height:20px;accent-color:var(--ink)}
+.fl-panel .btn{width:100%}
+.fl-panel .btn[disabled]{opacity:.45;cursor:not-allowed}
+.fl-hist{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.fl-hist li{display:flex;justify-content:space-between;gap:8px;align-items:center;background:var(--bg);border-radius:12px;padding:8px 10px;font-size:13.5px}
+.fl-hist small{color:var(--mute)}
+.fl-home{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:12px;align-items:center;text-align:start;background:var(--card);border:1px solid var(--edge);border-radius:18px;padding:12px 14px;cursor:pointer;font:inherit;color:var(--ink);width:100%}
+.fl-home svg{width:40px;height:40px;fill:none;stroke:#1B1B1B;stroke-width:2;stroke-linejoin:round}
+.fl-home span{display:grid;min-width:0}.fl-home b{font:800 17px var(--display)}.fl-home small{font-size:12.5px;color:var(--mute);line-height:1.5}
+.fl-home i{font-style:normal;font-size:22px;color:var(--mute)}
+.fp-flowlink{justify-self:start;min-height:36px}
+.fl-sheet{position:fixed;left:0;right:0;bottom:0;max-width:560px;margin:0 auto;max-height:78vh;overflow:auto;background:var(--card);border-radius:22px 22px 0 0;box-shadow:0 -8px 30px rgba(27,27,27,.18);padding:16px max(16px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));z-index:25;display:grid;gap:12px}
+.fl-sh{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.fl-sh small{font:600 12.5px var(--body);color:var(--mute)}.fl-sh h2{font:800 20px/1.3 var(--display)}
+.fl-note{font-size:14px;line-height:1.6}
+.fl-tags{display:flex;flex-wrap:wrap;gap:6px}
+.fl-tag{border-radius:999px;padding:3px 10px;font:700 12px var(--body);background:var(--soft)}
+.fl-tag.paid{background:#D4A72C}.fl-tag.gate{background:#DDEFE5;color:#1F5E43}.fl-tag.gap{background:#FBE0D9;color:#9A2F1C}
+.fl-gapn{font-size:13px;color:#9A2F1C;line-height:1.5}
+.fl-sec{display:grid;gap:6px}.fl-sec h3{font:700 15px var(--body)}
+.fl-set{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 10px;font-size:13.5px;margin:0}
+.fl-set dt{color:var(--mute);font-weight:600}.fl-set dd{margin:0}
+.fl-on{font:700 11px var(--body);color:#1F5E43;background:#DDEFE5;border-radius:999px;padding:1px 7px;white-space:nowrap}
+.fl-edges{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.fl-edges li{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;font-size:13.5px;line-height:1.5}
+.fl-edges small{display:block;font-size:11.5px;color:var(--mute)}
+.fl-k{font:800 11px var(--body);border-radius:999px;padding:2px 8px;background:var(--soft)}
+.fl-k.yes{background:#DDEFE5;color:#1F5E43}.fl-k.loop{background:#FDE3DC;color:#9A2F1C}.fl-k.no{background:#EFE8DA}
+.fl-jump{border:0;background:none;padding:0;font:700 13.5px var(--body);color:var(--blue);text-decoration:underline;cursor:pointer;text-align:start}
+.fl-chiprow{display:flex;flex-wrap:wrap;gap:6px}
+.fl-src{font-size:12px}
+.fl-form{display:grid;gap:10px}
+.fl-form label{display:grid;gap:4px;font:600 13px var(--body);color:var(--mute)}
+.fl-form .inp{background:var(--bg);box-shadow:inset 0 0 0 1px var(--edge);font-size:16px;width:100%;min-width:0}
+.fl-form textarea.inp{resize:vertical}
+.fl-row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.fl-ruleed,.fl-setr,.fl-edged{display:grid;gap:6px;background:var(--bg);border-radius:12px;padding:8px}
+.fl-setr{grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;align-items:center}
+.fl-edged{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.fl-edged .chip{justify-self:start}
+.fl-nodeacts{display:flex;flex-wrap:wrap;gap:8px}
+.fl-del{background:#FBE0D9;color:#9A2F1C}
+.fl-form .btn{width:100%}
+@media (max-width:420px){.fl-row3{grid-template-columns:1fr 1fr}.fl-row3 label:last-child{grid-column:1/-1}}
+.fl-iss li.fl-err{box-shadow:inset 0 0 0 1px #E8B4A8}
 @media (prefers-reduced-motion:reduce){details.fold>summary::after{transition:none}}
 </style>
 
@@ -505,7 +595,7 @@ const FLOW_AR = { queued: 'بانتظار الاستلام', received: 'استل
 function stateLine(f) {
   if (isTest(f)) return { icon: '✓', text: 'تجربة بدون صوت' };
   if (f.flow && f.flow.stage !== 'done') return { icon: needsChoice(f) ? '⏸' : '⏱', text: FLOW_AR[f.flow.stage] || f.flow.stage, eta: f.flow.eta_min, action: needsChoice(f) };
-  if (f.state === 'waiting') return { icon: '⏸', text: 'بانتظارك · ' + (f.waiting || STEPS[(f.step || 1) - 1]), action: true };
+  if (f.state === 'waiting') return { icon: '⏸', text: 'بانتظارك · ' + (f.waiting || flowWaitText(f) || STEPS[(f.step || 1) - 1]), action: true };
   if (f.state === 'working') return { icon: '⏱', text: 'يشتغل · ' + (f.now || STEPS[(f.step || 1) - 1]), eta: f.eta_min };
   if (f.state === 'done') return { icon: '✓', text: f.done_text || 'جاهز للنشر' };
   if (f.state === 'posted') return postedLine(f);
@@ -548,7 +638,7 @@ async function purgeHidden() {                                     // runs when 
 function viewFilms() {
   const shown = films.filter((f) => !f.hidden && !inNumbers(f)), hidden = films.filter((f) => f.hidden), moved = films.filter(inNumbers);   // «شيله من القائمة» hides, never deletes
   const waiting = shown.filter(isWaiting).length, working = shown.filter((f) => !isWaiting(f) && (f.state === 'working' || pendingOf(f))).length;
-  let h = `<div class="headrow" style="position:relative;z-index:1">${header('أفلامنا', ready ? `${waiting} بانتظارك · ${working} يشتغل` : 'جاري التحميل…')}${statusDot()}</div>` + nowLine() + problemBanner();
+  let h = `<div class="headrow" style="position:relative;z-index:1">${header('أفلامنا', ready ? `${waiting} بانتظارك · ${working} يشتغل` : 'جاري التحميل…')}${statusDot()}</div>` + nowLine() + problemBanner() + (ready ? flowHomeCard() : '');
   if (ready && !films.length) h += `<div class="empty"><b style="font:800 18px var(--display)">ما فيه أفلام للحين</b><p class="note">أرسل لي فكرة في المحادثة، ويطلع الفلم هنا بنسبته ووقته.</p></div>`;
   const groups = {};
   for (const f of shown) (groups[topicOf(f)] ||= []).push(f);
@@ -563,7 +653,7 @@ function viewFilms() {
       const old = ruleState(f).filter((r) => !r.ok);
       const rules = old.length ? `<span class="rold">⚠ قبل ${old.length === 1 ? 'قاعدة جديدة' : `${old.length} قواعد جديدة`}</span>` : '<span class="rok">✓ آخر القواعد</span>';
       const li = f.state === 'posted' ? (bestReport(f) || lastInsight(f)) : null;
-      const pd = pendingOf(f), late = pd && Date.now() - Date.parse(pd.at) > 10 * 60e3;
+      const pd = pendingOf(f), late = pd && Date.now() - Date.parse(pd.at) > flowSet('n_heard', 'timeout_min', 10) * 60e3;
       const st = pd ? `<span class="ist ok">${late ? 'ما انستلم' : pd.kind === 'approve' ? 'وصلت موافقتك' : 'وصل تعديلك'}</span>` : isWaiting(f) ? '<span class="ist">بانتظارك</span>' : f.state === 'working' ? `<span class="ist">يشتغل ${pct(f)}%</span>`
         : f.state === 'posted' ? `<span class="ist">${linked(f) ? 'أكّده' : 'اربطه'}</span>` : `<span class="ist ok">${isTest(f) ? 'تجربة' : f.state === 'done' ? 'جاهز ✓' : esc(f.kind === 'carousel' ? STEPS[(f.step || 1) - 1] : STAGES[stageOf(f).k])}</span>`;
       const meta = f.state === 'posted' && !isWaiting(f) ? `منشور · <span class="rold">${linked(f) ? 'أكّد المنشور المقترح' : 'ما انربط بإنستغرام للحين'}</span>` : `${f.id === firstId ? '<b style="color:var(--ink)">ابدأ بهذا ·</b> ' : ''}${f.updated ? esc(when(f.updated)) + ' · ' : ''}${rules}`;
@@ -585,7 +675,7 @@ function viewFilms() {
 const pendingOf = (f) => (f.last_action?.at && Date.parse(f.updated || 0) < Date.parse(f.last_action.at) ? f.last_action : null);
 function pendingBox(f) {
   const a = pendingOf(f); if (!a) return '';
-  const late = Date.now() - Date.parse(a.at) > 10 * 60e3;
+  const late = Date.now() - Date.parse(a.at) > flowSet('n_heard', 'timeout_min', 10) * 60e3;
   return `<div class="q ${late ? 'no' : 'try'}" role="status"><b>${a.kind === 'approve' ? 'موافقتك وصلت الصندوق' : a.kind === 'answer' ? 'جوابك وصل الصندوق' : 'تعديلك وصل الصندوق'}</b><p style="font-size:13.5px">${late ? 'ما فيه رد من Claude للحين، وممكن ما فيه جلسة فاتحة.' : 'بانتظار استلام Claude. تتحدث هني أول ما يبدأ.'} ${esc(when(a.at))}</p>${late ? `<button type="button" class="btn dark" style="min-height:44px" data-act="lastresend" data-id="${esc(f.id)}">أعد الإرسال</button>` : ''}</div>`;
 }
 // The script, line by line (the owner: «هل في مكان اراجع النص واعدله؟»). A line opens on a tap; edits go to Claude together, and nothing is recorded before approval.
@@ -680,7 +770,7 @@ function nextText(f) {
 const nextBar = (f) => { const t = nextText(f); return t ? `<section class="nextb" aria-label="الخطوة الجاية"><small>الخطوة الجاية</small><b>${esc(t)}</b></section>` : ''; };
 const approveLabel = (f) => (f.flow?.mode === 'sample' ? 'اعتمد هالأسلوب ✓' : 'وافق ✓');
 function viewFlow(f) {
-  const x = f.flow, p = x.pct || 0, late = x.stage === 'queued' && Date.now() - Date.parse(x.at || 0) > 5 * 60e3;
+  const x = f.flow, p = x.pct || 0, late = x.stage === 'queued' && Date.now() - Date.parse(x.at || 0) > flowSet('n_pickwait', 'timeout_min', 5) * 60e3;
   let h = `<div class="prog"><b class="big">${p}%</b><span class="track" aria-hidden="true"><i style="width:${p}%"></i></span><span class="row"><span class="state">${esc(FLOW_AR[x.stage] || x.stage)}</span><span class="note">${x.eta_min != null ? 'باقي تقريباً ' + eta(x.eta_min) : ''}</span></span></div>`;
   if (late) h += `<div class="q no"><b>الطلب ما انستلم للحين</b><p style="font-size:13.5px">ممكن ما فيه جلسة مفتوحة تستقبله.</p><button type="button" class="btn dark" style="min-height:44px" data-act="flowresend" data-id="${esc(f.id)}">أعد الإرسال</button></div>`;
   if (x.stage === 'direction') {
@@ -853,7 +943,7 @@ function stageBar(f) {
   return `<section class="fp-box" aria-label="المراحل"><div class="fp-where"><b>وين وصلنا</b><span>${esc(whereNote(f))}</span></div><ol class="fp-stages">${STAGES.map((n, k) => {
     const st = s.all || k < s.k ? 'ok' : k === s.k ? 'cur' : '';
     return `<li class="${st}"${st === 'cur' ? ' aria-current="step"' : ''}><i aria-hidden="true">${st === 'ok' ? '✓' : k + 1}</i><small>${n}</small><span class="vh">${st === 'ok' ? 'خلصت' : st === 'cur' ? 'الحين' : 'بعدين'}</span></li>`;
-  }).join('')}</ol></section>`;
+  }).join('')}</ol><button type="button" class="chip fp-flowlink" data-flowfilm="${esc(f.id)}">شوف المسار كامل ◀</button></section>`;
 }
 
 // ---- «دورك الحين»: whatever the film waits on from the owner, answerable right here
@@ -879,7 +969,7 @@ function turnCard(f) {
 function workCard(f) {
   const x = f.flow && f.flow.stage !== 'done' ? f.flow : null, p = x ? x.pct || 0 : pct(f), e = x ? x.eta_min : f.eta_min;
   const title = x ? FLOW_AR[x.stage] || x.stage : f.now || 'يشتغل عليه', note = x ? x.note : f.now && f.now !== title ? f.now : '';
-  const late = x && x.stage === 'queued' && Date.now() - Date.parse(x.at || 0) > 5 * 60e3;
+  const late = x && x.stage === 'queued' && Date.now() - Date.parse(x.at || 0) > flowSet('n_pickwait', 'timeout_min', 5) * 60e3;
   let h = `<div class="fp-pct"><b>${p}%</b><span class="note">${e != null ? 'باقي تقريباً ' + eta(e) : ''}</span></div><span class="fp-track" aria-hidden="true"><i style="width:${p}%"></i></span>${note ? `<p class="fp-tp">${esc(note)}</p>` : ''}`;
   if (late) h += `<div class="q no"><b>الطلب ما انستلم للحين</b><p style="font-size:13.5px">ممكن ما فيه جلسة مفتوحة تستقبله.</p><button type="button" class="btn dark" style="min-height:44px" data-act="flowresend" data-id="${esc(f.id)}">أعد الإرسال</button></div>`;
   if (x?.missing?.length) h += `<div class="q try"><b>ناقص</b><ul>${x.missing.map((m) => `<li>${esc(m)}</li>`).join('')}</ul></div>`;
@@ -1129,6 +1219,612 @@ function viewSub(kind, id) {
   if (f.kind === 'carousel') return viewCarousel(id);
   return kind === 'voice' ? viewVoice(f) : kind === 'review' ? viewReview(f) : viewPublish(f);
 }
+
+// ===== The workflow map's pure logic (no DOM): validation before apply, the change summary, and the layout of the
+// swimlane diagram. Kept apart so it can be tested on its own (scratchpad/test/flowcore.test.mjs).
+const FLOW_LANES = ['owner', 'claude', 'page'];
+const FLOW_LANE_AR = { owner: 'أنت', claude: 'Claude', page: 'الاستديو' };
+const FLOW_TYPE_AR = { start: 'بداية', task: 'خطوة', decision: 'قرار', gate: 'بوابة موافقة', end: 'نهاية' };
+const FLOW_KIND_AR = { next: 'يكمل', yes: 'إي', no: 'لا', loop: 'يرجع' };
+const flowClone = (x) => JSON.parse(JSON.stringify(x));
+const flowPaid = (n) => !!n && (n.settings?.paid === true || n.settings?.paid === 'ai');
+const flowIsGate = (n) => !!n && ((n.type === 'gate' && flowPaid(n)) || n.settings?.approves_cost === true);
+const flowLimitRule = (n) => (n.rules || []).some((r) => /بالأكثر|at most|≤ ?\d/.test(r.t || ''));
+
+function validateFlow(fl) {
+  const out = [], nodes = fl?.nodes || [], edges = fl?.edges || [];
+  const by = Object.fromEntries(nodes.map((n) => [n.id, n]));
+  const add = (lv, code, msg, node, edge) => out.push({ lv, code, msg, node: node || null, edge: edge ?? null });
+  const lvOf = (n, e) => ((n && n.gap) || (e && e.gap) ? 'warn' : 'err');
+  const seen = new Set();
+  nodes.forEach((n) => { if (seen.has(n.id)) add('err', 'dup', `خطوتين بنفس الرقم (${n.id})`, n.id); seen.add(n.id); });
+  edges.forEach((e, i) => {
+    if (!by[e.from] || !by[e.to]) add('err', 'missing', `سهم يروح لخطوة مو موجودة (${by[e.from] ? '' : e.from} ${by[e.to] ? '' : e.to})`.replace(/\s+\)/, ')'), by[e.from] ? e.from : null, i);
+  });
+  const ok = edges.map((e, i) => ({ ...e, i })).filter((e) => by[e.from] && by[e.to]);
+  const outs = (id) => ok.filter((e) => e.from === id), ins = (id) => ok.filter((e) => e.to === id);
+  for (const n of nodes) {
+    if (!FLOW_LANES.includes(n.lane)) add('err', 'lane', `«${n.label}» ما لها مسؤول (أنت، Claude، أو الاستديو)`, n.id);
+    if (!String(n.label || '').trim()) add('err', 'label', 'خطوة بدون اسم', n.id);
+    if (!FLOW_TYPE_AR[n.type]) add('err', 'type', `«${n.label}» نوعها مو معروف`, n.id);
+  }
+  const starts = nodes.filter((n) => n.type === 'start'), ends = nodes.filter((n) => n.type === 'end');
+  if (!starts.length) add('err', 'nostart', 'المسار ما له بداية');
+  if (!ends.length) add('err', 'noend', 'المسار ما له نهاية');
+  const reach = new Set(), q = starts.map((n) => n.id);
+  while (q.length) { const id = q.pop(); if (reach.has(id)) continue; reach.add(id); outs(id).forEach((e) => q.push(e.to)); }
+  for (const n of nodes) if (!reach.has(n.id)) add(lvOf(n), 'unreach', `«${n.label}» ما يوصلها أي طريق من البداية`, n.id);
+  const back = new Set(), r = ends.map((n) => n.id);
+  while (r.length) { const id = r.pop(); if (back.has(id)) continue; back.add(id); ins(id).forEach((e) => r.push(e.from)); }
+  for (const n of nodes) if (reach.has(n.id) && !back.has(n.id)) add(lvOf(n), 'dead', `طريق مسدود: من «${n.label}» ما فيه طريق للنهاية`, n.id);
+  for (const n of nodes) {
+    const o = outs(n.id);
+    if (n.type === 'end' && o.length) add('warn', 'endout', `«${n.label}» نهاية بس يطلع منها سهم`, n.id);
+    if (n.type !== 'end' && !o.length && reach.has(n.id)) { /* covered by dead */ }
+    if (n.type === 'decision' && o.length < 2) add(lvOf(n), 'exits', `القرار «${n.label}» له مخرج واحد بس`, n.id);
+    if (n.type === 'gate' && o.length < 2) add(n.gap ? 'warn' : 'warn', 'gateexits', `البوابة «${n.label}» ما فيها مسار إذا قلت لا`, n.id);
+    const labels = o.map((e) => String(e.label || '').trim()).filter(Boolean), dups = labels.filter((l, k) => labels.indexOf(l) !== k);
+    [...new Set(dups)].forEach((l) => add('err', 'dupcond', `«${n.label}»: شرطين بنفس الكلام «${l}»`, n.id));
+    if (n.type === 'start' && ins(n.id).length) add('warn', 'startin', `«${n.label}» بداية بس يدخلها سهم`, n.id);
+    const st = n.settings || {};
+    if (st.timeout_min != null && !(+st.timeout_min > 0)) add('err', 'timeout', `«${n.label}»: المهلة لازم رقم أكبر من صفر`, n.id);
+    if (st.confirm_taps != null && +st.confirm_taps < 2) add('err', 'confirm', `«${n.label}»: لازم ضغطتين (تأكيد صريح منك)`, n.id);
+    if (st.final_voice && st.speed != null && +st.speed !== 1) add('err', 'speed', `«${n.label}»: الصوت النهائي ما ينسرع (السرعة لازم 1)`, n.id);
+    if (st.max_rounds != null && flowLimitRule(n) && +st.max_rounds > 3) add('warn', 'rounds', `«${n.label}»: القاعدة تقول 3 جولات بالأكثر، والإعداد ${st.max_rounds}`, n.id);
+    const selfLoop = ins(n.id).some((e) => e.kind === 'loop');
+    if (selfLoop && flowLimitRule(n) && st.max_rounds == null) add('warn', 'nolimit', `«${n.label}»: القاعدة فيها حد للجولات بس ما فيه إعداد max_rounds`, n.id);
+  }
+  // a paid action needs a paid gate before it on every way in (the standing rule: no paid generation without an explicit yes)
+  for (const n of nodes) {
+    if (!flowPaid(n) || n.type === 'gate' || !reach.has(n.id)) continue;
+    for (const e0 of ins(n.id)) {
+      const vis = new Set(); let bad = false; const st = [e0.from];
+      while (st.length && !bad) {
+        const id = st.pop(); if (vis.has(id)) continue; vis.add(id);
+        const p = by[id];
+        if (flowIsGate(p)) continue;
+        if (id === n.id || (flowPaid(p) && p.type !== 'gate') || p.type === 'start') { bad = true; break; }
+        ins(id).forEach((e) => st.push(e.from));
+      }
+      if (bad) add(e0.gap || n.gap ? 'warn' : 'err', 'paid', `«${n.label}» بالرصيد، والطريق من «${by[e0.from].label}» ما يمر على موافقتك قبلها`, n.id, e0.i);
+    }
+  }
+  // publishing needs your approval of the finished film before it
+  for (const n of nodes.filter((x) => x.settings?.publish)) {
+    const vis = new Set(), st = ins(n.id).map((e) => e.from); let bad = false;
+    while (st.length) { const id = st.pop(); if (vis.has(id)) continue; vis.add(id); const p = by[id]; if (p.settings?.approval) continue; if (p.type === 'start') { bad = true; break; } ins(id).forEach((e) => st.push(e.from)); }
+    if (bad) add('err', 'publish', `«${n.label}»: فيه طريق للنشر بدون موافقتك على الفلم`, n.id);
+  }
+  for (const n of nodes) if (n.gap) add('warn', 'gap', `ثغرة معروفة${n.gap_id ? ` (${n.gap_id})` : ''}: ${n.gap_note || n.label}`, n.id);
+  edges.forEach((e, i) => { if (e.gap) add('warn', 'gap', `ثغرة معروفة${e.gap_id ? ` (${e.gap_id})` : ''}: ${e.gap_note || e.label}`, e.from, i); });
+  const key = (x) => `${x.lv}|${x.code}|${x.node}|${x.edge}`, u = new Map();
+  out.forEach((x) => { if (!u.has(key(x))) u.set(key(x), x); });
+  return [...u.values()].sort((a, z) => (a.lv === z.lv ? 0 : a.lv === 'err' ? -1 : 1));
+}
+
+function diffFlow(a, b) {                                           // what changed from a (applied) to b (the edit), in Arabic
+  const A = Object.fromEntries((a?.nodes || []).map((n) => [n.id, n])), Bn = Object.fromEntries((b?.nodes || []).map((n) => [n.id, n]));
+  const L = (id, m) => `«${(m[id] || A[id] || Bn[id])?.label || id}»`, out = [];
+  for (const id of Object.keys(Bn)) if (!A[id]) out.push(`أضفت ${L(id, Bn)} (${FLOW_LANE_AR[Bn[id].lane] || ''})`);
+  for (const id of Object.keys(A)) if (!Bn[id]) out.push(`شلت ${L(id, A)}`);
+  for (const id of Object.keys(Bn)) {
+    const x = A[id], y = Bn[id]; if (!x) continue;
+    if (x.label !== y.label) out.push(`غيّرت «${x.label}» إلى «${y.label}»`);
+    if (x.lane !== y.lane) out.push(`${L(id, Bn)} صارت على ${FLOW_LANE_AR[y.lane] || y.lane}`);
+    if (x.type !== y.type) out.push(`${L(id, Bn)} صارت ${FLOW_TYPE_AR[y.type] || y.type}`);
+    if ((x.note || '') !== (y.note || '')) out.push(`${L(id, Bn)}: غيّرت الملاحظة`);
+    if (x.row !== y.row || x.band !== y.band) out.push(`${L(id, Bn)}: تغيّر مكانها`);
+    const sx = x.settings || {}, sy = y.settings || {};
+    for (const k of new Set([...Object.keys(sx), ...Object.keys(sy)])) if (JSON.stringify(sx[k]) !== JSON.stringify(sy[k])) out.push(`${L(id, Bn)}: ${k} ${sx[k] ?? '—'} ← ${sy[k] ?? '—'}`);
+    const rx = (x.rules || []).map((r) => r.t), ry = (y.rules || []).map((r) => r.t);
+    ry.filter((t) => !rx.includes(t)).forEach((t) => out.push(`${L(id, Bn)}: قاعدة يديدة «${t}»`));
+    rx.filter((t) => !ry.includes(t)).forEach((t) => out.push(`${L(id, Bn)}: شلت القاعدة «${t}»`));
+  }
+  const ek = (e) => `${e.from}>${e.to}>${e.kind}>${e.label || ''}`;
+  const ea = new Set((a?.edges || []).map(ek)), eb = new Set((b?.edges || []).map(ek));
+  (b?.edges || []).filter((e) => !ea.has(ek(e))).forEach((e) => out.push(`سهم يديد: ${L(e.from, Bn)} ← ${L(e.to, Bn)}${e.label ? ` «${e.label}»` : ''}`));
+  (a?.edges || []).filter((e) => !eb.has(ek(e))).forEach((e) => out.push(`شلت السهم: ${L(e.from, A)} ← ${L(e.to, A)}${e.label ? ` «${e.label}»` : ''}`));
+  return out;
+}
+
+// ---- layout: three lanes side by side (RTL: you on the right), bands top to bottom, rows inside a band
+const FL = { W: 390, laneW: 130, nodeW: 106, top: 34, bandH: 28, gapY: 34, barH: 46 };
+const flowLaneIdx = (lane) => Math.max(0, FLOW_LANES.indexOf(lane));
+const flowLaneCx = (lane) => FL.W - FL.laneW * flowLaneIdx(lane) - FL.laneW / 2;    // owner 325, claude 195, page 65
+function flowWrap(t, max, lines) {
+  const w = String(t || '').split(/\s+/).filter(Boolean), out = []; let cur = '';
+  for (const x of w) { if ((cur + ' ' + x).trim().length > max && cur) { out.push(cur); cur = x; } else cur = (cur + ' ' + x).trim(); }
+  if (cur) out.push(cur);
+  if (out.length > lines) { const keep = out.slice(0, lines); keep[lines - 1] = keep[lines - 1].replace(/.{0,2}$/, '') + '…'; return keep; }
+  return out;
+}
+function flowNodeSize(n) {
+  if (n.type === 'decision' || n.type === 'gate') { const l = flowWrap(n.label, 11, 3); return { w: 118, h: 58 + (l.length > 2 ? 14 : 0), lines: l }; }
+  if (n.type === 'start' || n.type === 'end') { const l = flowWrap(n.label, 15, 2); return { w: 106, h: 30 + l.length * 14, lines: l }; }
+  const l = flowWrap(n.label, 14, 3); return { w: FL.nodeW, h: 14 + l.length * 15 + (n.note ? 14 : 0), lines: l };
+}
+function layoutFlow(fl, open) {                                     // open: Set of band ids shown in full
+  const bands = fl.bands || [], pos = {}, vis = {}, bandBox = [];
+  let y = FL.top;
+  for (const b of bands) {
+    const ns = (fl.nodes || []).filter((n) => (n.band || 'always') === b.id);
+    if (!ns.length) continue;
+    const isOpen = open.has(b.id);
+    const box = { id: b.id, name: b.name, y, open: isOpen, n: ns.length };
+    y += FL.bandH;
+    if (!isOpen) {
+      const bar = { id: 'band:' + b.id, band: b.id, x: 10, y: y + 6, w: FL.W - 20, h: FL.barH, cx: FL.W / 2, cy: y + 6 + FL.barH / 2, bar: true };
+      pos[bar.id] = bar; ns.forEach((n) => { vis[n.id] = bar.id; });
+      y += FL.barH + 18;
+    } else {
+      const sorted = [...ns].sort((a, z) => (a.row ?? 0) - (z.row ?? 0)), slots = [];   // [{row, lanes:Set, nodes:[]}]
+      for (const n of sorted) {
+        let s = slots.find((x) => x.row === (n.row ?? 0) && !x.lanes.has(n.lane));
+        if (!s) { const last = slots.filter((x) => x.row === (n.row ?? 0)); s = { row: n.row ?? 0, sub: last.length, lanes: new Set(), nodes: [] }; slots.push(s); }
+        s.lanes.add(n.lane); s.nodes.push(n);
+      }
+      y += 20;                                                       // room for the film tags above the first row
+      for (const s of slots) {
+        const sz = s.nodes.map(flowNodeSize), h = Math.max(...sz.map((z) => z.h));
+        s.nodes.forEach((n, k) => {
+          const z = sz[k], cx = flowLaneCx(n.lane);
+          pos[n.id] = { id: n.id, x: cx - z.w / 2, y: y + (h - z.h) / 2, w: z.w, h: z.h, cx, cy: y + h / 2, lines: z.lines, lane: n.lane, slot: slots.indexOf(s), band: b.id, rowY: y, rowH: h };
+          vis[n.id] = n.id;
+        });
+        s.y = y; s.h = h;
+        y += h + FL.gapY;
+      }
+      box.slots = slots.map((s) => ({ row: s.row, y: s.y, h: s.h }));
+    }
+    box.h = y - box.y; bandBox.push(box);
+  }
+  return { pos, vis, bands: bandBox, H: y + 10 };
+}
+// channels between and beside the lanes, for the arrows that go around the boxes
+const FLOW_CH = { r: 385, owner_claude: 260, claude_page: 130, l: 5 };
+function flowRoutes(fl, L) {
+  const used = {};                                                   // channel -> [[y1,y2,track]]
+  const track = (ch, y1, y2) => {
+    const a = Math.min(y1, y2) - 6, b = Math.max(y1, y2) + 6, list = (used[ch] ||= []);
+    let t = 0; while (list.some(([p, q, k]) => k === t && p < b && a < q)) t++;
+    list.push([a, b, t]); const step = ch === 'r' || ch === 'l' ? 2.5 : 5;
+    return FLOW_CH[ch] + (t === 0 ? 0 : (t % 2 ? -1 : 1) * Math.ceil(t / 2) * step);
+  };
+  const out = [], seen = new Set(), rowBottom = {};
+  Object.values(L.pos).forEach((p) => { if (!p.bar) { const k = `${p.band}|${p.slot}`; rowBottom[k] = Math.max(rowBottom[k] || 0, p.rowY + p.rowH); } });
+  const below = (p) => (p.bar ? p.y + p.h : rowBottom[`${p.band}|${p.slot}`] || p.y + p.h) + 12;
+  const above = (p) => (p.bar ? p.y : p.rowY) - 12;
+  const sideCh = (lane, dir) => (lane === 'owner' ? (dir > 0 ? 'r' : 'owner_claude') : lane === 'claude' ? (dir > 0 ? 'owner_claude' : 'claude_page') : dir > 0 ? 'claude_page' : 'l');
+  const blocked = (lane, y1, y2, skip) => Object.values(L.pos).some((p) => !p.bar && p.lane === lane && !skip.includes(p.id) && p.y < y2 && p.y + p.h > y1);
+  const portsUsed = {};
+  (fl.edges || []).forEach((e, i) => {
+    const va = L.vis[e.from], vb = L.vis[e.to]; if (!va || !vb) return;
+    const a = L.pos[va], b = L.pos[vb]; if (!a || !b) return;
+    if (va === vb && (a.bar || e.from !== e.to)) return;              // inside a folded band
+    const key = `${va}>${vb}>${e.kind}`; if ((a.bar || b.bar) && seen.has(key)) return; seen.add(key);
+    const lbl = a.bar || b.bar ? '' : e.label || '';
+    let d, lx, ly;
+    if (va === vb) {                                                 // a step that repeats itself
+      const x0 = a.x + a.w, y0 = a.cy;
+      d = `M${x0},${y0 + 7} h11 v-14 h-9`; lx = x0 + 6; ly = y0 - 12;
+    } else if (b.y > a.y + a.h - 1) {                               // forward, down the page
+      const pu = (portsUsed[va] ||= 0); portsUsed[va]++;
+      const bx = b.bar ? Math.min(Math.max(a.cx, 30), FL.W - 30) : b.cx, gy = below(a);
+      const sx = a.bar ? Math.min(Math.max(bx, 30), FL.W - 30) : a.cx;
+      let start, sy;
+      if (pu === 0 || a.bar) { start = `M${sx},${a.y + a.h}`; sy = a.y + a.h; lx = sx; ly = (sy + gy) / 2; }
+      else { const dir = bx < a.cx ? -1 : 1, px = dir < 0 ? a.x : a.x + a.w; start = `M${px},${a.cy} H${px + dir * 9}`; sy = a.cy; lx = px + dir * 22; ly = a.cy - 9; start += ` V${gy}`; }
+      const straight = (pu === 0 || a.bar) && Math.abs(sx - bx) < 1 && !blocked(a.lane, a.y + a.h, b.y, [va, vb]);
+      if (straight) d = `${start} V${b.y}`;
+      else if (b.bar || !blocked(b.lane, gy, b.y, [va, vb])) d = `${start}${pu === 0 || a.bar ? ` V${gy}` : ''} H${bx} V${b.y}`;
+      else { const dir = a.cx > b.cx ? 1 : a.cx < b.cx ? -1 : 1, ch = sideCh(b.lane, dir), cx = track(ch, gy, above(b)); d = `${start}${pu === 0 ? ` V${gy}` : ''} H${cx} V${above(b)} H${bx} V${b.y}`; }
+    } else {                                                         // back up: a loop
+      const sameLane = !a.bar && !b.bar && a.lane === b.lane;
+      let ch;
+      if (b.bar) ch = 'r';
+      else if (sameLane) ch = b.lane === 'page' ? 'l' : b.lane === 'owner' ? 'r' : 'owner_claude';
+      else ch = sideCh(b.lane, a.bar ? 1 : a.cx > b.cx ? 1 : -1);
+      const ty = b.bar ? b.cy : b.cy, cx = track(ch, a.cy, ty);
+      const tx = b.bar ? (cx > FL.W / 2 ? b.x + b.w : b.x) : cx > b.cx ? b.x + b.w : b.x;
+      const adj = !a.bar && [sideCh(a.lane, 1), sideCh(a.lane, -1)].includes(ch);
+      if (adj) { const px = cx > a.cx ? a.x + a.w : a.x; d = `M${px},${a.cy + 6} H${cx} V${ty} H${tx + (tx > cx ? 0 : 0)}`; lx = (px + cx) / 2; ly = a.cy - 4; }
+      else { const gy = below(a), sx = a.bar ? Math.min(Math.max(cx, 30), FL.W - 30) : a.cx; d = `M${sx},${a.y + a.h} V${gy} H${cx} V${ty} H${tx}`; lx = sx; ly = (a.y + a.h + gy) / 2; }
+    }
+    out.push({ i, d, kind: e.kind || 'next', gap: !!e.gap, label: lbl, lx, ly });
+  });
+  return out;
+}
+
+// ===== «مسار الشغل» (#flow): the studio's whole workflow as one editable swimlane map (the owner, 7 Nov 2026: «the central
+// place for designing, understanding, and controlling the entire Studio workflow»). The map is `studio/flow`; without it
+// the built-in FLOW_DEFAULT (mapped from the page code and the repo rules, every node with its source) is shown. Editing
+// works on a copy; «افحص وطبّق» validates it (validateFlow) and only an error-free, acknowledged edit is applied: it is
+// written to studio/flow with a history of 10, and to the inbox (kind flow_edit) so Claude updates the rules. Settings the
+// page can enforce itself (timeouts, confirm taps, de-duplication, which owner buttons exist, waiting text) are read from
+// the applied map by flowSet / flowEnforce; anything missing keeps today's behaviour.
+const FLOW_DEFAULT = {"version": 0, "name": "مسار الشغل", "bands": [{"id": "idea", "name": "الفكرة"}, {"id": "script", "name": "النص"}, {"id": "voice", "name": "الصوت"}, {"id": "style", "name": "الأسلوب"}, {"id": "build", "name": "البناء"}, {"id": "review", "name": "المراجعة"}, {"id": "publish", "name": "النشر"}, {"id": "always", "name": "طول الوقت"}], "lanes": [{"id": "owner", "name": "أنت"}, {"id": "claude", "name": "Claude"}, {"id": "page", "name": "الاستديو"}], "nodes": [{"id": "s_lib", "band": "idea", "lane": "owner", "type": "start", "label": "طلب من المكتبة", "note": "نوع + لغة + «ابدأ»", "row": 1, "who": "owner", "src": "الاستديو:1150, 1999", "rules": [{"t": "الموضوع ينرسل بالمحادثة بعدها", "src": "الاستديو:1999"}], "settings": {}, "writes": [], "reads": [], "stage": "idea"}, {"id": "s_twin", "band": "idea", "lane": "owner", "type": "start", "label": "سوّ منه كاروسيل/ريل", "note": "من صفحة فلم موجود", "row": 2, "who": "owner", "src": "الاستديو:755, 1997", "rules": [{"t": "نفس المعلومات والمصادر، سجل يديد مربوط بـ of", "src": "الاستديو:1997"}], "settings": {}, "writes": [], "reads": [], "stage": "idea"}, {"id": "s_chat", "band": "idea", "lane": "owner", "type": "start", "label": "فكرة بالمحادثة", "note": "أغلب الأفلام بدت چذي", "row": 3, "who": "owner", "src": "audit.md §2.1", "rules": [{"t": "Claude يكتب سجل الفلم بنفسه أول ما تبدأ خطوة", "src": "studio.md «Keep it current»"}], "settings": {}, "writes": [], "reads": [], "stage": "idea"}, {"id": "n_record", "band": "idea", "lane": "page", "type": "task", "label": "الاستديو ينشئ سجل الفلم", "note": "state: working · flow.stage: queued", "row": 4, "who": "page/system", "src": "الاستديو:1758-1767", "rules": [{"t": "الزر ينشئ السجل فوراً مع flow {stage:queued, pct:0}، والجلسة تعدّل نفس السجل", "src": "library.json workflow 1"}, {"t": "إذا نفس الطلب مفتوح، يفتحه بدل ما يسوي واحد ثاني", "src": "الاستديو:1760"}], "settings": {}, "writes": ["films/<id>", "inbox {kind: request}"], "reads": [], "stage": "idea"}, {"id": "n_pickwait", "band": "idea", "lane": "page", "type": "decision", "label": "Claude استلم الطلب؟", "note": "خلال 5 دقايق", "row": 5, "who": "page/system", "src": "الاستديو:685", "rules": [{"t": "بعد 5 دقايق بدون استلام: «الطلب ما انستلم» + «أعد الإرسال»", "src": "reel.js:120 / الاستديو:685"}], "settings": {"timeout_min": 5}, "writes": [], "reads": ["flow.stage", "flow.at"], "stage": "idea"}, {"id": "n_resend", "band": "idea", "lane": "owner", "type": "task", "label": "أعد الإرسال", "note": "", "row": 6, "who": "owner", "src": "الاستديو:1865", "rules": [{"t": "يعيد إرسال نفس الطلب", "src": "الاستديو:1865"}], "settings": {}, "writes": ["flow.at", "inbox {kind: flow}"], "reads": [], "stage": "idea"}, {"id": "n_pickup", "band": "idea", "lane": "claude", "type": "task", "label": "Claude يستلم الطلب", "note": "stage: received", "row": 7, "who": "Claude", "src": "library.json workflow 2", "rules": [{"t": "جلسة وحدة بس تستلم الطلب، وتغيّر stage إلى received خلال دقايق", "src": "library.json workflow 2"}], "settings": {}, "writes": ["flow.stage"], "reads": [], "stage": "idea"}, {"id": "n_research", "band": "idea", "lane": "claude", "type": "task", "label": "الصيغة والبحث والمصادر", "note": "نوع النص، اللغة، المصادر، الصور الحقيقية", "row": 8, "who": "Claude", "src": "SKILL.md §1", "rules": [{"t": "ريل إلا إذا طلبت كاروسيل؛ الكاروسيل يتبع carousel.md ويتخطى الصوت والإيقاع والأسلوب", "src": "SKILL.md §1"}, {"t": "كل معلومة لها مصدر، والإشاعة تنقال كاعتقاد", "src": "SKILL.md «Rules that never bend»"}, {"t": "صور حقيقية مع الكريدت؛ ما نرسم ساعة حقيقية كموديل حقيقي", "src": "SKILL.md «Rules that never bend»"}, {"t": "كل حلقة قصة كاملة بروحها", "src": "القواعد الثابتة"}], "settings": {}, "writes": [], "reads": [], "stage": "idea"}, {"id": "n_dirs", "band": "idea", "lane": "claude", "type": "task", "label": "3 اتجاهات بشاشة وحدة", "note": "أول وآخر جملة، صورة ثابتة، مقطع صوت", "row": 9, "who": "Claude", "src": "library.json workflow 3", "rules": [{"t": "3 اتجاهات: الجملة الأولى والأخيرة، صورة ثابتة بالأسلوب، ومقطع صوت قصير؛ الشغل يوقف لين تختار", "src": "library.json workflow 3"}, {"t": "العيّنات صور ثابتة مو فيديو", "src": "library.json workflow 4"}], "settings": {}, "writes": ["flow.direction_options", "flow.stage: direction", "waiting"], "reads": [], "stage": "idea"}, {"id": "n_dirpick", "band": "idea", "lane": "owner", "type": "decision", "label": "تختار اتجاه", "note": "أو «ما عجبني شي»", "row": 10, "who": "owner", "src": "الاستديو:687-689", "rules": [{"t": "«ما عجبني شي» يفتح القائمة الكاملة (أساليب أو أنواع)", "src": "الاستديو:689 / library.json workflow 5"}, {"t": "11 من 22 أسلوب «يحتاج بناء» ومكتوب «أول مرة أطول» بدون وقت أو تكلفة", "src": "audit.md §3"}], "settings": {"waiting_text": "اختار اتجاه واحد"}, "writes": [], "reads": [], "stage": "idea", "gap": true, "gap_id": "§3", "gap_note": "الأساليب اللي تحتاج بناء ما تقول الوقت ولا التكلفة"}, {"id": "g_dirpaid", "band": "idea", "lane": "page", "type": "gate", "label": "يصرف رصيد؟ ضغطة ثانية", "note": "اتجاه أو أسلوب بالرصيد", "row": 11, "who": "page/system", "src": "الاستديو:1783-1790", "rules": [{"t": "الضغطة الأولى تسأل بس: «يصرف رصيد Higgsfield. اضغط مرة ثانية»", "src": "الاستديو:895 / 1783"}, {"t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)", "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"}, {"t": "عينة أو بناء برصيد Higgsfield ما يبدأ إلا بعد موافقتك على التكلفة", "src": "library.json workflow 6"}], "settings": {"paid": true, "confirm_taps": 2}, "writes": [], "reads": [], "stage": "idea"}, {"id": "n_picked", "band": "idea", "lane": "page", "type": "task", "label": "ينحفظ اختيارك", "note": "flow.stage: received + choice أو more", "row": 12, "who": "page/system", "src": "الاستديو:1866-1871", "rules": [{"t": "أي اختيار يكتب last_action وينرسل لـ Claude", "src": "library.json workflow 8"}], "settings": {}, "writes": ["flow {stage, choice|more}", "inbox {kind: flow}"], "reads": [], "stage": "idea"}, {"id": "n_afterpick", "band": "idea", "lane": "claude", "type": "decision", "label": "شنو طلبت؟", "note": "اتجاه، أو عيّنة من القائمة، أو تجربة أسلوب بس", "row": 13, "who": "Claude", "src": "library.json workflow 4-5, 9", "rules": [{"t": "flow.more = عيّنة من القائمة الكاملة", "src": "library.json workflow 5"}, {"t": "mode:'sample' يقف بعد العيّنة ولا يبني الفلم", "src": "library.json workflow 9"}], "settings": {}, "writes": [], "reads": [], "stage": "idea"}, {"id": "n_hook", "band": "script", "lane": "claude", "type": "task", "label": "الهوك: 5 بدايات ونختار وحدة", "note": "5–12 كلمة، 2–4 ثواني، سؤال واحد", "row": 14, "who": "Claude", "src": "SKILL.md §2 + hooks.md", "rules": [{"t": "5 أنواع بدايات؛ نكتب 5 ونختار وحدة؛ 5–12 كلمة، 2–4 ثواني، سؤال واحد، ما ينخترع", "src": "hooks.md"}, {"t": "ما فيه مواصفات ولا إعلان بالبداية؛ النهاية ترجع للهوك؛ النجاح يتقاس بالمشاهدة للآخر", "src": "hooks.md"}, {"t": "بديلين للهوك يروحون مع النص", "src": "SKILL.md §2"}], "settings": {}, "writes": [], "reads": [], "stage": "script"}, {"id": "n_script", "band": "script", "lane": "claude", "type": "task", "label": "النص بالفصول", "note": "3–5 فصول، كل جملة تودّي للي بعدها", "row": 15, "who": "Claude", "src": "SKILL.md §2", "rules": [{"t": "فكرة وحدة بالجملة، 6–10 كلمات، الأسماء بالعربي، الأرقام إنجليزي بالشاشة", "src": "SKILL.md §2 + house-style.md"}, {"t": "النهاية ترجع للبراند والساعة", "src": "SKILL.md §2 (rule 6e)"}, {"t": "إذا طوّل: نشيل معلومة، أبد ما نسرّع الصوت", "src": "SKILL.md §2"}, {"t": "كلمات كويتية معتمدة (بعد، مو كافي، القليلة، إيدك، محرك، يخف، تشوف، طِلْعت…)", "src": "kuwaiti-voice.md + القواعد الثابتة"}], "settings": {}, "writes": [], "reads": [], "stage": "script"}, {"id": "n_readers", "band": "script", "lane": "claude", "type": "task", "label": "القرّاء يراجعون النص", "note": "نورة، فهد، بو خالد، سالم، إتيان", "row": 16, "who": "Claude", "src": "SKILL.md §3", "rules": [{"t": "يقرون اللي يشوفه المشاهد؛ «لا» من إتيان على البراند توقف", "src": "SKILL.md §3 + reader-panel.md"}, {"t": "3 جولات بالأكثر", "src": "SKILL.md §3"}], "settings": {"max_rounds": 3}, "writes": [], "reads": [], "stage": "script"}, {"id": "n_revvoice", "band": "script", "lane": "claude", "type": "task", "label": "صوت مراجعة ببلاش", "note": "edge-tts كويتي، «اسمع النص»", "row": 17, "who": "Claude", "src": "library.json workflow 10", "rules": [{"t": "كل نص يديد ينحط للمراجعة معاه تسجيل ببلاش (ar-KW-FahedNeural)", "src": "library.json workflow 10"}, {"t": "يتسرّع 1.25 للمراجعة بس؛ الصوت النهائي ما ينسرع", "src": "library.json workflow 10"}], "settings": {"paid": false, "review_speed": 1.25}, "writes": ["script_audio"], "reads": [], "stage": "script", "gap": true, "gap_id": "§3", "gap_note": "Dennison بس عنده صوت المراجعة"}, {"id": "n_scriptsend", "band": "script", "lane": "claude", "type": "task", "label": "يرسل لك النص", "note": "قائمة مرقّمة بالفصول + الهوك + بديلين", "row": 18, "who": "Claude", "src": "SKILL.md §3", "rules": [{"t": "نوع النص واللغة، الهوك وبديلين، الطول، وسطر عن اللي غيّروه القرّاء", "src": "SKILL.md §3"}, {"t": "آخر تغيير يكتب «السكربت:» وبعده الجمل مرقّمة", "src": "قواعد جلسة الاستديو"}, {"t": "f.waiting خطوة وحدة واضحة", "src": "library.json workflow (f.waiting)"}], "settings": {}, "writes": ["version نص vN", "changes", "waiting", "state: waiting"], "reads": [], "stage": "script"}, {"id": "n_scriptgate", "band": "script", "lane": "owner", "type": "decision", "label": "توافق على النص والهوك؟", "note": "أو تعدّل سطر، أو تلصق نص كامل", "row": 19, "who": "owner", "src": "الاستديو:627, 663", "rules": [{"t": "توافق على النص والهوك مع بعض", "src": "SKILL.md §3"}, {"t": "قرارك بالمحادثة ينكتب بالاستديو (via: chat)", "src": "library.json workflow 11"}], "settings": {"waiting_text": "موافقتك على النص"}, "writes": [], "reads": [], "stage": "script"}, {"id": "n_scriptedit", "band": "script", "lane": "page", "type": "task", "label": "ينحفظ تعديل النص", "note": "script_edits أو script_full", "row": 20, "who": "page/system", "src": "الاستديو:1848-1861", "rules": [{"t": "تعديل سطر: script_edits؛ نص كامل: script_full", "src": "الاستديو:1848-1861"}], "settings": {}, "writes": ["script_edits | script_full", "last_action", "inbox {kind: change}"], "reads": [], "stage": "script"}, {"id": "n_kind", "band": "script", "lane": "claude", "type": "decision", "label": "ريل ولا كاروسيل؟", "note": "", "row": 21, "who": "Claude", "src": "SKILL.md §1", "rules": [{"t": "الكاروسيل يتخطى الصوت والإيقاع والأسلوب والفلم", "src": "SKILL.md §1"}], "settings": {}, "writes": [], "reads": [], "stage": "script"}, {"id": "n_vcost", "band": "voice", "lane": "claude", "type": "task", "label": "يقول لك تكلفة التسجيل", "note": "من عدد الأحرف المدفوعة", "row": 22, "who": "Claude", "src": "studio.md", "rules": [{"t": "ElevenLabs بالرصيد: نخليه قليل ونقول التكلفة أول", "src": "القواعد الثابتة"}, {"t": "التكلفة من voice.chars (الأحرف المدفوعة مع أوامر الإحساس)، مو من نص الشاشة", "src": "studio.md «voice» (G3)"}], "settings": {"cost_from": "voice.chars"}, "writes": [], "reads": ["voice.chars"], "stage": "voice"}, {"id": "g_voice", "band": "voice", "lane": "owner", "type": "gate", "label": "توافق على التكلفة؟", "note": "بالمحادثة أو بالاستديو", "row": 23, "who": "owner", "src": "SKILL.md «Rules that never bend»", "rules": [{"t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)", "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"}], "settings": {"paid": true}, "writes": [], "reads": [], "stage": "voice", "gap": true, "gap_id": "جديد", "gap_note": "ما فيه مسار مكتوب إذا رفضت التكلفة"}, {"id": "n_take", "band": "voice", "lane": "claude", "type": "task", "label": "تسجيلة وحدة كاملة", "note": "فيصل · ElevenLabs v3 · بالإحساس", "row": 24, "who": "Claude", "src": "SKILL.md §4", "rules": [{"t": "الفيلم كله بقراءة وحدة (تحت 4,500 حرف، مع أوامر الإحساس)، وبعدها tighten 0.4", "src": "SKILL.md §4 + أدوات الصوت"}, {"t": "الصوت النهائي تسجيلة وحدة، بدون ترقيع", "src": "kuwaiti-voice.md (7 نوفمبر)"}, {"t": "أبد ما نسرّع الصوت", "src": "SKILL.md §4 + القواعد الثابتة"}, {"t": "أبد ما نكتب «گ» بأيدينا على v3", "src": "SKILL.md §4 + القواعد الثابتة"}], "settings": {"paid": true, "final_voice": true, "speed": 1.0, "max_chars_one_take": 4500}, "writes": ["voice {audio, chars, lines}", "cost", "studio/costs"], "reads": [], "stage": "voice"}, {"id": "n_vcheck", "band": "voice", "lane": "claude", "type": "decision", "label": "فحص Whisper والوصلات", "note": "يبين مرقّع؟", "row": 25, "who": "Claude", "src": "SKILL.md §4", "rules": [{"t": "hear.py: كل كلمة موجودة وما فيه زيادة؛ hear_flow.py يكشف الوصلات", "src": "SKILL.md §4"}, {"t": "إذا يبين مرقّع يعاد قبل أي بناء", "src": "SKILL.md §4"}], "settings": {}, "writes": [], "reads": [], "stage": "voice"}, {"id": "n_vsend", "band": "voice", "lane": "claude", "type": "task", "label": "يرسل لك الصوت + «الصوت والنطق»", "note": "MP4 + رابط صفحة الصوت", "row": 26, "who": "Claude", "src": "SKILL.md §4", "rules": [{"t": "الصوت يوصلك MP4 (AAC 48 kHz ستيريو، يبدأ من صفر)", "src": "القواعد الثابتة"}, {"t": "كل تسجيلة معاها صفحة الصوت والنطق بالاستديو", "src": "SKILL.md §4"}, {"t": "ما ينبني شي على تسجيلة قبل ما تقول خلصت", "src": "SKILL.md §4"}], "settings": {}, "writes": ["voice", "waiting"], "reads": [], "stage": "voice"}, {"id": "n_listen", "band": "voice", "lane": "owner", "type": "decision", "label": "تسمع: كل الكلمات صح؟", "note": "جملة جملة بصفحة الصوت والنطق", "row": 27, "who": "owner", "src": "الاستديو:958", "rules": [{"t": "تشغّل التسجيلة أو جملة وحدة، وتضغط الكلمة الغلط", "src": "الاستديو:958 (الصوت والنطق)"}], "settings": {"waiting_text": "اسمع الصوت وعلّم الكلمات الغلط"}, "writes": [], "reads": [], "stage": "voice"}, {"id": "g_marks", "band": "voice", "lane": "owner", "type": "task", "label": "ترسل علاماتك", "note": "الإرسال = موافقة على التكلفة المكتوبة", "row": 28, "who": "owner", "src": "الاستديو:1823", "rules": [{"t": "العلامات والتعديلات تروح بإرسال واحد", "src": "الاستديو:1823 (sayfix)"}, {"t": "التكلفة المكتوبة من voice.chars، ولا «Claude بيقول لك التكلفة»", "src": "الاستديو:940"}], "settings": {"approves_cost": true}, "writes": ["inbox {kind: change}", "last_action"], "reads": [], "stage": "voice"}, {"id": "n_howknown", "band": "voice", "lane": "claude", "type": "decision", "label": "قلت شلون تنقال؟", "note": "", "row": 29, "who": "Claude", "src": "kuwaiti-voice.md", "rules": [{"t": "إذا علّمت كلمة بدون ما تقول شلون: 3 طرق بجملتها تسمعها وتختار", "src": "kuwaiti-voice.md"}, {"t": "تخمين ثاني بدون سؤال خسّر تسجيلة وما غيّر شي", "src": "kuwaiti-voice.md"}], "settings": {}, "writes": [], "reads": [], "stage": "voice"}, {"id": "n_options", "band": "voice", "lane": "claude", "type": "task", "label": "3 طرق للكلمة", "note": "تنحط بصفحة الصوت والنطق", "row": 30, "who": "Claude", "src": "kuwaiti-voice.md", "rules": [{"t": "3 كتابات (حركة، سكون، بدون) بجملة قصيرة، كل وحدة بزر تشغيل + «ولا وحدة صح؟»", "src": "kuwaiti-voice.md"}], "settings": {"paid": true, "options": 3}, "writes": ["voice.words"], "reads": [], "stage": "voice"}, {"id": "g_pick", "band": "voice", "lane": "owner", "type": "task", "label": "تختار النطق وترسل", "note": "أو تكتب شلون تنقال", "row": 31, "who": "owner", "src": "الاستديو:1803", "rules": [{"t": "الاختيار ينرسل مع العلامات", "src": "الاستديو:1803, 1823"}], "settings": {"approves_cost": true}, "writes": ["inbox {kind: change}"], "reads": [], "stage": "voice"}, {"id": "n_relines", "band": "voice", "lane": "claude", "type": "task", "label": "يعيد الجمل اللي تغيّرت", "note": "للمراجعة بس", "row": 32, "who": "Claude", "src": "kuwaiti-voice.md", "rules": [{"t": "الترقيع للمراجعة بس، ونقول التكلفة أول", "src": "kuwaiti-voice.md"}, {"t": "بعد ما تثبت كل كلمة: تسجيلة كاملة يديدة", "src": "kuwaiti-voice.md"}], "settings": {"paid": true}, "writes": [], "reads": [], "stage": "voice"}, {"id": "n_spliced", "band": "voice", "lane": "claude", "type": "decision", "label": "فيه جمل مرقّعة؟", "note": "", "row": 33, "who": "Claude", "src": "kuwaiti-voice.md", "rules": [{"t": "الصوت النهائي تسجيلة وحدة كاملة بكل التصحيحات", "src": "kuwaiti-voice.md"}], "settings": {}, "writes": [], "reads": [], "stage": "voice"}, {"id": "n_pace", "band": "style", "lane": "claude", "type": "task", "label": "الإيقاع والانتقالات والصوت", "note": "22–28 لقطة بالدقيقة", "row": 34, "who": "Claude", "src": "SKILL.md §5 + storytelling.md 18t", "rules": [{"t": "22–28 لقطة بالدقيقة، أغلبها 2–4 ثواني، حركة خفيفة، قطع مباشر، بدون هز أو فلاش أو whip", "src": "storytelling.md 18t"}, {"t": "بعد أي ملاحظة على الإيقاع: مقارنة جنب بجنب", "src": "storytelling.md 18t"}, {"t": "الموسيقى ~20 dB تحت الصوت بالفراغات، تبدأ من صفر وتعلى على 6 ثواني، تناسب جو البداية", "src": "ai-film.md (7 نوفمبر)"}, {"t": "مؤثرات حقيقية بس، 6 بالدقيقة بالأكثر", "src": "SKILL.md §5"}, {"t": "شعار tk فوق يسار", "src": "storytelling.md 18r"}], "settings": {}, "writes": [], "reads": [], "stage": "style"}, {"id": "n_styleknown", "band": "style", "lane": "claude", "type": "decision", "label": "الأسلوب مختار من قبل؟", "note": "من الاتجاه أو العيّنة", "row": 35, "who": "Claude", "src": "library.json workflow 3-4", "rules": [], "settings": {}, "writes": [], "reads": [], "stage": "style"}, {"id": "n_styleopts", "band": "style", "lane": "claude", "type": "task", "label": "3 أساليب من المكتبة", "note": "لكل واحد: ليش، العيب، الأداة، التكلفة", "row": 36, "who": "Claude", "src": "SKILL.md §6", "rules": [{"t": "3 أساليب، الأحسن أول، مع صورة حقيقية من الفلم إذا أقدر؛ نسأل مرة وحدة", "src": "SKILL.md §6"}], "settings": {}, "writes": [], "reads": [], "stage": "style"}, {"id": "g_style", "band": "style", "lane": "owner", "type": "gate", "label": "تختار الأسلوب", "note": "بالرصيد إذا AI", "row": 37, "who": "owner", "src": "SKILL.md §6", "rules": [{"t": "أسلوب AI (Higgsfield) يحتاج «إي» صريحة", "src": "SKILL.md §6"}, {"t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)", "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"}], "settings": {"paid": "ai"}, "writes": [], "reads": [], "stage": "style", "gap": true, "gap_id": "جديد", "gap_note": "ما فيه مسار مكتوب إذا ما عجبك ولا أسلوب"}, {"id": "n_sample", "band": "style", "lane": "claude", "type": "task", "label": "عيّنة متحركة 15 ثانية", "note": "للاتجاه المختار بس", "row": 38, "who": "Claude", "src": "library.json workflow 4", "rules": [{"t": "بعد الاختيار: عيّنة 15 ثانية للاتجاه المختار بس، stage: sample", "src": "library.json workflow 4"}], "settings": {"paid": "ai", "seconds": 15}, "writes": ["video", "flow.stage: sample"], "reads": [], "stage": "style"}, {"id": "n_samplegate", "band": "style", "lane": "owner", "type": "decision", "label": "تعتمد الأسلوب؟", "note": "«اعتمد هالأسلوب»", "row": 39, "who": "owner", "src": "الاستديو:681", "rules": [{"t": "على عيّنة: «اعتمد هالأسلوب»", "src": "الاستديو:681"}], "settings": {"waiting_text": "اعتمد الأسلوب أو اطلب تعديل"}, "writes": [], "reads": [], "stage": "style"}, {"id": "n_sampleonly", "band": "style", "lane": "claude", "type": "decision", "label": "تجربة أسلوب بس؟", "note": "mode: sample", "row": 40, "who": "Claude", "src": "library.json workflow 9", "rules": [{"t": "mode:'sample' يقف بعد العيّنة", "src": "library.json workflow 9"}], "settings": {}, "writes": [], "reads": [], "stage": "style"}, {"id": "e_sample", "band": "style", "lane": "page", "type": "end", "label": "تجربة خلصت", "note": "تنعرض «تجربة»", "row": 41, "who": "page/system", "src": "الاستديو:666", "rules": [{"t": "عيّنة خلصت = تجربة", "src": "الاستديو:666 (isTest)"}], "settings": {}, "writes": [], "reads": [], "stage": "style"}, {"id": "n_pictures", "band": "build", "lane": "claude", "type": "task", "label": "الصور الحقيقية", "note": "بصورته، وصور البراند الرسمية بإذنك", "row": 42, "who": "Claude", "src": "SKILL.md §7 + library.json direction 1", "rules": [{"t": "الشخص الحقيقي يطلع بصورته الحقيقية داخل الإطار", "src": "storytelling.md 18s"}, {"t": "الماركات اللي نبيعها: صورها الرسمية بإذنك", "src": "storytelling.md 18s"}, {"t": "ابحث عن صورة ملكية عامة أو مرخّصة أو من الملف الصحفي، واذكر المصدر", "src": "library.json direction 1"}], "settings": {}, "writes": [], "reads": [], "stage": "build"}, {"id": "n_missing", "band": "build", "lane": "claude", "type": "decision", "label": "فيه صورة ناقصة؟", "note": "", "row": 43, "who": "Claude", "src": "library.json direction 1", "rules": [{"t": "ما فيه صورة يحق نستخدمها: «صورة ناقصة» بـ flow.missing، ولا تنخترع", "src": "library.json direction 1"}], "settings": {}, "writes": ["flow.missing"], "reads": [], "stage": "build"}, {"id": "n_missingown", "band": "build", "lane": "owner", "type": "task", "label": "تشوف النواقص", "note": "تجاوب بالمحادثة", "row": 44, "who": "owner", "src": "الاستديو:692", "rules": [{"t": "الاستديو يعرض النواقص بس", "src": "الاستديو:692"}], "settings": {}, "writes": [], "reads": [], "stage": "build", "gap": true, "gap_id": "جديد", "gap_note": "ما فيه زر تجاوب فيه على صورة ناقصة؛ الجواب بالمحادثة بس"}, {"id": "n_route", "band": "build", "lane": "claude", "type": "decision", "label": "الطريقة: ببلاش ولا AI؟", "note": "محرك أو كود ببلاش · AI بالرصيد", "row": 45, "who": "Claude", "src": "SKILL.md §7", "rules": [{"t": "محرك وكود ببلاش؛ AI بالرصيد ويحتاج «إي»", "src": "SKILL.md §6-7"}], "settings": {}, "writes": [], "reads": [], "stage": "build"}, {"id": "g_ai", "band": "build", "lane": "owner", "type": "gate", "label": "توليد بالرصيد؟", "note": "Higgsfield / Seedance", "row": 46, "who": "owner", "src": "SKILL.md §7", "rules": [{"t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)", "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"}, {"t": "تأكيد الكريدت أول", "src": "SKILL.md §7 (AI route)"}], "settings": {"paid": true}, "writes": [], "reads": [], "stage": "build", "gap": true, "gap_id": "جديد", "gap_note": "ما فيه مسار مكتوب إذا قلت لا"}, {"id": "n_aigen", "band": "build", "lane": "claude", "type": "task", "label": "توليد المقاطع بالذكاء الاصطناعي", "note": "على خط الصوت", "row": 47, "who": "Claude", "src": "SKILL.md §7", "rules": [{"t": "برومبت لكل لقطة، وجوه تحس، لقطات قريبة، لون لكل فصل", "src": "SKILL.md §7 (rule 18p)"}], "settings": {"paid": true}, "writes": ["cost.higgsfield_credits", "studio/costs"], "reads": [], "stage": "build"}, {"id": "n_build", "band": "build", "lane": "claude", "type": "task", "label": "البناء", "note": "الصور فوق الصوت، % والوقت المتبقي", "row": 48, "who": "Claude", "src": "SKILL.md §7", "rules": [{"t": "حدّث flow.pct و eta_min و note مع كل مرحلة", "src": "library.json workflow 7"}, {"t": "المشاهد تتبع الصوت", "src": "SKILL.md §4 (one take)"}], "settings": {}, "writes": ["flow.pct", "eta_min", "now", "state: working"], "reads": [], "stage": "build"}, {"id": "n_critic", "band": "build", "lane": "claude", "type": "task", "label": "الناقد + إتيان", "note": "نصلّح الأسوأ", "row": 49, "who": "Claude", "src": "SKILL.md §8", "rules": [{"t": "critic.py: ناقد يديد وإتيان كل جولة؛ 3 جولات بالأكثر", "src": "SKILL.md §8 (rule 19c)"}], "settings": {"max_rounds": 3}, "writes": ["checks"], "reads": [], "stage": "build"}, {"id": "n_sound", "band": "build", "lane": "claude", "type": "task", "label": "فحص الصوت", "note": "0 تقطيع، ذروة ≤ -1 dBTP", "row": 50, "who": "Claude", "src": "SKILL.md §8", "rules": [{"t": "earshot measure: 0 clipped و true peak ≤ -1 dBTP؛ ستيريو", "src": "SKILL.md §8"}, {"t": "أبد ما نستخدم أمر llm حق earshot", "src": "SKILL.md §8 + القواعد الثابتة"}], "settings": {"true_peak_max": -1}, "writes": [], "reads": [], "stage": "build"}, {"id": "n_expert", "band": "build", "lane": "claude", "type": "task", "label": "فحص بو خالد", "note": "اللي يلاحظه جامع الساعات", "row": 51, "who": "Claude", "src": "SKILL.md §8", "rules": [{"t": "أي شي يلاحظه جامع ساعات يروح لبو خالد قبل ما تشوفه", "src": "SKILL.md §8"}], "settings": {}, "writes": [], "reads": [], "stage": "build"}, {"id": "n_version", "band": "build", "lane": "claude", "type": "task", "label": "نسخة يديدة للمراجعة", "note": "مع الكابشن والكريدت والمصادر", "row": 52, "who": "Claude", "src": "studio.md", "rules": [{"t": "مع كل نسخة: caption، music، credits، sources، built_from، checks", "src": "studio.md (G2, G4, G11, G12)"}, {"t": "نسخة وحدة بالاستديو، والنسخة اللي قبل تبقى للمقارنة لين توافق", "src": "studio.md «One copy only»"}, {"t": "النسخة الكاملة جاهزة قبل موافقتك", "src": "studio.md final"}], "settings": {}, "writes": ["version", "versions", "updated", "changes", "video", "caption", "music", "credits", "sources", "prev_video", "waiting"], "reads": [], "stage": "build"}, {"id": "n_review", "band": "review", "lane": "owner", "type": "decision", "label": "مراجعتك للفيديو", "note": "موافق، تعديل، ملاحظات بالوقت", "row": 53, "who": "owner", "src": "الاستديو:925-1000", "rules": [{"t": "ملاحظات على الثانية بالضبط من «راجع بالوقت»", "src": "الاستديو:925"}, {"t": "«قارن مع النسخة اللي قبل» إذا موجودة", "src": "الاستديو:978"}, {"t": "ما ننشر بدون موافقتك على الفلم الكامل", "src": "SKILL.md «Rules that never bend»"}], "settings": {"approval": true, "waiting_text": "شوف آخر نسخة وقل موافق أو تعديل"}, "writes": [], "reads": [], "stage": "review"}, {"id": "n_change", "band": "review", "lane": "page", "type": "task", "label": "ينحفظ تعديلك", "note": "inbox + last_action", "row": 54, "who": "page/system", "src": "الاستديو:1989-1996", "rules": [{"t": "نفس الضغطة مرتين خلال 30 ثانية تنرسل مرة وحدة", "src": "الاستديو:1793"}, {"t": "«وصل تعديلك» لين Claude يكتب updated", "src": "الاستديو:458"}], "settings": {"dedupe_sec": 30}, "writes": ["inbox {kind: change}", "last_action"], "reads": [], "stage": "review"}, {"id": "n_fix", "band": "review", "lane": "claude", "type": "task", "label": "يصلّح اللي قلته بس", "note": "نسخة يديدة", "row": 55, "who": "Claude", "src": "SKILL.md §9", "rules": [{"t": "صلّح اللي قلته بس وارسل", "src": "SKILL.md §9"}, {"t": "أي تعديل = نسخة يديدة", "src": "SKILL.md «Rules that never bend»"}, {"t": "كل تصحيح منك يصير قاعدة", "src": "SKILL.md «Rules that never bend»"}], "settings": {}, "writes": [], "reads": [], "stage": "review"}, {"id": "n_approve", "band": "review", "lane": "page", "type": "task", "label": "تنحفظ موافقتك", "note": "inbox + last_action", "row": 56, "who": "page/system", "src": "الاستديو:1999", "rules": [{"t": "الموافقة تكتب last_action؛ «وصلت موافقتك» لين Claude يستلم", "src": "الاستديو:1999-2001"}], "settings": {}, "writes": ["inbox {kind: approve}", "last_action"], "reads": [], "stage": "review"}, {"id": "n_carbuild", "band": "review", "lane": "claude", "type": "task", "label": "يكتب ويرسم الكاروسيل", "note": "4–5 شرايح بنفس المعلومات", "row": 57, "who": "Claude", "src": "carousel.md", "rules": [{"t": "نفس المعلومات بـ 4–5 شرايح بقالب تايم كيبر", "src": "SKILL.md §1 + carousel.md"}], "settings": {}, "writes": ["slides", "spec", "src", "caption"], "reads": [], "stage": "review"}, {"id": "n_carreview", "band": "review", "lane": "owner", "type": "decision", "label": "مراجعة الكاروسيل", "note": "تختار شرايح، أو تعدّل النص بنفسك", "row": 58, "who": "owner", "src": "الاستديو:695-760", "rules": [{"t": "تختار شريحة وحدة أو أكثر مع التعديل", "src": "studio.md «What the owner sends back»"}, {"t": "«✎ عدّل النص بنفسك» بدون إعادة رسم", "src": "studio.md"}], "settings": {"approval": true, "waiting_text": "شوف الكاروسيل وقل موافق أو تعديل"}, "writes": [], "reads": [], "stage": "review"}, {"id": "n_selfedit", "band": "review", "lane": "page", "type": "task", "label": "تعدّل النص بنفسك", "note": "فحوص حيّة", "row": 59, "who": "page/system", "src": "الاستديو:2244-2380", "rules": [{"t": "فحوص: الغلاف 73 حرف، 12–32 كلمة، عنوان 2–4 كلمات، نص طالع برّا، لغة الكاروسيل، سؤال القارئ", "src": "studio.md + الاستديو:464"}, {"t": "يرفع الشرايح اللي تغيّرت بس، ويحفظ النسخة القديمة بـ history (10)", "src": "studio.md"}], "settings": {"history": 10}, "writes": ["slides", "spec", "caption", "history", "changes[0].edits", "inbox"], "reads": [], "stage": "review"}, {"id": "n_logedit", "band": "review", "lane": "claude", "type": "task", "label": "يسجّل تعديلك بدرس", "note": "قبل الكاروسيل الياي", "row": 60, "who": "Claude", "src": "carousel-edits.md", "rules": [{"t": "كل تعديل منك ينكتب بـ carousel-edits.md مع الدرس", "src": "studio.md + carousel-edits.md"}], "settings": {}, "writes": [], "reads": [], "stage": "review"}, {"id": "n_final", "band": "publish", "lane": "claude", "type": "task", "label": "النسخة الكاملة والكابشن", "note": "1080×1920 تحت 16 MB", "row": 61, "who": "Claude", "src": "studio.md", "rules": [{"t": "بموافقتك فوراً: الفيلم الكامل 1080×1920 (two-pass تحت 16 MB) والكابشن", "src": "studio.md final"}, {"t": "الكابشن: الهوك، القصة بسطرين، سؤال القارئ، المصادر، الكريدت، الهاشتاقات", "src": "studio.md final"}], "settings": {}, "writes": ["final", "caption", "state: done"], "reads": [], "stage": "publish"}, {"id": "n_save", "band": "publish", "lane": "owner", "type": "task", "label": "تحفظ الفيلم وتنسخ الكابشن", "note": "أو «شارك الكل» للكاروسيل", "row": 62, "who": "owner", "src": "الاستديو:1021-1040, 726", "rules": [{"t": "«احفظ الفيلم» يشتغل بس إذا final موجود", "src": "الاستديو:1030"}, {"t": "الاستديو ما يقدر ينشر بنفسه", "src": "audit.md «Checked and fine»"}], "settings": {}, "writes": [], "reads": [], "stage": "publish"}, {"id": "n_postig", "band": "publish", "lane": "owner", "type": "task", "label": "تنشر من الآيفون", "note": "بيدك", "row": 63, "who": "owner", "src": "audit.md §2.10", "rules": [{"t": "ما ننشر بدون موافقتك", "src": "SKILL.md «Rules that never bend»"}], "settings": {"publish": true}, "writes": [], "reads": [], "stage": "publish"}, {"id": "g_posted", "band": "publish", "lane": "owner", "type": "gate", "label": "«تم النشر ✓»", "note": "ضغطتين", "row": 64, "who": "owner", "src": "الاستديو:1888-1899", "rules": [{"t": "«نشرته؟ اضغط مرة ثانية ✓»", "src": "الاستديو:1888"}], "settings": {"confirm_taps": 2}, "writes": ["state: posted", "posted {at, version}", "inbox {kind: posted, sent: false}"], "reads": [], "stage": "publish"}, {"id": "n_match", "band": "publish", "lane": "page", "type": "task", "label": "يقترح المنشور من الكابشن", "note": "", "row": 65, "who": "page/system", "src": "الاستديو:1630-1660", "rules": [{"t": "يطابق منشور إنستغرام من الكابشن", "src": "الاستديو:1630"}], "settings": {}, "writes": [], "reads": [], "stage": "publish"}, {"id": "n_confirmpost", "band": "publish", "lane": "owner", "type": "task", "label": "تأكد المنشور", "note": "أو تحط الرابط", "row": 66, "who": "owner", "src": "الاستديو:1914-1950", "rules": [{"t": "رابط instagram.com/p/… أو /reel/…", "src": "الاستديو:1944"}], "settings": {}, "writes": ["posted.permalink"], "reads": [], "stage": "publish"}, {"id": "n_sync", "band": "publish", "lane": "page", "type": "decision", "label": "المزامنة شغّالة؟", "note": "Supabase من إنستغرام", "row": 67, "who": "page/system", "src": "insights.md", "rules": [{"t": "studio_page() و instagram_sync_now()؛ ينحفظ بـ studio/ig", "src": "الاستديو:1254-1276 + insights.md"}], "settings": {}, "writes": [], "reads": ["studio/ig"], "stage": "publish"}, {"id": "n_reads", "band": "publish", "lane": "page", "type": "task", "label": "أرقام 48 ساعة و7 أيام", "note": "تجي بروحها", "row": 68, "who": "page/system", "src": "insights.md", "rules": [{"t": "48 ساعة: الهوك والمشاهدة؛ 7 أيام: الأرقام الثابتة", "src": "insights.md"}], "settings": {"checks": ["48h", "7d"]}, "writes": [], "reads": [], "stage": "publish"}, {"id": "n_shots", "band": "publish", "lane": "owner", "type": "task", "label": "ترسل صور الإحصائيات", "note": "إذا المزامنة واقفة", "row": 69, "who": "owner", "src": "الاستديو:1681, 1976", "rules": [{"t": "ترفعها بالاستديو أو بالمحادثة", "src": "insights.md"}], "settings": {}, "writes": ["insights_shots | insights_sent"], "reads": [], "stage": "publish"}, {"id": "n_lessons", "band": "publish", "lane": "claude", "type": "task", "label": "دروس + قاعدة مقترحة", "note": "من الأرقام", "row": 70, "who": "Claude", "src": "insights.md", "rules": [{"t": "الحكم على الفلم، الوصفة، وسطر بالسجل", "src": "insights.md"}], "settings": {}, "writes": ["insights", "studio/recipe"], "reads": [], "stage": "publish"}, {"id": "n_rulegate", "band": "publish", "lane": "owner", "type": "decision", "label": "تضيفها للقواعد؟", "note": "", "row": 71, "who": "owner", "src": "الاستديو:1927", "rules": [{"t": "«إي» تنحفظ بـ studio/rules؛ «لا» ما تنعرض مرة ثانية", "src": "الاستديو:1927-1940"}], "settings": {}, "writes": [], "reads": [], "stage": "publish"}, {"id": "n_rulerepo", "band": "publish", "lane": "claude", "type": "task", "label": "تنكتب بملف القواعد", "note": "وتنطبق من الفلم الياي", "row": 72, "who": "Claude", "src": "studio.md", "rules": [{"t": "القاعدة اللي توافق عليها من الأرقام تنكتب بملف القواعد بالشغل الياي", "src": "studio.md (G8)"}], "settings": {}, "writes": ["studio/rules", "repo"], "reads": [], "stage": "publish"}, {"id": "e_done", "band": "publish", "lane": "page", "type": "end", "label": "خلص", "note": "", "row": 73, "who": "page/system", "src": "", "rules": [], "settings": {}, "writes": [], "reads": [], "stage": "publish"}, {"id": "s_tap", "band": "always", "lane": "owner", "type": "start", "label": "أي ضغطة ترسل لـ Claude", "note": "موافقة، تعديل، جواب…", "row": 74, "who": "owner", "src": "الاستديو:1251", "rules": [], "settings": {}, "writes": [], "reads": []}, {"id": "n_tell", "band": "always", "lane": "page", "type": "task", "label": "ينحفظ بالصندوق + تعليق لـ Claude", "note": "sent = المنصة استلمت، مو Claude", "row": 75, "who": "page/system", "src": "الاستديو:1251", "rules": [{"t": "تعليق لـ Claude إذا متاح، وصف inbox دايماً", "src": "الاستديو:1251-1258"}, {"t": "نفس الضغطة خلال 30 ثانية تنرسل مرة وحدة", "src": "الاستديو:1793"}], "settings": {"dedupe_sec": 30}, "writes": ["inbox"], "reads": []}, {"id": "n_heard", "band": "always", "lane": "page", "type": "decision", "label": "Claude استلم خلال 10 دقايق؟", "note": "", "row": 76, "who": "page/system", "src": "الاستديو:589", "rules": [{"t": "بعد 10 دقايق: «ما انستلم / ممكن ما فيه جلسة فاتحة» + «أعد الإرسال»", "src": "الاستديو:458, 480, 589"}], "settings": {"timeout_min": 10}, "writes": [], "reads": ["inbox.handled_at", "updated"]}, {"id": "n_lastresend", "band": "always", "lane": "owner", "type": "task", "label": "أعد الإرسال", "note": "", "row": 77, "who": "owner", "src": "الاستديو:1864", "rules": [{"t": "يعيد نفس الرسالة", "src": "الاستديو:1864"}], "settings": {}, "writes": ["inbox {kind: resend}"], "reads": []}, {"id": "n_got", "band": "always", "lane": "page", "type": "task", "label": "«Claude استلم ✓»", "note": "من handled_at", "row": 78, "who": "page/system", "src": "reel.js gotLine", "rules": [{"t": "يبين لما الصف ينكتب عليه handled_at", "src": "reel.js gotLine"}], "settings": {}, "writes": [], "reads": ["inbox.handled_at"]}, {"id": "s_hourly", "band": "always", "lane": "page", "type": "start", "label": "كل ساعة", "note": "مهمة مجدولة", "row": 79, "who": "page/system", "src": "studio.md (G1)", "rules": [{"t": "فحص كل ساعة: صفوف بدون handled_at، وأفلام last_action أحدث من updated", "src": "studio.md (G1)"}], "settings": {"every_min": 60}, "writes": [], "reads": []}, {"id": "n_hourly", "band": "always", "lane": "claude", "type": "decision", "label": "فيه شي يديد؟", "note": "", "row": 80, "who": "Claude", "src": "studio.md (G1)", "rules": [{"t": "يشتغل عليه تحت نفس البوابات، ويعلّم handled_at، ويكتب studio/now.checked_at", "src": "studio.md (G1)"}], "settings": {}, "writes": ["inbox.handled_at", "studio/now.checked_at"], "reads": []}, {"id": "n_notify", "band": "always", "lane": "claude", "type": "task", "label": "يقولك بسطر بالمحادثة", "note": "إذا شي ينتظرك", "row": 81, "who": "Claude", "src": "studio.md (G15)", "rules": [{"t": "لما فلم يصير waiting، سطر بالمحادثة", "src": "studio.md (G15)"}], "settings": {}, "writes": [], "reads": []}, {"id": "s_chatdec", "band": "always", "lane": "owner", "type": "start", "label": "قرار بالمحادثة", "note": "", "row": 82, "who": "owner", "src": "library.json workflow 11", "rules": [], "settings": {}, "writes": [], "reads": []}, {"id": "n_chatrec", "band": "always", "lane": "claude", "type": "task", "label": "ينكتب بالاستديو", "note": "via: chat + سطر بالتغييرات", "row": 83, "who": "Claude", "src": "studio.md (G7)", "rules": [{"t": "صف inbox فيه via:chat وكلامك، وسطر changes «وافقت بالمحادثة»", "src": "studio.md (G7) + library.json workflow 11"}], "settings": {}, "writes": ["inbox {via: chat}", "changes"], "reads": []}, {"id": "n_asks", "band": "always", "lane": "owner", "type": "decision", "label": "سؤال جانبي", "note": "مثل العنوان، أو كمّله/خلّه/احذفه", "row": 84, "who": "owner", "src": "الاستديو:1970", "rules": [{"t": "كل سؤال أزرار؛ الضغطة تكتب inbox {kind: answer}", "src": "studio.md asks"}], "settings": {}, "writes": ["inbox {kind: answer}", "last_action"], "reads": []}, {"id": "n_weekly", "band": "always", "lane": "claude", "type": "task", "label": "مرة بالأسبوع: اللي ينتظر أكثر من 3 أيام", "note": "سؤال واحد لكل فلم", "row": 85, "who": "Claude", "src": "studio.md (G10)", "rules": [{"t": "كمّله / خلّه على جنب / احذفه", "src": "studio.md asks (G10)"}], "settings": {"stale_days": 3}, "writes": [], "reads": []}, {"id": "n_hide", "band": "always", "lane": "owner", "type": "task", "label": "شيله من القائمة", "note": "ضغطتين، تقدر ترجّعه", "row": 86, "who": "owner", "src": "الاستديو:1954", "rules": [{"t": "«أكيد؟ اضغط مرة ثانية»", "src": "الاستديو:1954"}, {"t": "ينمسح بعد 30 يوم إذا ما رجّعته", "src": "الاستديو:537"}], "settings": {"confirm_taps": 2, "hide_days": 30}, "writes": ["hidden", "hidden_at"], "reads": []}, {"id": "n_hidden", "band": "always", "lane": "page", "type": "decision", "label": "رجّعته خلال 30 يوم؟", "note": "", "row": 87, "who": "page/system", "src": "الاستديو:537", "rules": [], "settings": {"hide_days": 30}, "writes": [], "reads": []}, {"id": "n_purge", "band": "always", "lane": "claude", "type": "task", "label": "Claude يمسحه", "note": "", "row": 88, "who": "Claude", "src": "الاستديو:537", "rules": [{"t": "الاستديو ما يمسح بنفسه؛ مكتوب «Claude يمسحها»", "src": "audit G16"}], "settings": {}, "writes": [], "reads": [], "gap": true, "gap_id": "G16", "gap_note": "ما فيه قاعدة مكتوبة لـ Claude عن المسح بعد 30 يوم"}, {"id": "e_handled", "band": "always", "lane": "page", "type": "end", "label": "يكمل من مكانه", "note": "", "row": 89, "who": "page/system", "src": "", "rules": [], "settings": {}, "writes": [], "reads": []}, {"id": "s_suggest", "band": "publish", "lane": "owner", "type": "start", "label": "اقتراح من التوقع", "note": "قبل النشر", "row": 90, "who": "owner", "src": "الاستديو:1551, 1905", "rules": [{"t": "اقتراح «تجربة» = طلب تجربة أسلوب؛ غيره = تعديل على النسخة", "src": "الاستديو:1905-1912"}, {"t": "التوقع هو المعتاد لريلزكم، مو توقع للفلم", "src": "studio.md (G9)"}], "settings": {}, "writes": [], "reads": [], "stage": "publish"}], "edges": [{"from": "s_lib", "to": "n_record", "label": "ابدأ", "kind": "next", "src": "الاستديو:1999", "who": "owner", "act": "start"}, {"from": "s_twin", "to": "n_record", "label": "سوّ منه", "kind": "next", "src": "الاستديو:1997", "who": "owner", "act": "twin"}, {"from": "s_chat", "to": "n_research", "label": "Claude يكتب السجل", "kind": "next", "src": "studio.md", "who": "owner"}, {"from": "n_record", "to": "n_pickwait", "label": "", "kind": "next", "src": "الاستديو:1767", "who": "page/system"}, {"from": "n_pickwait", "to": "n_pickup", "label": "إي", "kind": "yes", "src": "library.json workflow 2", "who": "page/system"}, {"from": "n_pickwait", "to": "n_resend", "label": "بعد 5 دقايق", "kind": "no", "src": "reel.js:120", "who": "page/system"}, {"from": "n_resend", "to": "n_pickwait", "label": "أعد الإرسال", "kind": "loop", "src": "الاستديو:1865", "who": "owner", "act": "flowresend"}, {"from": "n_pickup", "to": "n_research", "label": "", "kind": "next", "src": "SKILL.md §1", "who": "Claude"}, {"from": "n_research", "to": "n_dirs", "label": "", "kind": "next", "src": "library.json workflow 3", "who": "Claude"}, {"from": "n_dirs", "to": "n_dirpick", "label": "", "kind": "next", "src": "library.json workflow 3", "who": "Claude"}, {"from": "n_dirpick", "to": "g_dirpaid", "label": "اخترت", "kind": "yes", "src": "الاستديو:1866", "who": "owner", "act": "flowpick"}, {"from": "n_dirpick", "to": "g_dirpaid", "label": "ما عجبني شي", "kind": "no", "src": "الاستديو:1870", "who": "owner", "act": "flowmore"}, {"from": "g_dirpaid", "to": "n_picked", "label": "ببلاش أو أكّدت", "kind": "yes", "src": "الاستديو:1783", "who": "page/system"}, {"from": "g_dirpaid", "to": "n_dirpick", "label": "ما أكّدت", "kind": "loop", "src": "الاستديو:1783", "who": "page/system"}, {"from": "n_picked", "to": "n_afterpick", "label": "", "kind": "next", "src": "library.json workflow 8", "who": "page/system"}, {"from": "n_afterpick", "to": "n_hook", "label": "اتجاه", "kind": "yes", "src": "library.json workflow 3", "who": "Claude"}, {"from": "n_afterpick", "to": "n_sample", "label": "عيّنة أو تجربة", "kind": "no", "src": "library.json workflow 4-5, 9", "who": "Claude"}, {"from": "n_hook", "to": "n_script", "label": "", "kind": "next", "src": "SKILL.md §2", "who": "Claude"}, {"from": "n_script", "to": "n_readers", "label": "", "kind": "next", "src": "SKILL.md §3", "who": "Claude"}, {"from": "n_readers", "to": "n_readers", "label": "جولة ثانية (3 بالأكثر)", "kind": "loop", "src": "SKILL.md §3", "who": "Claude"}, {"from": "n_readers", "to": "n_revvoice", "label": "خلصوا", "kind": "next", "src": "library.json workflow 10", "who": "Claude"}, {"from": "n_revvoice", "to": "n_scriptsend", "label": "", "kind": "next", "src": "SKILL.md §3", "who": "Claude"}, {"from": "n_scriptsend", "to": "n_scriptgate", "label": "", "kind": "next", "src": "SKILL.md §3", "who": "Claude"}, {"from": "n_scriptgate", "to": "n_kind", "label": "موافق", "kind": "yes", "src": "SKILL.md §3", "who": "owner", "act": "approve"}, {"from": "n_scriptgate", "to": "n_scriptedit", "label": "تعديل", "kind": "no", "src": "الاستديو:1848-1861", "who": "owner", "act": "scriptsend"}, {"from": "n_scriptedit", "to": "n_script", "label": "Claude يعدّل", "kind": "loop", "src": "SKILL.md §3", "who": "page/system"}, {"from": "n_kind", "to": "n_vcost", "label": "ريل", "kind": "yes", "src": "SKILL.md §1", "who": "Claude"}, {"from": "n_kind", "to": "n_carbuild", "label": "كاروسيل", "kind": "no", "src": "SKILL.md §1", "who": "Claude"}, {"from": "n_vcost", "to": "g_voice", "label": "", "kind": "next", "src": "القواعد الثابتة", "who": "Claude"}, {"from": "g_voice", "to": "n_take", "label": "إي", "kind": "yes", "src": "SKILL.md «Rules that never bend»", "who": "owner"}, {"from": "n_take", "to": "n_vcheck", "label": "", "kind": "next", "src": "SKILL.md §4", "who": "Claude"}, {"from": "n_vcheck", "to": "n_vsend", "label": "تمام", "kind": "yes", "src": "SKILL.md §4", "who": "Claude"}, {"from": "n_vcheck", "to": "n_take", "label": "يبين مرقّع: يعاد", "kind": "loop", "src": "SKILL.md §4", "who": "Claude", "gap": true, "gap_id": "جديد", "gap_note": "إعادة التسجيل بالرصيد بدون موافقة مكتوبة قبلها"}, {"from": "n_vsend", "to": "n_listen", "label": "", "kind": "next", "src": "SKILL.md §4", "who": "Claude"}, {"from": "n_listen", "to": "n_spliced", "label": "كله صح", "kind": "yes", "src": "SKILL.md §4", "who": "owner", "act": "approve"}, {"from": "n_listen", "to": "g_marks", "label": "كلمة غلط أو تعديل جملة", "kind": "no", "src": "الاستديو:1823", "who": "owner", "act": "sayfix"}, {"from": "g_marks", "to": "n_howknown", "label": "", "kind": "next", "src": "kuwaiti-voice.md", "who": "owner"}, {"from": "n_howknown", "to": "n_relines", "label": "إي", "kind": "yes", "src": "kuwaiti-voice.md", "who": "Claude"}, {"from": "n_howknown", "to": "n_options", "label": "لا", "kind": "no", "src": "kuwaiti-voice.md", "who": "Claude"}, {"from": "n_options", "to": "g_pick", "label": "", "kind": "next", "src": "kuwaiti-voice.md", "who": "Claude"}, {"from": "g_pick", "to": "n_relines", "label": "", "kind": "next", "src": "kuwaiti-voice.md", "who": "owner", "act": "vpick"}, {"from": "n_relines", "to": "n_vsend", "label": "تسمعها مرة ثانية", "kind": "loop", "src": "kuwaiti-voice.md", "who": "Claude"}, {"from": "n_spliced", "to": "n_vcost", "label": "إي: تسجيلة كاملة يديدة", "kind": "loop", "src": "kuwaiti-voice.md", "who": "Claude"}, {"from": "n_spliced", "to": "n_pace", "label": "لا", "kind": "no", "src": "kuwaiti-voice.md", "who": "Claude"}, {"from": "n_pace", "to": "n_styleknown", "label": "", "kind": "next", "src": "SKILL.md §5-6", "who": "Claude"}, {"from": "n_styleknown", "to": "n_pictures", "label": "إي", "kind": "yes", "src": "library.json workflow 3", "who": "Claude"}, {"from": "n_styleknown", "to": "n_styleopts", "label": "لا", "kind": "no", "src": "SKILL.md §6", "who": "Claude"}, {"from": "n_styleopts", "to": "g_style", "label": "", "kind": "next", "src": "SKILL.md §6", "who": "Claude"}, {"from": "g_style", "to": "n_sample", "label": "اخترت", "kind": "yes", "src": "library.json workflow 4", "who": "owner"}, {"from": "n_sample", "to": "n_samplegate", "label": "", "kind": "next", "src": "الاستديو:681", "who": "Claude"}, {"from": "n_samplegate", "to": "n_sampleonly", "label": "اعتمدته", "kind": "yes", "src": "الاستديو:681", "who": "owner", "act": "approve"}, {"from": "n_samplegate", "to": "n_sample", "label": "تعديل", "kind": "loop", "src": "library.json workflow 8", "who": "owner", "act": "send", "gap": true, "gap_id": "جديد", "gap_note": "تعديل عيّنة AI بالرصيد بدون بوابة مكتوبة"}, {"from": "n_sampleonly", "to": "e_sample", "label": "إي", "kind": "yes", "src": "library.json workflow 9", "who": "Claude"}, {"from": "n_sampleonly", "to": "n_hook", "label": "لا، الفلم كامل", "kind": "no", "src": "library.json workflow 4", "who": "Claude"}, {"from": "n_pictures", "to": "n_missing", "label": "", "kind": "next", "src": "library.json direction 1", "who": "Claude"}, {"from": "n_missing", "to": "n_missingown", "label": "إي", "kind": "yes", "src": "الاستديو:692", "who": "Claude"}, {"from": "n_missingown", "to": "n_pictures", "label": "جاوبت بالمحادثة", "kind": "loop", "src": "audit.md §2.6", "who": "owner"}, {"from": "n_missing", "to": "n_route", "label": "لا", "kind": "no", "src": "SKILL.md §7", "who": "Claude"}, {"from": "n_route", "to": "n_build", "label": "ببلاش", "kind": "yes", "src": "SKILL.md §7", "who": "Claude"}, {"from": "n_route", "to": "g_ai", "label": "AI", "kind": "no", "src": "SKILL.md §7", "who": "Claude"}, {"from": "g_ai", "to": "n_aigen", "label": "إي", "kind": "yes", "src": "SKILL.md «Rules that never bend»", "who": "owner"}, {"from": "n_aigen", "to": "n_build", "label": "", "kind": "next", "src": "SKILL.md §7", "who": "Claude"}, {"from": "n_build", "to": "n_critic", "label": "", "kind": "next", "src": "SKILL.md §8", "who": "Claude"}, {"from": "n_critic", "to": "n_critic", "label": "جولة ثانية (3 بالأكثر)", "kind": "loop", "src": "SKILL.md §8", "who": "Claude"}, {"from": "n_critic", "to": "n_sound", "label": "خلص", "kind": "next", "src": "SKILL.md §8", "who": "Claude"}, {"from": "n_sound", "to": "n_expert", "label": "", "kind": "next", "src": "SKILL.md §8", "who": "Claude"}, {"from": "n_expert", "to": "n_version", "label": "", "kind": "next", "src": "studio.md", "who": "Claude"}, {"from": "n_version", "to": "n_review", "label": "", "kind": "next", "src": "SKILL.md §9", "who": "Claude"}, {"from": "n_review", "to": "n_approve", "label": "موافق", "kind": "yes", "src": "الاستديو:1999", "who": "owner", "act": "approve"}, {"from": "n_review", "to": "n_change", "label": "تعديل أو ملاحظات بالوقت", "kind": "no", "src": "الاستديو:1989, 1815", "who": "owner", "act": "send"}, {"from": "n_review", "to": "g_marks", "label": "كلمة نطقها غلط", "kind": "no", "src": "reel.js stage card", "who": "owner", "act": "sayfix"}, {"from": "n_change", "to": "n_fix", "label": "", "kind": "next", "src": "SKILL.md §9", "who": "page/system"}, {"from": "n_fix", "to": "n_build", "label": "نسخة يديدة", "kind": "loop", "src": "SKILL.md §9", "who": "Claude"}, {"from": "n_carbuild", "to": "n_carreview", "label": "", "kind": "next", "src": "carousel.md", "who": "Claude"}, {"from": "n_carreview", "to": "n_approve", "label": "موافق", "kind": "yes", "src": "الاستديو:1999", "who": "owner", "act": "approve"}, {"from": "n_carreview", "to": "n_change", "label": "تعديل شرايح", "kind": "no", "src": "الاستديو:1989", "who": "owner", "act": "send"}, {"from": "n_carreview", "to": "n_selfedit", "label": "أعدّل بنفسي", "kind": "no", "src": "studio.md", "who": "owner", "act": "edsave"}, {"from": "n_selfedit", "to": "n_logedit", "label": "حفظت", "kind": "next", "src": "studio.md", "who": "page/system"}, {"from": "n_selfedit", "to": "n_carreview", "label": "رجّع النسخة السابقة", "kind": "loop", "src": "الاستديو:2262", "who": "page/system", "act": "edundo"}, {"from": "n_logedit", "to": "n_carreview", "label": "ينتظر موافقتك", "kind": "loop", "src": "studio.md", "who": "Claude"}, {"from": "n_approve", "to": "n_final", "label": "", "kind": "next", "src": "studio.md final", "who": "page/system"}, {"from": "n_final", "to": "n_save", "label": "", "kind": "next", "src": "studio.md", "who": "Claude"}, {"from": "n_save", "to": "n_postig", "label": "", "kind": "next", "src": "audit.md §2.10", "who": "owner", "act": "sharefilm"}, {"from": "n_postig", "to": "g_posted", "label": "", "kind": "next", "src": "الاستديو:1888", "who": "owner"}, {"from": "g_posted", "to": "n_match", "label": "نشرته", "kind": "yes", "src": "الاستديو:1897", "who": "owner", "act": "posted"}, {"from": "g_posted", "to": "n_save", "label": "رجّعته «جاهز للنشر»", "kind": "loop", "src": "الاستديو:1965", "who": "owner", "act": "unpost"}, {"from": "n_match", "to": "n_confirmpost", "label": "", "kind": "next", "src": "الاستديو:1914", "who": "page/system"}, {"from": "n_confirmpost", "to": "n_sync", "label": "هذا هو أو الرابط", "kind": "next", "src": "الاستديو:1917, 1944", "who": "owner", "act": "pickconfirm"}, {"from": "n_sync", "to": "n_reads", "label": "إي", "kind": "yes", "src": "insights.md", "who": "page/system"}, {"from": "n_sync", "to": "n_shots", "label": "لا", "kind": "no", "src": "insights.md", "who": "page/system", "act": "shotschat"}, {"from": "n_reads", "to": "n_lessons", "label": "", "kind": "next", "src": "insights.md", "who": "page/system"}, {"from": "n_shots", "to": "n_lessons", "label": "", "kind": "next", "src": "insights.md", "who": "owner"}, {"from": "n_lessons", "to": "n_rulegate", "label": "", "kind": "next", "src": "الاستديو:1610", "who": "Claude"}, {"from": "n_rulegate", "to": "n_rulerepo", "label": "إي", "kind": "yes", "src": "الاستديو:1927", "who": "owner", "act": "ruleyes"}, {"from": "n_rulegate", "to": "e_done", "label": "لا", "kind": "no", "src": "الاستديو:1927", "who": "owner", "act": "ruleno"}, {"from": "n_rulerepo", "to": "e_done", "label": "", "kind": "next", "src": "studio.md", "who": "Claude"}, {"from": "s_tap", "to": "n_tell", "label": "", "kind": "next", "src": "الاستديو:1251", "who": "owner"}, {"from": "n_tell", "to": "n_heard", "label": "", "kind": "next", "src": "الاستديو:589", "who": "page/system"}, {"from": "n_heard", "to": "n_got", "label": "إي", "kind": "yes", "src": "reel.js gotLine", "who": "page/system"}, {"from": "n_heard", "to": "n_lastresend", "label": "لا", "kind": "no", "src": "الاستديو:589", "who": "page/system"}, {"from": "n_lastresend", "to": "n_heard", "label": "أعد الإرسال", "kind": "loop", "src": "الاستديو:1864", "who": "owner", "act": "lastresend"}, {"from": "n_got", "to": "e_handled", "label": "", "kind": "next", "src": "", "who": "page/system"}, {"from": "s_hourly", "to": "n_hourly", "label": "", "kind": "next", "src": "studio.md (G1)", "who": "page/system"}, {"from": "n_hourly", "to": "n_notify", "label": "إي", "kind": "yes", "src": "studio.md (G1, G15)", "who": "Claude"}, {"from": "n_hourly", "to": "e_handled", "label": "لا: يكتب checked_at بس", "kind": "no", "src": "studio.md (G1)", "who": "Claude"}, {"from": "n_notify", "to": "e_handled", "label": "", "kind": "next", "src": "studio.md (G15)", "who": "Claude"}, {"from": "s_chatdec", "to": "n_chatrec", "label": "", "kind": "next", "src": "library.json workflow 11", "who": "owner"}, {"from": "n_chatrec", "to": "e_handled", "label": "", "kind": "next", "src": "studio.md (G7)", "who": "Claude"}, {"from": "n_weekly", "to": "n_asks", "label": "", "kind": "next", "src": "studio.md (G10)", "who": "Claude"}, {"from": "n_asks", "to": "n_tell", "label": "جاوبت", "kind": "next", "src": "الاستديو:1970", "who": "owner", "act": "askpick"}, {"from": "n_asks", "to": "n_hide", "label": "احذفه", "kind": "no", "src": "studio.md asks", "who": "owner", "gap": true, "gap_id": "جديد", "gap_note": "جواب «احذفه» يروح لـ Claude؛ ما يشيل الفلم بروحه"}, {"from": "n_hide", "to": "n_hidden", "label": "", "kind": "next", "src": "الاستديو:1954", "who": "owner", "act": "hide"}, {"from": "n_hidden", "to": "e_handled", "label": "رجّعته", "kind": "yes", "src": "الاستديو:1954", "who": "page/system", "act": "unhide"}, {"from": "n_hidden", "to": "n_purge", "label": "لا", "kind": "no", "src": "الاستديو:537", "who": "page/system"}, {"from": "n_purge", "to": "e_handled", "label": "", "kind": "next", "src": "audit G16", "who": "Claude"}, {"from": "n_hourly", "to": "n_weekly", "label": "مرة بالأسبوع", "kind": "next", "src": "studio.md (G10)", "who": "Claude"}, {"from": "s_suggest", "to": "n_record", "label": "تجربة", "kind": "yes", "src": "الاستديو:1909", "who": "owner", "act": "suggest"}, {"from": "s_suggest", "to": "n_change", "label": "طبّقه على النسخة", "kind": "no", "src": "الاستديو:1910", "who": "owner", "act": "suggest"}], "version_note": "المسار الحالي كامل من الكود والقواعد (7 نوفمبر)، بدون قواعد يديدة", "sources_note": "الاستديو = studio index.html v110"};
+let flowDoc = null, flowWork = null, flowOpen = new Set(), flowSel = null, flowEditing = false, flowFocus = null, flowPanel = null,
+  flowAck = false, flowCan = null, flowInit = false, flowSure = {}, flowLast = null, flowDrag = null, flowJustDragged = 0, flowT = null;
+const flowApplied = () => (flowDoc && Array.isArray(flowDoc.nodes) && flowDoc.nodes.length ? flowDoc : FLOW_DEFAULT);
+const flowCur = () => flowWork || flowApplied();
+const flowDirty = () => !!flowWork;
+const flowCanEdit = () => !!db && flowCan !== false;
+function flowSet(id, key, def) {                                     // what the applied map says, or today's behaviour
+  const n = flowDoc?.nodes?.find?.((x) => x.id === id), v = n?.settings?.[key];
+  return v == null || v === '' ? def : typeof def === 'number' ? (isFinite(+v) ? +v : def) : v;
+}
+const FLOW_ENFORCED = { 'n_pickwait.timeout_min': 'مهلة «الطلب ما انستلم»', 'n_heard.timeout_min': 'مهلة «ما انستلم»', 'g_dirpaid.confirm_taps': 'ضغطات تأكيد الرصيد', 'g_posted.confirm_taps': 'ضغطات «تم النشر»', 'n_hide.confirm_taps': 'ضغطات «شيله»', 'n_tell.dedupe_sec': 'منع الإرسال المكرر' };
+const FLOW_SET_AR = { timeout_min: 'المهلة (دقايق)', confirm_taps: 'ضغطات التأكيد', max_rounds: 'أقصى جولات', paid: 'بالرصيد', cost_from: 'التكلفة من', waiting_text: 'نص «بانتظارك»', dedupe_sec: 'منع التكرار (ثواني)', hide_days: 'أيام قبل المسح', approval: 'موافقتك مطلوبة', publish: 'نشر', final_voice: 'الصوت النهائي', speed: 'السرعة', approves_cost: 'الإرسال = موافقة على التكلفة', every_min: 'كل (دقايق)', stale_days: 'ينتظر أكثر من (أيام)', options: 'عدد الطرق', seconds: 'الطول (ثواني)', history: 'نسخ محفوظة', checks: 'القراءات', review_speed: 'سرعة صوت المراجعة', max_chars_one_take: 'أقصى أحرف للتسجيلة', true_peak_max: 'أعلى ذروة (dBTP)' };
+const FLOW_ACT_AR = { approve: '«موافق»', send: '«أرسل التعديل»', sayfix: '«أرسل العلامات»', vpick: '«اختار» النطق', flowpick: '«اختار» الاتجاه', flowmore: '«ما عجبني شي»', flowresend: '«أعد الإرسال»', lastresend: '«أعد الإرسال»', twin: '«سوّ منه كاروسيل/ريل»', start: '«ابدأ»', suggest: 'اقتراح التوقع', scriptsend: '«أرسل تعديل النص»', edsave: '«✎ عدّل النص بنفسك»', edundo: '«رجّع النسخة السابقة»', sharefilm: '«احفظ الفيلم»', posted: '«تم النشر ✓»', unpost: '«رجّعه جاهز للنشر»', pickconfirm: '«هذا هو»', shotschat: 'صور الإحصائيات', ruleyes: '«إي» للقاعدة', ruleno: '«لا» للقاعدة', askpick: 'جواب السؤال', hide: '«شيله من القائمة»', unhide: '«رجّعه»' };
+const flowActs = (fl) => new Set((fl?.edges || []).map((e) => e.act).filter(Boolean));
+function flowEnforce() {                                             // a button whose path you removed from the map is hidden
+  if (!flowDoc || !FLOW_DEFAULT) return;
+  const now = flowActs(flowDoc);
+  for (const a of flowActs(FLOW_DEFAULT)) if (!now.has(a)) document.querySelectorAll(`#view [data-act="${a}"]`).forEach((el) => { el.hidden = true; });
+}
+function flowSpot(f, fl) {                                           // the node a film is at now
+  const has = (id) => (fl.nodes || []).some((n) => n.id === id);
+  const pick = (...ids) => ids.find(has) || null;
+  if (pendingOf(f)) return pick('n_heard');
+  const car = f.kind === 'carousel';
+  if (f.state === 'done') return pick('n_save');
+  if (f.flow && f.flow.stage !== 'done') {
+    const s = f.flow.stage;
+    if (s === 'queued') return pick('n_pickwait');
+    if (s === 'received') return pick('n_pickup');
+    if (s === 'direction') return pick(f.state === 'waiting' ? 'n_dirpick' : 'n_dirs');
+    if (s === 'sample') return pick(f.state === 'waiting' ? 'n_samplegate' : 'n_sample');
+    if (s === 'build') return pick(car ? 'n_carbuild' : 'n_build');
+    if (s === 'review') return pick(car ? 'n_carreview' : 'n_review');
+  }
+  if (car) return pick(f.state === 'waiting' ? 'n_carreview' : 'n_carbuild');
+  const k = stageOf(f).k;
+  if (f.state === 'waiting') return pick(['n_dirpick', 'n_scriptgate', 'n_listen', 'n_samplegate', 'n_missingown', 'n_review', 'n_save'][k] || 'n_review');
+  return pick(['n_research', 'n_script', 'n_take', 'n_pace', 'n_build', 'n_fix', 'n_final'][k] || 'n_build');
+}
+function flowWaitText(f) {
+  if (!flowDoc) return '';
+  const id = flowSpot(f, flowDoc), n = flowDoc.nodes.find((x) => x.id === id);
+  return n?.settings?.waiting_text || '';
+}
+const flowFilms = () => films.filter((f) => !f.hidden && !isTest(f) && (['waiting', 'working', 'done'].includes(f.state) || pendingOf(f)));
+const flowWorkCopy = () => (flowWork ||= flowClone(flowApplied()));
+function flowNormRows(fl) {                                          // rows back to 1, 2, 3… keeping ties
+  const vals = [...new Set(fl.nodes.map((n) => +n.row || 0))].sort((a, z) => a - z), m = new Map(vals.map((v, k) => [v, k + 1]));
+  fl.nodes.forEach((n) => { n.row = m.get(+n.row || 0); });
+}
+
+// ---- the view
+function viewFlow() {
+  if (!flowInit && ready) { flowInit = true; for (const f of flowFilms()) if (isWaiting(f)) { const id = flowSpot(f, flowCur()), n = flowCur().nodes.find((x) => x.id === id); if (n) flowOpen.add(n.band); } }
+  const fl = flowCur(), iss = validateFlow(fl), ne = iss.filter((x) => x.lv === 'err').length, nw = iss.length - ne;
+  const src = flowDoc ? `نسخة ${flowDoc.version || 1}${flowDoc.applied_at ? ' · ' + when(flowDoc.applied_at) : ''}` : 'هذا المسار الأساسي، مرسوم من الاستديو والقواعد';
+  let h = `<div class="headrow" style="position:relative;z-index:1">${header('مسار الشغل', esc(src))}</div>`;
+  h += `<p class="fl-lede">كل خطوة وقرار بالاستديو، مين عليه، ووين يروح بعده. اضغط أي مربع تشوف قواعده وإعداداته${flowCanEdit() ? '، وتقدر تعدّله' : ''}.</p>`;
+  h += `<div class="fl-legend" aria-label="دليل الرسمة"><span><i class="lg-task"></i>خطوة</span><span><i class="lg-dec"></i>قرار</span><span><i class="lg-gate"></i>بوابة موافقة</span><span><i class="lg-loop"></i>يرجع</span><span><i class="lg-paid">₪</i>بالرصيد</span><span><i class="lg-gap">!</i>ثغرة</span></div>`;
+  h += `<div id="flbar">${flowBar(iss)}</div>`;
+  h += `<div class="fl-ctl"><button type="button" class="chip" data-fa="openall">افتح الكل</button><button type="button" class="chip" data-fa="closeall">سكّر الكل</button><button type="button" class="chip" data-fa="check">افحص المسار <b>${ne ? `${ne} خطأ · ` : ''}${nw} تنبيه</b></button>${flowDoc?.history?.length || flowCanEdit() ? '<button type="button" class="chip" data-fa="history">النسخ</button>' : ''}</div>`;
+  h += `<div id="flpanel">${flowPanelHtml(iss)}</div>`;
+  h += `<div class="fl-box" id="flbox">${flowSvg(fl, iss)}</div>`;
+  return h;
+}
+function flowBar(iss) {
+  if (!flowDirty()) return '';
+  const d = diffFlow(flowApplied(), flowWork), ne = iss.filter((x) => x.lv === 'err').length;
+  return `<div class="fl-dirty" role="status"><b>فيه تعديل ما تطبّق (${d.length})</b><span>${ne ? `${ne} خطأ لازم يتصلّح أول` : 'افحصه وطبّقه عشان يشتغل بالاستديو'}</span><div class="two"><button type="button" class="btn dark" data-fa="check">افحص وطبّق</button><button type="button" class="btn line" data-fa="discard">${flowSure.discard ? 'متأكد؟ اضغط مرة ثانية' : 'تراجع عن التعديل'}</button></div></div>`;
+}
+function flowPanelHtml(iss) {
+  if (flowPanel === 'check') {
+    const errs = iss.filter((x) => x.lv === 'err'), warns = iss.filter((x) => x.lv !== 'err'), fl = flowCur(), lab = (id) => fl.nodes.find((n) => n.id === id)?.label || '';
+    let h = `<section class="fl-panel" aria-label="فحص المسار"><div class="fl-ph"><h2>فحص المسار</h2><button type="button" class="chip" data-fa="panelx">سكّر</button></div>`;
+    h += `<p class="note">${errs.length ? `${errs.length} خطأ يوقف التطبيق` : 'ما فيه أخطاء'} · ${warns.length} تنبيه${flowDirty() ? '' : ' (هذا المسار المطبّق الحين)'}</p>`;
+    h += `<ul class="fl-iss">${iss.map((x) => `<li class="fl-${x.lv}"><span class="fl-lv">${x.lv === 'err' ? 'خطأ' : 'تنبيه'}</span><span class="fl-m">${esc(x.msg)}</span>${x.node ? `<button type="button" class="chip" data-fa="show" data-k="${esc(x.node)}" aria-label="وريني ${esc(lab(x.node))}">وريني</button>` : ''}</li>`).join('')}</ul>`;
+    if (flowDirty()) {
+      const d = diffFlow(flowApplied(), flowWork);
+      h += `<h3 class="fl-h3">اللي تغيّر</h3><ul class="fl-diff">${d.map((x) => `<li>${esc(x)}</li>`).join('') || '<li>ما فيه فرق</li>'}</ul>`;
+      if (flowCanEdit()) {
+        if (warns.length) h += `<label class="fl-ack"><input type="checkbox" id="flack" ${flowAck ? 'checked' : ''}> قريت التنبيهات، وأبي أطبّق</label>`;
+        const off = errs.length || (warns.length && !flowAck) || !d.length;
+        h += `<button type="button" class="btn go" data-fa="apply" ${off ? 'disabled' : ''}>طبّق التعديل</button>`;
+        if (errs.length) h += '<p class="note">صلّح الأخطاء أول. «وريني» يوديك للخطوة.</p>';
+      }
+    }
+    return h + '</section>';
+  }
+  if (flowPanel === 'history') {
+    const hs = flowDoc?.history || [];
+    let h = `<section class="fl-panel" aria-label="النسخ"><div class="fl-ph"><h2>نسخ المسار</h2><button type="button" class="chip" data-fa="panelx">سكّر</button></div>`;
+    h += `<p class="note">${flowDoc ? `المطبّق الحين: نسخة ${flowDoc.version || 1}${flowDoc.version_note ? ' · ' + esc(flowDoc.version_note) : ''}` : 'المطبّق الحين: المسار الأساسي'}</p>`;
+    h += hs.length ? `<ul class="fl-hist">${hs.map((x, k) => `<li><span><b>نسخة ${esc(x.version)}</b> · ${esc(when(x.applied_at))}<br><small>${esc(x.version_note || '')}</small></span>${flowCanEdit() ? `<button type="button" class="chip" data-fa="restore" data-k="${k}">رجّع</button>` : ''}</li>`).join('')}</ul>` : '<p class="note">ما فيه نسخ قبل.</p>';
+    if (flowCanEdit()) h += `<button type="button" class="btn line" data-fa="reset">${flowSure.reset ? 'متأكد؟ اضغط مرة ثانية' : 'رجّع المسار الأساسي'}</button>`;
+    return h + '</section>';
+  }
+  return '';
+}
+
+// ---- the drawing
+const FLOW_FILL = { owner: '#FFF6D9', claude: '#FFFFFF', page: '#E8F4F4' }, FLOW_STROKE = { owner: '#C99A1E', claude: '#BDB3A0', page: '#6FB3B3' };
+const FLOW_EDGE = { next: '#4A443A', yes: '#2E7D5B', no: '#8A8170', loop: '#E8573F' };
+function flowSvg(fl, iss) {
+  const L = layoutFlow(fl, flowOpen), R = flowRoutes(fl, L), W = FL.W; flowLast = L;
+  const bad = new Set(iss.filter((x) => x.lv === 'err').map((x) => x.node)), byId = Object.fromEntries(fl.nodes.map((n) => [n.id, n]));
+  const chips = {};
+  for (const f of flowFilms()) { const id = flowSpot(f, fl); const v = id && L.vis[id]; if (v) (chips[v] ||= []).push(f); }
+  let s = `<svg class="fl-svg" viewBox="0 0 ${W} ${L.H}" role="img" aria-label="رسمة مسار الشغل" xmlns="http://www.w3.org/2000/svg">`;
+  s += `<defs>${Object.entries(FLOW_EDGE).map(([k, c]) => `<marker id="fa-${k}" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="${c}"/></marker>`).join('')}<marker id="fa-gap" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0L10,5L0,10z" fill="#C2412A"/></marker></defs>`;
+  FLOW_LANES.forEach((ln, k) => { const x = W - FL.laneW * (k + 1); s += `<rect x="${x}" y="0" width="${FL.laneW}" height="${L.H}" fill="${k % 2 ? '#F7F2E8' : '#FBF8F1'}"/>`; });
+  FLOW_LANES.forEach((ln, k) => { const cx = flowLaneCx(ln); s += `<rect x="${cx - 44}" y="6" width="88" height="22" rx="11" fill="${FLOW_STROKE[ln]}"/><text x="${cx}" y="21.5" class="fl-lane" text-anchor="middle" direction="rtl">${FLOW_LANE_AR[ln]}</text>`; });
+  for (const b of L.bands) {
+    const gaps = fl.nodes.filter((n) => n.band === b.id && n.gap).length + fl.edges.filter((e) => e.gap && byId[e.from]?.band === b.id).length;
+    s += `<g class="fl-band" data-fband="${esc(b.id)}" role="button" tabindex="0" aria-expanded="${b.open}" aria-label="${esc(b.name)}: ${b.open ? 'سكّرها' : 'افتحها'}"><rect x="0" y="${b.y}" width="${W}" height="${FL.bandH}" fill="#E9E1CF"/><text x="${W - 12}" y="${b.y + 19}" class="fl-bandt" text-anchor="start" direction="rtl">${esc(b.name)}</text><text x="12" y="${b.y + 19}" class="fl-bandn" text-anchor="start" direction="ltr">${b.open ? '−' : '+'} ${b.n}${gaps ? ` · !${gaps}` : ''}</text></g>`;
+  }
+  for (const r of R) {
+    const c = r.gap ? '#C2412A' : FLOW_EDGE[r.kind] || FLOW_EDGE.next;
+    s += `<path d="${r.d}" pointer-events="none" fill="none" stroke="${c}" stroke-width="${r.kind === 'loop' ? 1.5 : 1.6}"${r.kind === 'loop' ? ' stroke-dasharray="5 4"' : r.gap ? ' stroke-dasharray="2 3"' : ''} marker-end="url(#fa-${r.gap ? 'gap' : r.kind in FLOW_EDGE ? r.kind : 'next'})"/>`;
+  }
+  const labels = [];
+  for (const r of R) if (r.label) { const sp = flowLabelSpot(r, L, labels); if (sp) labels.push(sp); }
+  for (const l of labels) s += `<g class="fl-el"><title>${esc(l.full)}</title><rect x="${l.x}" y="${l.y}" width="${l.w}" height="${l.h}" rx="${l.h / 2}" fill="#FFFFFF" stroke="${l.gap ? '#C2412A' : '#D9CFB8'}"/><text x="${l.x + l.w / 2}" y="${l.y + 11}" text-anchor="middle" direction="rtl">${esc(l.t)}</text></g>`;
+  for (const p of Object.values(L.pos)) {
+    const ch = chips[p.id] || [], wait = ch.some((f) => isWaiting(f));
+    if (p.bar) {
+      const b = L.bands.find((x) => 'band:' + x.id === p.id);
+      s += `<g class="fl-bar" data-fband="${esc(p.band)}" role="button" tabindex="0" aria-label="افتح ${esc(b?.name || '')}">${wait ? `<rect class="fl-glow" x="${p.x - 4}" y="${p.y - 4}" width="${p.w + 8}" height="${p.h + 8}" rx="16"/>` : ''}<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="12" fill="#FFFFFF" stroke="#BDB3A0" stroke-dasharray="4 3"/><text x="${p.cx}" y="${p.y + (ch.length ? 18 : 28)}" class="fl-bart" text-anchor="middle" direction="rtl">${esc(b?.name || '')} · ${b?.n || 0} خطوة · اضغط تفتحها</text></g>`;
+      s += flowChips(ch, p.x + p.w - 10, p.y + p.h - 17, true);
+      continue;
+    }
+    const n = byId[p.id]; if (!n) continue;
+    const fill = FLOW_FILL[n.lane] || '#fff', st = bad.has(n.id) ? '#C2412A' : n.gap ? '#C2412A' : FLOW_STROKE[n.lane] || '#999', sw = bad.has(n.id) ? 2.6 : flowSel === n.id ? 2.6 : 1.3;
+    s += `<g class="fl-node${flowSel === n.id ? ' sel' : ''}" data-fnode="${esc(n.id)}" role="button" tabindex="0" aria-label="${esc(n.label)} · ${FLOW_LANE_AR[n.lane] || ''} · ${FLOW_TYPE_AR[n.type] || ''}">`;
+    if (wait) s += `<rect class="fl-glow" x="${p.x - 5}" y="${p.y - 5}" width="${p.w + 10}" height="${p.h + 10}" rx="16"/>`;
+    const dash = n.gap && !bad.has(n.id) ? ' stroke-dasharray="4 3"' : '';
+    if (n.type === 'decision' || n.type === 'gate') {
+      const { x, y, w, h } = p, cx = x + w / 2, cy = y + h / 2;
+      s += `<path d="M${cx},${y} L${x + w},${cy} L${cx},${y + h} L${x},${cy}Z" fill="${fill}" stroke="${flowSel === n.id ? '#2F5BD3' : st}" stroke-width="${sw}"${dash}/>`;
+      if (n.type === 'gate') s += `<path d="M${cx},${y + 6} L${x + w - 9},${cy} L${cx},${y + h - 6} L${x + 9},${cy}Z" fill="none" stroke="${st}" stroke-width="1"/>`;
+      const ls = p.lines; ls.forEach((t, k) => { s += `<text x="${cx}" y="${cy + 4 + (k - (ls.length - 1) / 2) * 13}" class="fl-dt" text-anchor="middle" direction="rtl">${esc(t)}</text>`; });
+    } else if (n.type === 'start' || n.type === 'end') {
+      const cx = p.x + p.w / 2;
+      s += `<circle cx="${cx}" cy="${p.y + 13}" r="11" fill="${fill}" stroke="${flowSel === n.id ? '#2F5BD3' : st}" stroke-width="${n.type === 'end' ? 3.2 : sw}"/>`;
+      p.lines.forEach((t, k) => { s += `<text x="${cx}" y="${p.y + 38 + k * 14}" class="fl-st" text-anchor="middle" direction="rtl">${esc(t)}</text>`; });
+    } else {
+      s += `<rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" rx="10" fill="${fill}" stroke="${flowSel === n.id ? '#2F5BD3' : st}" stroke-width="${sw}"${dash}/>`;
+      p.lines.forEach((t, k) => { s += `<text x="${p.cx}" y="${p.y + 19 + k * 15}" class="fl-t" text-anchor="middle" direction="rtl">${esc(t)}</text>`; });
+      if (n.note) { const t = n.note.length > 19 ? n.note.slice(0, 18) + '…' : n.note; s += `<text x="${p.cx}" y="${p.y + 19 + p.lines.length * 15}" class="fl-nt" text-anchor="middle" direction="rtl">${esc(t)}</text>`; }
+    }
+    if (flowPaid(n)) s += `<g class="fl-paid"><rect x="${p.x + p.w - 30}" y="${p.y - 7}" width="34" height="14" rx="7" fill="#D4A72C"/><text x="${p.x + p.w - 13}" y="${p.y + 3.5}" text-anchor="middle" direction="rtl">رصيد</text></g>`;
+    if (n.gap) s += `<g class="fl-gapb"><circle cx="${p.x + 4}" cy="${p.y + 2}" r="7" fill="#C2412A"/><text x="${p.x + 4}" y="${p.y + 6}" text-anchor="middle">!</text></g>`;
+    s += '</g>';
+    s += flowChips(ch, p.x + p.w, p.y - 9, false);
+  }
+  return s + '</svg>';
+}
+function flowPts(d) {                                                // the corners of an arrow's path
+  const pts = []; let x = 0, y = 0;
+  for (const m of String(d).matchAll(/([MHVhv])\s*(-?[\d.]+)(?:,(-?[\d.]+))?/g)) {
+    const v = +m[2];
+    if (m[1] === 'M') { x = v; y = +m[3]; } else if (m[1] === 'H') x = v; else if (m[1] === 'V') y = v; else if (m[1] === 'h') x += v; else y += v;
+    pts.push([x, y]);
+  }
+  return pts;
+}
+function flowLabelSpot(r, L, placed) {                                // a label sits on its arrow, clear of the steps and the other labels
+  const full = r.label, t = full.length > 16 ? full.slice(0, 15) + '…' : full, w = Math.round(t.length * 5.4 + 14), h = 15;
+  const boxes = Object.values(L.pos).map((p) => ({ x: p.x - 4, y: p.y - (p.bar ? 4 : 12), w: p.w + 8, h: p.h + (p.bar ? 8 : 16) }));
+  const hit = (q, list) => list.some((b) => q.x < b.x + b.w && b.x < q.x + q.w && q.y < b.y + b.h && b.y < q.y + q.h);
+  const pts = flowPts(r.d), segs = [];
+  for (let k = 1; k < pts.length; k++) { const [x1, y1] = pts[k - 1], [x2, y2] = pts[k], len = Math.hypot(x2 - x1, y2 - y1); if (len > 2) segs.push({ x1, y1, x2, y2, len }); }
+  segs.sort((a, z) => z.len - a.len);
+  const spot = (sg, f) => { const cx = Math.min(Math.max(sg.x1 + (sg.x2 - sg.x1) * f, w / 2 + 2), FL.W - w / 2 - 2), cy = sg.y1 + (sg.y2 - sg.y1) * f; return { x: cx - w / 2, y: cy - h / 2, w, h, t, full, gap: r.gap }; };
+  for (const sg of segs) for (const f of [0.5, 0.35, 0.65, 0.2, 0.8]) { const q = spot(sg, f); if (!hit(q, boxes) && !hit(q, placed)) return q; }
+  for (const sg of segs) for (const f of [0.5, 0.3, 0.7]) { const q = spot(sg, f); if (!hit(q, placed)) return q; }
+  return segs.length ? spot(segs[0], 0.5) : null;
+}
+function flowChips(list, right, y, inBar) {                          // the films sitting on a step, as coloured tags
+  let s = '', x = right;
+  for (const f of list.slice(0, 4)) {
+    const nm = String(f.name || f.id).split(' · ')[0].split(' × ')[0], t = nm.length > 12 ? nm.slice(0, 11) + '…' : nm, w = t.length * 5.8 + 14;
+    x -= w;
+    s += `<g class="fl-chip${flowFocus === f.id ? ' focus' : ''}" data-ffilm="${esc(f.id)}" role="button" tabindex="0" aria-label="افتح ${esc(f.name || f.id)}"><rect x="${x}" y="${y - 8}" width="${w}" height="16" rx="8" fill="${esc(f.color || '#F2C230')}" stroke="#1B1B1B" stroke-width="${isWaiting(f) ? 1.4 : 0.6}"/><text x="${x + w / 2}" y="${y + 3.5}" text-anchor="middle" direction="rtl">${esc(t)}</text></g>`;
+    x -= 4;
+  }
+  if (list.length > 4) s += `<text x="${x - 4}" y="${y + 3.5}" class="fl-more" text-anchor="end">+${list.length - 4}</text>`;
+  return s;
+}
+
+// ---- the sheet: a step's rules and settings, and its editor
+function flowSheetEl() {
+  let el = document.getElementById('flsheet');
+  if (!el) { el = document.createElement('aside'); el.id = 'flsheet'; el.className = 'fl-sheet'; el.setAttribute('aria-label', 'تفاصيل الخطوة'); el.hidden = true; document.body.appendChild(el); }
+  return el;
+}
+function flowSheet() {
+  const el = flowSheetEl(), fl = flowCur(), n = fl.nodes.find((x) => x.id === flowSel);
+  if (!n || location.hash !== '#flow') { el.hidden = true; el.innerHTML = ''; return; }
+  const iss = validateFlow(fl).filter((x) => x.node === n.id), byId = Object.fromEntries(fl.nodes.map((x) => [x.id, x]));
+  const outs = fl.edges.map((e, i) => ({ ...e, i })).filter((e) => e.from === n.id), ins = fl.edges.map((e, i) => ({ ...e, i })).filter((e) => e.to === n.id);
+  const here = flowFilms().filter((f) => flowSpot(f, fl) === n.id), band = (fl.bands || []).find((b) => b.id === n.band);
+  let h = `<div class="fl-sh"><div><small>${esc(FLOW_LANE_AR[n.lane] || n.lane)} · ${esc(FLOW_TYPE_AR[n.type] || n.type)} · ${esc(band?.name || '')}</small><h2>${esc(n.label)}</h2></div><button type="button" class="back" data-fa="close" aria-label="سكّر"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FBF7EF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>`;
+  if (!flowEditing) {
+    if (n.note) h += `<p class="fl-note">${esc(n.note)}</p>`;
+    const tags = [flowPaid(n) ? `<span class="fl-tag paid">${n.settings.paid === 'ai' ? 'بالرصيد إذا AI' : 'بالرصيد'}</span>` : '', flowIsGate(n) ? '<span class="fl-tag gate">موافقتك على التكلفة</span>' : '', n.gap ? `<span class="fl-tag gap">ثغرة${n.gap_id ? ' ' + esc(n.gap_id) : ''}</span>` : ''].join('');
+    if (tags) h += `<div class="fl-tags">${tags}</div>`;
+    if (n.gap) h += `<p class="fl-gapn">${esc(n.gap_note || '')}</p>`;
+    if (iss.length) h += `<ul class="fl-iss">${iss.map((x) => `<li class="fl-${x.lv}"><span class="fl-lv">${x.lv === 'err' ? 'خطأ' : 'تنبيه'}</span><span class="fl-m">${esc(x.msg)}</span></li>`).join('')}</ul>`;
+    if (here.length) h += `<div class="fl-sec"><h3>الأفلام هني الحين</h3><div class="fl-chiprow">${here.map((f) => `<a class="chip" href="#film-${esc(f.id)}" style="background:${esc(f.color || '#F2C230')}">${esc(f.name)}</a>`).join('')}</div></div>`;
+    h += `<div class="fl-sec"><h3>القواعد</h3>${(n.rules || []).length ? `<ul class="fl-rules">${n.rules.map((r) => `<li>${esc(r.t)}${r.src ? `<small>${esc(r.src)}</small>` : ''}</li>`).join('')}</ul>` : '<p class="note">ما فيه قواعد مكتوبة لهالخطوة.</p>'}</div>`;
+    const st = Object.entries(n.settings || {});
+    if (st.length) h += `<div class="fl-sec"><h3>الإعدادات</h3><dl class="fl-set">${st.map(([k, v]) => `<dt>${esc(FLOW_SET_AR[k] || k)}</dt><dd>${esc(Array.isArray(v) ? v.join('، ') : v === true ? 'إي' : v === false ? 'لا' : v === 'ai' ? 'إذا AI' : v)}${FLOW_ENFORCED[`${n.id}.${k}`] || k === 'waiting_text' ? ' <span class="fl-on">يتحكم بالاستديو ✓</span>' : ''}</dd>`).join('')}</dl></div>`;
+    h += `<div class="fl-sec"><h3>يطلع منها</h3>${outs.length ? `<ul class="fl-edges">${outs.map((e) => `<li><span class="fl-k ${esc(e.kind)}">${esc(FLOW_KIND_AR[e.kind] || e.kind)}</span><span>${e.label ? `«${esc(e.label)}» ← ` : ''}<button type="button" class="fl-jump" data-fa="show" data-k="${esc(e.to)}">${esc(byId[e.to]?.label || e.to)}</button>${e.act ? `<small>زر بالاستديو: ${esc(FLOW_ACT_AR[e.act] || e.act)}</small>` : ''}${e.gap ? `<small class="fl-gapn">ثغرة: ${esc(e.gap_note || '')}</small>` : ''}</span></li>`).join('')}</ul>` : '<p class="note">ما يطلع منها شي.</p>'}</div>`;
+    h += `<div class="fl-sec"><h3>يجي لها من</h3>${ins.length ? `<ul class="fl-edges">${ins.map((e) => `<li><span class="fl-k ${esc(e.kind)}">${esc(FLOW_KIND_AR[e.kind] || e.kind)}</span><span><button type="button" class="fl-jump" data-fa="show" data-k="${esc(e.from)}">${esc(byId[e.from]?.label || e.from)}</button>${e.label ? ` «${esc(e.label)}»` : ''}</span></li>`).join('')}</ul>` : '<p class="note">بداية.</p>'}</div>`;
+    if ((n.writes || []).length || (n.reads || []).length) h += `<div class="fl-sec"><h3>البيانات</h3>${n.writes?.length ? `<p class="note">تكتب: ${esc(n.writes.join('، '))}</p>` : ''}${n.reads?.length ? `<p class="note">تقرا: ${esc(n.reads.join('، '))}</p>` : ''}</div>`;
+    h += `<p class="note fl-src">المصدر: ${esc(n.src || '—')} · المسؤول: ${esc(n.who || FLOW_LANE_AR[n.lane] || '')}</p>`;
+    if (flowCanEdit()) h += `<button type="button" class="btn dark" data-fa="edit">عدّل هالخطوة</button>`;
+  } else {
+    const opt = (v, cur, t) => `<option value="${esc(v)}"${String(v) === String(cur) ? ' selected' : ''}>${esc(t)}</option>`;
+    h += `<div class="fl-form">`;
+    h += `<label>الاسم<input class="inp" data-fe="label" value="${esc(n.label)}" maxlength="80"></label>`;
+    h += `<label>ملاحظة أو شرط<input class="inp" data-fe="note" value="${esc(n.note || '')}" maxlength="140"></label>`;
+    h += `<div class="fl-row3"><label>على مين<select class="inp" data-fe="lane">${FLOW_LANES.map((l) => opt(l, n.lane, FLOW_LANE_AR[l])).join('')}</select></label><label>النوع<select class="inp" data-fe="type">${Object.entries(FLOW_TYPE_AR).map(([k, t]) => opt(k, n.type, t)).join('')}</select></label><label>المرحلة<select class="inp" data-fe="band">${(fl.bands || []).map((b) => opt(b.id, n.band, b.name)).join('')}</select></label></div>`;
+    h += `<label>بالرصيد<select class="inp" data-fe="paid">${opt('', n.settings?.paid === true || n.settings?.paid === 'ai' ? 'x' : '', 'لا')}${opt('true', n.settings?.paid === true ? 'true' : '', 'إي')}${opt('ai', n.settings?.paid === 'ai' ? 'ai' : '', 'إذا AI')}</select></label>`;
+    h += `<h3 class="fl-h3">القواعد</h3>${(n.rules || []).map((r, k) => `<div class="fl-ruleed"><textarea class="inp" data-fr="${k}" rows="2" aria-label="القاعدة ${k + 1}">${esc(r.t)}</textarea><input class="inp" data-frs="${k}" value="${esc(r.src || '')}" placeholder="المصدر" aria-label="مصدر القاعدة ${k + 1}"><button type="button" class="chip" data-fa="ruledel" data-k="${k}">شيلها</button></div>`).join('')}<button type="button" class="chip" data-fa="ruleadd">+ قاعدة</button>`;
+    h += `<h3 class="fl-h3">الإعدادات</h3>${Object.entries(n.settings || {}).map(([k, v], i) => `<div class="fl-setr"><input class="inp" data-fsk="${i}" value="${esc(k)}" aria-label="اسم الإعداد"><input class="inp" data-fsv="${i}" value="${esc(Array.isArray(v) ? v.join(',') : v)}" aria-label="قيمة ${esc(FLOW_SET_AR[k] || k)}"><button type="button" class="chip" data-fa="setdel" data-k="${esc(k)}">شيله</button></div>`).join('')}<button type="button" class="chip" data-fa="setadd">+ إعداد</button><p class="note">${Object.keys(FLOW_SET_AR).slice(0, 8).map((k) => `${k} = ${FLOW_SET_AR[k]}`).join(' · ')}</p>`;
+    h += `<h3 class="fl-h3">يطلع منها</h3>${outs.map((e) => `<div class="fl-edged"><input class="inp" data-fel="${e.i}" value="${esc(e.label || '')}" placeholder="الشرط (مثلاً موافق)" aria-label="شرط السهم"><select class="inp" data-fet="${e.i}" aria-label="يروح لـ">${fl.nodes.map((x) => opt(x.id, e.to, x.label)).join('')}</select><select class="inp" data-fek="${e.i}" aria-label="نوع السهم">${Object.entries(FLOW_KIND_AR).map(([k, t]) => opt(k, e.kind, t)).join('')}</select><button type="button" class="chip" data-fa="edgedel" data-k="${e.i}">شيله</button></div>`).join('')}<button type="button" class="chip" data-fa="edgeadd">+ مخرج يديد</button>`;
+    h += `<div class="fl-nodeacts"><button type="button" class="chip" data-fa="up">↑ فوق</button><button type="button" class="chip" data-fa="down">↓ تحت</button><button type="button" class="chip" data-fa="addafter">+ خطوة بعدها</button><button type="button" class="chip fl-del" data-fa="delnode">${flowSure.del === n.id ? 'متأكد؟ اضغط مرة ثانية' : 'احذف الخطوة'}</button></div>`;
+    h += `<button type="button" class="btn dark" data-fa="done">تم</button><p class="note">التعديل ما يشتغل لين تضغط «افحص وطبّق» فوق.</p></div>`;
+  }
+  el.innerHTML = h; el.hidden = false;
+}
+function flowRedraw() {                                              // the map, the bar and the panel; the sheet stays as it is
+  if (location.hash !== '#flow') return;
+  const fl = flowCur(), iss = validateFlow(fl), box = document.getElementById('flbox');
+  if (box) box.innerHTML = flowSvg(fl, iss);
+  const bar = document.getElementById('flbar'); if (bar) bar.innerHTML = flowBar(iss);
+  const pn = document.getElementById('flpanel'); if (pn && flowPanel) pn.innerHTML = flowPanelHtml(iss);
+  const chk = document.querySelector('[data-fa="check"] b'); if (chk) { const ne = iss.filter((x) => x.lv === 'err').length; chk.textContent = `${ne ? `${ne} خطأ · ` : ''}${iss.length - ne} تنبيه`; }
+}
+const flowSoon = () => { clearTimeout(flowT); flowT = setTimeout(flowRedraw, 120); };
+function flowLive() { if (flowDrag) return; flowRedraw(); }
+function flowAfter() {
+  if (flowFocus) { const c = document.querySelector(`.fl-chip[data-ffilm="${CSS.escape(flowFocus)}"]`); if (c) c.scrollIntoView({ block: 'center' }); }
+  flowSheet();
+}
+function flowShow(id) {
+  const n = flowCur().nodes.find((x) => x.id === id); if (!n) return;
+  flowOpen.add(n.band); flowSel = id; flowEditing = false; flowRedraw(); flowSheet();
+  const g = document.querySelector(`[data-fnode="${CSS.escape(id)}"]`); if (g) g.scrollIntoView({ block: 'center' });
+}
+function flowNode() { return flowWorkCopy().nodes.find((x) => x.id === flowSel); }
+function flowChanged(sheetToo) { flowSoon(); if (sheetToo) flowSheet(); }
+const flowVal = (v) => (v === 'true' ? true : v === 'false' ? false : v !== '' && isFinite(+v) ? +v : v);
+
+async function flowApply(b) {
+  if (!flowCanEdit()) { toast('يحتاج صلاحية تعديل الاستوديو.'); return; }
+  const fl = flowWork; if (!fl) return;
+  const iss = validateFlow(fl);
+  if (iss.some((x) => x.lv === 'err')) { toast('فيه أخطاء لازم تتصلّح أول.'); return; }
+  const prev = flowApplied(), d = diffFlow(prev, fl); if (!d.length) { toast('ما فيه تغيير.'); return; }
+  b.disabled = true;
+  const v = (flowDoc?.version || 0) + 1, at = new Date().toISOString(), note = d.slice(0, 6).join(' · ') + (d.length > 6 ? ` · و${d.length - 6} غيرها` : '');
+  let hist = flowDoc ? [{ version: flowDoc.version || 1, applied_at: flowDoc.applied_at || null, version_note: flowDoc.version_note || '', nodes: flowDoc.nodes, edges: flowDoc.edges }, ...(flowDoc.history || [])] : [{ version: 0, applied_at: null, version_note: 'المسار الأساسي', nodes: FLOW_DEFAULT.nodes, edges: FLOW_DEFAULT.edges }];
+  hist = hist.slice(0, 10); while (hist.length > 1 && JSON.stringify(hist).length > 420000) hist.pop();
+  const doc = { name: fl.name || 'مسار الشغل', bands: fl.bands, lanes: fl.lanes, nodes: fl.nodes, edges: fl.edges, version: v, applied_at: at, version_note: note, history: hist };
+  try {
+    await db.doc('studio/flow').set(doc);
+    flowDoc = doc; flowWork = null; flowAck = false; flowPanel = null;
+    await tell(`الاستوديو: عدّلت مسار الشغل (نسخة ${v}): ${d.join(' · ')}`, b, { kind: 'flow_edit', version: v, diff: d });
+    route();
+  } catch (e) { toast('ما قدرت أطبّقه.'); b.disabled = false; }
+}
+
+document.addEventListener('click', (ev) => {
+  const t = ev.target.closest('[data-ffilm],[data-flowfilm],[data-fband],[data-fnode],[data-fa]'); if (!t) return;
+  if (t.dataset.flowfilm) { const f = films.find((x) => x.id === t.dataset.flowfilm); flowFocus = t.dataset.flowfilm; const id = f && flowSpot(f, flowCur()); const n = id && flowCur().nodes.find((x) => x.id === id); if (n) flowOpen.add(n.band); location.hash = 'flow'; return; }
+  if (location.hash !== '#flow' && !t.closest('#flsheet')) return;
+  if (t.dataset.ffilm) { location.hash = 'film-' + t.dataset.ffilm; return; }
+  if (t.dataset.fband) { const b = t.dataset.fband; flowOpen.has(b) ? flowOpen.delete(b) : flowOpen.add(b); flowRedraw(); return; }
+  if (t.dataset.fnode) { if (Date.now() - flowJustDragged < 400) return; flowSel = t.dataset.fnode; flowEditing = false; flowSure.del = null; flowRedraw(); flowSheet(); return; }
+  const a = t.dataset.fa, k = t.dataset.k, fl = flowCur();
+  if (a === 'openall') { (fl.bands || []).forEach((b) => flowOpen.add(b.id)); flowRedraw(); return; }
+  if (a === 'closeall') { flowOpen.clear(); flowRedraw(); return; }
+  if (a === 'check' || a === 'history') { flowPanel = flowPanel === a ? null : a; flowSure = {}; flowRedraw(); const pn = document.getElementById('flpanel'); if (pn) { pn.innerHTML = flowPanelHtml(validateFlow(flowCur())); if (flowPanel) pn.scrollIntoView({ block: 'start', behavior: 'smooth' }); } return; }
+  if (a === 'panelx') { flowPanel = null; document.getElementById('flpanel').innerHTML = ''; return; }
+  if (a === 'show') { flowShow(k); return; }
+  if (a === 'close') { flowSel = null; flowEditing = false; flowSheet(); flowRedraw(); return; }
+  if (a === 'apply') { flowApply(t); return; }
+  if (a === 'discard') { if (!flowSure.discard) { flowSure.discard = true; flowRedraw(); return; } flowWork = null; flowSure = {}; flowAck = false; flowEditing = false; flowRedraw(); flowSheet(); return; }
+  if (a === 'reset') { if (!flowSure.reset) { flowSure.reset = true; document.getElementById('flpanel').innerHTML = flowPanelHtml(validateFlow(flowCur())); return; } flowWork = flowClone(FLOW_DEFAULT); flowSure = {}; flowPanel = 'check'; flowRedraw(); return; }
+  if (a === 'restore') { const hh = flowDoc?.history?.[+k]; if (!hh) return; flowWork = { ...flowClone(flowApplied()), nodes: flowClone(hh.nodes), edges: flowClone(hh.edges) }; flowPanel = 'check'; flowRedraw(); return; }
+  if (!flowCanEdit()) return;
+  if (a === 'edit') { flowEditing = true; flowSheet(); return; }
+  if (a === 'done') { flowEditing = false; flowSheet(); flowRedraw(); return; }
+  const n = flowNode(); if (!n) return;
+  const W = flowWorkCopy();
+  if (a === 'ruleadd') { (n.rules ||= []).push({ t: '', src: 'تعديلك' }); flowChanged(true); return; }
+  if (a === 'ruledel') { n.rules.splice(+k, 1); flowChanged(true); return; }
+  if (a === 'setadd') { (n.settings ||= {})['key' + (Object.keys(n.settings).length + 1)] = ''; flowChanged(true); return; }
+  if (a === 'setdel') { delete n.settings[k]; flowChanged(true); return; }
+  if (a === 'edgeadd') { W.edges.push({ from: n.id, to: n.id === W.nodes[0].id ? W.nodes[1].id : W.nodes[0].id, kind: 'next', label: '', src: 'تعديلك', who: n.who }); flowChanged(true); return; }
+  if (a === 'edgedel') { W.edges.splice(+k, 1); flowChanged(true); return; }
+  if (a === 'up' || a === 'down') {
+    const rows = [...new Set(W.nodes.filter((x) => x.band === n.band).map((x) => x.row))].sort((p, q) => p - q), i = rows.indexOf(n.row), to = rows[a === 'up' ? i - 1 : i + 1];
+    if (to == null) { toast(a === 'up' ? 'هذي أول خطوة بالمرحلة.' : 'هذي آخر خطوة بالمرحلة.'); return; }
+    const other = W.nodes.find((x) => x.band === n.band && x.row === to && x.lane === n.lane);
+    if (other) other.row = n.row; n.row = to; flowChanged(false); return;
+  }
+  if (a === 'addafter') {
+    const id = 'u' + Date.now().toString(36), nn = { id, band: n.band, lane: n.lane, type: 'task', label: 'خطوة يديدة', note: '', row: n.row + 0.5, who: n.who, src: 'تعديلك', rules: [], settings: {}, writes: [], reads: [] };
+    W.nodes.push(nn); const fwd = W.edges.find((e) => e.from === n.id && e.kind !== 'loop' && e.kind !== 'no');
+    if (fwd) { W.edges.push({ from: id, to: fwd.to, kind: 'next', label: '', src: 'تعديلك', who: n.who }); fwd.to = id; } else W.edges.push({ from: n.id, to: id, kind: 'next', label: '', src: 'تعديلك', who: n.who });
+    flowNormRows(W); flowSel = id; flowEditing = true; flowChanged(true); return;
+  }
+  if (a === 'delnode') {
+    if (flowSure.del !== n.id) { flowSure.del = n.id; flowSheet(); return; }
+    const fw = W.edges.filter((e) => e.from === n.id && e.kind !== 'loop');
+    if (fw.length === 1) W.edges.forEach((e) => { if (e.to === n.id && e.from !== fw[0].to) e.to = fw[0].to; });
+    W.edges = W.edges.filter((e) => e.from !== n.id && e.to !== n.id); W.nodes = W.nodes.filter((x) => x.id !== n.id);
+    flowSel = null; flowEditing = false; flowSure = {}; flowChanged(true); return;
+  }
+});
+document.addEventListener('keydown', (ev) => {
+  if ((ev.key === 'Enter' || ev.key === ' ') && ev.target.matches?.('.fl-svg [role="button"]')) { ev.preventDefault(); ev.target.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
+  if (ev.key === 'Escape' && flowSel && location.hash === '#flow') { flowSel = null; flowEditing = false; flowSheet(); flowRedraw(); }
+});
+document.addEventListener('input', (ev) => {
+  const t = ev.target; if (!t.closest?.('#flsheet') && t.id !== 'flack') return;
+  if (t.id === 'flack') { flowAck = t.checked; const pn = document.getElementById('flpanel'); if (pn) pn.innerHTML = flowPanelHtml(validateFlow(flowCur())); return; }
+  if (!flowCanEdit() || !flowEditing) return;
+  const n = flowNode(); if (!n) return; const W = flowWorkCopy(), ds = t.dataset;
+  if (ds.fe) {
+    if (ds.fe === 'paid') { n.settings ||= {}; if (!t.value) delete n.settings.paid; else n.settings.paid = t.value === 'ai' ? 'ai' : true; }
+    else n[ds.fe] = t.value;
+    flowChanged(ds.fe === 'type' || ds.fe === 'lane'); return;
+  }
+  if (ds.fr != null) { n.rules[+ds.fr].t = t.value; flowChanged(false); return; }
+  if (ds.frs != null) { n.rules[+ds.frs].src = t.value; return; }
+  if (ds.fsk != null || ds.fsv != null) {
+    const i = +(ds.fsk ?? ds.fsv), ents = Object.entries(n.settings || {}); if (!ents[i]) return;
+    if (ds.fsk != null) { const nk = t.value.trim(); if (!nk) return; ents[i][0] = nk; } else ents[i][1] = flowVal(t.value.trim());
+    n.settings = Object.fromEntries(ents); flowChanged(false); return;
+  }
+  if (ds.fel != null) { W.edges[+ds.fel].label = t.value; flowChanged(false); return; }
+  if (ds.fet != null) { W.edges[+ds.fet].to = t.value; flowChanged(false); return; }
+  if (ds.fek != null) { W.edges[+ds.fek].kind = t.value; flowChanged(false); }
+});
+document.addEventListener('change', (ev) => { if (ev.target.closest?.('#flsheet') && ev.target.tagName === 'SELECT') ev.target.dispatchEvent(new Event('input', { bubbles: true })); });
+// dragging a step on a computer: up or down to another row, across to another lane
+document.addEventListener('pointerdown', (ev) => {
+  const g = ev.target.closest?.('.fl-svg [data-fnode]');
+  if (!g || !flowCanEdit() || !matchMedia('(pointer:fine)').matches) return;
+  const svg = g.ownerSVGElement, m = svg.getScreenCTM(); if (!m) return;
+  flowDrag = { id: g.dataset.fnode, g, svg, sx: ev.clientX, sy: ev.clientY, k: m.a, moved: false };
+});
+document.addEventListener('pointermove', (ev) => {
+  const d = flowDrag; if (!d) return;
+  const dx = (ev.clientX - d.sx) / d.k, dy = (ev.clientY - d.sy) / d.k;
+  if (!d.moved && Math.hypot(dx, dy) < 6) return;
+  d.moved = true; d.dx = dx; d.dy = dy; d.g.setAttribute('transform', `translate(${dx},${dy})`); d.g.classList.add('drag');
+});
+document.addEventListener('pointerup', () => {
+  const d = flowDrag; flowDrag = null; if (!d || !d.moved) return;
+  flowJustDragged = Date.now();
+  const p = flowLast?.pos[d.id]; if (!p) { flowRedraw(); return; }
+  const x = p.cx + d.dx, y = p.cy + d.dy, lane = x > FL.W - FL.laneW ? 'owner' : x > FL.W - 2 * FL.laneW ? 'claude' : 'page';
+  const box = flowLast.bands.find((b) => b.open && y >= b.y && y <= b.y + b.h) || flowLast.bands.find((b) => b.id === p.band);
+  if (!box?.slots?.length) { flowRedraw(); return; }
+  const slot = box.slots.reduce((best, s) => (Math.abs(s.y + s.h / 2 - y) < Math.abs(best.y + best.h / 2 - y) ? s : best), box.slots[0]);
+  const W = flowWorkCopy(), n = W.nodes.find((q) => q.id === d.id); if (!n) return;
+  const clash = W.nodes.find((q) => q.id !== n.id && q.band === box.id && q.row === slot.row && q.lane === lane);
+  n.lane = lane; n.band = box.id; n.who = { owner: 'owner', claude: 'Claude', page: 'page/system' }[lane];
+  if (clash) { n.row = slot.row - 0.5; flowNormRows(W); } else n.row = slot.row;
+  flowSel = n.id; flowRedraw(); flowSheet();
+});
+(async () => { try { const u = await window.claude?.use?.('user'); if (u && typeof u.can === 'function') { const c = await u.can('data.write'); if (c === false) { flowCan = false; flowRedraw(); } } } catch (e) {} })();
+function flowHomeCard() {
+  const fl = flowApplied(), wait = flowFilms().filter((f) => isWaiting(f)).length;
+  return `<button type="button" class="fl-home" data-go="flow"><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="22" y="4" width="14" height="9" rx="3"/><path d="M29 13v6"/><path d="M29 19l6 5-6 5-6-5z"/><path d="M23 24H11v-5"/><rect x="4" y="10" width="14" height="9" rx="3"/><path d="M29 29v7"/></svg><span><b>مسار الشغل</b><small>${fl.nodes.length} خطوة وقرار${wait ? ` · ${wait} ينتظرك` : ''} · شوف وين كل فلم، وعدّل المسار</small></span><i aria-hidden="true">‹</i></button>`;
+}
+window.addEventListener('hashchange', () => { if (location.hash !== '#flow') { const el = document.getElementById('flsheet'); if (el) el.hidden = true; flowFocus = location.hash === '#flow' ? flowFocus : null; } });
 
 function viewLibrary() {
   let h = header('المكتبة', 'نوع السكربت ولغته') + viewBrief(false);
@@ -1686,6 +2382,7 @@ async function upShots(input) {
 function route() {
   const h = (location.hash || '#films').slice(1);
   if (h.startsWith('edit-')) { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewEdit(h.slice(5)); bind(); bindEdit(); return; }
+  if (h === 'flow') { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewFlow(); bind(); flowAfter(); return; }
   const sv = h.match(/^film(voice|review|publish)-(.+)$/);
   if (sv) {
     const sf = films.find((x) => x.id === sv[2]);
@@ -1743,6 +2440,7 @@ function bind() {
   }));
   { const r = document.getElementById('vseek'); if (r) r.addEventListener('input', () => { const c = clipFor(r.dataset.src); c.to = null; c.key = `${r.dataset.src}|`; try { c.a.currentTime = +r.value; } catch (e) {} paintClip(); }); }
   paintClip();
+  flowEnforce();
 }
 
 async function tell(text, el, record) {
@@ -1782,7 +2480,7 @@ async function act(b, e) {
   if (!SENDS.includes(kind)) return run(b);
   if (kind === 'flowpick' || kind === 'flowmore') {                 // paid: the first tap only asks; nothing is sent
     const f = films.find((x) => x.id === b.dataset.id), o = (f?.flow?.direction_options || []).find((x) => String(x.id) === b.dataset.k);
-    if ((kind === 'flowpick' ? o?.cost === 'paid' : b.dataset.paid) && b.dataset.sure !== '1') {
+    if ((kind === 'flowpick' ? o?.cost === 'paid' : b.dataset.paid) && b.dataset.sure !== '1' && flowSet('g_dirpaid', 'confirm_taps', 2) >= 2) {
       b.dataset.sure = '1'; const t = 'يصرف رصيد Higgsfield. اضغط مرة ثانية';
       if (kind === 'flowpick') b.textContent = t; else b.querySelector('span').textContent = t;
       return;
@@ -1790,7 +2488,7 @@ async function act(b, e) {
   }
   if (inFlight.has(key)) { toast('لحظة، الطلب اللي قبله للحين يرسل.'); return; }
   { const tk = `${kind}|${b.dataset.id || ''}|${b.dataset.k || ''}|${b.dataset.o || ''}`;   // the same tap twice within 30 s is sent once
-    if (Date.now() - (tapped[tk] || 0) < 30e3 && kind !== 'flowresend' && kind !== 'lastresend') { toast('انرسلت قبل شوي ✓'); return; }
+    if (Date.now() - (tapped[tk] || 0) < flowSet('n_tell', 'dedupe_sec', 30) * 1e3 && kind !== 'flowresend' && kind !== 'lastresend') { toast('انرسلت قبل شوي ✓'); return; }
     tapped[tk] = Date.now(); }
   inFlight.add(key);
   document.querySelectorAll('[data-act]').forEach((x) => { if (SENDS.includes(x.dataset.act)) x.disabled = true; });
@@ -1886,7 +2584,7 @@ async function run(b) {
   if (kind === 'one') { one(f, +b.dataset.k, b); return; }
   if (kind === 'saveall' || kind === 'savecap') { await save(kind, f, b); return; }
   if (kind === 'posted') {
-    if (b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = 'نشرته؟ اضغط مرة ثانية ✓'; return; }
+    if (b.dataset.sure !== '1' && flowSet('g_posted', 'confirm_taps', 2) >= 2) { b.dataset.sure = '1'; b.textContent = 'نشرته؟ اضغط مرة ثانية ✓'; return; }
     if (!db) { toast('يحتاج صلاحية تعديل الاستوديو.'); return; }
     b.disabled = true;
     try {
@@ -1953,7 +2651,7 @@ async function run(b) {
   }
   if (kind === 'hide' || kind === 'unhide') {
     if (!db || !f) { toast('يحتاج صلاحية تعديل الاستوديو.'); return; }
-    if (kind === 'hide' && b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = `أكيد؟ اضغط مرة ثانية (تقدر ترجّعه خلال ${HIDE_DAYS} يوم)`; return; }
+    if (kind === 'hide' && b.dataset.sure !== '1' && flowSet('n_hide', 'confirm_taps', 2) >= 2) { b.dataset.sure = '1'; b.textContent = `أكيد؟ اضغط مرة ثانية (تقدر ترجّعه خلال ${HIDE_DAYS} يوم)`; return; }
     b.disabled = true;
     try {
       await db.doc(`films/${id}`).update(kind === 'hide' ? { hidden: true, hidden_at: new Date().toISOString() } : { hidden: false });
@@ -2380,6 +3078,7 @@ async function edUndo(f, b) {
 function toast(t) { const n = $('#toast'); n.textContent = t; n.hidden = false; clearTimeout(n._t); n._t = setTimeout(() => (n.hidden = true), 6000); }
 
 function refresh() {                                                // live data never interrupts a playing film or a note being typed
+  if ((location.hash || '') === '#flow') { flowLive(); return; }   // the workflow map redraws itself, keeping its sheet and scroll
   if ((location.hash || '').startsWith('#edit-') && document.getElementById('kit')) return;   // nor an edit in progress
   const v = document.querySelector('video'), t = document.getElementById('note');
   if ((v && !v.paused) || (t && t.value.trim()) || document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.id === 'iglink') return;
@@ -2402,6 +3101,7 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
     }, () => { ready = true; refresh(); });
     db.doc('studio/now').onSnapshot((d) => { now = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/costs').onSnapshot((d) => { costs = d.exists ? d.data() : null; refresh(); }, () => {});
+    db.doc('studio/flow').onSnapshot((d) => { flowDoc = d.exists ? d.data() : null; refresh(); }, () => {});
     db.collection('inbox').onSnapshot((snap) => { inbox = snap.docs.map((d) => ({ id: d.id, ...d.data() })); refresh(); }, () => {});
     db.doc('studio/rules').onSnapshot((d) => { const l = d.exists ? d.data().list : null; if (Array.isArray(l) && l.length) { RULES = l; refresh(); } }, () => {});
     db.doc('studio/topics').onSnapshot((d) => { topics = d.exists ? d.data() : {}; refresh(); }, () => {});

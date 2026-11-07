@@ -110,3 +110,25 @@ after the owner had set 22–28 shots and about 20 dB under in the gaps). A rule
 
 The forecast on the publish view is the account's usual for that kind until the model uses the film's own features;
 it is labelled «المعتاد لريلزكم», never «التوقع» (G9).
+
+## «مسار الشغل»: the workflow map is the studio's control panel
+The owner, 7 Nov 2026: «I want the Interactive Visual Workflow Builder to become the central place for designing,
+understanding, and controlling the entire Studio workflow… changes should affect how the Studio actually operates».
+The studio's `#flow` view draws the whole workflow: three lanes (أنت / Claude / الاستديو) and the 7 stages plus
+«طول الوقت». Every step, decision, paid gate and feedback loop has its rules, with their sources, and its settings.
+The map was built from evidence only: the page, `library.json`, this skill and its references. Its built-in copy is
+`studio-page/flow-seed.json`; the applied map lives in `studio/flow` `{version, applied_at, nodes, edges, history}`.
+Known gaps stay on the map, flagged `gap:true`, until they are fixed.
+
+- **The page enforces what it can from the applied map:** the paid second tap, the 5- and 10-minute «not received»
+  timeouts, the 30-second double-tap block, the default «بانتظارك» text, and hiding an owner button whose path was
+  removed. Without `studio/flow` it behaves as before.
+- **Claude follows the map:** at every step, read `studio/flow` (or the seed) for that step's node. A node's rules
+  and settings (paid, max rounds, who decides) apply as written. If a node and this skill disagree, the newer one
+  wins. Tell the owner about the conflict once.
+- **Applying an edit:** the owner's «افحص وطبّق» runs the checks first: no unreachable step, no dead end, no
+  decision with a single exit, no paid step without the owner's yes before it, and no publish without his approval.
+  An applied edit adds an `inbox` row `{kind: 'flow_edit', text, diff}`. Claude writes that change into the matching
+  reference file or SKILL.md through a PR (merged when the tests pass), marks the row handled, and tells the owner
+  in one line what now works differently. A change that breaks a rule that never bends («never publish without his
+  approval», «no paid generation without his yes») is not applied: say so and ask.
