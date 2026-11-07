@@ -571,7 +571,7 @@ class FilmsByTopic(unittest.TestCase):
     def test_grouped_rows_with_rules(self):
         from pathlib import Path
         page = (Path(__file__).resolve().parents[1] / 'studio-page/index.html').read_text(encoding='utf-8')
-        for s in ('const topicOf', 'class="topic"', 'class="item"', 'const ruleState', "doc('studio/rules')", "doc('studio/topics')", 'القواعد الجديدة'):
+        for s in ('const topicOf', 'class="topic"', 'class="item"', 'const ruleState', "doc('studio/rules')", "doc('studio/topics')", 'القواعد وآخر تحديث'):
             self.assertIn(s, page)
         import re
         ids = re.findall(r"\{ id: '([\w-]+)', kind: '(reel|carousel)', at: '([\dT:Z-]+)'", page)
