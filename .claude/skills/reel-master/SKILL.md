@@ -59,8 +59,8 @@ ironic final fact, and the real photographs (`python3 tools/find_photo.py "<what
 split the research across parallel agents, one per angle, each saving notes with sources.
 
 ### 2. Hook and script
-- **Hook:** pick the strongest true hook from the research (rule 6; the type's `hooks`;
-  `vendor/paper-story/references/hooks.md`) and write the script from it; two alternatives go with the script so the
+- **Hook:** follow the owner's guide `references/hooks.md` first (5 openings written, one picked, its checklist
+  passed), then rule 6f, the type's `hooks` and `vendor/paper-story/references/hooks.md`; write the script from it; two alternatives go with the script so the
   owner can swap it at the script gate (one question, not two: the owner's choice, 2 Nov 2026). A physical first image
   or the owner's own question beats a teaser. The first frame shows the real subject, named.
 - **Script:** in **acts** (3–5; `act: true` on the line that opens each), told in order after the hook, each line
