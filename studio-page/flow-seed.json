@@ -648,6 +648,18 @@
      "t": "f.waiting خطوة وحدة واضحة",
      "src": "library.json workflow (f.waiting)",
      "p": "سطر «بانتظارك» يقول خطوة وحدة واضحة"
+    },
+    {
+     "t": "بطاقة النص: البداية واثنين بديل، والعنوان واثنين بديل، والطول وعدد الأحرف المتوقع",
+     "src": "studio script.js scriptCard"
+    },
+    {
+     "t": "كل جملة معاها «المصدر» تفتحه وتشوفه",
+     "src": "studio script.js srcHtml"
+    },
+    {
+     "t": "وش غيّروا القرّاء: بطيّة تحت البطاقة",
+     "src": "studio script.js scriptCard"
     }
    ],
    "settings": {},
@@ -799,6 +811,10 @@
     {
      "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
      "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
+    },
+    {
+     "t": "إذا فيه كلمات ما تأكدت منها: تنبيه «الأحسن تشيّكها قبل التسجيل»، والقرار لك",
+     "src": "studio script.js voiceNote"
     }
    ],
    "settings": {
@@ -842,6 +858,14 @@
     {
      "t": "أبد ما نكتب «گ» بأيدينا على v3",
      "src": "SKILL.md §4 + القواعد الثابتة"
+    },
+    {
+     "t": "التسجيل يوقف إذا فيه كلمة بالنص ما تأكدت منها",
+     "src": "tools/record_flow.py (PR #178)"
+    },
+    {
+     "t": "صفحة الصوت تبين عدد التسجيلات، وكم كلمة ما يحتاج تصلّحها مرة ثانية",
+     "src": "studio script.js takesLine"
     }
    ],
    "settings": {
@@ -3038,6 +3062,141 @@
     "reel",
     "carousel"
    ]
+  },
+  {
+   "id": "n_kwcheck",
+   "band": "script",
+   "lane": "claude",
+   "type": "decision",
+   "label": "كتاب الكلمات يعرف كل الكلمات؟",
+   "note": "",
+   "row": 21.2,
+   "who": "Claude",
+   "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
+   "rules": [
+    {
+     "t": "كل كلمة بالنص تتشيّك بكتاب الكلمات الكويتية؛ اللي ما يعرفها أكيد تنكتب لك تتأكد منها",
+     "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel"
+   ],
+   "sub": ""
+  },
+  {
+   "id": "n_words",
+   "band": "script",
+   "lane": "owner",
+   "type": "task",
+   "label": "تتأكد من الكلمات",
+   "note": "قبل ما ينسجل الصوت",
+   "row": 21.3,
+   "who": "owner",
+   "src": "studio script.js wordsCard",
+   "rules": [
+    {
+     "t": "كل كلمة بجملتها: «تمام»، أو الاقتراح، أو «اكتب شلون تنقال»، أو تختار من طرق تسمعها",
+     "src": "studio script.js wordsCard"
+    },
+    {
+     "t": "«كلها تمام ✓» يرسلها مرة وحدة",
+     "src": "studio script.js wordsCard"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "قبل ما ينسجل الصوت"
+  },
+  {
+   "id": "n_wordsrec",
+   "band": "script",
+   "lane": "page",
+   "type": "task",
+   "label": "يوصل Claude جوابك",
+   "note": "وش تمام ووش تصحيح",
+   "row": 21.4,
+   "who": "page/system",
+   "src": "studio script.js",
+   "rules": [
+    {
+     "t": "جوابك ينحفظ ويوصل Claude",
+     "src": "studio script.js"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "inbox {kind: words, cleared, fixes}"
+   ],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "وش تمام ووش تصحيح"
+  },
+  {
+   "id": "n_kwlearn",
+   "band": "script",
+   "lane": "claude",
+   "type": "task",
+   "label": "تنضاف لكتاب الكلمات",
+   "note": "ما يسألك عنها مرة ثانية",
+   "row": 21.5,
+   "who": "Claude",
+   "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
+   "rules": [
+    {
+     "t": "الكلمات اللي أكدتها تنحفظ بالكتاب، وتنكتب بالفلم تحت kw_ok",
+     "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
+     "p": "الكلمات اللي أكدتها تنحفظ بالكتاب، وما يسألك عنها مرة ثانية"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "ما يسألك عنها مرة ثانية"
+  },
+  {
+   "id": "n_scriptpick",
+   "band": "script",
+   "lane": "page",
+   "type": "task",
+   "label": "اختيارك يوصل Claude",
+   "note": "البداية أو العنوان",
+   "row": 19.3,
+   "who": "page/system",
+   "src": "studio script.js",
+   "rules": [
+    {
+     "t": "ضغطة وحدة تختار البداية أو العنوان من 3",
+     "src": "studio script.js scriptCard"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "inbox {kind: answer, key: hook|title}"
+   ],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "البداية أو العنوان"
   }
  ],
  "edges": [
@@ -3332,17 +3491,6 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
-  },
-  {
-   "from": "n_kind",
-   "to": "n_vcost",
-   "label": "ريل",
-   "kind": "yes",
-   "src": "SKILL.md §1",
-   "who": "Claude",
-   "kinds": [
-    "reel"
    ]
   },
   {
@@ -4644,6 +4792,96 @@
    "src": "studio.md caption + الاستديو:726",
    "who": "page/system",
    "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_kind",
+   "to": "n_kwcheck",
+   "label": "ريل",
+   "kind": "yes",
+   "src": "studio script.js",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_kwcheck",
+   "to": "n_vcost",
+   "label": "إي، يعرفها",
+   "kind": "yes",
+   "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_kwcheck",
+   "to": "n_words",
+   "label": "لا",
+   "kind": "no",
+   "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_words",
+   "to": "n_wordsrec",
+   "label": "أرسل",
+   "kind": "next",
+   "src": "studio script.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_wordsrec",
+   "to": "n_kwlearn",
+   "label": "",
+   "kind": "next",
+   "src": "studio script.js",
+   "who": "page/system",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_kwlearn",
+   "to": "n_vcost",
+   "label": "",
+   "kind": "next",
+   "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_scriptgate",
+   "to": "n_scriptpick",
+   "label": "تختار البداية أو العنوان",
+   "kind": "no",
+   "src": "studio script.js scriptCard",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_scriptpick",
+   "to": "n_scriptsend",
+   "label": "Claude يحدّث النص",
+   "kind": "loop",
+   "src": "studio script.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
     "carousel"
    ]
   }

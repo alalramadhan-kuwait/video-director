@@ -156,3 +156,17 @@ Every idea lives in the studio from the moment it is sent, whatever the door:
   directions each round. After 3 rounds, continue in chat.
 - A style marked «يحتاج بناء» shows its build time and cost only when `library.json` gives them; otherwise say both
   before starting, as for any paid step.
+
+## The script card (the owner, 7 Nov 2026)
+With every script sent for approval, write on the film:
+- `script {version, lines: [{n, text, src: [{title, url?}]}], hook: {chosen, options: [2]}, title: {chosen, options: [2]},
+  est_seconds, est_chars, readers: [{who, round, found, fixed}]}`. The page reads the script from here first. The
+  «السكربت:» lines in `changes` stay as the fallback. `est_chars` is counted the way ElevenLabs bills (emotion tags
+  included). He picks the hook and the title on the card (`inbox` kind `answer`, key `hook` / `title`).
+- `words_check {at, items: [{line, word, kind: ask|new, say?, note?, options?}]}` from `director/kw.check`, before the
+  voice cost question. His answer arrives as `inbox` kind `words` `{cleared, fixes: [{word, how}]}`. Add the fixes to
+  `brand/kuwaiti-words.json` the same day, and list the cleared words under the film's `kw_ok:`.
+- A free review voice (`script_audio`, edge-tts) with **every** new script, for every film.
+- After each paid whole take, `voice.takes` +1. Set `voice.learned` to the number of words in the word book.
+- His edit to a script starts one readers' round on the changed lines only. It does not count toward the 3 rounds.
+  Log the edit in `script-edits.md`.
