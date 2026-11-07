@@ -11,8 +11,9 @@ The owner, 3 Nov 2026: «حط اوبشن تم النشر وتنطر التحلي
    - **48 hours** (`48h`, «أول قراءة»): Instagram decides most of a Reel's reach in its first two days. This read
      shows the hook (skip rate), the watch time, and whether the Reel went past the followers.
    - **7 days** (`7d`, «القراءة النهائية»): the settled numbers: the reach, shares, saves and follows.
-3. When a read is due, the film waits for the owner («بانتظارك · صور الإحصائيات»). Étienne's daily brief reminds
-   him. He uploads the screenshots in the studio (`insights_shots`) or sends them in the chat (`insights_sent`).
+3. When a read is due, the numbers come straight from Instagram through Supabase (`studio_page()`, cached in
+   `studio/ig`). Only when that sync is down does the film wait for screenshots («بانتظارك · صور الإحصائيات»), which
+   he uploads in the studio (`insights_shots`) or sends in the chat (`insights_sent`).
 4. Claude reads them, writes the verdict on the film (`insights`), updates the recipe (`studio/recipe`), and adds a
    row to the log below.
 

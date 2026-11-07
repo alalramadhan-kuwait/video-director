@@ -32,7 +32,14 @@ Write `films/<film id>` when a step starts, when it ends, and when a gate waits 
 | `version`, `seconds`, `versions` | the latest version, its length, the version list newest first |
 | `updated`, `changes` | **with every new version** (the owner: «شلون اعرف اذا هذي اخر نسخة تم تحديثها متى؟ وشنو كانت اخر التغيرات؟»): `updated` the time (ISO, UTC) and `changes` `[{v, at, what: [one short line per change, in the owner's words]}]`, newest first, at most 20. The film page shows «آخر تحديث» in Kuwait time with its age and the latest changes, the older ones folded; the cards show the version and its age. The studio's own text editor writes its entry itself |
 | `video`, `poster` | a published file of the page: a light copy of the film (720 px, crf ~29, under 15 MB) and its cover |
-| `final`, `caption` (a film) | **on the owner's approval, at once** (the owner: «مفروض بعد الموافقه يعطيني الفيديو جاهز للحفظ مع الكابشن»): the film at full size (1080×1920, two-pass to under 16 MB, a published file's limit) and its post caption (hook, the story in two lines, the reader's question, sources, credits, hashtags). An approved film shows «احفظ الفيلم ↗» (the share sheet's Save Video; the caption goes to the clipboard on the same tap) and its caption |
+| `caption`, `music`, `credits`, `sources` (a film) | **with every version the owner reviews**, not only on approval (7 Nov 2026 audit, gaps G2 and G4: the owner reviews the caption with the film, and a CC BY music credit must never live only in a local file): `caption` in the house style (below), `music {name, by, licence, url}`, `credits [one line each]`, `sources [{title, url?}]`. The review and publish views show them |
+| `built_from` | with every video version: `{script: 'نص v4', voice: 'صوت v5'}`, so the owner sees which script and take are inside it (G11) |
+| `voice` | with every take: `{audio, chars, lines: [{n, text, from, to}], words: [{line, word, options: [{name, hint, audio}]}]}`. `audio` is the whole take as audio-only AAC `.mp4` (the store refuses mp3), `lines` the on-screen text with the take's times, `chars` **the billed ElevenLabs count of that take (emotion tags included)**: the page's re-record cost comes from it and never from the on-screen text, which read about 40 % low (G3). `words` holds the spoken options when the owner marks a word (`kuwaiti-voice.md`): the studio voice view is the one place he picks them (G6) |
+| `prev_video`, `prev_version` | while a version waits for the owner: a light copy (720 px) of the version before it, for «قارن مع النسخة اللي قبل» (G5). Deleted with the owner's approval (the one exception to «One copy only») |
+| `checks` | with every version: `[{who, round, found, fixed}]` from the readers, the critic, the sound check and the collector check, shown as «وش صلّح الفريق» (G12) |
+| `cost` | per film, kept current after every paid call: `{elevenlabs_chars, higgsfield_credits, note}`. `studio/costs` holds the balances `{at, elevenlabs: {used, limit, resets}, higgsfield: {balance, plan}}`, refreshed after every paid call (ElevenLabs `/v1/user/subscription`, Higgsfield `balance`) (G13) |
+| `asks` | several open questions on one film at once: `[{key, q, options}]`, each shown as buttons in «دورك الحين»; a tap adds an `inbox` row `{kind: 'answer', key, answer}`. Use it for side decisions such as a title, and once a week for every film waiting over 3 days («كمّله / خلّه على جنب / احذفه») (G10, G14) |
+| `final`, `caption` (a film) | **ready before the owner approves; written at once on approval at the latest** (the owner: «مفروض بعد الموافقه يعطيني الفيديو جاهز للحفظ مع الكابشن»): the film at full size (1080×1920, two-pass to under 16 MB, a published file's limit) and its post caption (hook, the story in two lines, the reader's question, sources, credits, hashtags). An approved film shows «احفظ الفيلم ↗» (the share sheet's Save Video; the caption goes to the clipboard on the same tap) and its caption |
 | `acts` | `[{name, time}]` once the voice exists |
 | `meta` | type · language · look · voice |
 | `done_text` | when done («جاهز للنشر», «منشور») |
@@ -58,6 +65,14 @@ carousel the change box shows the slides to pick (one or more); the message name
 inbox document carries their files in `slides`. On
 «شيّك الاستوديو», or when a film waits, read `inbox` and act on what is new.
 
+**Every inbox row is marked when it is handled** (7 Nov 2026 audit, gap G1: the 04:45 ep2 hook pick reached only the
+inbox, and nobody could tell which rows were done): `handled_at`, `handled_by: 'claude'`, a short `handled_note`. A row
+without `handled_at` is new. A scheduled task checks the studio every hour (unhandled rows, and films whose
+`last_action.at` is newer than `updated`), acts on them under the usual gates, and writes `studio/now.checked_at`; the
+page shows «آخر مرة شيّك Claude». **A decision the owner makes in chat is written to the inbox too** (`via: 'chat'`,
+his words quoted, `handled_at` set) and as a `changes` line, so the studio's history shows who approved what (G7).
+When a film moves to `waiting`, also tell the owner in one short chat line (G15).
+
 ## The owner edits a carousel's text himself
 The owner, 2 Nov 2026: «some time to edit or change the text on the carousel… shouldn't require a regeneration of the
 whole picture». A carousel record with `spec` and `src` shows «✎ عدّل النص بنفسك»: the page draws each slide on the
@@ -78,9 +93,20 @@ spec.json before rendering. A new carousel gets `spec` and `src` when it is firs
 analysed numbers only (`references/insights.md`).
 
 ## One copy only (the owner, 3 Nov 2026: «امسح القديم دايما خل يكون بس في نسخه وحده من اخر تحديث»)
-The studio holds **one copy of each film or carousel: its latest version**. Every publish of a new version removes
+The studio holds **one copy of each film or carousel: its latest version**. The one exception: while a version waits for the owner, the light copy of the version before it stays as `prev_video` for the side-by-side compare, and goes with his approval. Every publish of a new version removes
 the files of the one before it in the same call (`files: {"film/<id>-vN.mp4": null, …}`), and the uploaded slides
 (`/_blob/…` assets) that only an older version used are deleted. A film keeps one video: once the 1080 final exists,
 `video` points to it too and the light copy is removed. The record keeps its `changes` log (text) and `versions`
 list, but no `history` of old slides. Local copies and the originals stay outside the studio (never deleted). The
 studio's size limit (256 MB a version) is reached quickly otherwise: on 3 Nov 2026 a publish was refused at 254 files.
+
+## The studio's rule texts follow the repo
+`library.json` (`direction`, `workflow`, `methods`) and `studio/rules` repeat rules that live in `storytelling.md`,
+`ai-film.md`, `hooks.md` and `kuwaiti-voice.md`. When one of those rules is merged, update the studio's copy in the
+same change (7 Nov 2026 audit, gap G8: the studio still showed 35–45 shots a minute and music 5 dB under the voice
+after the owner had set 22–28 shots and about 20 dB under in the gaps). A rule the owner accepts from the numbers
+(«أضيفها للقواعد؟») is written into the matching reference file the next time Claude works, not only into
+`studio/rules`. The free review voice may be sped up for listening (`atempo`); the final voice never is.
+
+The forecast on the publish view is the account's usual for that kind until the model uses the film's own features;
+it is labelled «المعتاد لريلزكم», never «التوقع» (G9).
