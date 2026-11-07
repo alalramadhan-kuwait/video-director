@@ -55,21 +55,30 @@
    "band": "idea",
    "lane": "owner",
    "type": "start",
-   "label": "طلب من المكتبة",
-   "note": "نوع + لغة + «ابدأ»",
+   "label": "فكرة جديدة",
+   "note": "الأفلام ← فكرة جديدة",
    "row": 1,
    "who": "owner",
-   "src": "الاستديو:1150, 1999",
+   "src": "studio idea.js viewIdea",
    "rules": [
     {
-     "t": "الموضوع ينرسل بالمحادثة بعدها",
-     "src": "الاستديو:1999"
+     "t": "تكتب الموضوع (لازم)، ريل ولا كاروسيل ولا Claude يختار، نوع القصة، اللغة، ورابط أو صورة إذا عندك",
+     "src": "studio idea.js viewIdea"
+    },
+    {
+     "t": "«ابدأ بهالنوع» بالمكتبة يفتح نفس الفورم والنوع مختار",
+     "src": "studio splice (start)"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "page": "الأفلام ← فكرة جديدة (أو أول المكتبة، أو «ابدأ بهالنوع»)",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "s_twin",
@@ -77,10 +86,10 @@
    "lane": "owner",
    "type": "start",
    "label": "سوّ منه كاروسيل/ريل",
-   "note": "من صفحة فلم موجود",
+   "note": "صفحة الفلم أو الكاروسيل",
    "row": 2,
    "who": "owner",
-   "src": "الاستديو:755, 1997",
+   "src": "studio index.html:1223, 857, 2771",
    "rules": [
     {
      "t": "نفس المعلومات والمصادر، سجل يديد مربوط بـ of",
@@ -90,7 +99,12 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "page": "صفحة الفلم أو الكاروسيل ← سوّ منه كاروسيل/ريل",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "s_chat",
@@ -98,7 +112,7 @@
    "lane": "owner",
    "type": "start",
    "label": "فكرة بالمحادثة",
-   "note": "أغلب الأفلام بدت چذي",
+   "note": "المحادثة مع Claude",
    "row": 3,
    "who": "owner",
    "src": "audit.md §2.1",
@@ -106,12 +120,29 @@
     {
      "t": "Claude يكتب سجل الفلم بنفسه أول ما تبدأ خطوة",
      "src": "studio.md «Keep it current»"
+    },
+    {
+     "t": "الصفحة الرئيسية الفاضية تقول «أرسل لي فكرة في المحادثة»",
+     "src": "studio index.html:654"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "page": "المحادثة مع Claude",
+   "gap": true,
+   "gaps": [
+    {
+     "id": "جديد",
+     "plain": "فكرة المحادثة ما تطلع بالاستديو إلا لما Claude يكتب سجلها"
+    }
+   ],
+   "gap_note": "فكرة المحادثة ما تطلع بالاستديو إلا لما Claude يكتب سجلها",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_record",
@@ -126,11 +157,24 @@
    "rules": [
     {
      "t": "الزر ينشئ السجل فوراً مع flow {stage:queued, pct:0}، والجلسة تعدّل نفس السجل",
-     "src": "library.json workflow 1"
+     "src": "library.json workflow 1",
+     "p": "الزر يسوي صفحة الفلم فوراً، وClaude يكمل على نفس الصفحة"
     },
     {
      "t": "إذا نفس الطلب مفتوح، يفتحه بدل ما يسوي واحد ثاني",
      "src": "الاستديو:1760"
+    },
+    {
+     "t": "كل فكرة تاخذ اسمها من الموضوع اللي كتبته، وموضوع خاص فيها (إلا إذا اخترت موضوع موجود)",
+     "src": "studio idea.js ideaCreate"
+    },
+    {
+     "t": "منع التكرار بس لما الطلب من فلم موجود؛ فكرتين يديدة من نفس النوع تصير فلمين",
+     "src": "studio splice (newRequest)"
+    },
+    {
+     "t": "«Claude يختار»: Claude يقترح ريل أو كاروسيل مع السبب، وإنت توافق",
+     "src": "studio idea.js + studio.md asks"
     }
    ],
    "settings": {},
@@ -139,7 +183,12 @@
     "inbox {kind: request}"
    ],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يسوي له صفحة بالاستديو"
   },
   {
    "id": "n_pickwait",
@@ -155,6 +204,10 @@
     {
      "t": "بعد 5 دقايق بدون استلام: «الطلب ما انستلم» + «أعد الإرسال»",
      "src": "reel.js:120 / الاستديو:685"
+    },
+    {
+     "t": "النص: «ما فيه جلسة مفتوحة الحين. Claude يشيّك الاستديو كل ساعة؛ الفحص الياي حوالي HH:MM»",
+     "src": "studio idea.js pickupLine"
     }
    ],
    "settings": {
@@ -165,7 +218,11 @@
     "flow.stage",
     "flow.at"
    ],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_resend",
@@ -189,7 +246,11 @@
     "inbox {kind: flow}"
    ],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_pickup",
@@ -204,7 +265,8 @@
    "rules": [
     {
      "t": "جلسة وحدة بس تستلم الطلب، وتغيّر stage إلى received خلال دقايق",
-     "src": "library.json workflow 2"
+     "src": "library.json workflow 2",
+     "p": "جلسة وحدة بس تستلم الطلب، وتكتب «استلمت» خلال دقايق"
     }
    ],
    "settings": {},
@@ -212,7 +274,12 @@
     "flow.stage"
    ],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يكتب «استلمت»"
   },
   {
    "id": "n_research",
@@ -227,7 +294,8 @@
    "rules": [
     {
      "t": "ريل إلا إذا طلبت كاروسيل؛ الكاروسيل يتبع carousel.md ويتخطى الصوت والإيقاع والأسلوب",
-     "src": "SKILL.md §1"
+     "src": "SKILL.md §1",
+     "p": "ريل إلا إذا طلبت كاروسيل؛ الكاروسيل يتخطى الصوت والإيقاع والأسلوب"
     },
     {
      "t": "كل معلومة لها مصدر، والإشاعة تنقال كاعتقاد",
@@ -245,7 +313,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_dirs",
@@ -274,7 +346,11 @@
     "waiting"
    ],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_dirpick",
@@ -304,7 +380,12 @@
    "stage": "idea",
    "gap": true,
    "gap_id": "§3",
-   "gap_note": "الأساليب اللي تحتاج بناء ما تقول الوقت ولا التكلفة"
+   "gap_note": "الأساليب اللي تحتاج بناء ما تقول الوقت ولا التكلفة",
+   "gap_plain": "الأساليب اللي «تحتاج بناء» ما تقول كم تاخذ وقت ولا كم تكلّف",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "g_dirpaid",
@@ -336,7 +417,11 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_picked",
@@ -351,7 +436,8 @@
    "rules": [
     {
      "t": "أي اختيار يكتب last_action وينرسل لـ Claude",
-     "src": "library.json workflow 8"
+     "src": "library.json workflow 8",
+     "p": "أي اختيار ينحفظ ويوصل Claude"
     }
    ],
    "settings": {},
@@ -360,7 +446,12 @@
     "inbox {kind: flow}"
    ],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يوصل Claude اختيارك"
   },
   {
    "id": "n_afterpick",
@@ -375,17 +466,23 @@
    "rules": [
     {
      "t": "flow.more = عيّنة من القائمة الكاملة",
-     "src": "library.json workflow 5"
+     "src": "library.json workflow 5",
+     "p": "«ما عجبني شي» = عيّنة من القائمة الكاملة"
     },
     {
      "t": "mode:'sample' يقف بعد العيّنة ولا يبني الفلم",
-     "src": "library.json workflow 9"
+     "src": "library.json workflow 9",
+     "p": "تجربة الأسلوب توقف بعد العيّنة وما تبني الفلم"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "idea"
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_hook",
@@ -414,7 +511,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_script",
@@ -447,7 +548,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_readers",
@@ -474,7 +579,11 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_revvoice",
@@ -489,7 +598,8 @@
    "rules": [
     {
      "t": "كل نص يديد ينحط للمراجعة معاه تسجيل ببلاش (ar-KW-FahedNeural)",
-     "src": "library.json workflow 10"
+     "src": "library.json workflow 10",
+     "p": "كل نص يديد ينحط للمراجعة معاه تسجيل ببلاش بصوت كويتي"
     },
     {
      "t": "يتسرّع 1.25 للمراجعة بس؛ الصوت النهائي ما ينسرع",
@@ -507,7 +617,13 @@
    "stage": "script",
    "gap": true,
    "gap_id": "§3",
-   "gap_note": "Dennison بس عنده صوت المراجعة"
+   "gap_note": "Dennison بس عنده صوت المراجعة",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "صوت كويتي ببلاش، «اسمع النص»",
+   "gap_plain": "صوت المراجعة الببلاش موجود لـ Dennison بس"
   },
   {
    "id": "n_scriptsend",
@@ -530,7 +646,8 @@
     },
     {
      "t": "f.waiting خطوة وحدة واضحة",
-     "src": "library.json workflow (f.waiting)"
+     "src": "library.json workflow (f.waiting)",
+     "p": "سطر «بانتظارك» يقول خطوة وحدة واضحة"
     }
    ],
    "settings": {},
@@ -541,7 +658,11 @@
     "state: waiting"
    ],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_scriptgate",
@@ -560,7 +681,8 @@
     },
     {
      "t": "قرارك بالمحادثة ينكتب بالاستديو (via: chat)",
-     "src": "library.json workflow 11"
+     "src": "library.json workflow 11",
+     "p": "قرارك بالمحادثة ينكتب بالاستديو بعد"
     }
    ],
    "settings": {
@@ -568,7 +690,11 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_scriptedit",
@@ -583,7 +709,8 @@
    "rules": [
     {
      "t": "تعديل سطر: script_edits؛ نص كامل: script_full",
-     "src": "الاستديو:1848-1861"
+     "src": "الاستديو:1848-1861",
+     "p": "تعدّل سطر، أو تلصق النص كامل"
     }
    ],
    "settings": {},
@@ -593,7 +720,12 @@
     "inbox {kind: change}"
    ],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "سطر أو النص كامل، يوصل Claude"
   },
   {
    "id": "n_kind",
@@ -614,7 +746,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "script"
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_vcost",
@@ -633,7 +769,8 @@
     },
     {
      "t": "التكلفة من voice.chars (الأحرف المدفوعة مع أوامر الإحساس)، مو من نص الشاشة",
-     "src": "studio.md «voice» (G3)"
+     "src": "studio.md «voice» (G3)",
+     "p": "التكلفة من الأحرف اللي تنحسب فعلاً (مع أوامر الإحساس)، مو من نص الشاشة"
     }
    ],
    "settings": {
@@ -643,7 +780,10 @@
    "reads": [
     "voice.chars"
    ],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "g_voice",
@@ -669,7 +809,11 @@
    "stage": "voice",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "ما فيه مسار مكتوب إذا رفضت التكلفة"
+   "gap_note": "ما فيه مسار مكتوب إذا رفضت التكلفة",
+   "kinds": [
+    "reel"
+   ],
+   "gap_plain": "بوابة تكلفة الصوت ما فيها طريق إذا قلت لا"
   },
   {
    "id": "n_take",
@@ -684,7 +828,8 @@
    "rules": [
     {
      "t": "الفيلم كله بقراءة وحدة (تحت 4,500 حرف، مع أوامر الإحساس)، وبعدها tighten 0.4",
-     "src": "SKILL.md §4 + أدوات الصوت"
+     "src": "SKILL.md §4 + أدوات الصوت",
+     "p": "الفيلم كله بقراءة وحدة (تحت 4,500 حرف مع أوامر الإحساس)، وبعدها نقصّر السكتات الطويلة"
     },
     {
      "t": "الصوت النهائي تسجيلة وحدة، بدون ترقيع",
@@ -711,7 +856,10 @@
     "studio/costs"
    ],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_vcheck",
@@ -726,7 +874,8 @@
    "rules": [
     {
      "t": "hear.py: كل كلمة موجودة وما فيه زيادة؛ hear_flow.py يكشف الوصلات",
-     "src": "SKILL.md §4"
+     "src": "SKILL.md §4",
+     "p": "فحص: كل كلمة موجودة وما فيه زيادة، والوصلات ما تبين"
     },
     {
      "t": "إذا يبين مرقّع يعاد قبل أي بناء",
@@ -736,7 +885,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_vsend",
@@ -768,7 +920,10 @@
     "waiting"
    ],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_listen",
@@ -791,7 +946,10 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "g_marks",
@@ -810,7 +968,8 @@
     },
     {
      "t": "التكلفة المكتوبة من voice.chars، ولا «Claude بيقول لك التكلفة»",
-     "src": "الاستديو:940"
+     "src": "الاستديو:940",
+     "p": "التكلفة مكتوبة قبل الإرسال، أو «Claude بيقول لك التكلفة»"
     }
    ],
    "settings": {
@@ -821,7 +980,10 @@
     "last_action"
    ],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_howknown",
@@ -846,7 +1008,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_options",
@@ -872,7 +1037,10 @@
     "voice.words"
    ],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "g_pick",
@@ -897,7 +1065,10 @@
     "inbox {kind: change}"
    ],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_relines",
@@ -924,7 +1095,10 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_spliced",
@@ -945,7 +1119,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "voice"
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_pace",
@@ -976,13 +1153,17 @@
     },
     {
      "t": "شعار tk فوق يسار",
-     "src": "storytelling.md 18r"
+     "src": "storytelling.md 18r",
+     "p": "شعار تايم كيبر الصغير فوق يسار"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_styleknown",
@@ -998,7 +1179,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_styleopts",
@@ -1019,7 +1203,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "g_style",
@@ -1049,7 +1236,11 @@
    "stage": "style",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "ما فيه مسار مكتوب إذا ما عجبك ولا أسلوب"
+   "gap_note": "ما فيه مسار مكتوب إذا ما عجبك ولا أسلوب",
+   "kinds": [
+    "reel"
+   ],
+   "gap_plain": "اختيار الأسلوب ما فيه طريق إذا ما عجبك ولا واحد"
   },
   {
    "id": "n_sample",
@@ -1064,7 +1255,8 @@
    "rules": [
     {
      "t": "بعد الاختيار: عيّنة 15 ثانية للاتجاه المختار بس، stage: sample",
-     "src": "library.json workflow 4"
+     "src": "library.json workflow 4",
+     "p": "بعد الاختيار: عيّنة 15 ثانية للاتجاه المختار بس"
     }
    ],
    "settings": {
@@ -1076,7 +1268,10 @@
     "flow.stage: sample"
    ],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_samplegate",
@@ -1099,7 +1294,10 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_sampleonly",
@@ -1114,13 +1312,18 @@
    "rules": [
     {
      "t": "mode:'sample' يقف بعد العيّنة",
-     "src": "library.json workflow 9"
+     "src": "library.json workflow 9",
+     "p": "تجربة الأسلوب توقف بعد العيّنة"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "طلبت تجربة أسلوب بس؟"
   },
   {
    "id": "e_sample",
@@ -1141,7 +1344,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "style"
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_pictures",
@@ -1170,7 +1376,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_missing",
@@ -1185,7 +1394,8 @@
    "rules": [
     {
      "t": "ما فيه صورة يحق نستخدمها: «صورة ناقصة» بـ flow.missing، ولا تنخترع",
-     "src": "library.json direction 1"
+     "src": "library.json direction 1",
+     "p": "ما فيه صورة يحق نستخدمها: تنكتب «صورة ناقصة»، وما تنخترع"
     }
    ],
    "settings": {},
@@ -1193,7 +1403,10 @@
     "flow.missing"
    ],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_missingown",
@@ -1217,7 +1430,11 @@
    "stage": "build",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "ما فيه زر تجاوب فيه على صورة ناقصة؛ الجواب بالمحادثة بس"
+   "gap_note": "ما فيه زر تجاوب فيه على صورة ناقصة؛ الجواب بالمحادثة بس",
+   "kinds": [
+    "reel"
+   ],
+   "gap_plain": "الصورة الناقصة ما لها زر تجاوب فيه؛ الجواب بالمحادثة بس"
   },
   {
    "id": "n_route",
@@ -1238,7 +1455,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "g_ai",
@@ -1268,7 +1488,11 @@
    "stage": "build",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "ما فيه مسار مكتوب إذا قلت لا"
+   "gap_note": "ما فيه مسار مكتوب إذا قلت لا",
+   "kinds": [
+    "reel"
+   ],
+   "gap_plain": "بوابة التوليد بالرصيد ما فيها طريق إذا قلت لا"
   },
   {
    "id": "n_aigen",
@@ -1294,7 +1518,10 @@
     "studio/costs"
    ],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_build",
@@ -1309,7 +1536,8 @@
    "rules": [
     {
      "t": "حدّث flow.pct و eta_min و note مع كل مرحلة",
-     "src": "library.json workflow 7"
+     "src": "library.json workflow 7",
+     "p": "النسبة والوقت المتبقي يتحدثون مع كل مرحلة"
     },
     {
      "t": "المشاهد تتبع الصوت",
@@ -1324,7 +1552,10 @@
     "state: working"
    ],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_critic",
@@ -1339,7 +1570,8 @@
    "rules": [
     {
      "t": "critic.py: ناقد يديد وإتيان كل جولة؛ 3 جولات بالأكثر",
-     "src": "SKILL.md §8 (rule 19c)"
+     "src": "SKILL.md §8 (rule 19c)",
+     "p": "ناقد يديد وإتيان كل جولة؛ 3 جولات بالأكثر"
     }
    ],
    "settings": {
@@ -1349,7 +1581,10 @@
     "checks"
    ],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_sound",
@@ -1364,11 +1599,13 @@
    "rules": [
     {
      "t": "earshot measure: 0 clipped و true peak ≤ -1 dBTP؛ ستيريو",
-     "src": "SKILL.md §8"
+     "src": "SKILL.md §8",
+     "p": "ما فيه تقطيع بالصوت، والذروة تحت -1 dBTP، ستيريو"
     },
     {
      "t": "أبد ما نستخدم أمر llm حق earshot",
-     "src": "SKILL.md §8 + القواعد الثابتة"
+     "src": "SKILL.md §8 + القواعد الثابتة",
+     "p": "أداة الفحص ما ترفع الصوت لأي مكان"
     }
    ],
    "settings": {
@@ -1376,7 +1613,10 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_expert",
@@ -1397,7 +1637,10 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_version",
@@ -1412,7 +1655,8 @@
    "rules": [
     {
      "t": "مع كل نسخة: caption، music، credits، sources، built_from، checks",
-     "src": "studio.md (G2, G4, G11, G12)"
+     "src": "studio.md (G2, G4, G11, G12)",
+     "p": "مع كل نسخة: الكابشن، الموسيقى، الكريدت، المصادر، وشنو فيها، ووش صلّح الفريق"
     },
     {
      "t": "نسخة وحدة بالاستديو، والنسخة اللي قبل تبقى للمقارنة لين توافق",
@@ -1438,7 +1682,10 @@
     "waiting"
    ],
    "reads": [],
-   "stage": "build"
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_review",
@@ -1470,7 +1717,10 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_change",
@@ -1489,7 +1739,8 @@
     },
     {
      "t": "«وصل تعديلك» لين Claude يكتب updated",
-     "src": "الاستديو:458"
+     "src": "الاستديو:458",
+     "p": "«وصل تعديلك» لين Claude يستلم"
     }
    ],
    "settings": {
@@ -1500,7 +1751,12 @@
     "last_action"
    ],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يوصل Claude"
   },
   {
    "id": "n_fix",
@@ -1529,7 +1785,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_approve",
@@ -1544,7 +1804,8 @@
    "rules": [
     {
      "t": "الموافقة تكتب last_action؛ «وصلت موافقتك» لين Claude يستلم",
-     "src": "الاستديو:1999-2001"
+     "src": "الاستديو:1999-2001",
+     "p": "موافقتك تنحفظ؛ «وصلت موافقتك» لين Claude يستلم"
     }
    ],
    "settings": {},
@@ -1553,7 +1814,12 @@
     "last_action"
    ],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "توصل Claude"
   },
   {
    "id": "n_carbuild",
@@ -1579,7 +1845,10 @@
     "caption"
    ],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "id": "n_carreview",
@@ -1607,7 +1876,10 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "id": "n_selfedit",
@@ -1641,7 +1913,10 @@
     "inbox"
    ],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "id": "n_logedit",
@@ -1656,13 +1931,17 @@
    "rules": [
     {
      "t": "كل تعديل منك ينكتب بـ carousel-edits.md مع الدرس",
-     "src": "studio.md + carousel-edits.md"
+     "src": "studio.md + carousel-edits.md",
+     "p": "كل تعديل منك ينكتب مع درسه قبل الكاروسيل الياي"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "review"
+   "stage": "review",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "id": "n_final",
@@ -1691,7 +1970,10 @@
     "state: done"
    ],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "id": "n_save",
@@ -1716,7 +1998,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_postig",
@@ -1739,7 +2025,11 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "g_posted",
@@ -1766,7 +2056,11 @@
     "inbox {kind: posted, sent: false}"
    ],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_match",
@@ -1787,7 +2081,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_confirmpost",
@@ -1802,7 +2100,8 @@
    "rules": [
     {
      "t": "رابط instagram.com/p/… أو /reel/…",
-     "src": "الاستديو:1944"
+     "src": "الاستديو:1944",
+     "p": "رابط منشور إنستغرام (منشور أو ريل)"
     }
    ],
    "settings": {},
@@ -1810,7 +2109,11 @@
     "posted.permalink"
    ],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_sync",
@@ -1825,7 +2128,8 @@
    "rules": [
     {
      "t": "studio_page() و instagram_sync_now()؛ ينحفظ بـ studio/ig",
-     "src": "الاستديو:1254-1276 + insights.md"
+     "src": "الاستديو:1254-1276 + insights.md",
+     "p": "الأرقام تجي من إنستغرام بروحها وتنحفظ بالاستديو"
     }
    ],
    "settings": {},
@@ -1833,7 +2137,11 @@
    "reads": [
     "studio/ig"
    ],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_reads",
@@ -1859,7 +2167,11 @@
    },
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_shots",
@@ -1882,7 +2194,11 @@
     "insights_shots | insights_sent"
    ],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_lessons",
@@ -1906,7 +2222,11 @@
     "studio/recipe"
    ],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_rulegate",
@@ -1927,7 +2247,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_rulerepo",
@@ -1951,7 +2275,11 @@
     "repo"
    ],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "e_done",
@@ -1967,7 +2295,11 @@
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "publish",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "s_tap",
@@ -1982,7 +2314,11 @@
    "rules": [],
    "settings": {},
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_tell",
@@ -1997,7 +2333,8 @@
    "rules": [
     {
      "t": "تعليق لـ Claude إذا متاح، وصف inbox دايماً",
-     "src": "الاستديو:1251-1258"
+     "src": "الاستديو:1251-1258",
+     "p": "تعليق لـ Claude إذا متاح، وتنحفظ بالاستديو دايماً"
     },
     {
      "t": "نفس الضغطة خلال 30 ثانية تنرسل مرة وحدة",
@@ -2010,7 +2347,12 @@
    "writes": [
     "inbox"
    ],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يوصل Claude، وينحفظ بالاستديو"
   },
   {
    "id": "n_heard",
@@ -2035,6 +2377,10 @@
    "reads": [
     "inbox.handled_at",
     "updated"
+   ],
+   "kinds": [
+    "reel",
+    "carousel"
    ]
   },
   {
@@ -2057,7 +2403,11 @@
    "writes": [
     "inbox {kind: resend}"
    ],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_got",
@@ -2072,14 +2422,20 @@
    "rules": [
     {
      "t": "يبين لما الصف ينكتب عليه handled_at",
-     "src": "reel.js gotLine"
+     "src": "reel.js gotLine",
+     "p": "يبين لما Claude يعلّم إنه اشتغل عليه"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [
     "inbox.handled_at"
-   ]
+   ],
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يبين لك إن Claude شافه"
   },
   {
    "id": "s_hourly",
@@ -2094,14 +2450,19 @@
    "rules": [
     {
      "t": "فحص كل ساعة: صفوف بدون handled_at، وأفلام last_action أحدث من updated",
-     "src": "studio.md (G1)"
+     "src": "studio.md (G1)",
+     "p": "كل ساعة: يدوّر على أي شي ما انشغل عليه"
     }
    ],
    "settings": {
     "every_min": 60
    },
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_hourly",
@@ -2116,7 +2477,8 @@
    "rules": [
     {
      "t": "يشتغل عليه تحت نفس البوابات، ويعلّم handled_at، ويكتب studio/now.checked_at",
-     "src": "studio.md (G1)"
+     "src": "studio.md (G1)",
+     "p": "يشتغل عليه تحت نفس البوابات، ويكتب وقت آخر فحص"
     }
    ],
    "settings": {},
@@ -2124,7 +2486,11 @@
     "inbox.handled_at",
     "studio/now.checked_at"
    ],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_notify",
@@ -2144,7 +2510,11 @@
    ],
    "settings": {},
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "s_chatdec",
@@ -2159,7 +2529,11 @@
    "rules": [],
    "settings": {},
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_chatrec",
@@ -2174,7 +2548,8 @@
    "rules": [
     {
      "t": "صف inbox فيه via:chat وكلامك، وسطر changes «وافقت بالمحادثة»",
-     "src": "studio.md (G7) + library.json workflow 11"
+     "src": "studio.md (G7) + library.json workflow 11",
+     "p": "قرارك ينكتب بالاستديو بكلامك، وسطر «وافقت بالمحادثة»"
     }
    ],
    "settings": {},
@@ -2182,7 +2557,12 @@
     "inbox {via: chat}",
     "changes"
    ],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "وسطر بسجل التغييرات"
   },
   {
    "id": "n_asks",
@@ -2197,7 +2577,8 @@
    "rules": [
     {
      "t": "كل سؤال أزرار؛ الضغطة تكتب inbox {kind: answer}",
-     "src": "studio.md asks"
+     "src": "studio.md asks",
+     "p": "كل سؤال أزرار؛ جوابك يوصل Claude"
     }
    ],
    "settings": {},
@@ -2205,7 +2586,11 @@
     "inbox {kind: answer}",
     "last_action"
    ],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_weekly",
@@ -2227,7 +2612,11 @@
     "stale_days": 3
    },
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_hide",
@@ -2257,7 +2646,11 @@
     "hidden",
     "hidden_at"
    ],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_hidden",
@@ -2274,7 +2667,11 @@
     "hide_days": 30
    },
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "n_purge",
@@ -2297,7 +2694,12 @@
    "reads": [],
    "gap": true,
    "gap_id": "G16",
-   "gap_note": "ما فيه قاعدة مكتوبة لـ Claude عن المسح بعد 30 يوم"
+   "gap_note": "ما فيه قاعدة مكتوبة لـ Claude عن المسح بعد 30 يوم",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "gap_plain": "المسح بعد 30 يوم ما له قاعدة مكتوبة لـ Claude"
   },
   {
    "id": "e_handled",
@@ -2312,18 +2714,22 @@
    "rules": [],
    "settings": {},
    "writes": [],
-   "reads": []
+   "reads": [],
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "id": "s_suggest",
-   "band": "publish",
+   "band": "idea",
    "lane": "owner",
    "type": "start",
    "label": "اقتراح من التوقع",
-   "note": "قبل النشر",
-   "row": 90,
+   "note": "صفحة الفلم ← قبل النشر ← جرّبها",
+   "row": 2.5,
    "who": "owner",
-   "src": "الاستديو:1551, 1905",
+   "src": "studio index.html:2322, 2682",
    "rules": [
     {
      "t": "اقتراح «تجربة» = طلب تجربة أسلوب؛ غيره = تعديل على النسخة",
@@ -2332,24 +2738,309 @@
     {
      "t": "التوقع هو المعتاد لريلزكم، مو توقع للفلم",
      "src": "studio.md (G9)"
+    },
+    {
+     "t": "الاقتراحات طالعة من المعتاد لكل الحساب، مو من الفلم نفسه (G9)",
+     "src": "audit G9 + studio index.html:2322"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "publish"
+   "stage": "idea",
+   "page": "صفحة الفلم أو الكاروسيل ← قبل النشر ← جرّبها",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "s_recreate",
+   "band": "idea",
+   "lane": "owner",
+   "type": "start",
+   "label": "ريل عجبك",
+   "note": "ترفع الفيديو أو تحط الرابط، وتقول شنو عجبك",
+   "row": 1.5,
+   "who": "owner",
+   "src": "studio idea.js recreateForm",
+   "rules": [
+    {
+     "t": "الفيديو لين 20 MB ينرفع للاستديو؛ أكبر: الرابط وملاحظتك ينحفظون والفيديو بالمحادثة",
+     "src": "studio idea.js recreate"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "page": "المكتبة ← ريل عجبك",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_dup",
+   "band": "idea",
+   "lane": "page",
+   "type": "task",
+   "label": "يشبه؟",
+   "note": "يقترح أفلام وأفكار مشابهة",
+   "row": 1.1,
+   "who": "page/system",
+   "src": "studio idea.js ideaSimilar",
+   "rules": [
+    {
+     "t": "وإنت تكتب: أفلام ومواضيع وأفكار محفوظة تشبهها (رولكس = Rolex…)، وما يمنعك ترسل",
+     "src": "studio idea.js ideaSimilar"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_ideasend",
+   "band": "idea",
+   "lane": "owner",
+   "type": "decision",
+   "label": "ترسلها الحين ولا بعدين؟",
+   "note": "",
+   "row": 1.2,
+   "who": "owner",
+   "src": "studio idea.js",
+   "rules": [
+    {
+     "t": "«أرسل لـ Claude» أو «احفظها لبعدين»",
+     "src": "studio idea.js viewIdea"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_backlog",
+   "band": "idea",
+   "lane": "page",
+   "type": "task",
+   "label": "أفكار تنتظر",
+   "note": "بالصفحة الرئيسية وبالفورم",
+   "row": 1.3,
+   "who": "page/system",
+   "src": "studio idea.js ideasHome",
+   "rules": [
+    {
+     "t": "كل فكرة محفوظة لين تبدأها أو تحذفها، وتقدر ترتبها ↑↓",
+     "src": "studio idea.js ideasHome"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "ideas"
+   ],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_backpick",
+   "band": "idea",
+   "lane": "owner",
+   "type": "decision",
+   "label": "تبدأها ولا تحذفها؟",
+   "note": "",
+   "row": 1.4,
+   "who": "owner",
+   "src": "studio idea.js",
+   "rules": [
+    {
+     "t": "«احذف» يبي ضغطتين",
+     "src": "studio idea.js"
+    }
+   ],
+   "settings": {
+    "confirm_taps": 2
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "e_dropped",
+   "band": "idea",
+   "lane": "page",
+   "type": "end",
+   "label": "انشالت",
+   "note": "",
+   "row": 1.45,
+   "who": "page/system",
+   "src": "studio idea.js",
+   "rules": [],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_rcsize",
+   "band": "idea",
+   "lane": "page",
+   "type": "decision",
+   "label": "الفيديو لين 20 MB؟",
+   "note": "",
+   "row": 1.6,
+   "who": "page/system",
+   "src": "studio idea.js",
+   "rules": [
+    {
+     "t": "أكبر من 20 MB ما يرتفع للاستديو",
+     "src": "studio idea.js IDEA_MAX"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_rcbig",
+   "band": "idea",
+   "lane": "page",
+   "type": "task",
+   "label": "الرابط وملاحظتك انحفظوا",
+   "note": "والفيديو بالمحادثة",
+   "row": 1.7,
+   "who": "page/system",
+   "src": "studio idea.js",
+   "rules": [
+    {
+     "t": "«الملف كبير على الاستديو، أرسله بالمحادثة، والرابط وملاحظتك انحفظوا»",
+     "src": "studio idea.js"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_chatidea",
+   "band": "idea",
+   "lane": "claude",
+   "type": "task",
+   "label": "Claude يكتب سجلها خلال دقايق",
+   "note": "من المحادثة",
+   "row": 3.2,
+   "who": "Claude",
+   "src": "studio.md (7 Nov rule)",
+   "rules": [
+    {
+     "t": "فكرة بالمحادثة: Claude يكتب سجلها بالاستديو خلال دقايق",
+     "src": "studio.md (7 Nov rule)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_dirtext",
+   "band": "idea",
+   "lane": "owner",
+   "type": "task",
+   "label": "تكتب شنو تبي بداله",
+   "note": "الجولة 1 من 3",
+   "row": 10.5,
+   "who": "owner",
+   "src": "studio idea.js dirTextBox",
+   "rules": [
+    {
+     "t": "«ما عجبني شي: شنو تبي بداله؟» وترسل",
+     "src": "studio idea.js dirTextBox"
+    },
+    {
+     "t": "3 جولات بالأكثر؛ بعدها نكمّل بالمحادثة (وتقدر ترسل بعد)",
+     "src": "studio idea.js dirTextBox"
+    }
+   ],
+   "settings": {
+    "max_rounds": 3
+   },
+   "writes": [
+    "flow.more {text, round}"
+   ],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "id": "n_dirsaved",
+   "band": "idea",
+   "lane": "page",
+   "type": "task",
+   "label": "ينحفظ طلبك",
+   "note": "يوصل Claude مع رقم الجولة",
+   "row": 10.7,
+   "who": "page/system",
+   "src": "studio idea.js",
+   "rules": [
+    {
+     "t": "ينحفظ كلامك ورقم الجولة، ويوصل Claude",
+     "src": "studio idea.js dirtext (flowUpdate)"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "flow {stage: received, more: {text, round}}"
+   ],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   }
  ],
  "edges": [
-  {
-   "from": "s_lib",
-   "to": "n_record",
-   "label": "ابدأ",
-   "kind": "next",
-   "src": "الاستديو:1999",
-   "who": "owner",
-   "act": "start"
-  },
   {
    "from": "s_twin",
    "to": "n_record",
@@ -2357,15 +3048,11 @@
    "kind": "next",
    "src": "الاستديو:1997",
    "who": "owner",
-   "act": "twin"
-  },
-  {
-   "from": "s_chat",
-   "to": "n_research",
-   "label": "Claude يكتب السجل",
-   "kind": "next",
-   "src": "studio.md",
-   "who": "owner"
+   "act": "twin",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_record",
@@ -2373,7 +3060,11 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:1767",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_pickwait",
@@ -2381,7 +3072,11 @@
    "label": "إي",
    "kind": "yes",
    "src": "library.json workflow 2",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_pickwait",
@@ -2389,7 +3084,11 @@
    "label": "بعد 5 دقايق",
    "kind": "no",
    "src": "reel.js:120",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_resend",
@@ -2398,7 +3097,11 @@
    "kind": "loop",
    "src": "الاستديو:1865",
    "who": "owner",
-   "act": "flowresend"
+   "act": "flowresend",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_pickup",
@@ -2406,7 +3109,11 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §1",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_research",
@@ -2414,7 +3121,11 @@
    "label": "",
    "kind": "next",
    "src": "library.json workflow 3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_dirs",
@@ -2422,7 +3133,11 @@
    "label": "",
    "kind": "next",
    "src": "library.json workflow 3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_dirpick",
@@ -2431,7 +3146,11 @@
    "kind": "yes",
    "src": "الاستديو:1866",
    "who": "owner",
-   "act": "flowpick"
+   "act": "flowpick",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_dirpick",
@@ -2440,7 +3159,11 @@
    "kind": "no",
    "src": "الاستديو:1870",
    "who": "owner",
-   "act": "flowmore"
+   "act": "flowmore",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "g_dirpaid",
@@ -2448,7 +3171,11 @@
    "label": "ببلاش أو أكّدت",
    "kind": "yes",
    "src": "الاستديو:1783",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "g_dirpaid",
@@ -2456,7 +3183,11 @@
    "label": "ما أكّدت",
    "kind": "loop",
    "src": "الاستديو:1783",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_picked",
@@ -2464,7 +3195,11 @@
    "label": "",
    "kind": "next",
    "src": "library.json workflow 8",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_afterpick",
@@ -2472,7 +3207,11 @@
    "label": "اتجاه",
    "kind": "yes",
    "src": "library.json workflow 3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_afterpick",
@@ -2480,7 +3219,10 @@
    "label": "عيّنة أو تجربة",
    "kind": "no",
    "src": "library.json workflow 4-5, 9",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_hook",
@@ -2488,7 +3230,11 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §2",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_script",
@@ -2496,7 +3242,11 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_readers",
@@ -2504,7 +3254,11 @@
    "label": "جولة ثانية (3 بالأكثر)",
    "kind": "loop",
    "src": "SKILL.md §3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_readers",
@@ -2512,7 +3266,11 @@
    "label": "خلصوا",
    "kind": "next",
    "src": "library.json workflow 10",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_revvoice",
@@ -2520,7 +3278,11 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_scriptsend",
@@ -2528,7 +3290,11 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_scriptgate",
@@ -2537,7 +3303,11 @@
    "kind": "yes",
    "src": "SKILL.md §3",
    "who": "owner",
-   "act": "approve"
+   "act": "approve",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_scriptgate",
@@ -2546,7 +3316,11 @@
    "kind": "no",
    "src": "الاستديو:1848-1861",
    "who": "owner",
-   "act": "scriptsend"
+   "act": "scriptsend",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_scriptedit",
@@ -2554,7 +3328,11 @@
    "label": "Claude يعدّل",
    "kind": "loop",
    "src": "SKILL.md §3",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_kind",
@@ -2562,7 +3340,10 @@
    "label": "ريل",
    "kind": "yes",
    "src": "SKILL.md §1",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_kind",
@@ -2570,7 +3351,10 @@
    "label": "كاروسيل",
    "kind": "no",
    "src": "SKILL.md §1",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_vcost",
@@ -2578,7 +3362,10 @@
    "label": "",
    "kind": "next",
    "src": "القواعد الثابتة",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "g_voice",
@@ -2586,7 +3373,10 @@
    "label": "إي",
    "kind": "yes",
    "src": "SKILL.md «Rules that never bend»",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_take",
@@ -2594,7 +3384,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §4",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_vcheck",
@@ -2602,7 +3395,10 @@
    "label": "تمام",
    "kind": "yes",
    "src": "SKILL.md §4",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_vcheck",
@@ -2613,7 +3409,11 @@
    "who": "Claude",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "إعادة التسجيل بالرصيد بدون موافقة مكتوبة قبلها"
+   "gap_note": "إعادة التسجيل بالرصيد بدون موافقة مكتوبة قبلها",
+   "kinds": [
+    "reel"
+   ],
+   "gap_plain": "إذا الصوت بان مرقّع يعاد بالرصيد بدون ما ياخذ موافقتك"
   },
   {
    "from": "n_vsend",
@@ -2621,7 +3421,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §4",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_listen",
@@ -2630,7 +3433,10 @@
    "kind": "yes",
    "src": "SKILL.md §4",
    "who": "owner",
-   "act": "approve"
+   "act": "approve",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_listen",
@@ -2639,7 +3445,10 @@
    "kind": "no",
    "src": "الاستديو:1823",
    "who": "owner",
-   "act": "sayfix"
+   "act": "sayfix",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "g_marks",
@@ -2647,7 +3456,10 @@
    "label": "",
    "kind": "next",
    "src": "kuwaiti-voice.md",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_howknown",
@@ -2655,7 +3467,10 @@
    "label": "إي",
    "kind": "yes",
    "src": "kuwaiti-voice.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_howknown",
@@ -2663,7 +3478,10 @@
    "label": "لا",
    "kind": "no",
    "src": "kuwaiti-voice.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_options",
@@ -2671,7 +3489,10 @@
    "label": "",
    "kind": "next",
    "src": "kuwaiti-voice.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "g_pick",
@@ -2680,7 +3501,10 @@
    "kind": "next",
    "src": "kuwaiti-voice.md",
    "who": "owner",
-   "act": "vpick"
+   "act": "vpick",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_relines",
@@ -2688,7 +3512,10 @@
    "label": "تسمعها مرة ثانية",
    "kind": "loop",
    "src": "kuwaiti-voice.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_spliced",
@@ -2696,7 +3523,10 @@
    "label": "إي: تسجيلة كاملة يديدة",
    "kind": "loop",
    "src": "kuwaiti-voice.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_spliced",
@@ -2704,7 +3534,10 @@
    "label": "لا",
    "kind": "no",
    "src": "kuwaiti-voice.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_pace",
@@ -2712,7 +3545,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §5-6",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_styleknown",
@@ -2720,7 +3556,10 @@
    "label": "إي",
    "kind": "yes",
    "src": "library.json workflow 3",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_styleknown",
@@ -2728,7 +3567,10 @@
    "label": "لا",
    "kind": "no",
    "src": "SKILL.md §6",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_styleopts",
@@ -2736,7 +3578,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §6",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "g_style",
@@ -2744,7 +3589,10 @@
    "label": "اخترت",
    "kind": "yes",
    "src": "library.json workflow 4",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_sample",
@@ -2752,7 +3600,10 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:681",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_samplegate",
@@ -2761,7 +3612,10 @@
    "kind": "yes",
    "src": "الاستديو:681",
    "who": "owner",
-   "act": "approve"
+   "act": "approve",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_samplegate",
@@ -2773,7 +3627,11 @@
    "act": "send",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "تعديل عيّنة AI بالرصيد بدون بوابة مكتوبة"
+   "gap_note": "تعديل عيّنة AI بالرصيد بدون بوابة مكتوبة",
+   "kinds": [
+    "reel"
+   ],
+   "gap_plain": "تعديل عيّنة AI يصرف رصيد بدون بوابة موافقة"
   },
   {
    "from": "n_sampleonly",
@@ -2781,7 +3639,10 @@
    "label": "إي",
    "kind": "yes",
    "src": "library.json workflow 9",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_sampleonly",
@@ -2789,7 +3650,10 @@
    "label": "لا، الفلم كامل",
    "kind": "no",
    "src": "library.json workflow 4",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_pictures",
@@ -2797,7 +3661,10 @@
    "label": "",
    "kind": "next",
    "src": "library.json direction 1",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_missing",
@@ -2805,7 +3672,10 @@
    "label": "إي",
    "kind": "yes",
    "src": "الاستديو:692",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_missingown",
@@ -2813,7 +3683,10 @@
    "label": "جاوبت بالمحادثة",
    "kind": "loop",
    "src": "audit.md §2.6",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_missing",
@@ -2821,7 +3694,10 @@
    "label": "لا",
    "kind": "no",
    "src": "SKILL.md §7",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_route",
@@ -2829,7 +3705,10 @@
    "label": "ببلاش",
    "kind": "yes",
    "src": "SKILL.md §7",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_route",
@@ -2837,7 +3716,10 @@
    "label": "AI",
    "kind": "no",
    "src": "SKILL.md §7",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "g_ai",
@@ -2845,7 +3727,10 @@
    "label": "إي",
    "kind": "yes",
    "src": "SKILL.md «Rules that never bend»",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_aigen",
@@ -2853,7 +3738,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §7",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_build",
@@ -2861,7 +3749,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §8",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_critic",
@@ -2869,7 +3760,10 @@
    "label": "جولة ثانية (3 بالأكثر)",
    "kind": "loop",
    "src": "SKILL.md §8",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_critic",
@@ -2877,7 +3771,10 @@
    "label": "خلص",
    "kind": "next",
    "src": "SKILL.md §8",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_sound",
@@ -2885,7 +3782,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §8",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_expert",
@@ -2893,7 +3793,10 @@
    "label": "",
    "kind": "next",
    "src": "studio.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_version",
@@ -2901,7 +3804,10 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §9",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_review",
@@ -2910,7 +3816,10 @@
    "kind": "yes",
    "src": "الاستديو:1999",
    "who": "owner",
-   "act": "approve"
+   "act": "approve",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_review",
@@ -2919,7 +3828,10 @@
    "kind": "no",
    "src": "الاستديو:1989, 1815",
    "who": "owner",
-   "act": "send"
+   "act": "send",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_review",
@@ -2928,7 +3840,10 @@
    "kind": "no",
    "src": "reel.js stage card",
    "who": "owner",
-   "act": "sayfix"
+   "act": "sayfix",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_change",
@@ -2936,7 +3851,11 @@
    "label": "",
    "kind": "next",
    "src": "SKILL.md §9",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_fix",
@@ -2944,7 +3863,10 @@
    "label": "نسخة يديدة",
    "kind": "loop",
    "src": "SKILL.md §9",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_carbuild",
@@ -2952,7 +3874,10 @@
    "label": "",
    "kind": "next",
    "src": "carousel.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_carreview",
@@ -2961,7 +3886,10 @@
    "kind": "yes",
    "src": "الاستديو:1999",
    "who": "owner",
-   "act": "approve"
+   "act": "approve",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_carreview",
@@ -2970,7 +3898,10 @@
    "kind": "no",
    "src": "الاستديو:1989",
    "who": "owner",
-   "act": "send"
+   "act": "send",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_carreview",
@@ -2979,7 +3910,10 @@
    "kind": "no",
    "src": "studio.md",
    "who": "owner",
-   "act": "edsave"
+   "act": "edsave",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_selfedit",
@@ -2987,7 +3921,10 @@
    "label": "حفظت",
    "kind": "next",
    "src": "studio.md",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_selfedit",
@@ -2996,7 +3933,10 @@
    "kind": "loop",
    "src": "الاستديو:2262",
    "who": "page/system",
-   "act": "edundo"
+   "act": "edundo",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_logedit",
@@ -3004,7 +3944,10 @@
    "label": "ينتظر موافقتك",
    "kind": "loop",
    "src": "studio.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
   },
   {
    "from": "n_approve",
@@ -3012,7 +3955,10 @@
    "label": "",
    "kind": "next",
    "src": "studio.md final",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_final",
@@ -3020,7 +3966,10 @@
    "label": "",
    "kind": "next",
    "src": "studio.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
   },
   {
    "from": "n_save",
@@ -3029,7 +3978,11 @@
    "kind": "next",
    "src": "audit.md §2.10",
    "who": "owner",
-   "act": "sharefilm"
+   "act": "sharefilm",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_postig",
@@ -3037,7 +3990,11 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:1888",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "g_posted",
@@ -3046,7 +4003,11 @@
    "kind": "yes",
    "src": "الاستديو:1897",
    "who": "owner",
-   "act": "posted"
+   "act": "posted",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "g_posted",
@@ -3055,7 +4016,11 @@
    "kind": "loop",
    "src": "الاستديو:1965",
    "who": "owner",
-   "act": "unpost"
+   "act": "unpost",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_match",
@@ -3063,7 +4028,11 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:1914",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_confirmpost",
@@ -3072,7 +4041,11 @@
    "kind": "next",
    "src": "الاستديو:1917, 1944",
    "who": "owner",
-   "act": "pickconfirm"
+   "act": "pickconfirm",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_sync",
@@ -3080,7 +4053,11 @@
    "label": "إي",
    "kind": "yes",
    "src": "insights.md",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_sync",
@@ -3089,7 +4066,11 @@
    "kind": "no",
    "src": "insights.md",
    "who": "page/system",
-   "act": "shotschat"
+   "act": "shotschat",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_reads",
@@ -3097,7 +4078,11 @@
    "label": "",
    "kind": "next",
    "src": "insights.md",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_shots",
@@ -3105,7 +4090,11 @@
    "label": "",
    "kind": "next",
    "src": "insights.md",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_lessons",
@@ -3113,7 +4102,11 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:1610",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_rulegate",
@@ -3122,7 +4115,11 @@
    "kind": "yes",
    "src": "الاستديو:1927",
    "who": "owner",
-   "act": "ruleyes"
+   "act": "ruleyes",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_rulegate",
@@ -3131,7 +4128,11 @@
    "kind": "no",
    "src": "الاستديو:1927",
    "who": "owner",
-   "act": "ruleno"
+   "act": "ruleno",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_rulerepo",
@@ -3139,7 +4140,11 @@
    "label": "",
    "kind": "next",
    "src": "studio.md",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "s_tap",
@@ -3147,7 +4152,11 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:1251",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_tell",
@@ -3155,7 +4164,11 @@
    "label": "",
    "kind": "next",
    "src": "الاستديو:589",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_heard",
@@ -3163,7 +4176,11 @@
    "label": "إي",
    "kind": "yes",
    "src": "reel.js gotLine",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_heard",
@@ -3171,7 +4188,11 @@
    "label": "لا",
    "kind": "no",
    "src": "الاستديو:589",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_lastresend",
@@ -3180,7 +4201,11 @@
    "kind": "loop",
    "src": "الاستديو:1864",
    "who": "owner",
-   "act": "lastresend"
+   "act": "lastresend",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_got",
@@ -3188,7 +4213,11 @@
    "label": "",
    "kind": "next",
    "src": "",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "s_hourly",
@@ -3196,7 +4225,11 @@
    "label": "",
    "kind": "next",
    "src": "studio.md (G1)",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_hourly",
@@ -3204,7 +4237,11 @@
    "label": "إي",
    "kind": "yes",
    "src": "studio.md (G1, G15)",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_hourly",
@@ -3212,7 +4249,12 @@
    "label": "لا: يكتب checked_at بس",
    "kind": "no",
    "src": "studio.md (G1)",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "plain": "لا: يكتب وقت الفحص بس"
   },
   {
    "from": "n_notify",
@@ -3220,7 +4262,11 @@
    "label": "",
    "kind": "next",
    "src": "studio.md (G15)",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "s_chatdec",
@@ -3228,7 +4274,11 @@
    "label": "",
    "kind": "next",
    "src": "library.json workflow 11",
-   "who": "owner"
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_chatrec",
@@ -3236,7 +4286,11 @@
    "label": "",
    "kind": "next",
    "src": "studio.md (G7)",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_weekly",
@@ -3244,7 +4298,11 @@
    "label": "",
    "kind": "next",
    "src": "studio.md (G10)",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_asks",
@@ -3253,7 +4311,11 @@
    "kind": "next",
    "src": "الاستديو:1970",
    "who": "owner",
-   "act": "askpick"
+   "act": "askpick",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_asks",
@@ -3264,7 +4326,12 @@
    "who": "owner",
    "gap": true,
    "gap_id": "جديد",
-   "gap_note": "جواب «احذفه» يروح لـ Claude؛ ما يشيل الفلم بروحه"
+   "gap_note": "جواب «احذفه» يروح لـ Claude؛ ما يشيل الفلم بروحه",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "gap_plain": "جوابك «احذفه» يروح لـ Claude، وما يشيل الفلم بروحه"
   },
   {
    "from": "n_hide",
@@ -3273,7 +4340,11 @@
    "kind": "next",
    "src": "الاستديو:1954",
    "who": "owner",
-   "act": "hide"
+   "act": "hide",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_hidden",
@@ -3282,7 +4353,11 @@
    "kind": "yes",
    "src": "الاستديو:1954",
    "who": "page/system",
-   "act": "unhide"
+   "act": "unhide",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_hidden",
@@ -3290,7 +4365,11 @@
    "label": "لا",
    "kind": "no",
    "src": "الاستديو:537",
-   "who": "page/system"
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_purge",
@@ -3298,7 +4377,11 @@
    "label": "",
    "kind": "next",
    "src": "audit G16",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "n_hourly",
@@ -3306,7 +4389,11 @@
    "label": "مرة بالأسبوع",
    "kind": "next",
    "src": "studio.md (G10)",
-   "who": "Claude"
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "s_suggest",
@@ -3315,7 +4402,11 @@
    "kind": "yes",
    "src": "الاستديو:1909",
    "who": "owner",
-   "act": "suggest"
+   "act": "suggest",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   },
   {
    "from": "s_suggest",
@@ -3324,7 +4415,237 @@
    "kind": "no",
    "src": "الاستديو:1910",
    "who": "owner",
-   "act": "suggest"
+   "act": "suggest",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_lib",
+   "to": "n_dup",
+   "label": "",
+   "kind": "next",
+   "src": "studio idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_dup",
+   "to": "n_ideasend",
+   "label": "",
+   "kind": "next",
+   "src": "studio idea.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_ideasend",
+   "to": "n_record",
+   "label": "أرسل لـ Claude",
+   "kind": "yes",
+   "src": "studio idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_ideasend",
+   "to": "n_backlog",
+   "label": "احفظها لبعدين",
+   "kind": "no",
+   "src": "studio idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_backlog",
+   "to": "n_backpick",
+   "label": "",
+   "kind": "next",
+   "src": "studio idea.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_backpick",
+   "to": "n_record",
+   "label": "ابدأ",
+   "kind": "yes",
+   "src": "studio idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_backpick",
+   "to": "e_dropped",
+   "label": "احذف",
+   "kind": "no",
+   "src": "studio idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_recreate",
+   "to": "n_rcsize",
+   "label": "",
+   "kind": "next",
+   "src": "studio idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_rcsize",
+   "to": "n_record",
+   "label": "ينرفع",
+   "kind": "yes",
+   "src": "studio idea.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_rcsize",
+   "to": "n_rcbig",
+   "label": "أكبر",
+   "kind": "no",
+   "src": "studio idea.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_rcbig",
+   "to": "n_record",
+   "label": "",
+   "kind": "next",
+   "src": "studio idea.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_chat",
+   "to": "n_chatidea",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md (7 Nov rule)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_chatidea",
+   "to": "n_research",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md (7 Nov rule)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_chatidea",
+   "to": "n_got",
+   "label": "Claude استلم ✓",
+   "kind": "next",
+   "src": "studio.md (7 Nov rule)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_dirpick",
+   "to": "n_dirtext",
+   "label": "اكتب شنو تبي",
+   "kind": "no",
+   "src": "studio idea.js dirTextBox",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_dirtext",
+   "to": "n_dirsaved",
+   "label": "أرسل",
+   "kind": "next",
+   "src": "studio idea.js dirtext",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_dirsaved",
+   "to": "n_dirs",
+   "label": "اتجاهات يديدة",
+   "kind": "loop",
+   "src": "studio idea.js dirtext + library.json workflow 3",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_fix",
+   "to": "n_carreview",
+   "label": "كاروسيل: نسخة يديدة",
+   "kind": "loop",
+   "src": "SKILL.md §9 + studio.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_approve",
+   "to": "n_save",
+   "label": "كاروسيل: «شارك الكل»",
+   "kind": "next",
+   "src": "studio.md caption + الاستديو:726",
+   "who": "page/system",
+   "kinds": [
+    "carousel"
+   ]
   }
  ],
  "version_note": "المسار الحالي كامل من الكود والقواعد (7 نوفمبر)، بدون قواعد يديدة",
