@@ -131,18 +131,14 @@
    "reads": [],
    "stage": "idea",
    "page": "المحادثة مع Claude",
-   "gap": true,
-   "gaps": [
-    {
-     "id": "جديد",
-     "plain": "فكرة المحادثة ما تطلع بالاستديو إلا لما Claude يكتب سجلها"
-    }
-   ],
-   "gap_note": "فكرة المحادثة ما تطلع بالاستديو إلا لما Claude يكتب سجلها",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يكتب سجل فكرة المحادثة بالاستديو خلال دقايق",
+    "src": "studio.md (7 Nov ideas rule)"
+   }
   },
   {
    "id": "n_record",
@@ -378,14 +374,14 @@
    "writes": [],
    "reads": [],
    "stage": "idea",
-   "gap": true,
-   "gap_id": "§3",
-   "gap_note": "الأساليب اللي تحتاج بناء ما تقول الوقت ولا التكلفة",
-   "gap_plain": "الأساليب اللي «تحتاج بناء» ما تقول كم تاخذ وقت ولا كم تكلّف",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "relies": {
+    "note": "الأساليب اللي تحتاج بناء: Claude يقول الوقت والتكلفة قبل ما يبدأ (المكتبة ما فيها build_time ولا build_cost)",
+    "src": "studio.md (7 Nov) + library.json"
+   }
   },
   {
    "id": "g_dirpaid",
@@ -615,15 +611,15 @@
    ],
    "reads": [],
    "stage": "script",
-   "gap": true,
-   "gap_id": "§3",
-   "gap_note": "Dennison بس عنده صوت المراجعة",
    "kinds": [
     "reel",
     "carousel"
    ],
    "sub": "صوت كويتي ببلاش، «اسمع النص»",
-   "gap_plain": "صوت المراجعة الببلاش موجود لـ Dennison بس"
+   "relies": {
+    "note": "Claude يسجّل صوت المراجعة الببلاش مع كل نص يديد",
+    "src": "studio.md (script card rule)"
+   }
   },
   {
    "id": "n_scriptsend",
@@ -823,13 +819,9 @@
    "writes": [],
    "reads": [],
    "stage": "voice",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "ما فيه مسار مكتوب إذا رفضت التكلفة",
    "kinds": [
     "reel"
-   ],
-   "gap_plain": "بوابة تكلفة الصوت ما فيها طريق إذا قلت لا"
+   ]
   },
   {
    "id": "n_take",
@@ -904,6 +896,10 @@
     {
      "t": "إذا يبين مرقّع يعاد قبل أي بناء",
      "src": "SKILL.md §4"
+    },
+    {
+     "t": "إعادة تسجيل بالرصيد تمر على سؤال التكلفة نفسه أول",
+     "src": "studio.md: every paid take asks first, 7 Nov"
     }
    ],
    "settings": {},
@@ -1258,13 +1254,9 @@
    "writes": [],
    "reads": [],
    "stage": "style",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "ما فيه مسار مكتوب إذا ما عجبك ولا أسلوب",
    "kinds": [
     "reel"
-   ],
-   "gap_plain": "اختيار الأسلوب ما فيه طريق إذا ما عجبك ولا واحد"
+   ]
   },
   {
    "id": "n_sample",
@@ -1436,29 +1428,28 @@
    "id": "n_missingown",
    "band": "build",
    "lane": "owner",
-   "type": "task",
-   "label": "تشوف النواقص",
+   "type": "decision",
+   "label": "تجاوب على الصورة الناقصة",
    "note": "تجاوب بالمحادثة",
    "row": 44,
    "who": "owner",
    "src": "الاستديو:692",
    "rules": [
     {
-     "t": "الاستديو يعرض النواقص بس",
-     "src": "الاستديو:692"
+     "t": "كل صورة ناقصة لها: «عندي صورة» (ترفعها)، «استخدم بديل»، «شيل اللقطة»",
+     "src": "studio rest.js missingHtml"
     }
    ],
    "settings": {},
-   "writes": [],
+   "writes": [
+    "inbox {kind: missing, id, image | choice}"
+   ],
    "reads": [],
    "stage": "build",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "ما فيه زر تجاوب فيه على صورة ناقصة؛ الجواب بالمحادثة بس",
    "kinds": [
     "reel"
    ],
-   "gap_plain": "الصورة الناقصة ما لها زر تجاوب فيه؛ الجواب بالمحادثة بس"
+   "sub": "عندي صورة · بديل · شيلها"
   },
   {
    "id": "n_route",
@@ -1510,13 +1501,9 @@
    "writes": [],
    "reads": [],
    "stage": "build",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "ما فيه مسار مكتوب إذا قلت لا",
    "kinds": [
     "reel"
-   ],
-   "gap_plain": "بوابة التوليد بالرصيد ما فيها طريق إذا قلت لا"
+   ]
   },
   {
    "id": "n_aigen",
@@ -2646,9 +2633,9 @@
    "id": "n_hide",
    "band": "always",
    "lane": "owner",
-   "type": "task",
+   "type": "start",
    "label": "شيله من القائمة",
-   "note": "ضغطتين، تقدر ترجّعه",
+   "note": "من صفحة الفلم، أي وقت",
    "row": 86,
    "who": "owner",
    "src": "الاستديو:1954",
@@ -2702,28 +2689,25 @@
    "band": "always",
    "lane": "claude",
    "type": "task",
-   "label": "Claude يمسحه",
+   "label": "كل أسبوع: قائمة المخفي أكثر من 30 يوم",
    "note": "",
    "row": 88,
    "who": "Claude",
-   "src": "الاستديو:537",
+   "src": "studio.md (7 Nov)",
    "rules": [
     {
-     "t": "الاستديو ما يمسح بنفسه؛ مكتوب «Claude يمسحها»",
-     "src": "audit G16"
+     "t": "كل أسبوع قائمة بالمخفي أكثر من 30 يوم بالمحادثة، وما ينمسح شي إلا بموافقتك",
+     "src": "studio.md (7 Nov)"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "gap": true,
-   "gap_id": "G16",
-   "gap_note": "ما فيه قاعدة مكتوبة لـ Claude عن المسح بعد 30 يوم",
    "kinds": [
     "reel",
     "carousel"
    ],
-   "gap_plain": "المسح بعد 30 يوم ما له قاعدة مكتوبة لـ Claude"
+   "sub": "بالمحادثة"
   },
   {
    "id": "e_handled",
@@ -3197,6 +3181,225 @@
     "carousel"
    ],
    "sub": "البداية أو العنوان"
+  },
+  {
+   "id": "n_vwait",
+   "band": "voice",
+   "lane": "owner",
+   "type": "decision",
+   "label": "الصوت ينتظر موافقتك",
+   "note": "التسجيل موقّف لين تقول",
+   "row": 23.5,
+   "who": "owner",
+   "src": "studio rest.js",
+   "rules": [
+    {
+     "t": "«مو الحين»: Claude ما يسجّل ولا يصرف شي؛ «عدّل النص» أو «رجّع اسألني بعدين»",
+     "src": "studio rest.js voiceWaitCard"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "inbox {kind: answer, key: voice_cost, answer: later}"
+   ],
+   "reads": [],
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "التسجيل موقّف لين تقول"
+  },
+  {
+   "id": "n_styletext",
+   "band": "style",
+   "lane": "owner",
+   "type": "task",
+   "label": "تكتب شنو تبي بداله",
+   "note": "الأسلوب، 3 جولات",
+   "row": 37.4,
+   "who": "owner",
+   "src": "studio rest.js",
+   "rules": [
+    {
+     "t": "«ما عجبني الأسلوب: شنو تبي بداله؟»؛ 3 جولات بالأكثر وبعدها نكمّل بالمحادثة",
+     "src": "studio rest.js + idea.js dirTextBox(style)"
+    }
+   ],
+   "settings": {
+    "max_rounds": 3
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "الأسلوب، 3 جولات"
+  },
+  {
+   "id": "n_stylesaved",
+   "band": "style",
+   "lane": "page",
+   "type": "task",
+   "label": "ينحفظ طلبك",
+   "note": "يوصل Claude مع رقم الجولة",
+   "row": 37.45,
+   "who": "page/system",
+   "src": "idea.js",
+   "rules": [
+    {
+     "t": "كلامك ورقم الجولة يوصلون Claude",
+     "src": "idea.js dirtext (of: style)"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "flow {more: {text, round, of: style}}"
+   ],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "يوصل Claude مع رقم الجولة"
+  },
+  {
+   "id": "g_aisample",
+   "band": "style",
+   "lane": "owner",
+   "type": "gate",
+   "label": "تعديل العيّنة بالرصيد؟",
+   "note": "الرصيد مكتوب بالسؤال",
+   "row": 39.5,
+   "who": "owner",
+   "src": "studio.md (7 Nov)",
+   "rules": [
+    {
+     "t": "Claude يسأل قبل أي تعديل أو إعادة توليد بالرصيد، والسؤال فيه تقدير الرصيد",
+     "src": "studio.md (7 Nov) (asks key ai_cost)"
+    },
+    {
+     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
+    }
+   ],
+   "settings": {
+    "paid": true,
+    "confirm_taps": 2
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "الرصيد مكتوب بالسؤال"
+  },
+  {
+   "id": "n_altfree",
+   "band": "build",
+   "lane": "claude",
+   "type": "task",
+   "label": "بديل ببلاش أو تنشال اللقطة",
+   "note": "صور حقيقية، رسم بالكود، لقطة ثابتة",
+   "row": 46.5,
+   "who": "Claude",
+   "src": "studio.md (7 Nov)",
+   "rules": [
+    {
+     "t": "«لا» على التوليد: Claude يستخدم بديل ببلاش أو يشيل اللقطة، ويكمل البناء",
+     "src": "studio.md (7 Nov)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "build",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "صور حقيقية، رسم بالكود، لقطة ثابتة"
+  },
+  {
+   "id": "n_autohide",
+   "band": "always",
+   "lane": "page",
+   "type": "task",
+   "label": "الاستديو يشيله بروحه",
+   "note": "ينمسح بعد 30 يوم، وتقدر ترجّعه",
+   "row": 84.5,
+   "who": "page/system",
+   "src": "studio rest.js",
+   "rules": [
+    {
+     "t": "جواب «احذفه» يشيل الفلم من القائمة فوراً ويبين «رجّعه»",
+     "src": "studio rest.js + askpick"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "hidden",
+    "hidden_at"
+   ],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "ينمسح بعد 30 يوم، وتقدر ترجّعه"
+  },
+  {
+   "id": "n_purgeok",
+   "band": "always",
+   "lane": "owner",
+   "type": "decision",
+   "label": "تمسحها؟",
+   "note": "",
+   "row": 88.3,
+   "who": "owner",
+   "src": "studio.md (7 Nov)",
+   "rules": [
+    {
+     "t": "توافق بالمحادثة",
+     "src": "studio.md (7 Nov)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": ""
+  },
+  {
+   "id": "n_purgedo",
+   "band": "always",
+   "lane": "claude",
+   "type": "task",
+   "label": "Claude يمسحها",
+   "note": "",
+   "row": 88.6,
+   "who": "Claude",
+   "src": "studio.md (7 Nov)",
+   "rules": [
+    {
+     "t": "يمسح بس اللي وافقت عليه",
+     "src": "studio.md (7 Nov)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": ""
   }
  ],
  "edges": [
@@ -3549,21 +3752,6 @@
    ]
   },
   {
-   "from": "n_vcheck",
-   "to": "n_take",
-   "label": "يبين مرقّع: يعاد",
-   "kind": "loop",
-   "src": "SKILL.md §4",
-   "who": "Claude",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "إعادة التسجيل بالرصيد بدون موافقة مكتوبة قبلها",
-   "kinds": [
-    "reel"
-   ],
-   "gap_plain": "إذا الصوت بان مرقّع يعاد بالرصيد بدون ما ياخذ موافقتك"
-  },
-  {
    "from": "n_vsend",
    "to": "n_listen",
    "label": "",
@@ -3766,22 +3954,6 @@
    ]
   },
   {
-   "from": "n_samplegate",
-   "to": "n_sample",
-   "label": "تعديل",
-   "kind": "loop",
-   "src": "library.json workflow 8",
-   "who": "owner",
-   "act": "send",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "تعديل عيّنة AI بالرصيد بدون بوابة مكتوبة",
-   "kinds": [
-    "reel"
-   ],
-   "gap_plain": "تعديل عيّنة AI يصرف رصيد بدون بوابة موافقة"
-  },
-  {
    "from": "n_sampleonly",
    "to": "e_sample",
    "label": "إي",
@@ -3821,17 +3993,6 @@
    "kind": "yes",
    "src": "الاستديو:692",
    "who": "Claude",
-   "kinds": [
-    "reel"
-   ]
-  },
-  {
-   "from": "n_missingown",
-   "to": "n_pictures",
-   "label": "جاوبت بالمحادثة",
-   "kind": "loop",
-   "src": "audit.md §2.6",
-   "who": "owner",
    "kinds": [
     "reel"
    ]
@@ -4466,22 +4627,6 @@
    ]
   },
   {
-   "from": "n_asks",
-   "to": "n_hide",
-   "label": "احذفه",
-   "kind": "no",
-   "src": "studio.md asks",
-   "who": "owner",
-   "gap": true,
-   "gap_id": "جديد",
-   "gap_note": "جواب «احذفه» يروح لـ Claude؛ ما يشيل الفلم بروحه",
-   "kinds": [
-    "reel",
-    "carousel"
-   ],
-   "gap_plain": "جوابك «احذفه» يروح لـ Claude، وما يشيل الفلم بروحه"
-  },
-  {
    "from": "n_hide",
    "to": "n_hidden",
    "label": "",
@@ -4514,18 +4659,6 @@
    "kind": "no",
    "src": "الاستديو:537",
    "who": "page/system",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_purge",
-   "to": "e_handled",
-   "label": "",
-   "kind": "next",
-   "src": "audit G16",
-   "who": "Claude",
    "kinds": [
     "reel",
     "carousel"
@@ -4880,6 +5013,254 @@
    "kind": "loop",
    "src": "studio script.js",
    "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "g_voice",
+   "to": "n_vwait",
+   "label": "لا / مو الحين",
+   "kind": "no",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_vwait",
+   "to": "g_voice",
+   "label": "رجّع اسألني بعدين",
+   "kind": "loop",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_vwait",
+   "to": "n_scriptedit",
+   "label": "عدّل النص",
+   "kind": "loop",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_vcheck",
+   "to": "n_vcost",
+   "label": "يبين مرقّع: يسألك قبل يعيد",
+   "kind": "loop",
+   "src": "studio.md: every paid take asks first, 7 Nov",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "g_style",
+   "to": "n_styletext",
+   "label": "ما عجبني ولا واحد",
+   "kind": "no",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_samplegate",
+   "to": "n_styletext",
+   "label": "ما عجبني الأسلوب (اكتب)",
+   "kind": "no",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_styletext",
+   "to": "n_stylesaved",
+   "label": "أرسل",
+   "kind": "next",
+   "src": "idea.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_stylesaved",
+   "to": "n_styleopts",
+   "label": "أساليب يديدة",
+   "kind": "loop",
+   "src": "idea.js + SKILL.md §6",
+   "who": "page/system",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_samplegate",
+   "to": "g_aisample",
+   "label": "تعديل",
+   "kind": "no",
+   "src": "studio.md (7 Nov)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "g_aisample",
+   "to": "n_sample",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md (7 Nov)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "g_aisample",
+   "to": "n_samplegate",
+   "label": "لا",
+   "kind": "loop",
+   "src": "studio.md (7 Nov)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_missingown",
+   "to": "n_pictures",
+   "label": "عندي صورة",
+   "kind": "loop",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_missingown",
+   "to": "n_route",
+   "label": "استخدم بديل",
+   "kind": "yes",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_missingown",
+   "to": "n_build",
+   "label": "شيل اللقطة",
+   "kind": "no",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "g_ai",
+   "to": "n_altfree",
+   "label": "لا",
+   "kind": "no",
+   "src": "studio.md (7 Nov)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_altfree",
+   "to": "n_build",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md (7 Nov)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_asks",
+   "to": "n_autohide",
+   "label": "احذفه",
+   "kind": "no",
+   "src": "studio rest.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_autohide",
+   "to": "n_hidden",
+   "label": "",
+   "kind": "next",
+   "src": "studio rest.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_purge",
+   "to": "n_purgeok",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md (7 Nov)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_purgeok",
+   "to": "n_purgedo",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md (7 Nov)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_purgeok",
+   "to": "e_handled",
+   "label": "لا",
+   "kind": "no",
+   "src": "studio.md (7 Nov)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_purgedo",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md (7 Nov)",
+   "who": "Claude",
    "kinds": [
     "reel",
     "carousel"
