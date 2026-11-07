@@ -67,7 +67,10 @@ inbox document carries their files in `slides`. On
 
 **Every inbox row is marked when it is handled** (7 Nov 2026 audit, gap G1: the 04:45 ep2 hook pick reached only the
 inbox, and nobody could tell which rows were done): `handled_at`, `handled_by: 'claude'`, a short `handled_note`. A row
-without `handled_at` is new. A scheduled task checks the studio every hour (unhandled rows, and films whose
+without `handled_at` is new. **Handling a row also bumps the film's `updated`** (with a `changes` line saying what
+was done): the page treats a film whose `last_action.at` is newer than `updated` as still waiting for Claude, and
+hides the voice marks and word options meanwhile. On 7 Nov 2026 the Dennison «ليش / الساعة» options were ready but
+hidden for this reason, and the owner had to send his marks twice. A scheduled task checks the studio every hour (unhandled rows, and films whose
 `last_action.at` is newer than `updated`), acts on them under the usual gates, and writes `studio/now.checked_at`; the
 page shows «آخر مرة شيّك Claude». **A decision the owner makes in chat is written to the inbox too** (`via: 'chat'`,
 his words quoted, `handled_at` set) and as a `changes` line, so the studio's history shows who approved what (G7).
