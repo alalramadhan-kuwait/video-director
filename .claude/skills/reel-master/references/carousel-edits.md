@@ -40,6 +40,10 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
     (GPHG v3→v4, with a real TK post as the model)
 14. **The caption explains; it never carries hashtags or sources.** For an awards list, the caption says what each
     prize rewards (the top prize in detail), from the organiser's own rules. Rule: `carousel.md`, `post.md`. (GPHG v4→v5)
+15. **The watch words.** «محرك» (movement), «قالب» (case), «بالانس ويل» (balance wheel), never «حركة», «علبة»,
+    «ميزان»; a counted noun over ten stays singular («406 يوم»); Rexhep Rexhepi is «رجب رجبي». A news carousel ends on
+    its last fact, with no reader's question. Rule: `brand/script_library.yaml` (tk), `brand/names.json`,
+    `NEWS` skips `ask`. (GPHG v5→v6)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -56,6 +60,13 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 4. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v5 (asked in chat)
+- «بحركة مفروض تكون بمحرك» · «اسمه رجب رجبي» · «خلال ١١ الف ساعة عمل» · «بالنس ويل بحجم ٢٠ مم» · «لاتستخدم علبة
+  دائما قالب» · «٤٠٦ يوم وليست ايام» · «شيل السؤال اخر شي».
+- v6: all seven, and the same words wherever they appeared (Cleguer's balance wheel, Daniel Roth's and Piaget's case).
+- **Lesson:** Time Keeper's watch vocabulary is fixed: محرك, قالب, بالانس ويل; names as the Gulf press writes them.
+- **Status:** rule (15).
 
 ### 2026-11-08 · GPHG 2026 winners v4 (asked in chat)
 - «in the caption, always remove the hashtag and sources. And I want you to explain the price [prize] for each
