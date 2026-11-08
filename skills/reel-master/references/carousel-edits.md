@@ -38,6 +38,8 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
 13. **Time Keeper's identity, not ours.** TK green as the secondary colour, the Bahij Helvetica Neue font, the
     slide number in a black box, «اسحب للمزيد» in green on the cover. Rule: `carousel.md`, the renderer's defaults.
     (GPHG v3→v4, with a real TK post as the model)
+14. **The caption explains; it never carries hashtags or sources.** For an awards list, the caption says what each
+    prize rewards (the top prize in detail), from the organiser's own rules. Rule: `carousel.md`, `post.md`. (GPHG v4→v5)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -54,6 +56,14 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 4. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v4 (asked in chat)
+- «in the caption, always remove the hashtag and sources. And I want you to explain the price [prize] for each
+  category, and especially the golden needle» (he chose: what each prize means, in the caption).
+- v5: a caption with no hashtags or sources, explaining every prize from gphg.org's 2026 rules. Checking those rules
+  also corrected slide 15: Petite Aiguille is CHF 4,500–10,000 (a press article had «4,900»).
+- **Lesson:** an organiser's rules are the source for what a category means; a press summary is not.
+- **Status:** rule (14).
 
 ### 2026-11-08 · GPHG 2026 winners v3 (asked in chat, with a TK post)
 - «you are different from timekeeper or original design… use the same green as the secondary color… the font… is

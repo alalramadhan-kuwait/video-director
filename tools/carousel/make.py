@@ -28,7 +28,9 @@ def main(argv=None) -> int:
     lang = a.language or spec.get('language') or 'kuwaiti'
     problems = carousel.check(spec, folder, lang)
     for p in problems: print('  ' + p)
-    if not caption: print('  caption.txt is missing (2 lines and 3–5 hashtags, the photo credits)')
+    if not caption: print('  caption.txt is missing (two lines; no hashtags, no sources)')
+    elif '#' in caption or any(w in caption for w in ('المصادر', 'المعلومات:', 'الصور:', 'Source', 'source')):
+        print('  caption.txt: no hashtags and no sources or credits in a caption (the owner, 8 Nov 2026)')
     if a.check_only: return 1 if problems else 0
     files, drawn = carousel.render_report(folder / 'spec.json', folder / 'out')
     for w in drawn: print('  ' + w)
