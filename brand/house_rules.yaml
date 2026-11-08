@@ -1,0 +1,42 @@
+# The house rules gate (the owner, 8 Nov 2026: «All those rules that we fixed should be part of our studio… after
+# writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»).
+# Every owner correction that a machine can check lives here, once. tools/house_check.py reads it before anything
+# reaches the owner (a script before its card, a carousel before it renders, a caption before it is saved) and
+# record_flow.py before a paid voice take. `fix` rewrites safely; `flag` needs Claude to rewrite the sentence, or, when
+# the word is right in that sentence (حركة as motion), to list it under the film's `rules_ok:`.
+# A new owner correction: add it here (with `why` = his words and `when`), then log it in carousel-edits.md.
+
+fix:            # always wrong; rewritten automatically
+  - {from: علبة الساعة, to: قالب الساعة, why: "«لاتستخدم علبة دائما قالب»", when: 2026-11-08}
+  - {from: عجلة التوازن, to: بالانس ويل, why: "«بالنس ويل بحجم ٢٠ مم»", when: 2026-11-08}
+  - {from: شعرة زنبرك, to: هير سبرينغ, why: "«use the same English technical term, but write it in Arabic»", when: 2026-11-08}
+  - {from: شعرة الزنبرك, to: الهير سبرينغ, why: "same", when: 2026-11-08}
+  - {from: جسر علوي, to: بريدج علوي, why: "same", when: 2026-11-08}
+  - {from: فولاذ, to: ستيل, why: "the house news words", when: 2026-11-02}
+  - {from: تعبئة يدوية, to: تكويك يدوي, why: "the house news words", when: 2026-11-02}
+
+flag:           # usually wrong; Claude rewrites the sentence (the word can be right in another sense)
+  - {word: حركة, hint: "a watch's movement is «محرك» («بحركة مفروض تكون بمحرك»); keep «حركة» only for motion", when: 2026-11-08}
+  - {word: علبة, hint: "a watch case is «قالب»; a barrel is «باريل»", when: 2026-11-08}
+  - {word: ميزان, hint: "balance wheel «بالانس ويل»; escapement «إسكيبمنت»", when: 2026-11-08}
+  - {word: زنبرك, hint: "mainspring «مين سبرينغ», hairspring «هير سبرينغ» (small parts keep their English name)", when: 2026-11-08}
+  - {word: جسر, hint: "bridge «بريدج»", when: 2026-11-08}
+  - {pattern: '(?<![\d,])(1[1-9]|[2-9]\d|\d{3,}|\d{1,3}(?:,\d{3})+)\s+(أيام|ساعات|سنوات|دقائق|قطع)(?!\w)', hint: "a counted noun over ten is singular («406 يوم», «1,240 قطعة»)", when: 2026-11-08}
+
+names:          # the house spelling of people's names on screen (also brand/names.json)
+  ركسهيبي: رجب رجبي
+  ركسهيب ركسهيبي: رجب رجبي
+
+caption:        # «in the caption, always remove the hashtag and sources» (2026-11-08)
+  no_hashtags: true
+  no_lines_starting: [المصادر, المصدر, الصور, الصورة, المعلومات, الموسيقى, Sources, Source, Credits, Photos, Music, Portrait]
+
+remember:       # lessons a machine cannot check: Claude reads them at the gate and confirms each
+  - The cover's claim is true and respectful (Halter 1).
+  - A real person is a real photo, never an AI drawing when a real one exists.
+  - A number is exact and says whose it is.
+  - The precise technical noun, in a polished written register.
+  - "Time Keeper's identity first (green #2C6048, Bahij, black number box, «اسحب للمزيد»)."
+  - A watch is never cut out of its photo; the slide takes the photo's ground.
+  - News is in Fusha; less text, bigger watches.
+  - An organiser's own rules are the source for what a category or prize means.

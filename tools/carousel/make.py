@@ -22,6 +22,7 @@ def sheet(files, dst):
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('folder'); ap.add_argument('--language'); ap.add_argument('--check-only', action='store_true')
+    ap.add_argument('--rules-ok', action='store_true', help='render even when a text breaks a house rule')
     a = ap.parse_args(argv)
     folder = Path(a.folder)
     spec, caption = carousel.load(folder)
@@ -31,7 +32,12 @@ def main(argv=None) -> int:
     if not caption: print('  caption.txt is missing (two lines; no hashtags, no sources)')
     elif '#' in caption or any(w in caption for w in ('المصادر', 'المعلومات:', 'الصور:', 'Source', 'source')):
         print('  caption.txt: no hashtags and no sources or credits in a caption (the owner, 8 Nov 2026)')
-    if a.check_only: return 1 if problems else 0
+    from director import house                                  # the house rules gate (brand/house_rules.yaml)
+    broken = house.check_carousel(spec, caption or '')
+    for p in broken: print('  house rules: ' + p)
+    if a.check_only: return 1 if problems or broken else 0
+    if broken and not a.rules_ok:
+        print('the texts break the house rules: fix them (tools/house_check.py --fix), or --rules-ok'); return 4
     files, drawn = carousel.render_report(folder / 'spec.json', folder / 'out')
     for w in drawn: print('  ' + w)
     sheet(files, folder / 'out' / 'sheet.jpg')

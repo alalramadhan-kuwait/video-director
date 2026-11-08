@@ -189,3 +189,6 @@ With every script sent for approval, write on the film:
 - **«احذفه»**: the page hides the film itself (`hidden`, `hidden_at`) and offers «رجّعه». Once a week, list the films
   hidden for over 30 days in chat, and delete them (records and their blobs) only on his yes.
 - **Styles marked «يحتاج بناء»**: before starting one, tell him the build time and any paid cost, as for any paid step.
+
+## The house rules gate
+**The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.

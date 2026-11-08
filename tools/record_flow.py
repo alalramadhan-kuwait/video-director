@@ -23,7 +23,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from director import brand as B, kw, narration, quickfilm  # noqa: E402
+from director import brand as B, house, kw, narration, quickfilm  # noqa: E402
 
 SR = 24000
 SETTINGS = {'stability': .5, 'similarity_boost': .8, 'style': .15, 'use_speaker_boost': True, 'speed': 1.0}   # steadier: one character all through
@@ -127,6 +127,7 @@ def main(argv=None) -> int:
     ap.add_argument('--per-act', action='store_true', help='read act by act even when the whole script fits one take')
     ap.add_argument('--anyway', action='store_true', help='record even when the delivery plan breaks one performance')
     ap.add_argument('--words-ok', action='store_true', help="record even with words the owner has not cleared (brand/kuwaiti-words.json)")
+    ap.add_argument('--rules-ok', action='store_true', help='record even when the script breaks a house rule (brand/house_rules.yaml)')
     a = ap.parse_args(argv)
     film = quickfilm.load(a.film); brand = film.get('brand', 'timekeeper')
     global SETTINGS
@@ -141,6 +142,10 @@ def main(argv=None) -> int:
     for f_ in flags:
         print(f"words: line {f_['line'] + 1}: «{f_['word']}»" + (f" → «{f_['say']}» ({f_.get('note', '')})" if f_['kind'] == 'ask' else ' is new: let the owner pick how it is said'))
     if flags and not a.words_ok: print('words the owner has not cleared: put them on his script card (or list them under kw_ok:, or --words-ok)'); return 3
+    # the house rules gate: every owner correction a machine can check, before the take is paid for
+    broken = house.check_lines(film['lines'], ok=film.get('rules_ok'))
+    for b_ in broken: print('house rules:', b_)
+    if broken and not a.rules_ok: print('the script breaks the house rules: fix it (tools/house_check.py --fix), or --rules-ok'); return 4
     for ln in film['lines']: ln['say'] = kw.apply(ln.get('say') or ln['text'])
     allsaid = [B.spoken(ln.get('say') or ln['text'], brand) for ln in film['lines']]
     whole = sum(len(t) + 1 for t in allsaid) <= MAX_CHARS and not a.per_act

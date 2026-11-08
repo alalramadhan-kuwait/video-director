@@ -59,7 +59,9 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
    next carousel, not just this sentence. If unsure what it means, the `why` field answers; don't ask the owner.
 3. **Status:** `rule` (now in «Apply every time» and, if it holds generally, `carousel.md`), or `watching` (a single
    case whose reason isn't clear yet; promote it when it repeats).
-4. Mirror this file to `.claude/skills/reel-master/references/`.
+4. **When a machine can check the lesson, add it to `brand/house_rules.yaml`** (`fix`, `flag`, `names`, `caption`), with the
+   owner's words as `why`; otherwise add it to its `remember` list. That is what makes the gate catch it next time.
+5. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
 
