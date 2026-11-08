@@ -76,6 +76,13 @@ class Rules(unittest.TestCase):
         s['slides'] = [{'type': 'end', 'title': 'احفظ المنشور'}, dict(sl)]
         self.assertTrue(any('end card is the last' in m for m in carousel.check(s)))
 
+    def test_a_ranking_chart_cover_runs_from_the_largest(self):
+        rows = [{'label': 'A', 'value': 9, 'text': '9'}, {'label': 'B', 'value': 3, 'text': '3'}]
+        s = {'news': True, 'cover': {'type': 'chart', 'title': 'الأسعار', 'rows': rows}, 'slides': [{'type': 'end', 'title': 'احفظ المنشور'}]}
+        self.assertEqual(carousel.check(s), [])
+        s['cover']['rows'] = rows[::-1]
+        self.assertTrue(any('largest to the smallest' in m for m in carousel.check(s)))
+
     def test_a_watch_is_never_a_cut_out(self):
         from PIL import Image
         with tempfile.TemporaryDirectory() as d:
