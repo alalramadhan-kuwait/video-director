@@ -29,9 +29,17 @@ names:          # the house spelling of people's names on screen (also brand/nam
 
 caption:        # «in the caption, always remove the hashtag and sources» (2026-11-08)
   no_hashtags: true
+  # «لازم نعتمد قاعدة ثابتة للكابشنات: معلومة رئيسية، تفاصيل مختصرة، وسؤال واضح. لا نحاول نحط محتوى الكاروسيل كله
+  # داخل الكابشن» (the owner rated a 1,330-character caption 4/10, 2026-11-08)
+  max_chars: 600
+  blank_line_between_paragraphs: true
+  max_list_lines: 3          # lines shaped «X: Y» — more is a dictionary, not a caption
+  formal: [تُمنح, تُرشّح, ماذا تكافئ, يُعدّ, حيث يُعتبر]
   no_lines_starting: [المصادر, المصدر, الصور, الصورة, المعلومات, الموسيقى, Sources, Source, Credits, Photos, Music, Portrait]
 
 remember:       # lessons a machine cannot check: Claude reads them at the gate and confirms each
+  - "A caption opens on the winner or the one key fact (and names the watch), then two or three short details, then one clear question about what the post shows. The slides explain; the caption does not repeat them."
+  - "Light tashkeel only where a word or name could be misread («رَجَب رَجَبي»), never every letter."
   - The cover's claim is true and respectful (Halter 1).
   - A real person is a real photo, never an AI drawing when a real one exists.
   - A number is exact and says whose it is.

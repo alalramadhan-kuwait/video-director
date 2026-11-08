@@ -32,7 +32,16 @@ class Gate(unittest.TestCase):
     def test_a_caption_has_no_hashtags_or_sources(self):
         self.assertTrue(house.check('خبر\n#ساعات', 'c', caption=True))
         self.assertTrue(house.check('خبر\nالمصادر: موقع', 'c', caption=True))
-        self.assertEqual(house.check('خبر قصير.\nوأنت؟', 'c', caption=True), [])
+        self.assertEqual(house.check('خبر قصير.\n\nوأنت؟', 'c', caption=True), [])
+
+    def test_a_caption_is_one_fact_short_details_one_question(self):
+        good = 'أهم جائزة هالسنة راحت لصانع مستقل!\n\nفاز رَجَب رَجَبي عن ساعته «كرونوغراف فلايباك».\n\nأي ساعة تستاهل الإبرة الذهبية برأيكم؟'
+        self.assertEqual(house.check(good, 'c', caption=True), [])
+        self.assertTrue(any('characters' in m for m in house.check('خبر ' * 200, 'c', caption=True)))
+        self.assertTrue(any('blank line' in m for m in house.check('سطر\nسطر ثاني', 'c', caption=True)))
+        dict_ = '\n\n'.join(f'جائزة {i}: شرح' for i in range(5))
+        self.assertTrue(any('«X: Y»' in m for m in house.check(dict_, 'c', caption=True)))
+        self.assertTrue(any('formal' in m for m in house.check('وهي تُمنح لأفضل ساعة', 'c', caption=True)))
 
     def test_a_carousel_is_checked_whole(self):
         spec = {'cover': {'top': 'عنوان', 'bottom': ''}, 'slides': [{'title': 'جائزة', 'body': 'بحركة جديدة'}]}

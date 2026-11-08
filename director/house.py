@@ -54,6 +54,17 @@ def check(text: str, where: str = '', R: dict | None = None, caption: bool = Fal
         for line in (text or '').splitlines():
             if any(line.strip().startswith(s) for s in c.get('no_lines_starting', [])):
                 out.append(f'{where}: no sources or credits in a caption («{line.strip()[:30]}…»)')
+        raw = (text or '').strip()
+        if c.get('max_chars') and len(raw) > c['max_chars']:
+            out.append(f"{where}: {len(raw)} characters; a caption is at most {c['max_chars']}: one key fact, short details, one question")
+        lines = raw.splitlines()
+        if c.get('blank_line_between_paragraphs') and any(a.strip() and b.strip() for a, b in zip(lines, lines[1:])):
+            out.append(f'{where}: leave a blank line between paragraphs')
+        listy = [l for l in lines if re.match(r'^[^:\n]{2,40}:\s', l.strip())]
+        if c.get('max_list_lines') is not None and len(listy) > c['max_list_lines']:
+            out.append(f'{where}: {len(listy)} «X: Y» lines: the slides explain, the caption does not list them')
+        for w in c.get('formal', []):
+            if w in (text or '') or w in t: out.append(f'{where}: «{w}» is formal; write it as Time Keeper talks')
     return out
 
 

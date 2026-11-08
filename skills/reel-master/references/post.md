@@ -2,7 +2,12 @@
 
 ## What goes to the owner with the finished film
 1. **The MP4** (1080×1920, captions burned in; offer a version without captions).
-2. **The caption** in the house style: a hook line, two or three short lines of the story, the closing question if the
+2. **The caption: one key fact, short details, one clear question** (the owner, 8 Nov 2026, rating a long caption
+   4/10: «معلومة رئيسية، تفاصيل مختصرة، وسؤال واضح. لا نحاول نحط محتوى الكاروسيل كله داخل الكابشن»). Open on the winner
+   or the news and name the watch; two or three short paragraphs with a blank line between them; Time Keeper's
+   conversational voice, not formal passives; light tashkeel only on a name that could be misread; at most 600
+   characters; the question is about what the post shows. The house rules gate checks it.
+   Its parts, in the house style: a hook line, two or three short lines of the story, the closing question if the
    film has one, and «تابعنا…». **No hashtags and no sources in a caption, ever** (the owner, 8 Nov 2026: «in the caption, always remove the hashtag and sources»). The sources and credits go to the owner beside the post (`sources`, `credits`), never in the text he posts; a licence that requires a visible credit (CC BY / BY-SA photos or music) gets it as a small line on the picture or the end card instead.
 3. **The credits** (`<out>/credits.txt`, cleaned): every photo with its author, licence and page; found sounds; music;
    the voice («Voice: Jarnathan (ElevenLabs)»); AI drawings, if any, credited here only (never on screen). Remove
