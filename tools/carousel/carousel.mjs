@@ -80,7 +80,7 @@ function coverHtml(c) {
   const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
   return `<html><head><style>${css}</style></head><body><img class="photo" src="${A(c.image)}">${overlay(dark)}
   ${c.badge ? `<div class="seal" style="top:${c.badge.top ?? 215}px;right:${c.badge.right ?? 30}px;width:${c.badge.size ?? 190}px;height:${c.badge.size ?? 190}px"><b style="font-size:${Math.round((c.badge.size ?? 190) / 6)}px">${c.badge.text}</b>${c.badge.sub ? `<i style="font-size:${Math.round((c.badge.size ?? 190) / 10)}px">${c.badge.sub}</i>` : ''}</div>` : ''}
-  <div id="hw"${c.gap != null ? ` style="bottom:${+c.gap}px"` : ''}>${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}${c.swipe === false ? '' : '<div class="sw"><span class="ar">▶▶</span>اسحب للمزيد</div>'}</div>
+  <div id="hw"${c.gap != null ? ` style="bottom:${+c.gap}px"` : ''}>${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}${c.swipe === false ? '' : `<div class="sw"${dark ? '' : ' style="color:#fff"'}><span class="ar"${dark ? '' : ` style="color:${TK_GREEN};text-shadow:0 0 2px #fff"`}>▶▶</span>اسحب للمزيد</div>`}</div>
   <script>const fit=()=>{for(const b of document.querySelectorAll('.hb')){let f=${SIZE.cover};b.style.fontSize=f+'px';while(b.scrollWidth>940&&f>32){f-=2;b.style.fontSize=f+'px'}}};fit();document.fonts.ready.then(fit)</script></body></html>`;
 }
 // The awards style (learnt from a list carousel the owner liked, 8 Nov 2026): one header line on every slide, the top
