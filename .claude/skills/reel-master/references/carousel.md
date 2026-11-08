@@ -91,6 +91,20 @@ green as the one accent, the TK overlay on every slide.
   margin cut away, and on a long strap the strap ends, never the case.
 - **Caption:** two lines in the same language. **No hashtags and no sources in a caption, ever** (the owner, 8 Nov 2026: «in the caption, always remove the hashtag and sources»). The sources and credits go to the owner beside the post (`sources`, `credits`), never in the text he posts; a licence that requires a visible credit (CC BY / BY-SA photos or music) gets it as a small line on the picture or the end card instead.
 
+## The awards style: a list of winners (learnt 8 Nov 2026)
+The owner showed a competitor's GPHG carousel as the model for lists («learn their style, but apply our identity… for
+future reference»). Five slides carry twenty winners:
+- **Cover:** the grid cover (`tools/carousel/grid_cover.py`, `"gap": 60`), the top winner first (top-right) with a
+  green seal on it (`"badge": {"text": "الإبرة الذهبية", "sub": "2026"}`), the headline in black boxes.
+- **The top winner alone** (`"type": "hero"`): the watch large in an outlined frame, the prize as the title, then
+  BRAND (caps), model and `REF.`, and the green seal.
+- **Six cards a slide** (`"type": "cards"`, up to 6): each an outlined card with the category on top in green, the
+  watch, BRAND, model and `REF.` (the official reference, from the organiser's page; leave it out when there is none).
+- **One header on every slide** (`"head"`), the number in its black box beside it; the TK overlay as always.
+- TK's identity throughout: white ground (the photos'), green `#2C6048` outlines and categories, Bahij, no cut-outs.
+Use it for any list of many pieces (awards, launches of a fair, a brand's new references); keep the one-watch slides
+for a story.
+
 ## Make it
 **The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.
 

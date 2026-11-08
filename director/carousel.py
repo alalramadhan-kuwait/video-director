@@ -61,6 +61,10 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
         if s.get('ask'): out.append(f'slide {i}: only the last slide asks the reader (`ask`)')
     seq = layouts(spec)
     for i, s in enumerate(slides, 1):
+        if s.get('type') in ('cards', 'hero'):                       # the awards style: checked by its own shape
+            if s['type'] == 'cards' and not 1 <= len(s.get('cards') or []) <= 6: out.append(f'slide {i}: 1–6 cards a slide')
+            if any(not c.get('image') for c in s.get('cards') or []) or (s['type'] == 'hero' and not s.get('image')): out.append(f'slide {i}: every card shows its watch')
+            continue
         n = len(words(s.get('body'))) + len(words(s.get('ask')))
         lo, hi = NEWS_WORDS if spec.get('news') else BODY_WORDS
         if not lo <= n <= hi:
@@ -69,13 +73,17 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
         if not TITLE_WORDS[0] <= t <= TITLE_WORDS[1]:
             out.append(f'slide {i}: a title of {t} words; {TITLE_WORDS[0]}–{TITLE_WORDS[1]}')
         if s.get('layout') and s['layout'] not in LAYOUTS: out.append(f"slide {i}: layout {s['layout']!r} is not one of {', '.join(LAYOUTS)}")
-        if i > 1 and seq[i - 1] == seq[i - 2]: out.append(f'slide {i}: the same layout as slide {i - 1} ({seq[i - 1]}); vary it')
+        if i > 1 and seq[i - 1] == seq[i - 2] and not slides[i - 2].get('type'): out.append(f'slide {i}: the same layout as slide {i - 1} ({seq[i - 1]}); vary it')
         if not s.get('image'): out.append(f'slide {i}: no image (one large cut-out per slide)')
         if s.get('watch') and seq[i - 1] in ('rightBleed', 'leftBleed', 'bigCorner'):
             out.append(f'slide {i}: a watch is shown whole; {seq[i - 1]} cuts it off the slide (topImage or bottomImage)')
     if base is not None:
         for what, p in [('cover', cover.get('image'))] + [(f'slide {i}', s.get('image')) for i, s in enumerate(slides, 1)]:
             if p and not (Path(p) if Path(p).is_absolute() else base / p).is_file(): out.append(f'{what}: image {p} is missing')
+        for i, s in enumerate(slides, 1):
+            for c in s.get('cards') or []:
+                q = c.get('image')
+                if q and not (Path(q) if Path(q).is_absolute() else base / q).is_file(): out.append(f'slide {i}: image {q} is missing')
         for i, s in enumerate(slides, 1):
             p = s.get('image')
             f = p and (Path(p) if Path(p).is_absolute() else base / p)

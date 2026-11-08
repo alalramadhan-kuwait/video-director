@@ -58,6 +58,14 @@ class Rules(unittest.TestCase):
         s['slides'][0]['body'] = BODY
         self.assertTrue(any(m.startswith('slide 1:') and 'words' in m for m in carousel.check(s)))
 
+    def test_the_awards_style_is_checked_by_its_own_shape(self):
+        card = {'title': 'التوربيون', 'brand': 'X', 'model': 'Y', 'image': 'a.png'}
+        s = {'news': True, 'cover': {'top': 'جوائز'}, 'slides': [{'type': 'hero', 'title': 'الإبرة الذهبية', 'image': 'h.png'},
+                                                               {'type': 'cards', 'cards': [card] * 6}]}
+        self.assertEqual(carousel.check(s), [])
+        s['slides'][1]['cards'] = [card] * 7
+        self.assertTrue(any('1–6 cards' in m for m in carousel.check(s)))
+
     def test_a_watch_is_never_a_cut_out(self):
         from PIL import Image
         with tempfile.TemporaryDirectory() as d:

@@ -49,6 +49,9 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
 17. **A caption is not the carousel again.** One key fact (the winner and his watch), short details, one clear
     question; blank lines, conversational, at most 600 characters. Rule: `post.md`, `house_rules.yaml` (caption).
     (GPHG v8→v9: the owner rated the long caption 4/10 and wrote the new one)
+18. **A list of many winners is cards, not one slide each** (the awards style, from a competitor's post the owner
+    liked): cover grid with a seal, the top winner alone, then six outlined cards a slide with category, brand, model
+    and the official reference. Rule: `carousel.md`, «The awards style». (GPHG, 8 Nov 2026)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
