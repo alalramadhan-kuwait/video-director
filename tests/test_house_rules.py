@@ -48,6 +48,11 @@ class Gate(unittest.TestCase):
             self.assertTrue(house.check(bad, 'x'), bad)
         self.assertEqual(house.check('إصدار محدود من 3,000 قطعة فقط حول العالم.', 'x'), [])
 
+    def test_watch_terms_are_not_translated_word_for_word(self):
+        self.assertEqual(house.fix('توربيون طائر من الفضة الألمانية'), 'فلاينغ توربيون من جيرمان سلفر')
+        self.assertTrue(house.check('الساعات تقفز في لحظة', 'x'))
+        self.assertEqual(house.check('موديول جمبينغ آور يغيّر الساعة في لحظة', 'x'), [])
+
     def test_a_carousel_is_checked_whole(self):
         spec = {'cover': {'top': 'عنوان', 'bottom': ''}, 'slides': [{'title': 'جائزة', 'body': 'بحركة جديدة'}]}
         self.assertTrue(any(m.startswith('slide 1') for m in house.check_carousel(spec, 'كابشن #هاشتاق')))

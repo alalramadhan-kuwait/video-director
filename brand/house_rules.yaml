@@ -14,6 +14,9 @@ fix:            # always wrong; rewritten automatically
   - {from: جسر علوي, to: بريدج علوي, why: "same", when: 2026-11-08}
   - {from: فولاذ, to: ستيل, why: "the house news words", when: 2026-11-02}
   - {from: تعبئة يدوية, to: تكويك يدوي, why: "the house news words", when: 2026-11-02}
+  - {from: توربيون طائر, to: فلاينغ توربيون, why: "«المصطلحات التقنية في الساعات ماينفع تترجم حرفيا»", when: 2026-11-08}
+  - {from: الفضة الألمانية, to: جيرمان سلفر, why: same, when: 2026-11-08}
+  - {from: الساعة القافزة, to: الجمبينغ آور, why: same, when: 2026-11-08}
 
 flag:           # usually wrong; Claude rewrites the sentence (the word can be right in another sense)
   - {word: حركة, hint: "a watch's movement is «محرك» («بحركة مفروض تكون بمحرك»); keep «حركة» only for motion", when: 2026-11-08}
@@ -23,6 +26,7 @@ flag:           # usually wrong; Claude rewrites the sentence (the word can be r
   - {word: جسر, hint: "bridge «بريدج»", when: 2026-11-08}
   - {pattern: '(?<![\d,])(1[1-9]|[2-9]\d|\d{3,}|\d{1,3}(?:,\d{3})+)\s+(أيام|ساعات|سنوات|دقائق|قطع)(?!\w)', hint: "a counted noun over ten is singular («406 يوم», «1,240 قطعة»)", when: 2026-11-08}
   - {pattern: '(من تشكيلتنا|تشكيلتنا|متوفرة? (الآن )?(لدى|عند|في) (تايم كيبر|Time Keeper)|عندنا في تايم كيبر|تلقون\S* عندنا|موجودة? عند (تايم كيبر|Time Keeper))', hint: "a brand we sell is an indirect ad: tell the story, never «من تشكيلتنا» or «متوفرة لدى تايم كيبر» («ابيها اعلان بشكل غير مباشر»)", when: 2026-11-08}
+  - {pattern: '(تقفز الساعات|الساعات تقفز|تقفز الساعة|ساعة قافزة|احتياطي الطاقة الطائر|إزاحة مركزية)', hint: "a watch term is never translated word for word: the English term in Arabic letters («جمبينغ آور»), or the established Arabic one (محرك، قالب، مينا، تاج، عقارب)", when: 2026-11-08}
 
 names:          # the house spelling of people's names on screen (also brand/names.json)
   ركسهيبي: رجب رجبي
