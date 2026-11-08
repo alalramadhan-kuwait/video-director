@@ -54,7 +54,7 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     if len(head) > COVER_MAX: out.append(f'cover: {len(head)} characters in the headline; at most {COVER_MAX}')
     if not spec.get('news') and not SLIDES[0] <= len(slides) <= SLIDES[1]: out.append(f'{len(slides)} written slides; the carousel has {SLIDES[0]}–{SLIDES[1]}')
     last = slides[-1] if slides else {}
-    if slides and not (last.get('ask') or '').strip().endswith('؟'):
+    if slides and not spec.get('news') and not (last.get('ask') or '').strip().endswith('؟'):
         out.append(f'slide {len(slides)}: the last slide ends on the reader\'s question, set large in `ask` '
                    '(the owner: «دائما سؤال القارئ يكون أكبر ويشد القارئ»)')
     for i, s in enumerate(slides[:-1], 1):
