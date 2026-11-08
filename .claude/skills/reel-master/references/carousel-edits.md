@@ -35,6 +35,9 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
     (GPHG v1→v2)
 12. **News: less text, bigger watches.** One short fact a slide under a watch that fills the slide. Rule:
     `carousel.md` (`news`, `big`), `NEWS_WORDS`. (GPHG v2→v3)
+13. **Time Keeper's identity, not ours.** TK green as the secondary colour, the Bahij Helvetica Neue font, the
+    slide number in a black box, «اسحب للمزيد» in green on the cover. Rule: `carousel.md`, the renderer's defaults.
+    (GPHG v3→v4, with a real TK post as the model)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -51,6 +54,14 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 4. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v3 (asked in chat, with a TK post)
+- «you are different from timekeeper or original design… use the same green as the secondary color… the font… is
+  Bahjav [Bahij]… the post numbering, instead of having underneath line, put it inside the box that will have a black
+  and white color».
+- v4: TK green `#2C6048`, Bahij Helvetica Neue, the number in a black box, the cover's green «اسحب للمزيد».
+- **Lesson:** a carousel is Time Keeper's post first: match their published identity exactly before any style of ours.
+- **Status:** rule (13).
 
 ### 2026-11-08 · GPHG 2026 winners v2 (asked in chat)
 - «We need to reduce the text and increase the watches size».

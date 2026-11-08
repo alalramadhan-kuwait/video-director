@@ -10,13 +10,16 @@ const HERE = path.dirname(new URL(import.meta.url).pathname);
 const A = p => p ? 'file://' + (path.isAbsolute(p) ? p : path.join(base, p)) : '';
 const ASSETS = process.env.TK_CAROUSEL_ASSETS || path.join(HERE, '..', '..', 'brand', 'carousel');   // the TK overlay PNGs (not in git)
 const asset = f => { const p = path.join(ASSETS, f); return fs.existsSync(p) ? 'file://' + p : null; };
-const OV_W = asset('White_temp.png'), OV_B = asset('Black_temp.png'), BAHIJ = asset('Bahij-Helvetica-Neue-Bold.ttf');
-const font = BAHIJ ? `@font-face{font-family:TK;src:url('${BAHIJ}')}` :
+const OV_W = asset('White_temp.png'), OV_B = asset('Black_temp.png'), BAHIJ = asset('Bahij-Helvetica-Neue-Bold.ttf'), BAHIJ_R = asset('Bahij-Helvetica-Neue-Roman.ttf');
+const font = BAHIJ ? `@font-face{font-family:TK;src:url('${BAHIJ}');font-weight:800}@font-face{font-family:TK;src:url('${BAHIJ_R || BAHIJ}');font-weight:500}` :
   `@font-face{font-family:TK;src:url('file://${HERE}/fonts/tajawal-arabic-800-normal.woff2');font-weight:800}@font-face{font-family:TK;src:url('file://${HERE}/fonts/tajawal-arabic-500-normal.woff2');font-weight:500}`;
 // Text sizes in px on the 1080×1350 slide. The owner: «the size of the text, it is small… increase it about 10%»
 // (was title 74, body 40, reader's question 58, name 28, number 30, cover line 78). Keep studio-page's KIT.SIZE the same.
+// Time Keeper's own green, the secondary colour of its posts (the owner, 8 Nov 2026: «use the same green as the secondary
+// color»): key words, the reader's question, the cover's «اسحب للمزيد».
+const TK_GREEN = '#2C6048';
 const SIZE = { title: 81, body: 44, ask: 64, name: 31, num: 33, cover: 86 };
-const PAPER = spec.paper || '#f3ead6', INK = spec.ink || '#1c1510', ACCENT = spec.accent || '#a3172e';
+const PAPER = spec.paper || '#f3ead6', INK = spec.ink || '#1c1510', ACCENT = spec.accent || TK_GREEN;
 const overlay = (dark) => { const f = dark ? OV_B : OV_W; if (f) return `<img class="ov" src="${f}">`;
   const c = dark ? '#111' : '#fff'; return `<div class="ph" style="color:${c}"><div class="ph-top">TIME KEEPER</div><div class="ph-bot">@timekeeperkw</div></div>`; };
 const css = `${font}*{margin:0;padding:0;box-sizing:border-box}html,body{width:1080px;height:1350px;overflow:hidden}
@@ -29,7 +32,8 @@ body{font-family:TK,sans-serif;direction:rtl;background:${PAPER};color:${INK};po
 .hb{display:block;width:fit-content;margin-left:auto;padding:5px 22px 6px;margin-bottom:7px;max-width:940px;line-height:1.02;white-space:nowrap;font-weight:800}
 .fig{position:absolute;z-index:1}
 .txt{position:absolute;z-index:3;text-align:right}
-.num{font-size:${SIZE.num}px;font-weight:800;color:${ACCENT};letter-spacing:.05em;margin-bottom:18px;direction:ltr;text-align:right}
+.num{display:block;width:fit-content;margin:0 0 24px auto;padding:4px 16px 6px;background:#111111;color:#FFFFFF;font-size:${SIZE.num}px;font-weight:800;letter-spacing:.05em;direction:ltr}
+.sw{margin-top:14px;font-size:40px;font-weight:800;color:${TK_GREEN};text-align:right}.sw .ar{letter-spacing:-.18em;margin-left:16px}
 .ttl{font-size:${SIZE.title}px;font-weight:800;line-height:1.12;margin-bottom:26px}
 .nm{font-size:${SIZE.name}px;font-weight:500;opacity:.75;direction:ltr;text-align:right;margin:-14px 0 22px}
 .bd{font-size:${SIZE.body}px;font-weight:500;line-height:1.55}
@@ -60,14 +64,14 @@ function coverHtml(c) {
   const dark = c.palette ? c.palette === 'light' : bright(A(c.image).slice(7)) > 150;
   const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
   return `<html><head><style>${css}</style></head><body><img class="photo" src="${A(c.image)}">${overlay(dark)}
-  <div id="hw">${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}</div>
+  <div id="hw">${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}${c.swipe === false ? '' : '<div class="sw"><span class="ar">▶▶</span>اسحب للمزيد</div>'}</div>
   <script>const fit=()=>{for(const b of document.querySelectorAll('.hb')){let f=${SIZE.cover};b.style.fontSize=f+'px';while(b.scrollWidth>940&&f>32){f-=2;b.style.fontSize=f+'px'}}};fit();document.fonts.ready.then(fit)</script></body></html>`;
 }
 function slideHtml(s, i, n) {
   const name = s.layout || order[i % order.length], L = LAYOUTS[name];
   const fig = (s.watch && WHOLE[name]) || L.fig, end = s.watch ? 1300 : 1410;   // where a bottom picture ends: inside the slide, or bled off it
   return `<html><head><style>${css}</style></head><body${spec.big ? ' data-big="1"' : ''}>${s.image ? `<img class="fig" data-end="${end}" style="${fig}" src="${A(s.image)}">` : ''}
-  <div class="txt" data-layout="${name}" style="${L.txt}"><div class="num">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</div><div class="rule"></div>
+  <div class="txt" data-layout="${name}" style="${L.txt}"><div class="num">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</div>
   <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div>${s.ask ? `<div class="ask">${s.ask}</div>` : ''}</div>${overlay(true)}${fitScript}</body></html>`;
 }
 const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
