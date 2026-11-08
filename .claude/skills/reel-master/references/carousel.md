@@ -92,6 +92,8 @@ green as the one accent, the TK overlay on every slide.
 - **Caption:** two lines in the same language. **No hashtags and no sources in a caption, ever** (the owner, 8 Nov 2026: «in the caption, always remove the hashtag and sources»). The sources and credits go to the owner beside the post (`sources`, `credits`), never in the text he posts; a licence that requires a visible credit (CC BY / BY-SA photos or music) gets it as a small line on the picture or the end card instead.
 
 ## Make it
+**The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.
+
 Folder `carousels/<name>/` (outside git when it holds third-party photos): `spec.json`, the images, `caption.txt`.
 
 ```json
