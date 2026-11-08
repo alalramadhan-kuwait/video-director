@@ -105,6 +105,14 @@ future reference»). Five slides carry twenty winners:
 Use it for any list of many pieces (awards, launches of a fair, a brand's new references); keep the one-watch slides
 for a story.
 
+- **A photo on its own ground** (a steel table, a grey portrait, a wrist shot): set the slide's `"paper"` to the
+  photo's edge colour, so the paper matches the photo (the owner: never cut the watch out); a dark paper turns the text
+  and the logo white and the key words light green. A brand's transparent packshot is laid on white and cropped to the
+  watch first. A cover whose headline sits on a darker part than its top takes `"swipe": "light"`.
+- **A different image on every slide** (the owner, 8 Nov 2026, SpaceOne: «Try to use different images for each
+  slide»): the brands' own press and product pages usually hold more than the organiser's two or three (packshots,
+  caseback, wrist shots, parts laid out, the founders' portraits).
+
 ## The price-list style: one watch a slide, its price (learnt 8 Nov 2026)
 The owner showed @thewatchmenu as a style to learn («They have good style learn it»). What carries their account: a
 famous name or a price figure on the cover, one watch a slide, the same closing card on every post; their sponsored
