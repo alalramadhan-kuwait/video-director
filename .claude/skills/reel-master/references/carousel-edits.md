@@ -29,6 +29,10 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
    مكاين»: the parts of trains are **محركات** (engines), not the vague «مكاين»; and a slide reads a touch more
    polished than speech («يحضر» over «يجيب»), still Kuwaiti. Pick the exact technical noun; don't open a sentence
    with a loose «و». (Halter 1 v6, the owner's own edit; watching the register for a second case)
+10. **A watch keeps every part: no background remover.** The photo stays whole on a slide whose `paper` is the
+    photo's own ground colour. Rule: `carousel.md`, and `check()` refuses a transparent watch picture. (GPHG v1→v2)
+11. **News in Fusha.** A news carousel (awards, launches) is written in عربي خفيف, not Kuwaiti. Rule: `carousel.md`.
+    (GPHG v1→v2)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -45,6 +49,14 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 4. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v1 (asked in chat)
+- «Always when you remove the background you remove part of the watch. To avoid this use the same color of the
+  background as the color of the post» — and «استخدم العربية الفصحى».
+- v2: every press photo uncut on a white slide (the photos' ground), all text and the caption in Fusha.
+- **Lesson:** the remover eats thin and pale parts of a watch (lugs, strap ends, crystal edges); matching the ground
+  shows the whole object with no risk. News reads as news: Fusha.
+- **Status:** rule (10, 11).
 
 ### 2026-11-03 · Halter · 1 v8 (the owner's own edit in the studio; logged 7 Nov)
 - **الشريحة 1 · العنوان:** «—» ← «فياني هالتر»
