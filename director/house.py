@@ -83,6 +83,6 @@ def check_carousel(spec: dict, caption: str = '', R: dict | None = None) -> list
     c = spec.get('cover') or {}
     out = check(f"{c.get('top', '')} {c.get('bottom', '')}", 'cover', R)
     for i, s in enumerate(spec.get('slides') or [], 1):
-        out += check(' '.join(str(s.get(k) or '') for k in ('title', 'body', 'ask')), f'slide {i}', R)
+        out += check(' '.join(str(s.get(k) or '') for k in ('title', 'body', 'ask')) + ' ' + ' '.join(str(c.get('title') or '') for c in s.get('cards') or []), f'slide {i}', R)
     if caption: out += check(caption, 'caption', R, caption=True)
     return out
