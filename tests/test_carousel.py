@@ -50,6 +50,14 @@ class Rules(unittest.TestCase):
         self.assertEqual([m for m in carousel.check(s, language='kuwaiti') if 'belong' in m], [])
         self.assertTrue(any('belong' in m for m in carousel.check(s, language='light')))
 
+    def test_a_news_carousel_is_short_text_and_any_length(self):
+        s = spec(12, news=True)
+        for x in s['slides']: x['body'] = 'سماكتها 1.65 ملم فقط'
+        s['slides'][-1]['ask'] = 'أي ساعة؟'
+        self.assertEqual([m for m in carousel.check(s) if 'words' in m or 'written slides' in m], [])
+        s['slides'][0]['body'] = BODY
+        self.assertTrue(any(m.startswith('slide 1:') and 'words' in m for m in carousel.check(s)))
+
     def test_a_watch_is_never_a_cut_out(self):
         from PIL import Image
         with tempfile.TemporaryDirectory() as d:

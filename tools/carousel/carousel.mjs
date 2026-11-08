@@ -52,7 +52,7 @@ const WHOLE = {
 // leaves: the text is measured first, then the picture fills the rest (never under PIC_MIN tall; a shorter one is a WARN).
 const BOTTOM = 1290, GAP = 24, PIC_MIN = 420;
 const fitScript = `<script>document.fonts.ready.then(()=>{const t=document.querySelector('.txt'),f=document.querySelector('.fig'),L=t.dataset.layout;if(!f)return;
-const h=t.offsetHeight;if(L==='topImage'){const top=Math.min(850,${BOTTOM}-h);t.style.top=top+'px';f.style.height=Math.max(0,top-${GAP}-parseFloat(f.style.top))+'px'}
+const h=t.offsetHeight;if(L==='topImage'){if(document.body.dataset.big)f.style.top='210px';const top=Math.min(document.body.dataset.big?${BOTTOM}:850,${BOTTOM}-h);t.style.top=top+'px';f.style.height=Math.max(0,top-${GAP}-parseFloat(f.style.top))+'px'}
 if(L==='bottomImage'){const y=t.offsetTop+h+${GAP},end=f.dataset.end*1;f.style.top=y+'px';f.style.bottom='auto';f.style.height=Math.max(0,end-y)+'px'}})</script>`;
 const order = ['topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner'];
 function bright(img) { try { return parseFloat(execFileSync('python3', ['-c', "import sys;from PIL import Image;im=Image.open(sys.argv[1]).convert('L').resize((64,64));print(sum(im.getpixel((x,y)) for x in range(8,56) for y in range(4,12))/384)", img]).toString()); } catch { return 0; } }
@@ -66,7 +66,7 @@ function coverHtml(c) {
 function slideHtml(s, i, n) {
   const name = s.layout || order[i % order.length], L = LAYOUTS[name];
   const fig = (s.watch && WHOLE[name]) || L.fig, end = s.watch ? 1300 : 1410;   // where a bottom picture ends: inside the slide, or bled off it
-  return `<html><head><style>${css}</style></head><body>${s.image ? `<img class="fig" data-end="${end}" style="${fig}" src="${A(s.image)}">` : ''}
+  return `<html><head><style>${css}</style></head><body${spec.big ? ' data-big="1"' : ''}>${s.image ? `<img class="fig" data-end="${end}" style="${fig}" src="${A(s.image)}">` : ''}
   <div class="txt" data-layout="${name}" style="${L.txt}"><div class="num">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</div><div class="rule"></div>
   <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div>${s.ask ? `<div class="ask">${s.ask}</div>` : ''}</div>${overlay(true)}${fitScript}</body></html>`;
 }

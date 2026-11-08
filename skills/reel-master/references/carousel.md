@@ -73,6 +73,10 @@ accent colour from the topic (ruby red for jewels), the TK overlay on every slid
   category as the title, `Brand · Watch` as the `name` line, one verified fact in the body. The images are the
   official ones the organiser or the brand publishes for the press (the watch's own page on gphg.org), credited in
   the caption; never resellers or social posts. A prize that is not a watch goes in the caption.
+  Set `"news": true, "big": true` (the owner, 8 Nov 2026: «We need to reduce the text and increase the watches
+  size»): the body is one short fact (3–14 words), the picture takes the rest of the slide (`big` lets topImage text
+  sit as low as it fits and keeps the picture under the logo band), and each photo is trimmed to the watch: the white
+  margin cut away, and on a long strap the strap ends, never the case.
 - **Caption:** two lines in the same language, the photo credits (CC BY / BY-SA must be credited), 3–5 hashtags.
 
 ## Make it
