@@ -50,6 +50,17 @@ class Rules(unittest.TestCase):
         self.assertEqual([m for m in carousel.check(s, language='kuwaiti') if 'belong' in m], [])
         self.assertTrue(any('belong' in m for m in carousel.check(s, language='light')))
 
+    def test_a_watch_is_never_a_cut_out(self):
+        from PIL import Image
+        with tempfile.TemporaryDirectory() as d:
+            d = Path(d)
+            Image.new('RGBA', (20, 20), (0, 0, 0, 0)).save(d / 'cut.png')
+            Image.new('RGB', (20, 20), 'white').save(d / 'photo.jpg')
+            s = spec(); s['slides'][0].update(watch=True, image='cut.png', layout='topImage')
+            self.assertTrue(any('cut-out' in m for m in carousel.check(s, d)))
+            s['slides'][0]['image'] = 'photo.jpg'
+            self.assertEqual([m for m in carousel.check(s, d) if 'cut-out' in m], [])
+
     def test_missing_images_are_named(self):
         with tempfile.TemporaryDirectory() as d:
             self.assertTrue(any('is missing' in m for m in carousel.check(spec(), Path(d))))

@@ -33,6 +33,18 @@ def layouts(spec: dict) -> list[str]:
     return [s.get('layout') or LAYOUTS[i % len(LAYOUTS)] for i, s in enumerate(spec.get('slides', []))]
 
 
+def cut_out(path: Path) -> bool:
+    """True when a picture has real transparency: a background-removed cut-out."""
+    try:
+        from PIL import Image
+        im = Image.open(path)
+        if im.mode not in ('RGBA', 'LA', 'PA') and 'transparency' not in im.info: return False
+        a = im.convert('RGBA').getchannel('A')
+        return a.getextrema()[0] < 250
+    except Exception:
+        return False
+
+
 def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[str]:
     """What the carousel breaks of the kit's rules. Empty when it keeps them."""
     out, cover, slides = [], spec.get('cover') or {}, spec.get('slides') or []
@@ -62,6 +74,12 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     if base is not None:
         for what, p in [('cover', cover.get('image'))] + [(f'slide {i}', s.get('image')) for i, s in enumerate(slides, 1)]:
             if p and not (Path(p) if Path(p).is_absolute() else base / p).is_file(): out.append(f'{what}: image {p} is missing')
+        for i, s in enumerate(slides, 1):
+            p = s.get('image')
+            f = p and (Path(p) if Path(p).is_absolute() else base / p)
+            if s.get('watch') and f and f.is_file() and cut_out(f):
+                out.append(f'slide {i}: the watch is a cut-out; keep the photo whole and set `paper` to its ground '
+                           '(the owner: «you remove part of the watch»)')
     lines = [{'id': 'cover', 'text': head}] + [{'id': f'slide {i}', 'text': f"{s.get('title', '')} {re.sub(r'<[^>]+>', ' ', s.get('body', ''))} {s.get('ask', '')}"}
                                              for i, s in enumerate(slides, 1)]
     out += [m for m in scripts.check({'lines': lines, 'language': language}) if 'belong' in m]   # the language's words

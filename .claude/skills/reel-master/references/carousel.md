@@ -44,6 +44,7 @@ teaser. Only the last slide asks; its words count in the slide's 12–32. Paper 
 accent colour from the topic (ruby red for jewels), the TK overlay on every slide.
 
 ## The owner's rules for a carousel
+- **A news carousel is in Fusha** (the owner, 8 Nov 2026, GPHG 2026: «استخدم العربية الفصحى»): `"language": "light"` (عربي خفيف, no dialect words), the reader's question too.
 - **The language is Kuwaiti** by default (the kit), or the film's `language:` from the script library; watch terms in
   English. `director/carousel.py` holds the slides to the language's words.
 - **Facts verified** as for a Reel (reuse the Reel's sources); institutions in their own words.
@@ -56,6 +57,12 @@ accent colour from the topic (ruby red for jewels), the TK overlay on every slid
 - **Images:** drawings made for the topic (above), frames of the matching Reel, the owner's own photos, free-licence
   photos, or Higgsfield (credits, confirm the cost first); never brand press photos from the web. A photo is a clean cut-out
   (`var/cutenv/bin/python tools/cutout_photo.py frame.png cut.png`). The cover is a full-bleed photo.
+- **A watch is never cut out of its photo** (the owner, 8 Nov 2026: «Always when you remove the background you remove
+  part of the watch. To avoid this use the same color of the background as the color of the post»). Keep the photo
+  as it is and set the slides' `paper` to the photo's own ground (a press photo on white: `"paper": "#ffffff"`), so
+  the photo melts into the slide. When the photos have different grounds, use the most common one as `paper` and give
+  the others a rounded frame; never the background remover on a watch. `check()` refuses a watch slide whose picture
+  has transparency.
 - **A watch or a movement is shown whole** (the owner, on the rubies carousel: «محرك جزا كبير منه رايح»): the
   background remover can eat the dark parts of a movement, and a bleed layout pushes half of it off the slide. A round
   watch or movement is cut with a circle around its case (geometry, not the remover); look at the cut-out before
