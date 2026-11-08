@@ -61,6 +61,16 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
         if s.get('ask'): out.append(f'slide {i}: only the last slide asks the reader (`ask`)')
     seq = layouts(spec)
     for i, s in enumerate(slides, 1):
+        if s.get('type') == 'price':                                  # the price-list style: one watch, its price
+            if not s.get('image'): out.append(f'slide {i}: every card shows its watch')
+            if not (s.get('brand') and s.get('model')): out.append(f'slide {i}: a price slide names the brand and the model')
+            if not re.search(r'د\.ك', s.get('price') or ''): out.append(f'slide {i}: the price is in dinars («د.ك»), the official price in `price_note`')
+            if not s.get('price_note'): out.append(f'slide {i}: `price_note` gives the official price it comes from')
+            continue
+        if s.get('type') == 'end':                                    # the TK green closing card
+            if i != len(slides): out.append(f'slide {i}: the green end card is the last slide')
+            if not s.get('title'): out.append(f'slide {i}: the end card has a title')
+            continue
         if s.get('type') in ('cards', 'hero'):                       # the awards style: checked by its own shape
             if s['type'] == 'cards' and not 1 <= len(s.get('cards') or []) <= 6: out.append(f'slide {i}: 1–6 cards a slide')
             if any(not c.get('image') for c in s.get('cards') or []) or (s['type'] == 'hero' and not s.get('image')): out.append(f'slide {i}: every card shows its watch')

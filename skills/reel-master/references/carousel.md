@@ -105,6 +105,22 @@ future reference»). Five slides carry twenty winners:
 Use it for any list of many pieces (awards, launches of a fair, a brand's new references); keep the one-watch slides
 for a story.
 
+## The price-list style: one watch a slide, its price (learnt 8 Nov 2026)
+The owner showed @thewatchmenu as a style to learn («They have good style learn it»). What carries their account: a
+famous name or a price figure on the cover, one watch a slide, the same closing card on every post; their sponsored
+and brand-push posts do worst. Their navy and cream, script logo and italic serif are theirs; TK keeps its own identity.
+- **Cover:** the grid cover (`grid_cover.py --cols 3 --rows 2`, `"gap": 60`), a short headline (2–6 words a line)
+  that carries the number or the name («من 1,140 دينارًا… إلى أكثر من مليون»).
+- **One watch a slide** (`"type": "price"`): the header line and number box, the watch whole on its white ground, a
+  green rule, then the category (`title`), BRAND, model, `REF.`, the price in dinars large (`"price": "≈ 1,140 د.ك"`)
+  and the official price it comes from in a small line (`price_note`: «السعر الرسمي 3,000 فرنك سويسري»). Prices are
+  the organiser's or the brand's own published price; say the rate is approximate and which day it is from.
+- **The last slide** is the TK green card (`"type": "end"`: title, one line, the handle), never a question (a news
+  carousel ends without one); the question stays in the caption.
+- 6–20 slides. Cheapest first builds the swipe toward the top price.
+- Formats to borrow: «غالية أو في المتناول» (an icon beside a watch with the same idea for less), the shop's price
+  beside the market's, a brand's story as a timeline. A brand we sell is still an indirect ad.
+
 ## Make it
 **The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.
 

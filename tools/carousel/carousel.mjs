@@ -48,6 +48,16 @@ body{font-family:TK,sans-serif;direction:rtl;background:${PAPER};color:${INK};po
 .hero .cb{font-size:30px}.hero .cm{font-size:28px}
 .seal{position:absolute;width:230px;height:230px;border-radius:50%;background:${ACCENT};color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;box-shadow:0 0 0 8px #fff,0 0 0 11px ${ACCENT};z-index:4;font-weight:800;line-height:1.15}
 .seal b{font-size:40px}.seal i{font-style:normal;font-size:24px;font-weight:500;margin-top:6px}
+.pc{position:absolute;top:276px;left:40px;right:40px;bottom:46px;z-index:3}
+.pc .pi{position:absolute;top:0;left:40px;right:40px;width:calc(100% - 80px);height:600px;object-fit:contain}
+.pc .pt{position:absolute;top:628px;right:24px;left:24px;text-align:right;border-top:4px solid ${ACCENT};padding-top:22px}
+.pc .pk{font-size:36px;font-weight:800;color:${ACCENT};margin-bottom:10px}
+.pc .cb{font-size:40px;font-weight:800;direction:ltr;letter-spacing:.04em}.pc .cm{font-size:31px;font-weight:500;direction:ltr;line-height:1.3}
+.pc .cr{font-size:24px;font-weight:500;color:${ACCENT};direction:ltr;margin-top:6px;letter-spacing:.06em;font-family:Menlo,monospace}
+.pc .pp{font-size:88px;font-weight:800;line-height:1.1;margin-top:20px}.pc .po{font-size:29px;font-weight:500;opacity:.75}
+.end{position:absolute;inset:0;background:${TK_GREEN};color:#fff;z-index:1;display:flex;flex-direction:column;justify-content:center;padding:0 90px;text-align:right}
+.end .et{font-size:${SIZE.title + 9}px;font-weight:800;line-height:1.15;margin-bottom:30px}.end .eb{font-size:${SIZE.body}px;font-weight:500;line-height:1.55}
+.end .eh{margin-top:44px;font-size:40px;font-weight:800;direction:ltr;text-align:right;letter-spacing:.04em}
 .sw{margin-top:14px;font-size:40px;font-weight:800;color:${TK_GREEN};text-align:right}.sw .ar{letter-spacing:-.18em;margin-left:16px}
 .ttl{font-size:${SIZE.title}px;font-weight:800;line-height:1.12;margin-bottom:26px}
 .nm{font-size:${SIZE.name}px;font-weight:500;opacity:.75;direction:ltr;text-align:right;margin:-14px 0 22px}
@@ -92,7 +102,18 @@ function cardsHtml(s, i, n) {
 function heroHtml(s, i, n) {
   return `<html><head><style>${css}</style></head><body>${headHtml(s, i, n)}<div class="hero"><img class="hi" src="${A(s.image)}"><div class="hc"><div class="ht2">${s.title}</div><div class="cb">${s.brand || ''}</div><div class="cm">${s.model || ''}</div>${s.ref ? `<div class="cr">REF. ${s.ref}</div>` : ''}</div>${s.badge ? `<div class="seal" style="left:44px;bottom:44px"><b>${s.badge.text}</b>${s.badge.sub ? `<i>${s.badge.sub}</i>` : ''}</div>` : ''}</div>${overlay(true)}</body></html>`;
 }
+// The price-list style (learnt 8 Nov 2026 from a menu-like carousel the owner liked, in TK's identity): the header line,
+// one watch a slide on its own white ground, then the category, BRAND, model, REF. and the price in dinars, large, with
+// the official price it comes from in a small line. The last slide can be the TK green card (`"type": "end"`).
+function priceHtml(s, i, n) {
+  return `<html><head><style>${css}</style></head><body>${headHtml(s, i, n)}<div class="pc"><img class="pi" src="${A(s.image)}"><div class="pt">${s.title ? `<div class="pk">${s.title}</div>` : ''}<div class="cb">${s.brand || ''}</div><div class="cm">${s.model || ''}</div>${s.ref ? `<div class="cr">REF. ${s.ref}</div>` : ''}<div class="pp">${s.price || ''}</div>${s.price_note ? `<div class="po">${s.price_note}</div>` : ''}</div></div>${overlay(true)}</body></html>`;
+}
+function endHtml(s, i, n) {
+  return `<html><head><style>${css}</style></head><body><div class="end"><div class="et">${s.title || ''}</div>${s.body ? `<div class="eb">${s.body}</div>` : ''}<div class="eh">${s.handle || '@timekeeperkw'}</div></div>${overlay(false)}</body></html>`;
+}
 function slideHtml(s, i, n) {
+  if (s.type === 'price') return priceHtml(s, i, n);
+  if (s.type === 'end') return endHtml(s, i, n);
   if (s.type === 'cards') return cardsHtml(s, i, n);
   if (s.type === 'hero') return heroHtml(s, i, n);
   const name = s.layout || order[i % order.length], L = LAYOUTS[name];
