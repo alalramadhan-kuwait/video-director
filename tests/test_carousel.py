@@ -66,6 +66,16 @@ class Rules(unittest.TestCase):
         s['slides'][1]['cards'] = [card] * 7
         self.assertTrue(any('1–6 cards' in m for m in carousel.check(s)))
 
+    def test_the_price_list_style_is_checked_by_its_own_shape(self):
+        sl = {'type': 'price', 'title': 'جائزة التحدي', 'brand': 'SPACEONE × BALTIC', 'model': 'Seconde Majeure', 'ref': 'SB001',
+              'price': '1,140 د.ك', 'price_note': '3,000 فرنك سويسري · السعر الرسمي', 'image': 'a.png'}
+        s = {'news': True, 'cover': {'top': 'أسعار الفائزين'}, 'slides': [dict(sl), {'type': 'end', 'title': 'احفظ المنشور'}]}
+        self.assertEqual(carousel.check(s), [])
+        s['slides'][0]['price'] = '3,000 CHF'
+        self.assertTrue(any('dinars' in m for m in carousel.check(s)))
+        s['slides'] = [{'type': 'end', 'title': 'احفظ المنشور'}, dict(sl)]
+        self.assertTrue(any('end card is the last' in m for m in carousel.check(s)))
+
     def test_a_watch_is_never_a_cut_out(self):
         from PIL import Image
         with tempfile.TemporaryDirectory() as d:
