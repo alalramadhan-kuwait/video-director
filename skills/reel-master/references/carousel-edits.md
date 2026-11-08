@@ -46,6 +46,9 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
     `NEWS` skips `ask`. (GPHG v5→v6)
 16. **Small parts keep their English name, written in Arabic** («بالانس ويل»، «إسكيبمنت»، «هير سبرينغ»، «بريدج»…), never
     an Arabic translation («ميزان»، «جسر»). Rule: `brand/script_library.yaml` (tk). (GPHG v7→v8)
+17. **A caption is not the carousel again.** One key fact (the winner and his watch), short details, one clear
+    question; blank lines, conversational, at most 600 characters. Rule: `post.md`, `house_rules.yaml` (caption).
+    (GPHG v8→v9: the owner rated the long caption 4/10 and wrote the new one)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -64,6 +67,12 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 5. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v8 caption (the owner's review, 4/10)
+- «طويل وايد… التنسيق سيئ… البداية ضعيفة… الترتيب مشتّت… الأسلوب رسمي… السؤال الأخير ضعيف… ما ذكرت اسم الساعة
+  الفائزة… لازم نعتمد قاعدة ثابتة للكابشنات: معلومة رئيسية، تفاصيل مختصرة، وسؤال واضح».
+- v9: his caption, with «بلان با» as the house spells it.
+- **Status:** rule (17), checked by the gate.
 
 ### 2026-11-08 · GPHG 2026 winners v7 (asked in chat)
 - «for those small part, you can use the same English technical term, but write it in Arabic».
