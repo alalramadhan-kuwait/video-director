@@ -18,6 +18,7 @@ from . import scripts
 ROOT = Path(__file__).resolve().parents[1]
 RENDERER = ROOT / 'tools/carousel/carousel.mjs'
 LAYOUTS = ('topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner')
+FULL = 'full'                        # the photo is the slide, faded into its paper (tools/carousel/full_photo.py)
 COVER_MAX = 73                     # top + bottom headline characters (the TK post template)
 SLIDES = (4, 5)
 BODY_WORDS = (12, 32)                # as little as the idea needs (the owner: «قلل النصوص»)
@@ -87,8 +88,11 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
         t = len(words(s.get('title')))
         if not TITLE_WORDS[0] <= t <= TITLE_WORDS[1]:
             out.append(f'slide {i}: a title of {t} words; {TITLE_WORDS[0]}–{TITLE_WORDS[1]}')
-        if s.get('layout') and s['layout'] not in LAYOUTS: out.append(f"slide {i}: layout {s['layout']!r} is not one of {', '.join(LAYOUTS)}")
-        if i > 1 and seq[i - 1] == seq[i - 2] and not slides[i - 2].get('type'): out.append(f'slide {i}: the same layout as slide {i - 1} ({seq[i - 1]}); vary it')
+        if s.get('layout') and s['layout'] not in LAYOUTS + (FULL,): out.append(f"slide {i}: layout {s['layout']!r} is not one of {', '.join(LAYOUTS + (FULL,))}")
+        if s.get('paper') and str(s['paper']).lower() not in ('#fff', '#ffffff', 'white') and seq[i - 1] != FULL:
+            out.append(f'slide {i}: a photo on its own ground sits as a box on the slide; make it the slide '
+                       '(`"layout": "full"`, tools/carousel/full_photo.py) so the edge is seamless (the owner, 8 Nov 2026)')
+        if i > 1 and seq[i - 1] == seq[i - 2] != FULL and not slides[i - 2].get('type'): out.append(f'slide {i}: the same layout as slide {i - 1} ({seq[i - 1]}); vary it')
         if not s.get('image'): out.append(f'slide {i}: no image (one large cut-out per slide)')
         if s.get('watch') and seq[i - 1] in ('rightBleed', 'leftBleed', 'bigCorner'):
             out.append(f'slide {i}: a watch is shown whole; {seq[i - 1]} cuts it off the slide (topImage or bottomImage)')

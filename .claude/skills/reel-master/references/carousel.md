@@ -109,6 +109,12 @@ for a story.
   photo's edge colour, so the paper matches the photo (the owner: never cut the watch out); a dark paper turns the text
   and the logo white and the key words light green. A brand's transparent packshot is laid on white and cropped to the
   watch first. A cover whose headline sits on a darker part than its top takes `"swipe": "light"`.
+- **Seamless, never a box** (the owner, 8 Nov 2026, on SpaceOne v4: «make sure the boundary seems seamless… increase
+  the size of the picture, that it will seem as one integrated»): a photo on its own ground becomes the slide. Run
+  `python3 tools/carousel/full_photo.py PHOTO OUT.jpg [--focus 0.4]`: it fills the width from the top edge, fades its
+  lower part into the colour it ends in, and prints that colour; set the slide to `"layout": "full"`, `"image": OUT`,
+  `"paper": <that colour>`, and the text sits on the colour. `check()` refuses a slide with its own paper in a boxed
+  layout. A photo on white (the organiser's or a packshot) stays on white paper, which is already seamless.
 - **A different image on every slide** (the owner, 8 Nov 2026, SpaceOne: «Try to use different images for each
   slide»): the brands' own press and product pages usually hold more than the organiser's two or three (packshots,
   caseback, wrist shots, parts laid out, the founders' portraits).

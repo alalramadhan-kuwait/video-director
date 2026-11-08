@@ -83,6 +83,14 @@ class Rules(unittest.TestCase):
         s['cover']['rows'] = rows[::-1]
         self.assertTrue(any('largest to the smallest' in m for m in carousel.check(s)))
 
+    def test_a_photo_on_its_own_ground_is_the_slide_never_a_box(self):
+        s = spec(5, news=True)
+        for k, x in enumerate(s['slides']): x.update(body='سماكتها 1.65 ملم فقط', layout=['topImage', 'bottomImage'][k % 2])
+        s['slides'][1]['paper'] = '#2b2a28'
+        self.assertTrue(any('seamless' in m for m in carousel.check(s)))
+        s['slides'][1]['layout'] = 'full'; s['slides'][2]['layout'] = 'full'; s['slides'][2]['paper'] = '#455765'
+        self.assertEqual([m for m in carousel.check(s) if 'seamless' in m or 'same layout' in m], [])
+
     def test_a_watch_is_never_a_cut_out(self):
         from PIL import Image
         with tempfile.TemporaryDirectory() as d:
