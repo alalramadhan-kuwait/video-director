@@ -92,6 +92,7 @@ const fitScript = `<script>document.fonts.ready.then(()=>{const t=document.query
 const h=t.offsetHeight;if(L==='topImage'){if(document.body.dataset.big)f.style.top='210px';const top=Math.min(document.body.dataset.big?${BOTTOM}:850,${BOTTOM}-h);t.style.top=top+'px';f.style.height=Math.max(0,top-${GAP}-parseFloat(f.style.top))+'px'}
 if(L==='bottomImage'){const y=t.offsetTop+h+${GAP},end=f.dataset.end*1;f.style.top=y+'px';f.style.bottom='auto';f.style.height=Math.max(0,end-y)+'px'}})</script>`;
 const order = ['topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner'];
+const lum = (hex) => { const m = String(hex).match(/^#?([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i); return m ? 0.299 * parseInt(m[1], 16) + 0.587 * parseInt(m[2], 16) + 0.114 * parseInt(m[3], 16) : 255; };
 function bright(img) { try { return parseFloat(execFileSync('python3', ['-c', "import sys;from PIL import Image;im=Image.open(sys.argv[1]).convert('L').resize((64,64));print(sum(im.getpixel((x,y)) for x in range(8,56) for y in range(4,12))/384)", img]).toString()); } catch { return 0; } }
 // A ranking chart (the owner, 8 Nov 2026: «نخليها غراف بالترتيب من اغلى الى الاقل»): one bar a piece, longest first,
 // growing right to left from the names, in TK green, the value at each bar's end. Linear, so the gap shows; a bar is
@@ -106,7 +107,7 @@ function coverHtml(c) {
   const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
   return `<html><head><style>${css}</style></head><body><img class="photo" src="${A(c.image)}">${overlay(dark)}
   ${c.badge ? `<div class="seal" style="top:${c.badge.top ?? 215}px;right:${c.badge.right ?? 30}px;width:${c.badge.size ?? 190}px;height:${c.badge.size ?? 190}px"><b style="font-size:${Math.round((c.badge.size ?? 190) / 6)}px">${c.badge.text}</b>${c.badge.sub ? `<i style="font-size:${Math.round((c.badge.size ?? 190) / 10)}px">${c.badge.sub}</i>` : ''}</div>` : ''}
-  <div id="hw"${c.gap != null ? ` style="bottom:${+c.gap}px"` : ''}>${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}${c.swipe === false ? '' : `<div class="sw"${dark ? '' : ' style="color:#fff"'}><span class="ar"${dark ? '' : ` style="color:${TK_GREEN};text-shadow:0 0 2px #fff"`}>▶▶</span>اسحب للمزيد</div>`}</div>
+  <div id="hw"${c.gap != null ? ` style="bottom:${+c.gap}px"` : ''}>${[c.top, c.bottom].filter(Boolean).map(s => `<div class="hb" style="background:${box[0]};color:${box[1]}">${s}</div>`).join('')}${c.swipe === false ? '' : (() => { const lt = c.swipe === 'light' || !dark; return `<div class="sw"${lt ? ' style="color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.6)"' : ''}><span class="ar"${lt ? ` style="color:${TK_GREEN};text-shadow:0 0 2px #fff"` : ''}>▶▶</span>اسحب للمزيد</div>`; })()}</div>
   <script>const fit=()=>{for(const b of document.querySelectorAll('.hb')){let f=${SIZE.cover};b.style.fontSize=f+'px';while(b.scrollWidth>940&&f>32){f-=2;b.style.fontSize=f+'px'}}};fit();document.fonts.ready.then(fit)</script></body></html>`;
 }
 // The awards style (learnt from a list carousel the owner liked, 8 Nov 2026): one header line on every slide, the top
@@ -134,9 +135,12 @@ function slideHtml(s, i, n) {
   if (s.type === 'hero') return heroHtml(s, i, n);
   const name = s.layout || order[i % order.length], L = LAYOUTS[name];
   const fig = (s.watch && WHOLE[name]) || L.fig, end = s.watch ? 1300 : 1410;   // where a bottom picture ends: inside the slide, or bled off it
-  return `<html><head><style>${css}</style></head><body${spec.big ? ' data-big="1"' : ''}>${s.image ? `<img class="fig" data-end="${end}" style="${fig}" src="${A(s.image)}">` : ''}
+  // A photo on its own ground (a steel table, a portrait's grey) takes that ground as the slide's paper (`"paper"` on the
+  // slide); a dark one turns the text and the logo white. The watch is never cut out of it.
+  const sp = s.paper ? `background:${s.paper};color:${s.ink || (lum(s.paper) < 140 ? '#FFFFFF' : INK)}` : '', dk = s.paper && lum(s.paper) < 140;
+  return `<html><head><style>${css}${dk ? '.bd b,.ask{color:#9ED8B9}' : ''}</style></head><body${spec.big ? ' data-big="1"' : ''}${sp ? ` style="${sp}"` : ''}>${s.image ? `<img class="fig" data-end="${end}" style="${fig}" src="${A(s.image)}">` : ''}
   <div class="txt" data-layout="${name}" style="${L.txt}"><div class="num">${String(i + 1).padStart(2, '0')} / ${String(n).padStart(2, '0')}</div>
-  <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div>${s.ask ? `<div class="ask">${s.ask}</div>` : ''}</div>${overlay(true)}${fitScript}</body></html>`;
+  <div class="ttl">${s.title}</div>${s.name ? `<div class="nm">${s.name}</div>` : ''}<div class="bd">${s.body}</div>${s.ask ? `<div class="ask">${s.ask}</div>` : ''}</div>${overlay(!dk)}${fitScript}</body></html>`;
 }
 const browser = await chromium.launch(); const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
 fs.mkdirSync(outDir, { recursive: true }); const files = [];
