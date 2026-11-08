@@ -89,6 +89,13 @@ green as the one accent, the TK overlay on every slide.
   size»): the body is one short fact (3–14 words), the picture takes the rest of the slide (`big` lets topImage text
   sit as low as it fits and keeps the picture under the logo band), and each photo is trimmed to the watch: the white
   margin cut away, and on a long strap the strap ends, never the case.
+- **A story runs in order, one slide into the next** (the owner, 8 Nov 2026, on SpaceOne × Baltic v5: «القصة مو
+  متصلة ومتسلسلة»): when the carousel tells a story, the slides follow time (who, then the meeting, then the people,
+  then what they made, how it works, its launch), each body opens with a word that ties it to the slide before
+  («وهناك»، «وبعد خمس سنوات»، «لكي تقفز»، «وتحت الموديول»), and nobody appears before the slide that introduces
+  them. The payoff the cover promises (a prize, a record, the answer) is the last slide, never the first: a cover «من
+  لقاء أصدقاء… إلى جائزة» ends on the prize. Read the bodies alone, in order, before rendering: they must read as one
+  paragraph.
 - **Caption:** two lines in the same language. **No hashtags and no sources in a caption, ever** (the owner, 8 Nov 2026: «in the caption, always remove the hashtag and sources»). The sources and credits go to the owner beside the post (`sources`, `credits`), never in the text he posts; a licence that requires a visible credit (CC BY / BY-SA photos or music) gets it as a small line on the picture or the end card instead.
 
 ## The awards style: a list of winners (learnt 8 Nov 2026)
