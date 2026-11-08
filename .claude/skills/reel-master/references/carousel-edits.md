@@ -44,6 +44,8 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
     «ميزان»; a counted noun over ten stays singular («406 يوم»); Rexhep Rexhepi is «رجب رجبي». A news carousel ends on
     its last fact, with no reader's question. Rule: `brand/script_library.yaml` (tk), `brand/names.json`,
     `NEWS` skips `ask`. (GPHG v5→v6)
+16. **Small parts keep their English name, written in Arabic** («بالانس ويل»، «إسكيبمنت»، «هير سبرينغ»، «بريدج»…), never
+    an Arabic translation («ميزان»، «جسر»). Rule: `brand/script_library.yaml` (tk). (GPHG v7→v8)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -60,6 +62,11 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 4. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v7 (asked in chat)
+- «for those small part, you can use the same English technical term, but write it in Arabic».
+- v8: slide 10 «بدون بريدج علوي» for «بلا جسر علوي».
+- **Status:** rule (16).
 
 ### 2026-11-08 · GPHG 2026 winners v5 (asked in chat)
 - «بحركة مفروض تكون بمحرك» · «اسمه رجب رجبي» · «خلال ١١ الف ساعة عمل» · «بالنس ويل بحجم ٢٠ مم» · «لاتستخدم علبة
