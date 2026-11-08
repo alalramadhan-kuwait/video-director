@@ -50,7 +50,12 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     """What the carousel breaks of the kit's rules. Empty when it keeps them."""
     out, cover, slides = [], spec.get('cover') or {}, spec.get('slides') or []
     head = (cover.get('top') or '') + (cover.get('bottom') or '')
-    if not cover.get('top'): out.append('cover: the top headline line is required')
+    if cover.get('type') == 'chart':                                  # a ranking chart as the cover
+        if not cover.get('title'): out.append('cover: the chart has a title')
+        vals = [r.get('value') for r in cover.get('rows') or []]
+        if not vals or any(not isinstance(v, (int, float)) for v in vals): out.append('cover: every chart row has a number `value`')
+        elif vals != sorted(vals, reverse=True): out.append('cover: the chart rows run from the largest to the smallest')
+    elif not cover.get('top'): out.append('cover: the top headline line is required')
     if len(head) > COVER_MAX: out.append(f'cover: {len(head)} characters in the headline; at most {COVER_MAX}')
     if not spec.get('news') and not SLIDES[0] <= len(slides) <= SLIDES[1]: out.append(f'{len(slides)} written slides; the carousel has {SLIDES[0]}–{SLIDES[1]}')
     last = slides[-1] if slides else {}

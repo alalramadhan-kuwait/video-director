@@ -58,6 +58,14 @@ body{font-family:TK,sans-serif;direction:rtl;background:${PAPER};color:${INK};po
 .end{position:absolute;inset:0;background:${TK_GREEN};color:#fff;z-index:1;display:flex;flex-direction:column;justify-content:center;padding:0 90px;text-align:right}
 .end .et{font-size:${SIZE.title + 9}px;font-weight:800;line-height:1.15;margin-bottom:30px}.end .eb{font-size:${SIZE.body}px;font-weight:500;line-height:1.55}
 .end .eh{margin-top:44px;font-size:40px;font-weight:800;direction:ltr;text-align:right;letter-spacing:.04em}
+.ch{position:absolute;top:252px;left:36px;right:36px;bottom:40px;z-index:3}
+.ch .ct{font-size:52px;font-weight:800;line-height:1.15}.ch .cs{font-size:28px;font-weight:500;opacity:.7;margin:6px 0 14px}
+.ch .rows{display:flex;flex-direction:column}
+.ch .r{display:grid;grid-template-columns:300px 50px 1fr;align-items:center;column-gap:12px;border-top:1px solid #e3e3e3}
+.ch .rl{text-align:right;direction:ltr;line-height:1.05;overflow:hidden;white-space:nowrap}.ch .rl b{display:block;font-size:20px;font-weight:800;letter-spacing:.02em}.ch .rl i{font-style:normal;font-size:16px;opacity:.7}
+.ch .ri{width:50px;height:46px;object-fit:contain}
+.ch .rb{display:flex;align-items:center;gap:10px;direction:rtl}.ch .bar{height:24px;background:${ACCENT};border-radius:4px 0 0 4px;flex:none}
+.ch .rv{font-size:24px;font-weight:800;white-space:nowrap}
 .sw{margin-top:14px;font-size:40px;font-weight:800;color:${TK_GREEN};text-align:right}.sw .ar{letter-spacing:-.18em;margin-left:16px}
 .ttl{font-size:${SIZE.title}px;font-weight:800;line-height:1.12;margin-bottom:26px}
 .nm{font-size:${SIZE.name}px;font-weight:500;opacity:.75;direction:ltr;text-align:right;margin:-14px 0 22px}
@@ -85,7 +93,15 @@ const h=t.offsetHeight;if(L==='topImage'){if(document.body.dataset.big)f.style.t
 if(L==='bottomImage'){const y=t.offsetTop+h+${GAP},end=f.dataset.end*1;f.style.top=y+'px';f.style.bottom='auto';f.style.height=Math.max(0,end-y)+'px'}})</script>`;
 const order = ['topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner'];
 function bright(img) { try { return parseFloat(execFileSync('python3', ['-c', "import sys;from PIL import Image;im=Image.open(sys.argv[1]).convert('L').resize((64,64));print(sum(im.getpixel((x,y)) for x in range(8,56) for y in range(4,12))/384)", img]).toString()); } catch { return 0; } }
+// A ranking chart (the owner, 8 Nov 2026: «نخليها غراف بالترتيب من اغلى الى الاقل»): one bar a piece, longest first,
+// growing right to left from the names, in TK green, the value at each bar's end. Linear, so the gap shows; a bar is
+// never under 4px, so the smallest still shows. As the cover: `"cover": {"type": "chart", ...}`.
+function chartHtml(c) {
+  const rows = c.rows || [], max = Math.max(...rows.map(r => +r.value || 0)), W = c.bar_width || 500;
+  return `<html><head><style>${css}</style></head><body><div class="ch"><div class="ct">${c.title || ''}</div>${c.sub ? `<div class="cs">${c.sub}</div>` : ''}<div class="rows">${rows.map(r => `<div class="r" style="height:${c.row || 47}px"><div class="rl"><b>${r.label || ''}</b><i>${r.model || ''}</i></div>${r.image ? `<img class="ri" src="${A(r.image)}">` : '<span></span>'}<div class="rb"><span class="bar" style="width:${Math.max(4, Math.round(W * (+r.value || 0) / max))}px"></span><span class="rv">${r.text || ''}</span></div></div>`).join('')}</div>${c.swipe === false ? '' : '<div class="sw" style="margin-top:8px;font-size:30px"><span class="ar">▶▶</span>اسحب للمزيد</div>'}</div>${overlay(true)}</body></html>`;
+}
 function coverHtml(c) {
+  if (c.type === 'chart') return chartHtml(c);
   const dark = c.palette ? c.palette === 'light' : bright(A(c.image).slice(7)) > 150;
   const box = c.box === 'dark' ? ['#111111', '#FFFFFF'] : ['#FFFFFF', '#111111'];
   return `<html><head><style>${css}</style></head><body><img class="photo" src="${A(c.image)}">${overlay(dark)}

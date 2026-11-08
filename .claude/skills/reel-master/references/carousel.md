@@ -117,7 +117,10 @@ and brand-push posts do worst. Their navy and cream, script logo and italic seri
   the organiser's or the brand's own published price; say the rate is approximate and which day it is from.
 - **The last slide** is the TK green card (`"type": "end"`: title, one line, the handle), never a question (a news
   carousel ends without one); the question stays in the caption.
-- 6–20 slides. Cheapest first builds the swipe toward the top price.
+- **Or a ranking chart as the cover** (the owner, 8 Nov 2026: «نخليها غراف بالترتيب من اغلى الى الاقل»):
+  `"cover": {"type": "chart", "title", "sub", "rows": [{"label", "model", "image", "value", "text"}]}`, one TK-green
+  bar a piece from the most expensive down, linear so the gap shows (never under 4px), the value at each bar's end;
+  then the watch slides in the same order. 6–20 slides in all.
 - Formats to borrow: «غالية أو في المتناول» (an icon beside a watch with the same idea for less), the shop's price
   beside the market's, a brand's story as a timeline. A brand we sell is still an indirect ad.
 
