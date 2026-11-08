@@ -86,7 +86,7 @@ green as the one accent, the TK overlay on every slide.
   size»): the body is one short fact (3–14 words), the picture takes the rest of the slide (`big` lets topImage text
   sit as low as it fits and keeps the picture under the logo band), and each photo is trimmed to the watch: the white
   margin cut away, and on a long strap the strap ends, never the case.
-- **Caption:** two lines in the same language, the photo credits (CC BY / BY-SA must be credited), 3–5 hashtags.
+- **Caption:** two lines in the same language. **No hashtags and no sources in a caption, ever** (the owner, 8 Nov 2026: «in the caption, always remove the hashtag and sources»). The sources and credits go to the owner beside the post (`sources`, `credits`), never in the text he posts; a licence that requires a visible credit (CC BY / BY-SA photos or music) gets it as a small line on the picture or the end card instead.
 
 ## Make it
 Folder `carousels/<name>/` (outside git when it holds third-party photos): `spec.json`, the images, `caption.txt`.
