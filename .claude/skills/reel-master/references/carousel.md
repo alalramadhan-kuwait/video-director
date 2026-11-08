@@ -40,10 +40,19 @@ Each slide leaves the reader wanting the next (the owner, of Altivère's jewels 
 ideas»): a side story that does not serve the topic's question is cut, however good. That question is
 its own line, `ask`, set large in the accent colour under the body, and it pulls the reader in to answer (the owner,
 2 Nov 2026: «دائما سؤال القارئ يكون أكبر ويشد القارئ عشان يشارك»): a real question about them or their watch, not a
-teaser. Only the last slide asks; its words count in the slide's 12–32. Paper ground, one
-accent colour from the topic (ruby red for jewels), the TK overlay on every slide.
+teaser. Only the last slide asks; its words count in the slide's 12–32. Paper ground, the TK
+green as the one accent, the TK overlay on every slide.
 
 ## The owner's rules for a carousel
+- **Time Keeper's identity, on every carousel** (the owner, 8 Nov 2026, with a real TK post: «you are different from
+  timekeeper or original design»):
+  - **Green** `#2C6048` is the secondary colour: key words, the reader's question and «اسحب للمزيد». It replaces the
+    per-topic accent (the renderer's default; don't set `accent`).
+  - **The font is Bahij Helvetica Neue** (Bold for titles, Roman for body), in `brand/carousel/` beside the overlay
+    (outside git; from the public Bahij font set, e.g. github.com/shamshadzaheer/pashtowebfonts).
+  - **The slide number sits in a black box with white text** («01 / 19»), no line under it.
+  - **The cover:** the watch on the photo's own ground, the headline in black boxes, and the green «▶▶ اسحب للمزيد»
+    under them, on the ground, never over the watch.
 - **A news carousel is in Fusha** (the owner, 8 Nov 2026, GPHG 2026: «استخدم العربية الفصحى»): `"language": "light"` (عربي خفيف, no dialect words), the reader's question too.
 - **The language is Kuwaiti** by default (the kit), or the film's `language:` from the script library; watch terms in
   English. `director/carousel.py` holds the slides to the language's words.
