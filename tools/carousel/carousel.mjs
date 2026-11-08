@@ -79,6 +79,8 @@ const LAYOUTS = {
   leftBleed: { fig: 'left:-300px;top:200px;width:900px;height:950px;object-fit:contain', txt: 'right:70px;left:620px;top:300px' },
   bottomImage: { fig: 'left:-20px;bottom:-60px;width:1120px;height:760px;object-fit:contain', txt: 'right:80px;left:80px;top:270px' },
   bigCorner: { fig: 'left:-200px;bottom:-300px;width:880px;height:850px;object-fit:contain', txt: 'right:80px;left:300px;top:270px' },
+  // the photo is the slide (tools/carousel/full_photo.py made it 1080×1350, faded into its paper); the text sits on the paper
+  full: { fig: 'left:0;top:0;width:1080px;height:1350px', txt: 'right:80px;left:80px;bottom:64px' },
 };
 // A watch or a movement is shown whole (references/carousel.md): its picture stays inside the slide, never bled off it.
 const WHOLE = {
