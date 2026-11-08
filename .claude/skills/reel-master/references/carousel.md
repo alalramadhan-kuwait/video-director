@@ -51,6 +51,9 @@ green as the one accent, the TK overlay on every slide.
   - **The font is Bahij Helvetica Neue** (Bold for titles, Roman for body), in `brand/carousel/` beside the overlay
     (outside git; from the public Bahij font set, e.g. github.com/shamshadzaheer/pashtowebfonts).
   - **The slide number sits in a black box with white text** («01 / 19»), no line under it.
+  - **A grid cover** is the other option for a list (the owner, 8 Nov 2026): `tools/carousel/grid_cover.py` puts as
+    many whole photos as fit and look good (4×3 by default) under the logo band, and the cover sets `"gap": 60` so the
+    headline and «اسحب للمزيد» sit low. Offer it beside the single-watch cover as an `asks` choice.
   - **The cover:** the watch on the photo's own ground, the headline in black boxes, and the green «▶▶ اسحب للمزيد»
     under them, on the ground, never over the watch.
 - **A news carousel is in Fusha** (the owner, 8 Nov 2026, GPHG 2026: «استخدم العربية الفصحى»): `"language": "light"` (عربي خفيف, no dialect words), the reader's question too.
