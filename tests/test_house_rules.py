@@ -43,6 +43,11 @@ class Gate(unittest.TestCase):
         self.assertTrue(any('«X: Y»' in m for m in house.check(dict_, 'c', caption=True)))
         self.assertTrue(any('formal' in m for m in house.check('وهي تُمنح لأفضل ساعة', 'c', caption=True)))
 
+    def test_a_brand_we_sell_is_an_indirect_ad(self):
+        for bad in ('ساعة من تشكيلتنا فازت', 'ومتوفرة الآن لدى تايم كيبر', 'وتلقونها عندنا', 'Dennison موجودة عند Time Keeper'):
+            self.assertTrue(house.check(bad, 'x'), bad)
+        self.assertEqual(house.check('إصدار محدود من 3,000 قطعة فقط حول العالم.', 'x'), [])
+
     def test_a_carousel_is_checked_whole(self):
         spec = {'cover': {'top': 'عنوان', 'bottom': ''}, 'slides': [{'title': 'جائزة', 'body': 'بحركة جديدة'}]}
         self.assertTrue(any(m.startswith('slide 1') for m in house.check_carousel(spec, 'كابشن #هاشتاق')))

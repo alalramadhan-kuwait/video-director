@@ -22,6 +22,7 @@ flag:           # usually wrong; Claude rewrites the sentence (the word can be r
   - {word: زنبرك, hint: "mainspring «مين سبرينغ», hairspring «هير سبرينغ» (small parts keep their English name)", when: 2026-11-08}
   - {word: جسر, hint: "bridge «بريدج»", when: 2026-11-08}
   - {pattern: '(?<![\d,])(1[1-9]|[2-9]\d|\d{3,}|\d{1,3}(?:,\d{3})+)\s+(أيام|ساعات|سنوات|دقائق|قطع)(?!\w)', hint: "a counted noun over ten is singular («406 يوم», «1,240 قطعة»)", when: 2026-11-08}
+  - {pattern: '(من تشكيلتنا|تشكيلتنا|متوفرة? (الآن )?(لدى|عند|في) (تايم كيبر|Time Keeper)|عندنا في تايم كيبر|تلقون\S* عندنا|موجودة? عند (تايم كيبر|Time Keeper))', hint: "a brand we sell is an indirect ad: tell the story, never «من تشكيلتنا» or «متوفرة لدى تايم كيبر» («ابيها اعلان بشكل غير مباشر»)", when: 2026-11-08}
 
 names:          # the house spelling of people's names on screen (also brand/names.json)
   ركسهيبي: رجب رجبي
