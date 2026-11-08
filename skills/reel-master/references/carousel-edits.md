@@ -33,6 +33,8 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
     photo's own ground colour. Rule: `carousel.md`, and `check()` refuses a transparent watch picture. (GPHG v1→v2)
 11. **News in Fusha.** A news carousel (awards, launches) is written in عربي خفيف, not Kuwaiti. Rule: `carousel.md`.
     (GPHG v1→v2)
+12. **News: less text, bigger watches.** One short fact a slide under a watch that fills the slide. Rule:
+    `carousel.md` (`news`, `big`), `NEWS_WORDS`. (GPHG v2→v3)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)
@@ -49,6 +51,12 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 4. Mirror this file to `.claude/skills/reel-master/references/`.
 
 ## The log
+
+### 2026-11-08 · GPHG 2026 winners v2 (asked in chat)
+- «We need to reduce the text and increase the watches size».
+- v3: one short fact (3–12 words) a slide; photos trimmed to the watch; the picture takes the rest of the slide.
+- **Lesson:** a news carousel is looked at, not read: the watch is the content, the line names it.
+- **Status:** rule (12).
 
 ### 2026-11-08 · GPHG 2026 winners v1 (asked in chat)
 - «Always when you remove the background you remove part of the watch. To avoid this use the same color of the

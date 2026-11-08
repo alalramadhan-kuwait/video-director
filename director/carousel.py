@@ -21,6 +21,7 @@ LAYOUTS = ('topImage', 'rightBleed', 'bottomImage', 'leftBleed', 'bigCorner')
 COVER_MAX = 73                     # top + bottom headline characters (the TK post template)
 SLIDES = (4, 5)
 BODY_WORDS = (12, 32)                # as little as the idea needs (the owner: «قلل النصوص»)
+NEWS_WORDS = (3, 14)                 # a news carousel: one short fact under a big watch (the owner: «reduce the text»)
 TITLE_WORDS = (2, 4)
 
 
@@ -51,7 +52,7 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     head = (cover.get('top') or '') + (cover.get('bottom') or '')
     if not cover.get('top'): out.append('cover: the top headline line is required')
     if len(head) > COVER_MAX: out.append(f'cover: {len(head)} characters in the headline; at most {COVER_MAX}')
-    if not SLIDES[0] <= len(slides) <= SLIDES[1]: out.append(f'{len(slides)} written slides; the carousel has {SLIDES[0]}–{SLIDES[1]}')
+    if not spec.get('news') and not SLIDES[0] <= len(slides) <= SLIDES[1]: out.append(f'{len(slides)} written slides; the carousel has {SLIDES[0]}–{SLIDES[1]}')
     last = slides[-1] if slides else {}
     if slides and not (last.get('ask') or '').strip().endswith('؟'):
         out.append(f'slide {len(slides)}: the last slide ends on the reader\'s question, set large in `ask` '
@@ -61,8 +62,9 @@ def check(spec: dict, base: Path | None = None, language: str = 'tk') -> list[st
     seq = layouts(spec)
     for i, s in enumerate(slides, 1):
         n = len(words(s.get('body'))) + len(words(s.get('ask')))
-        if not BODY_WORDS[0] <= n <= BODY_WORDS[1]:
-            out.append(f'slide {i}: {n} words; a slide is {BODY_WORDS[0]}–{BODY_WORDS[1]} (as little as the idea needs)')
+        lo, hi = NEWS_WORDS if spec.get('news') else BODY_WORDS
+        if not lo <= n <= hi:
+            out.append(f'slide {i}: {n} words; a slide is {lo}–{hi} (as little as the idea needs)')
         t = len(words(s.get('title')))
         if not TITLE_WORDS[0] <= t <= TITLE_WORDS[1]:
             out.append(f'slide {i}: a title of {t} words; {TITLE_WORDS[0]}–{TITLE_WORDS[1]}')
