@@ -68,6 +68,10 @@
     {
      "t": "«ابدأ بهالنوع» بالمكتبة يفتح نفس الفورم والنوع مختار",
      "src": "studio splice (start)"
+    },
+    {
+     "t": "«ابدأ بهالنوع» بالمكتبة يفتح الفورم والنوع والشكل مختارين، حتى «الاثنين»",
+     "src": "splice run(start)"
     }
    ],
    "settings": {},
@@ -89,11 +93,11 @@
    "note": "صفحة الفلم أو الكاروسيل",
    "row": 2,
    "who": "owner",
-   "src": "studio index.html:1223, 857, 2771",
+   "src": "studio index.html run(twin) → newRequest",
    "rules": [
     {
      "t": "نفس المعلومات والمصادر، سجل يديد مربوط بـ of",
-     "src": "الاستديو:1997"
+     "src": "studio index.html run(twin) → newRequest"
     }
    ],
    "settings": {},
@@ -104,7 +108,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "سوّ منه الثاني"
   },
   {
    "id": "s_chat",
@@ -115,7 +120,7 @@
    "note": "المحادثة مع Claude",
    "row": 3,
    "who": "owner",
-   "src": "audit.md §2.1",
+   "src": "studio.md (ideas rule) + viewFilms (empty)",
    "rules": [
     {
      "t": "Claude يكتب سجل الفلم بنفسه أول ما تبدأ خطوة",
@@ -123,7 +128,7 @@
     },
     {
      "t": "الصفحة الرئيسية الفاضية تقول «أرسل لي فكرة في المحادثة»",
-     "src": "studio index.html:654"
+     "src": "studio.md (ideas rule) + viewFilms (empty)"
     }
    ],
    "settings": {},
@@ -149,7 +154,7 @@
    "note": "state: working · flow.stage: queued",
    "row": 4,
    "who": "page/system",
-   "src": "الاستديو:1758-1767",
+   "src": "studio idea.js ideaCreate + studio index.html newRequest",
    "rules": [
     {
      "t": "الزر ينشئ السجل فوراً مع flow {stage:queued, pct:0}، والجلسة تعدّل نفس السجل",
@@ -158,7 +163,7 @@
     },
     {
      "t": "إذا نفس الطلب مفتوح، يفتحه بدل ما يسوي واحد ثاني",
-     "src": "الاستديو:1760"
+     "src": "studio idea.js ideaCreate + studio index.html newRequest"
     },
     {
      "t": "كل فكرة تاخذ اسمها من الموضوع اللي كتبته، وموضوع خاص فيها (إلا إذا اخترت موضوع موجود)",
@@ -184,7 +189,8 @@
     "reel",
     "carousel"
    ],
-   "sub": "يسوي له صفحة بالاستديو"
+   "sub": "يسوي له صفحة بالاستديو",
+   "short": "سجل الفلم"
   },
   {
    "id": "n_pickwait",
@@ -195,11 +201,11 @@
    "note": "خلال 5 دقايق",
    "row": 5,
    "who": "page/system",
-   "src": "الاستديو:685",
+   "src": "studio reel.js workCard (late)",
    "rules": [
     {
      "t": "بعد 5 دقايق بدون استلام: «الطلب ما انستلم» + «أعد الإرسال»",
-     "src": "reel.js:120 / الاستديو:685"
+     "src": "studio reel.js workCard (late)"
     },
     {
      "t": "النص: «ما فيه جلسة مفتوحة الحين. Claude يشيّك الاستديو كل ساعة؛ الفحص الياي حوالي HH:MM»",
@@ -218,7 +224,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "استلم الطلب؟"
   },
   {
    "id": "n_resend",
@@ -229,14 +236,20 @@
    "note": "",
    "row": 6,
    "who": "owner",
-   "src": "الاستديو:1865",
+   "src": "studio index.html run(flowresend)",
    "rules": [
     {
      "t": "يعيد إرسال نفس الطلب",
-     "src": "الاستديو:1865"
+     "src": "studio index.html run(flowresend)"
+    },
+    {
+     "t": "مرتين بالأكثر؛ بعدها «قل لي بالمحادثة»",
+     "src": "studio rest.js resendOr"
     }
    ],
-   "settings": {},
+   "settings": {
+    "max_resends": 2
+   },
    "writes": [
     "flow.at",
     "inbox {kind: flow}"
@@ -263,6 +276,10 @@
      "t": "جلسة وحدة بس تستلم الطلب، وتغيّر stage إلى received خلال دقايق",
      "src": "library.json workflow 2",
      "p": "جلسة وحدة بس تستلم الطلب، وتكتب «استلمت» خلال دقايق"
+    },
+    {
+     "t": "قبل البحث: Claude يشيّك إذا الفكرة مسوّية من قبل",
+     "src": "studio.md «Ideas»"
     }
    ],
    "settings": {},
@@ -275,7 +292,8 @@
     "reel",
     "carousel"
    ],
-   "sub": "يكتب «استلمت»"
+   "sub": "يكتب «استلمت»",
+   "short": "Claude يستلم"
   },
   {
    "id": "n_research",
@@ -283,7 +301,7 @@
    "lane": "claude",
    "type": "task",
    "label": "الصيغة والبحث والمصادر",
-   "note": "نوع النص، اللغة، المصادر، الصور الحقيقية",
+   "note": "النوع، اللغة، المصادر، الصور",
    "row": 8,
    "who": "Claude",
    "src": "SKILL.md §1",
@@ -304,6 +322,10 @@
     {
      "t": "كل حلقة قصة كاملة بروحها",
      "src": "القواعد الثابتة"
+    },
+    {
+     "t": "اللهجة الكويتية: تجربة جملتين أول قبل النص كامل",
+     "src": "SKILL.md §1"
     }
    ],
    "settings": {},
@@ -313,7 +335,9 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "النوع، اللغة، المصادر، الصور",
+   "short": "البحث والمصادر"
   },
   {
    "id": "n_dirs",
@@ -321,7 +345,7 @@
    "lane": "claude",
    "type": "task",
    "label": "3 اتجاهات بشاشة وحدة",
-   "note": "أول وآخر جملة، صورة ثابتة، مقطع صوت",
+   "note": "أول وآخر جملة، وصورة",
    "row": 9,
    "who": "Claude",
    "src": "library.json workflow 3",
@@ -333,6 +357,10 @@
     {
      "t": "العيّنات صور ثابتة مو فيديو",
      "src": "library.json workflow 4"
+    },
+    {
+     "t": "الريل: معاها مقطع صوت قصير",
+     "src": "library.json workflow 3"
     }
    ],
    "settings": {},
@@ -346,7 +374,9 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "أول وآخر جملة، وصورة",
+   "short": "3 اتجاهات"
   },
   {
    "id": "n_dirpick",
@@ -357,15 +387,15 @@
    "note": "أو «ما عجبني شي»",
    "row": 10,
    "who": "owner",
-   "src": "الاستديو:687-689",
+   "src": "studio reel.js directionBody",
    "rules": [
     {
      "t": "«ما عجبني شي» يفتح القائمة الكاملة (أساليب أو أنواع)",
-     "src": "الاستديو:689 / library.json workflow 5"
+     "src": "studio reel.js directionBody"
     },
     {
      "t": "11 من 22 أسلوب «يحتاج بناء» ومكتوب «أول مرة أطول» بدون وقت أو تكلفة",
-     "src": "audit.md §3"
+     "src": "studio reel.js directionBody"
     }
    ],
    "settings": {
@@ -377,39 +407,31 @@
    "kinds": [
     "reel",
     "carousel"
-   ],
-   "relies": {
-    "note": "الأساليب اللي تحتاج بناء: Claude يقول الوقت والتكلفة قبل ما يبدأ (المكتبة ما فيها build_time ولا build_cost)",
-    "src": "studio.md (7 Nov) + library.json"
-   }
+   ]
   },
   {
    "id": "g_dirpaid",
    "band": "idea",
-   "lane": "page",
+   "lane": "owner",
    "type": "gate",
-   "label": "يصرف رصيد؟ ضغطة ثانية",
+   "label": "أكّد الرصيد",
    "note": "اتجاه أو أسلوب بالرصيد",
    "row": 11,
-   "who": "page/system",
-   "src": "الاستديو:1783-1790",
+   "who": "owner",
+   "src": "studio index.html act() second tap",
    "rules": [
     {
-     "t": "الضغطة الأولى تسأل بس: «يصرف رصيد Higgsfield. اضغط مرة ثانية»",
-     "src": "الاستديو:895 / 1783"
+     "t": "اتجاه أو أسلوب بالرصيد يبي ضغطة ثانية، وتقول كم إذا الرقم معروف",
+     "src": "studio index.html act() second tap"
     },
     {
-     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
-     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
-    },
-    {
-     "t": "عينة أو بناء برصيد Higgsfield ما يبدأ إلا بعد موافقتك على التكلفة",
-     "src": "library.json workflow 6"
+     "t": "الضغطة الثانية تأكيد للطلب؛ الصرف نفسه يسألك عن سعره قبل ما يصير",
+     "src": "studio.md «Every «no» has a written path»"
     }
    ],
    "settings": {
-    "paid": true,
-    "confirm_taps": 2
+    "confirm_taps": 2,
+    "price": "ai"
    },
    "writes": [],
    "reads": [],
@@ -417,7 +439,18 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "ضغطة ثانية",
+   "gap": true,
+   "gaps": [
+    {
+     "id": "r2",
+     "plain": "المكتبة ما فيها رقم الرصيد، فالضغطة الثانية ما تقول كم"
+    }
+   ],
+   "gap_note": "المكتبة ما فيها رقم الرصيد، فالضغطة الثانية ما تقول كم",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
   },
   {
    "id": "n_picked",
@@ -428,7 +461,7 @@
    "note": "flow.stage: received + choice أو more",
    "row": 12,
    "who": "page/system",
-   "src": "الاستديو:1866-1871",
+   "src": "studio index.html run(flowpick / flowmore) → flowUpdate",
    "rules": [
     {
      "t": "أي اختيار يكتب last_action وينرسل لـ Claude",
@@ -455,20 +488,18 @@
    "lane": "claude",
    "type": "decision",
    "label": "شنو طلبت؟",
-   "note": "اتجاه، أو عيّنة من القائمة، أو تجربة أسلوب بس",
+   "note": "اتجاه، عيّنة أسلوب، أو طريقة سرد",
    "row": 13,
    "who": "Claude",
    "src": "library.json workflow 4-5, 9",
    "rules": [
     {
-     "t": "flow.more = عيّنة من القائمة الكاملة",
-     "src": "library.json workflow 5",
-     "p": "«ما عجبني شي» = عيّنة من القائمة الكاملة"
+     "t": "اتجاه: نكمّل للنص. أسلوب من القائمة: عيّنة (للريل). طريقة سرد ثانية: 3 اتجاهات يديدة. كلامك: 3 اتجاهات يديدة",
+     "src": "studio index.html run(flowmore) + studio idea.js dirtext"
     },
     {
-     "t": "mode:'sample' يقف بعد العيّنة ولا يبني الفلم",
-     "src": "library.json workflow 9",
-     "p": "تجربة الأسلوب توقف بعد العيّنة وما تبني الفلم"
+     "t": "الكاروسيل: الأساليب الببلاش بس، وأسلوب ثاني = اتجاهات يديدة بهالأسلوب",
+     "src": "studio reel.js directionBody (carousel)"
     }
    ],
    "settings": {},
@@ -478,7 +509,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "اتجاه، عيّنة أسلوب، أو طريقة سرد"
   },
   {
    "id": "n_hook",
@@ -509,9 +541,9 @@
    "reads": [],
    "stage": "script",
    "kinds": [
-    "reel",
-    "carousel"
-   ]
+    "reel"
+   ],
+   "short": "الهوك"
   },
   {
    "id": "n_script",
@@ -579,7 +611,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "القرّاء"
   },
   {
    "id": "n_revvoice",
@@ -612,14 +645,14 @@
    "reads": [],
    "stage": "script",
    "kinds": [
-    "reel",
-    "carousel"
+    "reel"
    ],
    "sub": "صوت كويتي ببلاش، «اسمع النص»",
    "relies": {
     "note": "Claude يسجّل صوت المراجعة الببلاش مع كل نص يديد",
     "src": "studio.md (script card rule)"
-   }
+   },
+   "short": "صوت المراجعة"
   },
   {
    "id": "n_scriptsend",
@@ -627,7 +660,7 @@
    "lane": "claude",
    "type": "task",
    "label": "يرسل لك النص",
-   "note": "قائمة مرقّمة بالفصول + الهوك + بديلين",
+   "note": "بالفصول، مع الهوك وبديلين",
    "row": 18,
    "who": "Claude",
    "src": "SKILL.md §3",
@@ -670,18 +703,19 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "بالفصول، مع الهوك وبديلين"
   },
   {
    "id": "n_scriptgate",
    "band": "script",
    "lane": "owner",
-   "type": "decision",
+   "type": "gate",
    "label": "توافق على النص والهوك؟",
    "note": "أو تعدّل سطر، أو تلصق نص كامل",
    "row": 19,
    "who": "owner",
-   "src": "الاستديو:627, 663",
+   "src": "studio script.js scriptCard + run(approve)",
    "rules": [
     {
      "t": "توافق على النص والهوك مع بعض",
@@ -702,7 +736,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "توافق على النص"
   },
   {
    "id": "n_scriptedit",
@@ -713,12 +748,16 @@
    "note": "script_edits أو script_full",
    "row": 20,
    "who": "page/system",
-   "src": "الاستديو:1848-1861",
+   "src": "studio index.html run(scriptsend / scriptfull)",
    "rules": [
     {
      "t": "تعديل سطر: script_edits؛ نص كامل: script_full",
-     "src": "الاستديو:1848-1861",
+     "src": "studio index.html run(scriptsend / scriptfull)",
      "p": "تعدّل سطر، أو تلصق النص كامل"
+    },
+    {
+     "t": "بعد تعديل النص: القرّاء يراجعون الجمل اللي تغيّرت بس، والدرس ينكتب",
+     "src": "studio.md «The script card» + script-edits.md"
     }
    ],
    "settings": {},
@@ -733,32 +772,8 @@
     "reel",
     "carousel"
    ],
-   "sub": "سطر أو النص كامل، يوصل Claude"
-  },
-  {
-   "id": "n_kind",
-   "band": "script",
-   "lane": "claude",
-   "type": "decision",
-   "label": "ريل ولا كاروسيل؟",
-   "note": "",
-   "row": 21,
-   "who": "Claude",
-   "src": "SKILL.md §1",
-   "rules": [
-    {
-     "t": "الكاروسيل يتخطى الصوت والإيقاع والأسلوب والفلم",
-     "src": "SKILL.md §1"
-    }
-   ],
-   "settings": {},
-   "writes": [],
-   "reads": [],
-   "stage": "script",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
+   "sub": "سطر أو النص كامل، يوصل Claude",
+   "short": "تعديل النص"
   },
   {
    "id": "n_vcost",
@@ -773,7 +788,8 @@
    "rules": [
     {
      "t": "ElevenLabs بالرصيد: نخليه قليل ونقول التكلفة أول",
-     "src": "القواعد الثابتة"
+     "src": "القواعد الثابتة",
+     "p": "الصوت بالرصيد: نخليه قليل ونقول التكلفة أول"
     },
     {
      "t": "التكلفة من voice.chars (الأحرف المدفوعة مع أوامر الإحساس)، مو من نص الشاشة",
@@ -791,7 +807,12 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يحسب التكلفة من الأحرف اللي تنحسب فعلاً ويقولها قبل التسجيل",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "تكلفة التسجيل"
   },
   {
    "id": "g_voice",
@@ -806,22 +827,40 @@
    "rules": [
     {
      "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
-     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
     },
     {
      "t": "إذا فيه كلمات ما تأكدت منها: تنبيه «الأحسن تشيّكها قبل التسجيل»، والقرار لك",
      "src": "studio script.js voiceNote"
+    },
+    {
+     "t": "صوت يديد: تجربة جملتين، وإنت تختار قبل التسجيل الكامل",
+     "src": "SKILL.md §4"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
     }
    ],
    "settings": {
-    "paid": true
+    "price": "voice",
+    "confirm_taps": 2
    },
    "writes": [],
    "reads": [],
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "ask_key": "voice_cost:full",
+   "short": "توافق السعر؟",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
   },
   {
    "id": "n_take",
@@ -829,7 +868,7 @@
    "lane": "claude",
    "type": "task",
    "label": "تسجيلة وحدة كاملة",
-   "note": "فيصل · ElevenLabs v3 · بالإحساس",
+   "note": "صوت فيصل، بالإحساس",
    "row": 24,
    "who": "Claude",
    "src": "SKILL.md §4",
@@ -861,7 +900,7 @@
     }
    ],
    "settings": {
-    "paid": true,
+    "paid": "voice",
     "final_voice": true,
     "speed": 1.0,
     "max_chars_one_take": 4500
@@ -875,14 +914,19 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "صوت فيصل، بالإحساس",
+   "short": "تسجيلة كاملة",
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "voice_cost:full",
+   "locked": true
   },
   {
    "id": "n_vcheck",
    "band": "voice",
    "lane": "claude",
    "type": "decision",
-   "label": "فحص Whisper والوصلات",
+   "label": "فحص الكلمات والوصلات",
    "note": "يبين مرقّع؟",
    "row": 25,
    "who": "Claude",
@@ -900,15 +944,22 @@
     {
      "t": "إعادة تسجيل بالرصيد تمر على سؤال التكلفة نفسه أول",
      "src": "studio.md: every paid take asks first, 7 Nov"
+    },
+    {
+     "t": "3 تسجيلات كاملة بالأكثر، بعدها نكمّل بالمحادثة",
+     "src": "studio.md «Every «no» has a written path»"
     }
    ],
-   "settings": {},
+   "settings": {
+    "max_rounds": 3
+   },
    "writes": [],
    "reads": [],
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "فحص الكلمات"
   },
   {
    "id": "n_vsend",
@@ -916,14 +967,15 @@
    "lane": "claude",
    "type": "task",
    "label": "يرسل لك الصوت + «الصوت والنطق»",
-   "note": "MP4 + رابط صفحة الصوت",
+   "note": "فيديو ورابط صفحة الصوت",
    "row": 26,
    "who": "Claude",
    "src": "SKILL.md §4",
    "rules": [
     {
      "t": "الصوت يوصلك MP4 (AAC 48 kHz ستيريو، يبدأ من صفر)",
-     "src": "القواعد الثابتة"
+     "src": "القواعد الثابتة",
+     "p": "الصوت يوصلك ملف فيديو تسمعه بالجوال"
     },
     {
      "t": "كل تسجيلة معاها صفحة الصوت والنطق بالاستديو",
@@ -943,7 +995,9 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "فيديو ورابط صفحة الصوت",
+   "short": "يرسل لك الصوت"
   },
   {
    "id": "n_listen",
@@ -954,11 +1008,11 @@
    "note": "جملة جملة بصفحة الصوت والنطق",
    "row": 27,
    "who": "owner",
-   "src": "الاستديو:958",
+   "src": "studio reel.js viewVoice",
    "rules": [
     {
      "t": "تشغّل التسجيلة أو جملة وحدة، وتضغط الكلمة الغلط",
-     "src": "الاستديو:958 (الصوت والنطق)"
+     "src": "studio reel.js viewVoice"
     }
    ],
    "settings": {
@@ -969,7 +1023,8 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "تسمع الكلمات"
   },
   {
    "id": "g_marks",
@@ -977,24 +1032,21 @@
    "lane": "owner",
    "type": "task",
    "label": "ترسل علاماتك",
-   "note": "الإرسال = موافقة على التكلفة المكتوبة",
+   "note": "مو موافقة على صرف",
    "row": 28,
    "who": "owner",
-   "src": "الاستديو:1823",
+   "src": "studio index.html run(sayfix) + studio reel.js MARKS_LINE",
    "rules": [
     {
-     "t": "العلامات والتعديلات تروح بإرسال واحد",
-     "src": "الاستديو:1823 (sayfix)"
+     "t": "ترسل الكلمات اللي علّمتها؛ الإرسال مو موافقة على صرف",
+     "src": "studio reel.js MARKS_LINE"
     },
     {
-     "t": "التكلفة المكتوبة من voice.chars، ولا «Claude بيقول لك التكلفة»",
-     "src": "الاستديو:940",
-     "p": "التكلفة مكتوبة قبل الإرسال، أو «Claude بيقول لك التكلفة»"
+     "t": "بعد الإرسال: «وصلت علاماتك. Claude يرسل لك التكلفة قبل أي تسجيل»",
+     "src": "studio index.html pendingBox + run(sayfix)"
     }
    ],
-   "settings": {
-    "approves_cost": true
-   },
+   "settings": {},
    "writes": [
     "inbox {kind: change}",
     "last_action"
@@ -1003,7 +1055,8 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "مو موافقة على صرف"
   },
   {
    "id": "n_howknown",
@@ -1031,7 +1084,8 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "شلون تنقال؟"
   },
   {
    "id": "n_options",
@@ -1050,7 +1104,7 @@
     }
    ],
    "settings": {
-    "paid": true,
+    "paid": "voice",
     "options": 3
    },
    "writes": [
@@ -1060,7 +1114,10 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "voice_cost:opt",
+   "locked": true
   },
   {
    "id": "g_pick",
@@ -1071,16 +1128,14 @@
    "note": "أو تكتب شلون تنقال",
    "row": 31,
    "who": "owner",
-   "src": "الاستديو:1803",
+   "src": "studio reel.js optList (vpick)",
    "rules": [
     {
-     "t": "الاختيار ينرسل مع العلامات",
-     "src": "الاستديو:1803, 1823"
+     "t": "تسمع الطرق وتختار وحدة، أو تكتب شلون تنقال؛ اختيارك يروح مع العلامات، مو موافقة على صرف",
+     "src": "studio reel.js optList (vpick)"
     }
    ],
-   "settings": {
-    "approves_cost": true
-   },
+   "settings": {},
    "writes": [
     "inbox {kind: change}"
    ],
@@ -1088,7 +1143,9 @@
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "أو تكتب شلون تنقال",
+   "short": "تختار النطق"
   },
   {
    "id": "n_relines",
@@ -1108,17 +1165,30 @@
     {
      "t": "بعد ما تثبت كل كلمة: تسجيلة كاملة يديدة",
      "src": "kuwaiti-voice.md"
+    },
+    {
+     "t": "تصحيحين بالأكثر لكل كلمة بنفس التسجيلة؛ بعدها الكلمة ما تنعلّم مرة ثانية، و«غيّر الكلمة» بس",
+     "src": "studio reel.js swapCard + studio rest.js fixCount"
+    },
+    {
+     "t": "العدّ لكل كلمة بنفس التسجيلة الكاملة (رقم التسجيلة)، وما يرجع صفر لما تتعاد الجمل",
+     "src": "studio rest.js takeKey (voice.take_id)"
     }
    ],
    "settings": {
-    "paid": true
+    "paid": "voice",
+    "max_rounds": 2
    },
    "writes": [],
    "reads": [],
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "يعيد الجمل",
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "voice_cost:lines",
+   "locked": true
   },
   {
    "id": "n_spliced",
@@ -1134,15 +1204,22 @@
     {
      "t": "الصوت النهائي تسجيلة وحدة كاملة بكل التصحيحات",
      "src": "kuwaiti-voice.md"
+    },
+    {
+     "t": "3 تسجيلات كاملة بالأكثر، بعدها نكمّل بالمحادثة",
+     "src": "studio.md «Every «no» has a written path»"
     }
    ],
-   "settings": {},
+   "settings": {
+    "max_rounds": 3
+   },
    "writes": [],
    "reads": [],
    "stage": "voice",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "جمل مرقّعة؟"
   },
   {
    "id": "n_pace",
@@ -1157,7 +1234,8 @@
    "rules": [
     {
      "t": "22–28 لقطة بالدقيقة، أغلبها 2–4 ثواني، حركة خفيفة، قطع مباشر، بدون هز أو فلاش أو whip",
-     "src": "storytelling.md 18t"
+     "src": "storytelling.md 18t",
+     "p": "22–28 لقطة بالدقيقة، أغلبها 2–4 ثواني، حركة خفيفة، قطع مباشر، بدون هز أو فلاش أو قطع سريع"
     },
     {
      "t": "بعد أي ملاحظة على الإيقاع: مقارنة جنب بجنب",
@@ -1183,7 +1261,9 @@
    "stage": "style",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "22–28 لقطة بالدقيقة",
+   "short": "الإيقاع"
   },
   {
    "id": "n_styleknown",
@@ -1202,7 +1282,8 @@
    "stage": "style",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "الأسلوب مختار؟"
   },
   {
    "id": "n_styleopts",
@@ -1210,7 +1291,7 @@
    "lane": "claude",
    "type": "task",
    "label": "3 أساليب من المكتبة",
-   "note": "لكل واحد: ليش، العيب، الأداة، التكلفة",
+   "note": "ليش، العيب، الأداة، التكلفة",
    "row": 36,
    "who": "Claude",
    "src": "SKILL.md §6",
@@ -1226,13 +1307,15 @@
    "stage": "style",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "ليش، العيب، الأداة، التكلفة",
+   "short": "3 أساليب"
   },
   {
    "id": "g_style",
    "band": "style",
    "lane": "owner",
-   "type": "gate",
+   "type": "decision",
    "label": "تختار الأسلوب",
    "note": "بالرصيد إذا AI",
    "row": 37,
@@ -1240,17 +1323,11 @@
    "src": "SKILL.md §6",
    "rules": [
     {
-     "t": "أسلوب AI (Higgsfield) يحتاج «إي» صريحة",
-     "src": "SKILL.md §6"
-    },
-    {
-     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
-     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
+     "t": "تختار من 3 أساليب؛ اختيارك مو موافقة على صرف: إذا الأسلوب AI، سعر العيّنة ينسأل بعدها",
+     "src": "SKILL.md §6 + studio.md «Every «no» has a written path»"
     }
    ],
-   "settings": {
-    "paid": "ai"
-   },
+   "settings": {},
    "writes": [],
    "reads": [],
    "stage": "style",
@@ -1263,22 +1340,18 @@
    "band": "style",
    "lane": "claude",
    "type": "task",
-   "label": "عيّنة متحركة 15 ثانية",
-   "note": "للاتجاه المختار بس",
+   "label": "عيّنة 15 ثانية",
+   "note": "بالأسلوب اللي اخترته",
    "row": 38,
    "who": "Claude",
    "src": "library.json workflow 4",
    "rules": [
     {
-     "t": "بعد الاختيار: عيّنة 15 ثانية للاتجاه المختار بس، stage: sample",
-     "src": "library.json workflow 4",
-     "p": "بعد الاختيار: عيّنة 15 ثانية للاتجاه المختار بس"
+     "t": "عيّنة متحركة 15 ثانية بالأسلوب اللي اخترته، قبل البناء",
+     "src": "library.json workflow 4 + SKILL.md §6"
     }
    ],
-   "settings": {
-    "paid": "ai",
-    "seconds": 15
-   },
+   "settings": {},
    "writes": [
     "video",
     "flow.stage: sample"
@@ -1287,7 +1360,9 @@
    "stage": "style",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "بالأسلوب اللي اخترته",
+   "short": "العيّنة"
   },
   {
    "id": "n_samplegate",
@@ -1298,69 +1373,49 @@
    "note": "«اعتمد هالأسلوب»",
    "row": 39,
    "who": "owner",
-   "src": "الاستديو:681",
+   "src": "studio reel.js waitBody (sample) + run(approve)",
    "rules": [
     {
      "t": "على عيّنة: «اعتمد هالأسلوب»",
-     "src": "الاستديو:681"
+     "src": "studio reel.js waitBody (sample) + run(approve)"
+    },
+    {
+     "t": "3 جولات أو تعديلات بالأكثر على العيّنة، بعدها نكمّل بالمحادثة",
+     "src": "studio.md «Every «no» has a written path»"
     }
    ],
    "settings": {
-    "waiting_text": "اعتمد الأسلوب أو اطلب تعديل"
+    "waiting_text": "اعتمد الأسلوب أو اطلب تعديل",
+    "max_rounds": 3
    },
    "writes": [],
    "reads": [],
    "stage": "style",
    "kinds": [
     "reel"
-   ]
-  },
-  {
-   "id": "n_sampleonly",
-   "band": "style",
-   "lane": "claude",
-   "type": "decision",
-   "label": "تجربة أسلوب بس؟",
-   "note": "mode: sample",
-   "row": 40,
-   "who": "Claude",
-   "src": "library.json workflow 9",
-   "rules": [
-    {
-     "t": "mode:'sample' يقف بعد العيّنة",
-     "src": "library.json workflow 9",
-     "p": "تجربة الأسلوب توقف بعد العيّنة"
-    }
    ],
-   "settings": {},
-   "writes": [],
-   "reads": [],
-   "stage": "style",
-   "kinds": [
-    "reel"
-   ],
-   "sub": "طلبت تجربة أسلوب بس؟"
+   "short": "تعتمد العيّنة؟"
   },
   {
    "id": "e_sample",
-   "band": "style",
+   "band": "idea",
    "lane": "page",
    "type": "end",
    "label": "تجربة خلصت",
    "note": "تنعرض «تجربة»",
-   "row": 41,
+   "row": 13.9,
    "who": "page/system",
-   "src": "الاستديو:666",
+   "src": "studio index.html testBar",
    "rules": [
     {
      "t": "عيّنة خلصت = تجربة",
-     "src": "الاستديو:666 (isTest)"
+     "src": "studio index.html testBar"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "style",
+   "stage": "idea",
    "kinds": [
     "reel"
    ]
@@ -1371,7 +1426,7 @@
    "lane": "claude",
    "type": "task",
    "label": "الصور الحقيقية",
-   "note": "بصورته، وصور البراند الرسمية بإذنك",
+   "note": "الحقيقية، والرسمية بإذنك",
    "row": 42,
    "who": "Claude",
    "src": "SKILL.md §7 + library.json direction 1",
@@ -1387,6 +1442,10 @@
     {
      "t": "ابحث عن صورة ملكية عامة أو مرخّصة أو من الملف الصحفي، واذكر المصدر",
      "src": "library.json direction 1"
+    },
+    {
+     "t": "الكاروسيل: صور الناس الحقيقية، والناقصة تنكتب لك",
+     "src": "carousel.md People"
     }
    ],
    "settings": {},
@@ -1394,8 +1453,10 @@
    "reads": [],
    "stage": "build",
    "kinds": [
-    "reel"
-   ]
+    "reel",
+    "carousel"
+   ],
+   "sub": "الحقيقية، والرسمية بإذنك"
   },
   {
    "id": "n_missing",
@@ -1421,8 +1482,10 @@
    "reads": [],
    "stage": "build",
    "kinds": [
-    "reel"
-   ]
+    "reel",
+    "carousel"
+   ],
+   "short": "صورة ناقصة؟"
   },
   {
    "id": "n_missingown",
@@ -1430,14 +1493,18 @@
    "lane": "owner",
    "type": "decision",
    "label": "تجاوب على الصورة الناقصة",
-   "note": "تجاوب بالمحادثة",
+   "note": "بأزرار بصفحة الفلم أو الكاروسيل",
    "row": 44,
    "who": "owner",
-   "src": "الاستديو:692",
+   "src": "studio rest.js missingHtml",
    "rules": [
     {
      "t": "كل صورة ناقصة لها: «عندي صورة» (ترفعها)، «استخدم بديل»، «شيل اللقطة»",
      "src": "studio rest.js missingHtml"
+    },
+    {
+     "t": "الكاروسيل: نفس الأزرار الثلاثة بصفحته",
+     "src": "studio index.html viewCarousel + studio rest.js missingHtml"
     }
    ],
    "settings": {},
@@ -1447,9 +1514,11 @@
    "reads": [],
    "stage": "build",
    "kinds": [
-    "reel"
+    "reel",
+    "carousel"
    ],
-   "sub": "عندي صورة · بديل · شيلها"
+   "sub": "عندي صورة · بديل · شيلها",
+   "short": "الصورة الناقصة"
   },
   {
    "id": "n_route",
@@ -1473,7 +1542,12 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يختار الطريقة، والـ AI يمر على سؤال السعر",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "ببلاش ولا AI؟"
   },
   {
    "id": "g_ai",
@@ -1481,29 +1555,43 @@
    "lane": "owner",
    "type": "gate",
    "label": "توليد بالرصيد؟",
-   "note": "Higgsfield / Seedance",
+   "note": "مقاطع بالذكاء الاصطناعي",
    "row": 46,
    "who": "owner",
    "src": "SKILL.md §7",
    "rules": [
     {
      "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
-     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
     },
     {
      "t": "تأكيد الكريدت أول",
      "src": "SKILL.md §7 (AI route)"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
     }
    ],
    "settings": {
-    "paid": true
+    "price": "ai",
+    "confirm_taps": 2
    },
    "writes": [],
    "reads": [],
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "sub": "مقاطع بالذكاء الاصطناعي",
+   "ask_key": "ai_cost",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
   },
   {
    "id": "n_aigen",
@@ -1522,7 +1610,7 @@
     }
    ],
    "settings": {
-    "paid": true
+    "paid": "ai"
    },
    "writes": [
     "cost.higgsfield_credits",
@@ -1532,7 +1620,11 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "مقاطع AI",
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "ai_cost",
+   "locked": true
   },
   {
    "id": "n_build",
@@ -1540,7 +1632,7 @@
    "lane": "claude",
    "type": "task",
    "label": "البناء",
-   "note": "الصور فوق الصوت، % والوقت المتبقي",
+   "note": "الصور فوق الصوت",
    "row": 48,
    "who": "Claude",
    "src": "SKILL.md §7",
@@ -1566,7 +1658,8 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "الصور فوق الصوت"
   },
   {
    "id": "n_critic",
@@ -1595,7 +1688,8 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "الناقد وإتيان"
   },
   {
    "id": "n_sound",
@@ -1603,7 +1697,7 @@
    "lane": "claude",
    "type": "task",
    "label": "فحص الصوت",
-   "note": "0 تقطيع، ذروة ≤ -1 dBTP",
+   "note": "ما فيه تقطيع ولا صوت عالي",
    "row": 50,
    "who": "Claude",
    "src": "SKILL.md §8",
@@ -1611,7 +1705,7 @@
     {
      "t": "earshot measure: 0 clipped و true peak ≤ -1 dBTP؛ ستيريو",
      "src": "SKILL.md §8",
-     "p": "ما فيه تقطيع بالصوت، والذروة تحت -1 dBTP، ستيريو"
+     "p": "ما فيه تقطيع بالصوت، والصوت مو عالي زيادة، ستيريو"
     },
     {
      "t": "أبد ما نستخدم أمر llm حق earshot",
@@ -1627,7 +1721,8 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "ما فيه تقطيع ولا صوت عالي"
   },
   {
    "id": "n_expert",
@@ -1651,7 +1746,8 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "sub": "اللي يلاحظه جامع الساعات"
   },
   {
    "id": "n_version",
@@ -1696,30 +1792,52 @@
    "stage": "build",
    "kinds": [
     "reel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يرجّع الحالة «ينتظر موافقتك» مع كل نسخة يديدة؛ والاستديو ما يخلي تحفظ نسخة غير اللي وافقت عليها",
+    "src": "studio.md (G2/G4) + rules-draft.md (تنضاف لـ studio.md مع التطبيق)"
+   },
+   "sub": "مع الكابشن والكريدت والمصادر",
+   "short": "نسخة يديدة"
   },
   {
    "id": "n_review",
    "band": "review",
    "lane": "owner",
-   "type": "decision",
+   "type": "gate",
    "label": "مراجعتك للفيديو",
    "note": "موافق، تعديل، ملاحظات بالوقت",
    "row": 53,
    "who": "owner",
-   "src": "الاستديو:925-1000",
+   "src": "studio reel.js viewReview + run(approve / send)",
    "rules": [
     {
      "t": "ملاحظات على الثانية بالضبط من «راجع بالوقت»",
-     "src": "الاستديو:925"
+     "src": "studio reel.js viewReview + run(approve / send)"
     },
     {
      "t": "«قارن مع النسخة اللي قبل» إذا موجودة",
-     "src": "الاستديو:978"
+     "src": "studio reel.js viewReview + run(approve / send)"
     },
     {
      "t": "ما ننشر بدون موافقتك على الفلم الكامل",
      "src": "SKILL.md «Rules that never bend»"
+    },
+    {
+     "t": "قبل موافقتك: صفحة النشر تبين «نسخة مو معتمدة للحين»، والحفظ والنسخ و«تم النشر» مقفلة",
+     "src": "studio reel.js viewPublish + studio rest.js pubOk"
+    },
+    {
+     "t": "قبل موافقتك: النسخة الخفيفة بس تشتغل، والملف الكامل يوصل مع موافقتك",
+     "src": "studio reel.js viewPublish (video only)"
+    },
+    {
+     "t": "نسخة يديدة بعد موافقتك ترجع «تنتظر موافقتك»، وزر «موافق على هالنسخة» يطلع",
+     "src": "studio reel.js turnCard (done, not this version)"
+    },
+    {
+     "t": "«موافق» بالمحادثة تكفي: Claude يكتبها بنفس العناوين اللي شفتها (via: chat)، والاستديو يقبلها مثل ضغطتك",
+     "src": "rules-draft §2/§11 + studio guard.js (plan v10 S18-S21) chatRow"
     }
    ],
    "settings": {
@@ -1731,7 +1849,10 @@
    "stage": "review",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "مراجعتك",
+   "lock_why": "ما فيه نشر بدون موافقتك على النسخة الخالصة",
+   "locked": true
   },
   {
    "id": "n_change",
@@ -1739,18 +1860,18 @@
    "lane": "page",
    "type": "task",
    "label": "ينحفظ تعديلك",
-   "note": "inbox + last_action",
+   "note": "ينحفظ هني ويوصل Claude",
    "row": 54,
    "who": "page/system",
-   "src": "الاستديو:1989-1996",
+   "src": "studio index.html run(send)",
    "rules": [
     {
      "t": "نفس الضغطة مرتين خلال 30 ثانية تنرسل مرة وحدة",
-     "src": "الاستديو:1793"
+     "src": "studio index.html run(send)"
     },
     {
      "t": "«وصل تعديلك» لين Claude يكتب updated",
-     "src": "الاستديو:458",
+     "src": "studio index.html run(send)",
      "p": "«وصل تعديلك» لين Claude يستلم"
     }
    ],
@@ -1800,7 +1921,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "يصلّح ملاحظتك"
   },
   {
    "id": "n_approve",
@@ -1808,21 +1930,34 @@
    "lane": "page",
    "type": "task",
    "label": "تنحفظ موافقتك",
-   "note": "inbox + last_action",
+   "note": "ينحفظ هني ويوصل Claude",
    "row": 56,
    "who": "page/system",
-   "src": "الاستديو:1999",
+   "src": "studio index.html run(approve)",
    "rules": [
     {
      "t": "الموافقة تكتب last_action؛ «وصلت موافقتك» لين Claude يستلم",
-     "src": "الاستديو:1999-2001",
+     "src": "studio index.html run(approve)",
      "p": "موافقتك تنحفظ؛ «وصلت موافقتك» لين Claude يستلم"
+    },
+    {
+     "t": "موافقتك على الفلم أو الكاروسيل الخالص تنكتب مع رقم النسخة؛ الحفظ والنشر بس لهالنسخة",
+     "src": "studio index.html run(approve) approved_version"
+    },
+    {
+     "t": "موافقتك على النص أو الصوت أو العيّنة تنكتب كموافقة على خطوة، وما تفتح النشر",
+     "src": "studio index.html run(approve) step_approved"
+    },
+    {
+     "t": "النسخة الخالصة اسمها «فيديو vN» (أو vN بس للأفلام القديمة)؛ «نص» و«صوت» و«رسومات» و«تجربة» خطوات",
+     "src": "studio rest.js finishedPiece"
     }
    ],
    "settings": {},
    "writes": [
     "inbox {kind: approve}",
-    "last_action"
+    "last_action",
+    "approved_version"
    ],
    "reads": [],
    "stage": "review",
@@ -1830,22 +1965,27 @@
     "reel",
     "carousel"
    ],
-   "sub": "توصل Claude"
+   "sub": "توصل Claude",
+   "short": "موافقتك"
   },
   {
    "id": "n_carbuild",
-   "band": "review",
+   "band": "build",
    "lane": "claude",
    "type": "task",
    "label": "يكتب ويرسم الكاروسيل",
    "note": "4–5 شرايح بنفس المعلومات",
-   "row": 57,
+   "row": 48.6,
    "who": "Claude",
    "src": "carousel.md",
    "rules": [
     {
      "t": "نفس المعلومات بـ 4–5 شرايح بقالب تايم كيبر",
      "src": "SKILL.md §1 + carousel.md"
+    },
+    {
+     "t": "يكتب الشرايح بالصور الحقيقية، أو بالصور اللي وافقت على رصيدها",
+     "src": "carousel.md Images"
     }
    ],
    "settings": {},
@@ -1856,21 +1996,22 @@
     "caption"
    ],
    "reads": [],
-   "stage": "review",
+   "stage": "build",
    "kinds": [
     "carousel"
-   ]
+   ],
+   "short": "يرسم الكاروسيل"
   },
   {
    "id": "n_carreview",
    "band": "review",
    "lane": "owner",
-   "type": "decision",
+   "type": "gate",
    "label": "مراجعة الكاروسيل",
    "note": "تختار شرايح، أو تعدّل النص بنفسك",
    "row": 58,
    "who": "owner",
-   "src": "الاستديو:695-760",
+   "src": "studio index.html viewCarousel",
    "rules": [
     {
      "t": "تختار شريحة وحدة أو أكثر مع التعديل",
@@ -1879,6 +2020,14 @@
     {
      "t": "«✎ عدّل النص بنفسك» بدون إعادة رسم",
      "src": "studio.md"
+    },
+    {
+     "t": "قبل موافقتك: «📷 احفظ الكل بالصور» و«صورة صورة» مقفلة («توافق أول وبعدين تحفظ»)",
+     "src": "studio index.html viewCarousel + studio rest.js pubOk"
+    },
+    {
+     "t": "«موافق» بالمحادثة تكفي: Claude يكتبها بنفس العناوين اللي شفتها (via: chat)، والاستديو يقبلها مثل ضغطتك",
+     "src": "rules-draft §2/§11 + studio guard.js (plan v10 S18-S21) chatRow"
     }
    ],
    "settings": {
@@ -1890,7 +2039,10 @@
    "stage": "review",
    "kinds": [
     "carousel"
-   ]
+   ],
+   "short": "مراجعتك",
+   "lock_why": "ما فيه نشر بدون موافقتك على النسخة الخالصة",
+   "locked": true
   },
   {
    "id": "n_selfedit",
@@ -1901,33 +2053,49 @@
    "note": "فحوص حيّة",
    "row": 59,
    "who": "page/system",
-   "src": "الاستديو:2244-2380",
+   "src": "studio index.html viewEdit + edSave / edUndo",
    "rules": [
     {
      "t": "فحوص: الغلاف 73 حرف، 12–32 كلمة، عنوان 2–4 كلمات، نص طالع برّا، لغة الكاروسيل، سؤال القارئ",
-     "src": "studio.md + الاستديو:464"
+     "src": "studio index.html viewEdit + edSave / edUndo"
     },
     {
-     "t": "يرفع الشرايح اللي تغيّرت بس، ويحفظ النسخة القديمة بـ history (10)",
-     "src": "studio.md"
+     "t": "«رجّع النسخة السابقة» يرسم الشرايح من يديد، ويرجّعه «ينتظر موافقتك»، ويقول لـ Claude",
+     "src": "studio index.html edUndo"
+    },
+    {
+     "t": "الكاروسيل المنشور ما يتعدّل من الاستديو",
+     "src": "studio index.html viewEdit (posted)"
+    },
+    {
+     "t": "بعد الحفظ تنمسح ملفات الشرايح اللي تبدّلت (نسخة وحدة بس)، إلا اللي يحتاجها تعديل ما خلص للحين",
+     "src": "studio index.html edSave (oldBlobs)"
+    },
+    {
+     "t": "شرايح الكاروسيل المنشورة كملفات تبقى لين Claude ينشر النسخة الياية ويمسحها",
+     "src": "studio.md «One copy only»"
     }
    ],
    "settings": {
-    "history": 10
+    "history": "text_10",
+    "deletes": "own_old"
    },
    "writes": [
-    "slides",
     "spec",
+    "slides",
     "caption",
-    "history",
-    "changes[0].edits",
-    "inbox"
+    "history (text)",
+    "state: waiting",
+    "inbox {kind: edit | edit undo}"
    ],
    "reads": [],
    "stage": "review",
    "kinds": [
     "carousel"
-   ]
+   ],
+   "short": "تعدّل بنفسك",
+   "lock_why": "يمسح بس ملفات تعديلك القديمة (نسخة وحدة)، وينتظر موافقتك",
+   "locked": true
   },
   {
    "id": "n_logedit",
@@ -1952,7 +2120,12 @@
    "stage": "review",
    "kinds": [
     "carousel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يكتب درس كل تعديل منك (مرة ما انكتب)",
+    "src": "carousel-edits.md"
+   },
+   "short": "درس التعديل"
   },
   {
    "id": "n_final",
@@ -1967,7 +2140,8 @@
    "rules": [
     {
      "t": "بموافقتك فوراً: الفيلم الكامل 1080×1920 (two-pass تحت 16 MB) والكابشن",
-     "src": "studio.md final"
+     "src": "studio.md final",
+     "p": "بموافقتك فوراً: الفيلم الكامل 1080×1920 تحت 16 MB، والكابشن"
     },
     {
      "t": "الكابشن: الهوك، القصة بسطرين، سؤال القارئ، المصادر، الكريدت، الهاشتاقات",
@@ -1984,7 +2158,8 @@
    "stage": "publish",
    "kinds": [
     "reel"
-   ]
+   ],
+   "short": "النسخة الكاملة"
   },
   {
    "id": "n_save",
@@ -1992,28 +2167,43 @@
    "lane": "owner",
    "type": "task",
    "label": "تحفظ الفيلم وتنسخ الكابشن",
-   "note": "أو «شارك الكل» للكاروسيل",
+   "note": "أو «📷 احفظ الكل بالصور» للكاروسيل",
    "row": 62,
    "who": "owner",
-   "src": "الاستديو:1021-1040, 726",
+   "src": "studio reel.js viewPublish + studio index.html viewCarousel",
    "rules": [
     {
-     "t": "«احفظ الفيلم» يشتغل بس إذا final موجود",
-     "src": "الاستديو:1030"
+     "t": "شغّل النسخة النهائية أول بمشغّلها فوق (أو حرّكها)، و«احفظ الفيلم» يشتغل بعدها، بس بعد موافقتك؛ وللكاروسيل «📷 احفظ الكل بالصور» يعطي الصور نفسها اللي على الشاشة (ملف واحد) لاختصار Save TK Post، أو «صورة صورة (اضغط مطوّل)»",
+     "src": "studio reel.js viewPublish + studio guard.js (plan v10 S18-S21) filmWhy / publishFile"
     },
     {
-     "t": "الاستديو ما يقدر ينشر بنفسه",
-     "src": "audit.md «Checked and fine»"
+     "t": "الملفات بعناوين الاستوديو (/_blob/…) بس، وكل رفعة عنوان يديد؛ غيرها: «Claude يرفع الملف من يديد»",
+     "src": "studio guard.js (plan v10 S18-S21) mediaFix"
+    },
+    {
+     "t": "قبلها: «نسخة مو معتمدة للحين» و«توافق أول وبعدين تحفظ»",
+     "src": "studio reel.js viewPublish + studio rest.js unapprovedNote"
     }
    ],
-   "settings": {},
+   "settings": {
+    "publish": true
+   },
    "writes": [],
    "reads": [],
    "stage": "publish",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "label_by": {
+    "carousel": "تحفظ الشرايح وتنسخ الكابشن"
+   },
+   "short_by": {
+    "carousel": "تحفظ الشرايح"
+   },
+   "short": "تحفظ وتنسخ",
+   "lock_why": "الحفظ والنشر بس للنسخة اللي وافقت عليها",
+   "locked": true
   },
   {
    "id": "n_postig",
@@ -2024,7 +2214,7 @@
    "note": "بيدك",
    "row": 63,
    "who": "owner",
-   "src": "audit.md §2.10",
+   "src": "studio reel.js viewPublish (step 3) + insights.md",
    "rules": [
     {
      "t": "ما ننشر بدون موافقتك",
@@ -2040,26 +2230,34 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "تنشر",
+   "lock_why": "الحفظ والنشر بس للنسخة اللي وافقت عليها",
+   "locked": true
   },
   {
    "id": "g_posted",
    "band": "publish",
    "lane": "owner",
-   "type": "gate",
+   "type": "task",
    "label": "«تم النشر ✓»",
    "note": "ضغطتين",
    "row": 64,
    "who": "owner",
-   "src": "الاستديو:1888-1899",
+   "src": "studio index.html postedButton + run(posted)",
    "rules": [
     {
-     "t": "«نشرته؟ اضغط مرة ثانية ✓»",
-     "src": "الاستديو:1888"
+     "t": "ضغطتين؛ يبين بس بعد موافقتك على الفلم",
+     "src": "studio index.html postedButton + run(posted)"
+    },
+    {
+     "t": "«تم النشر» يقول لـ Claude (سطر يوصل Claude)",
+     "src": "studio index.html run(posted) → tell"
     }
    ],
    "settings": {
-    "confirm_taps": 2
+    "confirm_taps": 2,
+    "publish": true
    },
    "writes": [
     "state: posted",
@@ -2071,7 +2269,10 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "تم النشر ✓",
+   "lock_why": "الحفظ والنشر بس للنسخة اللي وافقت عليها",
+   "locked": true
   },
   {
    "id": "n_match",
@@ -2082,11 +2283,11 @@
    "note": "",
    "row": 65,
    "who": "page/system",
-   "src": "الاستديو:1630-1660",
+   "src": "studio index.html openPick",
    "rules": [
     {
      "t": "يطابق منشور إنستغرام من الكابشن",
-     "src": "الاستديو:1630"
+     "src": "studio index.html openPick"
     }
    ],
    "settings": {},
@@ -2096,7 +2297,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "يقترح المنشور"
   },
   {
    "id": "n_confirmpost",
@@ -2107,12 +2309,16 @@
    "note": "أو تحط الرابط",
    "row": 66,
    "who": "owner",
-   "src": "الاستديو:1914-1950",
+   "src": "studio index.html viewPick + run(pickconfirm / savelink)",
    "rules": [
     {
      "t": "رابط instagram.com/p/… أو /reel/…",
-     "src": "الاستديو:1944",
+     "src": "studio index.html viewPick + run(pickconfirm / savelink)",
      "p": "رابط منشور إنستغرام (منشور أو ريل)"
+    },
+    {
+     "t": "«هذا هو» و«احفظ الرابط» يربطون منشور موجود بس؛ ما ينشرون شي",
+     "src": "studio rest.js voiceWaitCard + run(pickconfirm / savelink)"
     }
    ],
    "settings": {},
@@ -2132,15 +2338,19 @@
    "lane": "page",
    "type": "decision",
    "label": "المزامنة شغّالة؟",
-   "note": "Supabase من إنستغرام",
+   "note": "الأرقام من إنستغرام",
    "row": 67,
    "who": "page/system",
    "src": "insights.md",
    "rules": [
     {
      "t": "studio_page() و instagram_sync_now()؛ ينحفظ بـ studio/ig",
-     "src": "الاستديو:1254-1276 + insights.md",
+     "src": "insights.md",
      "p": "الأرقام تجي من إنستغرام بروحها وتنحفظ بالاستديو"
+    },
+    {
+     "t": "«حدّث الأرقام» يبدأ المزامنة، و«اقرا الأرقام من جديد» يحمّلها",
+     "src": "studio index.html run(syncnow / igreload)"
     }
    ],
    "settings": {},
@@ -2152,7 +2362,9 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "الأرقام من إنستغرام",
+   "short": "المزامنة؟"
   },
   {
    "id": "n_reads",
@@ -2182,7 +2394,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "أرقام 48س و7أ"
   },
   {
    "id": "n_shots",
@@ -2193,7 +2406,7 @@
    "note": "إذا المزامنة واقفة",
    "row": 69,
    "who": "owner",
-   "src": "الاستديو:1681, 1976",
+   "src": "studio index.html viewAnalysis + run(shotschat)",
    "rules": [
     {
      "t": "ترفعها بالاستديو أو بالمحادثة",
@@ -2209,15 +2422,16 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "صور الإحصائيات"
   },
   {
    "id": "n_lessons",
    "band": "publish",
    "lane": "claude",
    "type": "task",
-   "label": "دروس + قاعدة مقترحة",
-   "note": "من الأرقام",
+   "label": "دروس من الأرقام",
+   "note": "تنكتب للفلم الياي",
    "row": 70,
    "who": "Claude",
    "src": "insights.md",
@@ -2225,6 +2439,10 @@
     {
      "t": "الحكم على الفلم، الوصفة، وسطر بالسجل",
      "src": "insights.md"
+    },
+    {
+     "t": "إتيان يرسل ملخص يومي ويذكّرك بقراءات 48 ساعة و7 أيام",
+     "src": "scheduled task «إتيان اليومي»"
     }
    ],
    "settings": {},
@@ -2237,28 +2455,30 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "تنكتب للفلم الياي",
+   "short": "دروس الأرقام"
   },
   {
    "id": "n_rulegate",
-   "band": "publish",
+   "band": "always",
    "lane": "owner",
    "type": "decision",
-   "label": "تضيفها للقواعد؟",
+   "label": "تخليه قاعدة؟",
    "note": "",
-   "row": 71,
+   "row": 90.1,
    "who": "owner",
-   "src": "الاستديو:1927",
+   "src": "studio index.html run(ruleyes / ruleno)",
    "rules": [
     {
-     "t": "«إي» تنحفظ بـ studio/rules؛ «لا» ما تنعرض مرة ثانية",
-     "src": "الاستديو:1927-1940"
+     "t": "«خله قاعدة» أو «مو الحين»",
+     "src": "studio index.html learn view (sugg)"
     }
    ],
    "settings": {},
    "writes": [],
    "reads": [],
-   "stage": "publish",
+   "stage": "always",
    "kinds": [
     "reel",
     "carousel"
@@ -2266,12 +2486,12 @@
   },
   {
    "id": "n_rulerepo",
-   "band": "publish",
+   "band": "always",
    "lane": "claude",
    "type": "task",
    "label": "تنكتب بملف القواعد",
    "note": "وتنطبق من الفلم الياي",
-   "row": 72,
+   "row": 90.3,
    "who": "Claude",
    "src": "studio.md",
    "rules": [
@@ -2286,11 +2506,16 @@
     "repo"
    ],
    "reads": [],
-   "stage": "publish",
+   "stage": "always",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يكتب القاعدة بملف القواعد بطلب دمج",
+    "src": "studio.md + inbox kind rule"
+   },
+   "short": "ملف القواعد"
   },
   {
    "id": "e_done",
@@ -2321,7 +2546,7 @@
    "note": "موافقة، تعديل، جواب…",
    "row": 74,
    "who": "owner",
-   "src": "الاستديو:1251",
+   "src": "studio index.html tell()",
    "rules": [],
    "settings": {},
    "writes": [],
@@ -2329,27 +2554,28 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "أي ضغطة"
   },
   {
    "id": "n_tell",
    "band": "always",
    "lane": "page",
    "type": "task",
-   "label": "ينحفظ بالصندوق + تعليق لـ Claude",
+   "label": "ينحفظ بالاستديو ويوصل Claude",
    "note": "sent = المنصة استلمت، مو Claude",
    "row": 75,
    "who": "page/system",
-   "src": "الاستديو:1251",
+   "src": "studio index.html tell()",
    "rules": [
     {
      "t": "تعليق لـ Claude إذا متاح، وصف inbox دايماً",
-     "src": "الاستديو:1251-1258",
+     "src": "studio index.html tell()",
      "p": "تعليق لـ Claude إذا متاح، وتنحفظ بالاستديو دايماً"
     },
     {
      "t": "نفس الضغطة خلال 30 ثانية تنرسل مرة وحدة",
-     "src": "الاستديو:1793"
+     "src": "studio index.html tell()"
     }
    ],
    "settings": {
@@ -2363,7 +2589,8 @@
     "reel",
     "carousel"
    ],
-   "sub": "يوصل Claude، وينحفظ بالاستديو"
+   "sub": "يوصل Claude، وينحفظ بالاستديو",
+   "short": "يوصل Claude"
   },
   {
    "id": "n_heard",
@@ -2374,11 +2601,11 @@
    "note": "",
    "row": 76,
    "who": "page/system",
-   "src": "الاستديو:589",
+   "src": "studio index.html pendingBox",
    "rules": [
     {
      "t": "بعد 10 دقايق: «ما انستلم / ممكن ما فيه جلسة فاتحة» + «أعد الإرسال»",
-     "src": "الاستديو:458, 480, 589"
+     "src": "studio index.html pendingBox"
     }
    ],
    "settings": {
@@ -2392,7 +2619,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "استلم؟"
   },
   {
    "id": "n_lastresend",
@@ -2403,14 +2631,20 @@
    "note": "",
    "row": 77,
    "who": "owner",
-   "src": "الاستديو:1864",
+   "src": "studio index.html run(lastresend)",
    "rules": [
     {
      "t": "يعيد نفس الرسالة",
-     "src": "الاستديو:1864"
+     "src": "studio index.html run(lastresend)"
+    },
+    {
+     "t": "مرتين بالأكثر؛ بعدها «قل لي بالمحادثة»",
+     "src": "studio rest.js resendOr"
     }
    ],
-   "settings": {},
+   "settings": {
+    "max_resends": 2
+   },
    "writes": [
     "inbox {kind: resend}"
    ],
@@ -2446,17 +2680,18 @@
     "reel",
     "carousel"
    ],
-   "sub": "يبين لك إن Claude شافه"
+   "sub": "يبين لك إن Claude شافه",
+   "short": "Claude استلم"
   },
   {
    "id": "s_hourly",
    "band": "always",
-   "lane": "page",
+   "lane": "claude",
    "type": "start",
    "label": "كل ساعة",
-   "note": "مهمة مجدولة",
+   "note": "مهمة Claude المجدولة",
    "row": 79,
-   "who": "page/system",
+   "who": "Claude",
    "src": "studio.md (G1)",
    "rules": [
     {
@@ -2473,7 +2708,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "مهمة Claude المجدولة"
   },
   {
    "id": "n_hourly",
@@ -2501,7 +2737,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "فيه يديد؟"
   },
   {
    "id": "n_notify",
@@ -2516,7 +2753,8 @@
    "rules": [
     {
      "t": "لما فلم يصير waiting، سطر بالمحادثة",
-     "src": "studio.md (G15)"
+     "src": "studio.md (G15)",
+     "p": "لما فلم يصير ينتظرك، سطر بالمحادثة"
     }
    ],
    "settings": {},
@@ -2525,7 +2763,12 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "relies": {
+    "note": "Claude يقول لك بسطر بالمحادثة إذا شي ينتظرك",
+    "src": "studio.md (G15)"
+   },
+   "short": "سطر بالمحادثة"
   },
   {
    "id": "s_chatdec",
@@ -2573,7 +2816,12 @@
     "reel",
     "carousel"
    ],
-   "sub": "وسطر بسجل التغييرات"
+   "sub": "وسطر بسجل التغييرات",
+   "relies": {
+    "note": "Claude يكتب قرار المحادثة بالاستديو",
+    "src": "studio.md (G7)"
+   },
+   "short": "ينكتب هني"
   },
   {
    "id": "n_asks",
@@ -2584,12 +2832,16 @@
    "note": "مثل العنوان، أو كمّله/خلّه/احذفه",
    "row": 84,
    "who": "owner",
-   "src": "الاستديو:1970",
+   "src": "studio reel.js asksHtml + run(askpick)",
    "rules": [
     {
      "t": "كل سؤال أزرار؛ الضغطة تكتب inbox {kind: answer}",
      "src": "studio.md asks",
      "p": "كل سؤال أزرار؛ جوابك يوصل Claude"
+    },
+    {
+     "t": "أي خيار يصرف يبي ضغطتين: «يصرف» = مكتوب عليه يصرف، أو فيه كلمة صرف (سجّل، تسجيل، رصيد، حرف، AI، ذكاء اصطناعي، توليد) أو مبلغ، أو بسؤال سعر وما هو «لا» أو «بعدين» صافي. «لا…» ضغطة وحدة بس إذا ما فيه صرف",
+     "src": "studio rest.js askPays (v6)"
     }
    ],
    "settings": {},
@@ -2627,7 +2879,12 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "relies": {
+    "note": "المهمة الأسبوعية يشغّلها Claude: اللي ينتظر أكثر من 3 أيام، والمخفي أكثر من 30 يوم",
+    "src": "deploy/weekly-task.md"
+   },
+   "short": "اللي ينتظر"
   },
   {
    "id": "n_hide",
@@ -2638,19 +2895,14 @@
    "note": "من صفحة الفلم، أي وقت",
    "row": 86,
    "who": "owner",
-   "src": "الاستديو:1954",
+   "src": "studio index.html run(hide)",
    "rules": [
     {
-     "t": "«أكيد؟ اضغط مرة ثانية»",
-     "src": "الاستديو:1954"
-    },
-    {
-     "t": "ينمسح بعد 30 يوم إذا ما رجّعته",
-     "src": "الاستديو:537"
+     "t": "ضغطة وحدة؛ ينشال من القائمة وترجّعه من «المخفية»، وما ينمسح إلا بموافقتك",
+     "src": "studio index.html run(hide)"
     }
    ],
    "settings": {
-    "confirm_taps": 2,
     "hide_days": 30
    },
    "writes": [
@@ -2661,19 +2913,25 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "شيله"
   },
   {
    "id": "n_hidden",
    "band": "always",
-   "lane": "page",
+   "lane": "claude",
    "type": "decision",
-   "label": "رجّعته خلال 30 يوم؟",
-   "note": "",
+   "label": "فيه مخفي أكثر من 30 يوم؟",
+   "note": "كل أسبوع",
    "row": 87,
-   "who": "page/system",
-   "src": "الاستديو:537",
-   "rules": [],
+   "who": "Claude",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "كل أسبوع: المخفي من أكثر من 30 يوم ينعرض عليك بقائمة",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
    "settings": {
     "hide_days": 30
    },
@@ -2682,32 +2940,49 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "كل أسبوع",
+   "short": "مخفي 30 يوم؟"
   },
   {
    "id": "n_purge",
    "band": "always",
    "lane": "claude",
    "type": "task",
-   "label": "كل أسبوع: قائمة المخفي أكثر من 30 يوم",
-   "note": "",
+   "label": "قائمة المخفي بالاستديو",
+   "note": "بالصفحة الرئيسية، بالأسماء والأرقام",
    "row": 88,
    "who": "Claude",
    "src": "studio.md (7 Nov)",
    "rules": [
     {
-     "t": "كل أسبوع قائمة بالمخفي أكثر من 30 يوم بالمحادثة، وما ينمسح شي إلا بموافقتك",
-     "src": "studio.md (7 Nov)"
+     "t": "كل أسبوع: المخفي أكثر من 30 يوم ينعرض بالصفحة الرئيسية، بالاسم والنوع والنسخة من سجل الفلم نفسه",
+     "src": "deploy/weekly-task.md + studio rest.js purgeCard"
+    },
+    {
+     "t": "كل المربعات تبدأ فاضية؛ إنت تختار. اللي رجّعته أو مو مخفي ما ينعرض",
+     "src": "studio rest.js purgeCard"
+    },
+    {
+     "t": "اللي قلت عنه «لا» ما ينسأل عنه مرة ثانية قبل 30 يوم",
+     "src": "deploy/purge-plan.py ask"
     }
    ],
    "settings": {},
-   "writes": [],
+   "writes": [
+    "studio/purge {films: [{id, name, kind, version}], asked_at}"
+   ],
    "reads": [],
    "kinds": [
     "reel",
     "carousel"
    ],
-   "sub": "بالمحادثة"
+   "sub": "بالصفحة الرئيسية، بالأسماء والأرقام",
+   "relies": {
+    "note": "المهمة الأسبوعية يشغّلها Claude: اللي ينتظر أكثر من 3 أيام، والمخفي أكثر من 30 يوم",
+    "src": "deploy/weekly-task.md"
+   },
+   "short": "قائمة المخفي"
   },
   {
    "id": "e_handled",
@@ -2726,7 +3001,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "يكمل"
   },
   {
    "id": "s_suggest",
@@ -2737,11 +3013,11 @@
    "note": "صفحة الفلم ← قبل النشر ← جرّبها",
    "row": 2.5,
    "who": "owner",
-   "src": "studio index.html:2322, 2682",
+   "src": "studio index.html viewPredict + run(suggest)",
    "rules": [
     {
      "t": "اقتراح «تجربة» = طلب تجربة أسلوب؛ غيره = تعديل على النسخة",
-     "src": "الاستديو:1905-1912"
+     "src": "studio index.html viewPredict + run(suggest)"
     },
     {
      "t": "التوقع هو المعتاد لريلزكم، مو توقع للفلم",
@@ -2749,7 +3025,12 @@
     },
     {
      "t": "الاقتراحات طالعة من المعتاد لكل الحساب، مو من الفلم نفسه (G9)",
-     "src": "audit G9 + studio index.html:2322"
+     "src": "studio index.html viewPredict + run(suggest)",
+     "p": "الاقتراحات طالعة من المعتاد لكل الحساب، مو من الفلم نفسه"
+    },
+    {
+     "t": "الكاروسيل: ما فيه «جرّبها» (ما فيه عيّنة للكاروسيل)",
+     "src": "studio index.html viewPredict"
     }
    ],
    "settings": {},
@@ -2760,7 +3041,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "اقتراح التوقع"
   },
   {
    "id": "s_recreate",
@@ -2776,6 +3058,10 @@
     {
      "t": "الفيديو لين 20 MB ينرفع للاستديو؛ أكبر: الرابط وملاحظتك ينحفظون والفيديو بالمحادثة",
      "src": "studio idea.js recreate"
+    },
+    {
+     "t": "تختار ريل أو كاروسيل أو الاثنين؛ رابط بس: Claude يطلب الفيديو مرة وحدة",
+     "src": "studio idea.js recreateForm (rcfmt) + studio.md «Ideas»"
     }
    ],
    "settings": {},
@@ -2836,7 +3122,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "ترسلها الحين؟"
   },
   {
    "id": "n_backlog",
@@ -2890,7 +3177,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "تبدأها؟"
   },
   {
    "id": "e_dropped",
@@ -2935,7 +3223,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "لين 20 MB؟"
   },
   {
    "id": "n_rcbig",
@@ -2960,7 +3249,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "الرابط انحفظ"
   },
   {
    "id": "n_chatidea",
@@ -2976,6 +3266,10 @@
     {
      "t": "فكرة بالمحادثة: Claude يكتب سجلها بالاستديو خلال دقايق",
      "src": "studio.md (7 Nov rule)"
+    },
+    {
+     "t": "السجل يبين «Claude استلم ✓» أول ما ينكتب",
+     "src": "reel.js gotLine"
     }
    ],
    "settings": {},
@@ -2985,7 +3279,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "short": "Claude يكتبها"
   },
   {
    "id": "n_dirtext",
@@ -2993,7 +3288,7 @@
    "lane": "owner",
    "type": "task",
    "label": "تكتب شنو تبي بداله",
-   "note": "الجولة 1 من 3",
+   "note": "الجولة 1 إلى 3",
    "row": 10.5,
    "who": "owner",
    "src": "studio idea.js dirTextBox",
@@ -3005,6 +3300,10 @@
     {
      "t": "3 جولات بالأكثر؛ بعدها نكمّل بالمحادثة (وتقدر ترسل بعد)",
      "src": "studio idea.js dirTextBox"
+    },
+    {
+     "t": "عدد الجولات ينحفظ مع الطلب، وما يرجع واحد إذا اخترت شي بالنص",
+     "src": "studio idea.js flowRounds (flow.rounds)"
     }
    ],
    "settings": {
@@ -3018,7 +3317,9 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "sub": "الجولة 1 إلى 3",
+   "short": "تكتب شنو تبي"
   },
   {
    "id": "n_dirsaved",
@@ -3038,7 +3339,7 @@
    ],
    "settings": {},
    "writes": [
-    "flow {stage: received, more: {text, round}}"
+    "flow {more, rounds}"
    ],
    "reads": [],
    "stage": "idea",
@@ -3052,8 +3353,8 @@
    "band": "script",
    "lane": "claude",
    "type": "decision",
-   "label": "كتاب الكلمات يعرف كل الكلمات؟",
-   "note": "",
+   "label": "الكلمات كلها معروفة؟",
+   "note": "بكتاب الكلمات الكويتية",
    "row": 21.2,
    "who": "Claude",
    "src": "brand/kuwaiti-words.json + director/kw.py (PR #178)",
@@ -3070,7 +3371,12 @@
    "kinds": [
     "reel"
    ],
-   "sub": ""
+   "sub": "بكتاب الكلمات الكويتية",
+   "relies": {
+    "note": "Claude يشيّك الكلمات بالكتاب قبل التسجيل",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "الكلمات صح؟"
   },
   {
    "id": "n_words",
@@ -3090,6 +3396,10 @@
     {
      "t": "«كلها تمام ✓» يرسلها مرة وحدة",
      "src": "studio script.js wordsCard"
+    },
+    {
+     "t": "خيارات الكلمة نص بس أو {name, hint, audio}؛ اختيارك يوصل Claude بالكلمة نفسها",
+     "src": "studio script.js wordsCard (wordOpt)"
     }
    ],
    "settings": {},
@@ -3099,7 +3409,8 @@
    "kinds": [
     "reel"
    ],
-   "sub": "قبل ما ينسجل الصوت"
+   "sub": "قبل ما ينسجل الصوت",
+   "short": "تتأكد منها"
   },
   {
    "id": "n_wordsrec",
@@ -3126,7 +3437,8 @@
    "kinds": [
     "reel"
    ],
-   "sub": "وش تمام ووش تصحيح"
+   "sub": "وش تمام ووش تصحيح",
+   "short": "يوصل جوابك"
   },
   {
    "id": "n_kwlearn",
@@ -3152,7 +3464,12 @@
    "kinds": [
     "reel"
    ],
-   "sub": "ما يسألك عنها مرة ثانية"
+   "sub": "ما يسألك عنها مرة ثانية",
+   "relies": {
+    "note": "Claude يضيف الكلمات لكتاب الكلمات بنفس اليوم",
+    "src": "brand/kuwaiti-words.json"
+   },
+   "short": "كتاب الكلمات"
   },
   {
    "id": "n_scriptpick",
@@ -3180,7 +3497,8 @@
     "reel",
     "carousel"
    ],
-   "sub": "البداية أو العنوان"
+   "sub": "البداية أو العنوان",
+   "short": "اختيارك يوصل"
   },
   {
    "id": "n_vwait",
@@ -3189,13 +3507,17 @@
    "type": "decision",
    "label": "الصوت ينتظر موافقتك",
    "note": "التسجيل موقّف لين تقول",
-   "row": 23.5,
+   "row": 24.05,
    "who": "owner",
    "src": "studio rest.js",
    "rules": [
     {
      "t": "«مو الحين»: Claude ما يسجّل ولا يصرف شي؛ «عدّل النص» أو «رجّع اسألني بعدين»",
      "src": "studio rest.js voiceWaitCard"
+    },
+    {
+     "t": "«رجّع اسألني بعدين» و«عدّل النص» أزرار ثابتة بالاستديو، الخريطة ما تخفيها",
+     "src": "studio rest.js voiceWaitCard + run(pickconfirm / savelink)"
     }
    ],
    "settings": {},
@@ -3207,7 +3529,8 @@
    "kinds": [
     "reel"
    ],
-   "sub": "التسجيل موقّف لين تقول"
+   "sub": "التسجيل موقّف لين تقول",
+   "short": "الصوت ينتظرك"
   },
   {
    "id": "n_styletext",
@@ -3223,6 +3546,10 @@
     {
      "t": "«ما عجبني الأسلوب: شنو تبي بداله؟»؛ 3 جولات بالأكثر وبعدها نكمّل بالمحادثة",
      "src": "studio rest.js + idea.js dirTextBox(style)"
+    },
+    {
+     "t": "عدد الجولات ينحفظ مع الطلب، وما يرجع واحد إذا اخترت شي بالنص",
+     "src": "studio idea.js flowRounds (flow.rounds)"
     }
    ],
    "settings": {
@@ -3234,7 +3561,8 @@
    "kinds": [
     "reel"
    ],
-   "sub": "الأسلوب، 3 جولات"
+   "sub": "الأسلوب، 3 جولات",
+   "short": "تكتب شنو تبي"
   },
   {
    "id": "n_stylesaved",
@@ -3254,7 +3582,7 @@
    ],
    "settings": {},
    "writes": [
-    "flow {more: {text, round, of: style}}"
+    "flow {more, rounds}"
    ],
    "reads": [],
    "stage": "style",
@@ -3268,9 +3596,9 @@
    "band": "style",
    "lane": "owner",
    "type": "gate",
-   "label": "تعديل العيّنة بالرصيد؟",
+   "label": "عيّنة AI بالرصيد؟",
    "note": "الرصيد مكتوب بالسؤال",
-   "row": 39.5,
+   "row": 37.7,
    "who": "owner",
    "src": "studio.md (7 Nov)",
    "rules": [
@@ -3280,12 +3608,17 @@
     },
     {
      "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
-     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة"
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
     }
    ],
    "settings": {
-    "paid": true,
-    "confirm_taps": 2
+    "confirm_taps": 2,
+    "price": "ai"
    },
    "writes": [],
    "reads": [],
@@ -3293,7 +3626,15 @@
    "kinds": [
     "reel"
    ],
-   "sub": "الرصيد مكتوب بالسؤال"
+   "sub": "الرصيد مكتوب بالسؤال",
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "ask_key": "ai_cost:style",
+   "short": "عيّنة AI؟",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
   },
   {
    "id": "n_altfree",
@@ -3318,7 +3659,8 @@
    "kinds": [
     "reel"
    ],
-   "sub": "صور حقيقية، رسم بالكود، لقطة ثابتة"
+   "sub": "صور حقيقية، رسم بالكود، لقطة ثابتة",
+   "short": "بديل ببلاش"
   },
   {
    "id": "n_autohide",
@@ -3326,13 +3668,13 @@
    "lane": "page",
    "type": "task",
    "label": "الاستديو يشيله بروحه",
-   "note": "ينمسح بعد 30 يوم، وتقدر ترجّعه",
+   "note": "ما ينمسح إلا بموافقتك",
    "row": 84.5,
    "who": "page/system",
    "src": "studio rest.js",
    "rules": [
     {
-     "t": "جواب «احذفه» يشيل الفلم من القائمة فوراً ويبين «رجّعه»",
+     "t": "جواب «احذفه» يشيل الفلم من القائمة فوراً ويبين «رجّعه»؛ ما ينمسح إلا بموافقتك",
      "src": "studio rest.js + askpick"
     }
    ],
@@ -3347,7 +3689,8 @@
     "reel",
     "carousel"
    ],
-   "sub": "ينمسح بعد 30 يوم، وتقدر ترجّعه"
+   "sub": "ما ينمسح إلا بموافقتك",
+   "short": "ينشال بروحه"
   },
   {
    "id": "n_purgeok",
@@ -3361,8 +3704,1217 @@
    "src": "studio.md (7 Nov)",
    "rules": [
     {
-     "t": "توافق بالمحادثة",
-     "src": "studio.md (7 Nov)"
+     "t": "تختار وش ينمسح (كلها أو بعضها)، وضغطتين على «امسح المختارة»؛ أو تقول بالمحادثة وClaude يكتبها سطر بالأرقام",
+     "src": "studio rest.js purgeCard + weekly-task.md"
+    }
+   ],
+   "settings": {
+    "confirms": "delete"
+   },
+   "writes": [
+    "inbox {kind: answer, key: purge, ids, asked_at}"
+   ],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "lock_why": "ما ينمسح شي إلا بـ «إي» منك",
+   "locked": true
+  },
+  {
+   "id": "n_purgedo",
+   "band": "always",
+   "lane": "claude",
+   "type": "task",
+   "label": "Claude يمسح اللي وافقت عليه",
+   "note": "",
+   "row": 88.6,
+   "who": "Claude",
+   "src": "studio.md (7 Nov)",
+   "rules": [
+    {
+     "t": "يمسح بس الأرقام اللي بجوابك، واللي للحين مخفية من 30 يوم قبل السؤال، والسجل وملفاته؛ الملف اللي يستخدمه فلم ثاني يبقى",
+     "src": "deploy/purge-plan.py delete + deploy/weekly-task.md"
+    }
+   ],
+   "settings": {
+    "deletes": true
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "short": "Claude يمسح",
+   "lock_why": "ما ينمسح شي إلا بـ «إي» منك",
+   "relies": {
+    "note": "Claude يمسح بس اللي وافقت عليه، والسجل وملفاته",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "locked": true
+  },
+  {
+   "id": "g_optcost",
+   "band": "voice",
+   "lane": "owner",
+   "type": "gate",
+   "label": "تكلفة الخيارات: توافق؟",
+   "note": "الأحرف مكتوبة بالسؤال",
+   "row": 29.4,
+   "who": "owner",
+   "src": "studio.md: every paid take asks first (voice_cost)",
+   "rules": [
+    {
+     "t": "Claude يسأل قبل ما يسجّل 3 طرق للكلمة، والسؤال فيه عدد الأحرف (asks key voice_cost)",
+     "src": "studio.md: every paid take asks first (voice_cost)",
+     "p": "Claude يسأل قبل ما يسجّل 3 طرق للكلمة، والسؤال فيه عدد الأحرف"
+    },
+    {
+     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
+    }
+   ],
+   "settings": {
+    "price": "voice",
+    "confirm_taps": 2
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "الأحرف مكتوبة بالسؤال",
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "ask_key": "voice_cost:opt",
+   "short": "سعر الخيارات؟",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
+  },
+  {
+   "id": "g_linecost",
+   "band": "voice",
+   "lane": "owner",
+   "type": "gate",
+   "label": "تكلفة الجمل: توافق؟",
+   "note": "الأحرف مكتوبة بالسؤال",
+   "row": 31.4,
+   "who": "owner",
+   "src": "studio.md: every paid take asks first (voice_cost)",
+   "rules": [
+    {
+     "t": "Claude يسأل قبل ما يعيد الجمل اللي تغيّرت، والسؤال فيه عدد الأحرف (asks key voice_cost)",
+     "src": "studio.md: every paid take asks first (voice_cost)",
+     "p": "Claude يسأل قبل ما يعيد الجمل اللي تغيّرت، والسؤال فيه عدد الأحرف"
+    },
+    {
+     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
+    }
+   ],
+   "settings": {
+    "price": "voice",
+    "confirm_taps": 2
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "الأحرف مكتوبة بالسؤال",
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "ask_key": "voice_cost:lines",
+   "short": "سعر الجمل؟",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
+  },
+  {
+   "id": "n_wordswap",
+   "band": "voice",
+   "lane": "owner",
+   "type": "task",
+   "label": "الكلمة ما ضبطت؟ نغيّرها",
+   "note": "بعد جولتين نطق",
+   "row": 27.5,
+   "who": "owner",
+   "src": "studio reel.js swapCard",
+   "rules": [
+    {
+     "t": "الكلمة اللي صلّحناها مرتين: «غيّر الكلمة بالنص»، وما تنعلّم مرة ثالثة",
+     "src": "studio reel.js swapCard + run(wordswap)"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "inbox {kind: word_swap, words}"
+   ],
+   "reads": [],
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "بعد جولتين نطق",
+   "short": "غيّر الكلمة"
+  },
+  {
+   "id": "n_fixpaid",
+   "band": "review",
+   "lane": "claude",
+   "type": "decision",
+   "label": "التعديل يحتاج صرف؟",
+   "note": "",
+   "row": 54.3,
+   "who": "Claude",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "تعديل يحتاج صوت يديد أو مقاطع أو صور بالذكاء الاصطناعي يمر على سؤال التكلفة نفسه قبل أي صرف",
+     "src": "studio.md «Every «no» has a written path» + SKILL.md «Rules that never bend»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "review",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "relies": {
+    "note": "Claude يقرر إذا التعديل يصرف، ويسألك السعر قبل",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "يحتاج صرف؟"
+  },
+  {
+   "id": "n_format",
+   "band": "idea",
+   "lane": "owner",
+   "type": "decision",
+   "label": "ريل ولا كاروسيل؟",
+   "note": "",
+   "row": 1.15,
+   "who": "owner",
+   "src": "studio idea.js viewIdea",
+   "rules": [
+    {
+     "t": "بالفورم: ريل، كاروسيل، الاثنين، أو Claude يختار",
+     "src": "studio idea.js viewIdea (fmt)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "short": "الشكل؟"
+  },
+  {
+   "id": "n_both",
+   "band": "idea",
+   "lane": "page",
+   "type": "task",
+   "label": "سجلين مربوطين",
+   "note": "ريل وكاروسيل بنفس الموضوع",
+   "row": 1.25,
+   "who": "page/system",
+   "src": "studio idea.js ideaCreate",
+   "rules": [
+    {
+     "t": "«الاثنين»: ينفتح ريل وكاروسيل مربوط بالريل، وطلب الكاروسيل ينرسل بعد",
+     "src": "studio idea.js ideaCreate (both, of, twin request)"
+    },
+    {
+     "t": "«ابدأ بهالنوع» بالمكتبة يفتح الفورم والشكل مختار، حتى «الاثنين»",
+     "src": "splice run(start)"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "films ×2 {of}",
+    "inbox ×2 {kind: request}"
+   ],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "ريل وكاروسيل بنفس الموضوع",
+   "short": "سجلين"
+  },
+  {
+   "id": "n_fmtauto",
+   "band": "idea",
+   "lane": "page",
+   "type": "task",
+   "label": "Claude يختار الشكل",
+   "note": "يقترح مع السبب",
+   "row": 1.17,
+   "who": "page/system",
+   "src": "studio idea.js ideaCreate",
+   "rules": [
+    {
+     "t": "إذا اخترت «Claude يختار»، الطلب يقول له يقترح ريل أو كاروسيل مع السبب",
+     "src": "studio idea.js ideaCreate"
+    },
+    {
+     "t": "السجل يبدأ «ريل» لين Claude يقترح وإنت تختار",
+     "src": "studio idea.js ideaCreate (kind reel until then)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "يقترح مع السبب",
+   "short": "Claude يختار"
+  },
+  {
+   "id": "n_mode",
+   "band": "idea",
+   "lane": "claude",
+   "type": "decision",
+   "label": "تجربة ولا فلم؟",
+   "note": "",
+   "row": 7.2,
+   "who": "Claude",
+   "src": "library.json workflow 9",
+   "rules": [
+    {
+     "t": "طلب «تجربة» (من الاقتراح) يروح للعيّنة على طول، بدون بحث واتجاهات",
+     "src": "newRequest(…, sample) + library.json workflow 9"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": ""
+  },
+  {
+   "id": "n_fmtknown",
+   "band": "idea",
+   "lane": "claude",
+   "type": "decision",
+   "label": "الشكل محدد؟",
+   "note": "",
+   "row": 7.4,
+   "who": "Claude",
+   "src": "studio.md «Ideas»",
+   "rules": [
+    {
+     "t": "إذا اخترت «Claude يختار»، Claude يقترح ويسألك قبل ما يبدأ",
+     "src": "studio.md «Ideas»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": ""
+  },
+  {
+   "id": "n_fmtask",
+   "band": "idea",
+   "lane": "claude",
+   "type": "task",
+   "label": "يقترح الشكل مع السبب",
+   "note": "سؤال بأزرار",
+   "row": 7.5,
+   "who": "Claude",
+   "src": "studio.md «Ideas»",
+   "rules": [
+    {
+     "t": "ريل أو كاروسيل أو الاثنين، مع السبب؛ ما يبدأ قبل ما تختار",
+     "src": "studio.md «Ideas»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "سؤال بأزرار",
+   "relies": {
+    "note": "Claude يقترح الشكل ويسألك، وما يبدأ قبل ما تختار؛ «الاثنين» يفتح الثاني بنفسه",
+    "src": "studio.md «Ideas»"
+   },
+   "short": "يقترح الشكل"
+  },
+  {
+   "id": "n_fmtpick",
+   "band": "idea",
+   "lane": "owner",
+   "type": "task",
+   "label": "تختار الشكل",
+   "note": "ريل، كاروسيل، أو الاثنين",
+   "row": 7.6,
+   "who": "owner",
+   "src": "studio reel.js asksHtml",
+   "rules": [
+    {
+     "t": "جوابك زر بالسؤال",
+     "src": "studio reel.js asksHtml + run(askpick), key format"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "inbox {kind: answer, key: format}"
+   ],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "ريل، كاروسيل، أو الاثنين"
+  },
+  {
+   "id": "n_cover",
+   "band": "script",
+   "lane": "claude",
+   "type": "task",
+   "label": "الغلاف: عنوان يوقّف",
+   "note": "بدل الهوك، للكاروسيل",
+   "row": 14.5,
+   "who": "Claude",
+   "src": "carousel.md",
+   "rules": [
+    {
+     "t": "الكاروسيل ما له هوك 2–4 ثواني؛ له غلاف بعنوان قصير وصورة",
+     "src": "carousel.md (cover)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "carousel"
+   ],
+   "sub": "بدل الهوك، للكاروسيل",
+   "short": "الغلاف"
+  },
+  {
+   "id": "n_isampleai",
+   "band": "idea",
+   "lane": "claude",
+   "type": "decision",
+   "label": "العيّنة فيها AI؟",
+   "note": "",
+   "row": 13.2,
+   "who": "Claude",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "عيّنة بأسلوب AI تمر على سؤال الرصيد؛ الأسلوب الببلاش ما يصرف شي",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "",
+   "relies": {
+    "note": "Claude يقرر إذا العيّنة AI، ويسألك السعر قبل",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "العيّنة AI؟"
+  },
+  {
+   "id": "g_iaisample",
+   "band": "idea",
+   "lane": "owner",
+   "type": "gate",
+   "label": "عيّنة AI بالرصيد؟",
+   "note": "الرصيد مكتوب بالسؤال",
+   "row": 13.3,
+   "who": "owner",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "Claude يسأل قبل أي توليد للعيّنة أو تعديلها، والسؤال فيه تقدير الرصيد (asks key ai_cost)",
+     "src": "studio.md «Every «no» has a written path»",
+     "p": "Claude يسأل قبل أي توليد للعيّنة أو تعديلها، والسؤال فيه تقدير الرصيد"
+    },
+    {
+     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
+    }
+   ],
+   "settings": {
+    "confirm_taps": 2,
+    "price": "ai"
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "الرصيد مكتوب بالسؤال",
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "ask_key": "ai_cost:sample",
+   "short": "عيّنة AI؟",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
+  },
+  {
+   "id": "n_isamplegen",
+   "band": "idea",
+   "lane": "claude",
+   "type": "task",
+   "label": "مقاطع AI للعيّنة",
+   "note": "بعد «إي» منك",
+   "row": 13.4,
+   "who": "Claude",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "التوليد بالرصيد بس بعد موافقتك على الرقم",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
+   "settings": {
+    "paid": "ai"
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "بعد «إي» منك",
+   "short": "مقاطع العيّنة",
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "ai_cost:sample",
+   "locked": true
+  },
+  {
+   "id": "n_isample",
+   "band": "idea",
+   "lane": "claude",
+   "type": "task",
+   "label": "عيّنة 15 ثانية",
+   "note": "بالاتجاه أو الأسلوب اللي طلبته",
+   "row": 13.5,
+   "who": "Claude",
+   "src": "library.json workflow 4",
+   "rules": [
+    {
+     "t": "عيّنة متحركة 15 ثانية للي طلبته بس",
+     "src": "library.json workflow 4"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "بالاتجاه أو الأسلوب اللي طلبته",
+   "short": "العيّنة"
+  },
+  {
+   "id": "n_isamplegate",
+   "band": "idea",
+   "lane": "owner",
+   "type": "decision",
+   "label": "تعتمد العيّنة؟",
+   "note": "«اعتمد هالأسلوب»",
+   "row": 13.6,
+   "who": "owner",
+   "src": "studio reel.js waitBody",
+   "rules": [
+    {
+     "t": "«اعتمد هالأسلوب»، أو «ما عجبني الأسلوب» تكتب شنو تبي، أو تعديل",
+     "src": "studio reel.js waitBody (sample) + run(approve)"
+    },
+    {
+     "t": "3 تعديلات بالأكثر على العيّنة، بعدها نكمّل بالمحادثة",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
+   "settings": {
+    "max_rounds": 3
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "«اعتمد هالأسلوب»"
+  },
+  {
+   "id": "n_testonly",
+   "band": "idea",
+   "lane": "claude",
+   "type": "decision",
+   "label": "تجربة بس؟",
+   "note": "",
+   "row": 13.7,
+   "who": "Claude",
+   "src": "library.json workflow 9",
+   "rules": [
+    {
+     "t": "تجربة الأسلوب توقف بعد العيّنة وما تبني الفلم",
+     "src": "library.json workflow 9"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": ""
+  },
+  {
+   "id": "n_adopt",
+   "band": "idea",
+   "lane": "claude",
+   "type": "decision",
+   "label": "فيه فلم أصلي؟",
+   "note": "التجربة خلصت",
+   "row": 13.8,
+   "who": "Claude",
+   "src": "studio index.html run(approve)",
+   "rules": [
+    {
+     "t": "موافقتك على التجربة تقول لـ Claude «اعتمد الأسلوب للفلم الأصلي»، والفلم الأصلي ما يسألك عن الأسلوب مرة ثانية",
+     "src": "studio index.html run(approve) text for a sample"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "",
+   "relies": {
+    "note": "Claude يعتمد الأسلوب للفلم الأصلي",
+    "src": "studio index.html run(approve) text"
+   },
+   "short": "فلم أصلي؟"
+  },
+  {
+   "id": "n_sampleai",
+   "band": "style",
+   "lane": "claude",
+   "type": "decision",
+   "label": "العيّنة فيها AI؟",
+   "note": "",
+   "row": 37.6,
+   "who": "Claude",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "عيّنة بأسلوب AI تمر على سؤال الرصيد؛ الأسلوب الببلاش ما يصرف شي",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "",
+   "relies": {
+    "note": "Claude يقرر إذا العيّنة AI، ويسألك السعر قبل",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "العيّنة AI؟"
+  },
+  {
+   "id": "n_samplegen",
+   "band": "style",
+   "lane": "claude",
+   "type": "task",
+   "label": "مقاطع AI للعيّنة",
+   "note": "بعد «إي» منك",
+   "row": 37.8,
+   "who": "Claude",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "التوليد بالرصيد بس بعد موافقتك على الرقم",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
+   "settings": {
+    "paid": "ai"
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "بعد «إي» منك",
+   "short": "مقاطع العيّنة",
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "ai_cost:style",
+   "locked": true
+  },
+  {
+   "id": "n_buildask",
+   "band": "idea",
+   "lane": "claude",
+   "type": "task",
+   "label": "يقول الوقت والتكلفة وينطر موافقتك",
+   "note": "للأسلوب اللي يحتاج بناء",
+   "row": 13.1,
+   "who": "Claude",
+   "src": "studio.md «Ideas»",
+   "rules": [
+    {
+     "t": "الأسلوب اللي مو جاهز: Claude يقول كم ياخذ وكم يكلف، وما يبدأ قبل موافقتك",
+     "src": "studio.md «Ideas» + library.json"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "للأسلوب اللي يحتاج بناء",
+   "relies": {
+    "note": "Claude يقول الوقت والتكلفة وينطر؛ المكتبة ما فيها الوقت ولا التكلفة",
+    "src": "studio.md «Ideas» + library.json"
+   },
+   "short": "الوقت والتكلفة",
+   "locked": true,
+   "lock_why": "يقول لك كم ياخذ البناء وكم يكلف، وما يبدأ قبل موافقتك"
+  },
+  {
+   "id": "n_buildok",
+   "band": "idea",
+   "lane": "owner",
+   "type": "decision",
+   "label": "توافق على البناء؟",
+   "note": "",
+   "row": 13.15,
+   "who": "owner",
+   "src": "studio reel.js asksHtml",
+   "rules": [
+    {
+     "t": "جوابك زر بالسؤال",
+     "src": "studio reel.js asksHtml (key build)"
+    },
+    {
+     "t": "البناء نفسه ما يصرف رصيد؛ أي عيّنة AI بعده تمر على سؤال السعر بضغطتين",
+     "src": "studio rest.js askPays + g_iaisample"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "short": "توافق البناء؟",
+   "locked": true,
+   "lock_why": "يقول لك كم ياخذ البناء وكم يكلف، وما يبدأ قبل موافقتك"
+  },
+  {
+   "id": "n_sbuildask",
+   "band": "style",
+   "lane": "claude",
+   "type": "task",
+   "label": "يقول الوقت والتكلفة وينطر موافقتك",
+   "note": "للأسلوب اللي يحتاج بناء",
+   "row": 37.1,
+   "who": "Claude",
+   "src": "studio.md «Ideas»",
+   "rules": [
+    {
+     "t": "الأسلوب اللي مو جاهز: Claude يقول كم ياخذ وكم يكلف، وما يبدأ قبل موافقتك",
+     "src": "studio.md «Ideas»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "للأسلوب اللي يحتاج بناء",
+   "relies": {
+    "note": "Claude يقول الوقت والتكلفة وينطر؛ المكتبة ما فيها الوقت ولا التكلفة",
+    "src": "studio.md «Ideas» + library.json"
+   },
+   "short": "الوقت والتكلفة",
+   "locked": true,
+   "lock_why": "يقول لك كم ياخذ البناء وكم يكلف، وما يبدأ قبل موافقتك"
+  },
+  {
+   "id": "n_sbuildok",
+   "band": "style",
+   "lane": "owner",
+   "type": "decision",
+   "label": "توافق على البناء؟",
+   "note": "",
+   "row": 37.15,
+   "who": "owner",
+   "src": "studio reel.js asksHtml",
+   "rules": [
+    {
+     "t": "جوابك زر بالسؤال",
+     "src": "studio reel.js asksHtml (key build)"
+    },
+    {
+     "t": "البناء نفسه ما يصرف رصيد؛ أي عيّنة AI بعده تمر على سؤال السعر بضغطتين",
+     "src": "studio rest.js askPays + g_iaisample"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "",
+   "short": "توافق البناء؟",
+   "locked": true,
+   "lock_why": "يقول لك كم ياخذ البناء وكم يكلف، وما يبدأ قبل موافقتك"
+  },
+  {
+   "id": "n_dirchat",
+   "band": "idea",
+   "lane": "owner",
+   "type": "task",
+   "label": "نكمّل بالمحادثة",
+   "note": "بعد 3 جولات",
+   "row": 10.6,
+   "who": "owner",
+   "src": "studio idea.js dirTextBox",
+   "rules": [
+    {
+     "t": "بعد 3 جولات الصفحة ما تعرض جولة رابعة: «3 جولات خلصت. نكمّل بالمحادثة»",
+     "src": "studio idea.js dirTextBox (max)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "بعد 3 جولات",
+   "short": "بالمحادثة"
+  },
+  {
+   "id": "n_stylechat",
+   "band": "style",
+   "lane": "owner",
+   "type": "task",
+   "label": "نكمّل بالمحادثة",
+   "note": "بعد 3 جولات",
+   "row": 37.5,
+   "who": "owner",
+   "src": "studio idea.js dirTextBox",
+   "rules": [
+    {
+     "t": "بعد 3 جولات الصفحة ما تعرض جولة رابعة",
+     "src": "studio idea.js dirTextBox (style, max)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "style",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "بعد 3 جولات",
+   "short": "بالمحادثة"
+  },
+  {
+   "id": "n_resendchat",
+   "band": "idea",
+   "lane": "owner",
+   "type": "task",
+   "label": "قل لي بالمحادثة",
+   "note": "بعد مرتين إعادة",
+   "row": 6.5,
+   "who": "owner",
+   "src": "studio rest.js resendOr",
+   "rules": [
+    {
+     "t": "بعد مرتين: «أعدت الإرسال مرتين وما انستلم. قل لي بالمحادثة»",
+     "src": "studio rest.js resendOr"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "بعد مرتين إعادة",
+   "short": "بالمحادثة"
+  },
+  {
+   "id": "n_lastchat",
+   "band": "always",
+   "lane": "owner",
+   "type": "task",
+   "label": "قل لي بالمحادثة",
+   "note": "بعد مرتين إعادة",
+   "row": 77.5,
+   "who": "owner",
+   "src": "studio rest.js resendOr",
+   "rules": [
+    {
+     "t": "بعد مرتين: «أعدت الإرسال مرتين وما انستلم. قل لي بالمحادثة»",
+     "src": "studio rest.js resendOr"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "بعد مرتين إعادة",
+   "short": "بالمحادثة"
+  },
+  {
+   "id": "n_carroute",
+   "band": "build",
+   "lane": "claude",
+   "type": "decision",
+   "label": "يحتاج صور AI؟",
+   "note": "إذا الصور الحقيقية ما تكفي",
+   "row": 45.1,
+   "who": "Claude",
+   "src": "carousel.md Images",
+   "rules": [
+    {
+     "t": "صور بالذكاء الاصطناعي بالرصيد، وتأكد التكلفة أول",
+     "src": "carousel.md Images"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "build",
+   "kinds": [
+    "carousel"
+   ],
+   "sub": "إذا الصور الحقيقية ما تكفي",
+   "relies": {
+    "note": "Claude يقرر إذا الشرايح تحتاج صور AI، ويسألك السعر قبل",
+    "src": "studio.md «Every «no» has a written path»"
+   },
+   "short": "صور AI؟"
+  },
+  {
+   "id": "g_carai",
+   "band": "build",
+   "lane": "owner",
+   "type": "gate",
+   "label": "صور AI بالرصيد؟",
+   "note": "الرصيد مكتوب بالسؤال",
+   "row": 46.1,
+   "who": "owner",
+   "src": "carousel.md Images",
+   "rules": [
+    {
+     "t": "Claude يسأل قبل أي صورة بالرصيد، والسؤال فيه تقدير الرصيد (asks key ai_cost)",
+     "src": "carousel.md Images + studio.md",
+     "p": "Claude يسأل قبل أي صورة بالرصيد، والسؤال فيه تقدير الرصيد"
+    },
+    {
+     "t": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (ElevenLabs يعتبر بالرصيد)",
+     "src": "SKILL.md «Rules that never bend» + القواعد الثابتة",
+     "p": "ما فيه توليد بالرصيد بدون «إي» صريحة منك بالمحادثة أو بضغطة بالاستديو (الصوت يعتبر بالرصيد)"
+    },
+    {
+     "t": "سؤال السعر بالاستديو يبي ضغطتين (الأولى تقول «اضغط مرة ثانية»)",
+     "src": "studio index.html act() askpick second tap"
+    }
+   ],
+   "settings": {
+    "confirm_taps": 2,
+    "price": "ai"
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "build",
+   "kinds": [
+    "carousel"
+   ],
+   "sub": "الرصيد مكتوب بالسؤال",
+   "relies": {
+    "note": "بوابة يحترمها Claude: يسألك بالرقم وما يصرف قبل «إي» منك؛ الاستديو ما يقدر يمنع الصرف بروحه",
+    "src": "studio.md + SKILL.md «Rules that never bend»"
+   },
+   "ask_key": "ai_cost:car",
+   "short": "صور بالرصيد؟",
+   "lock_why": "ما فيه صرف بدون «إي» منك على السعر",
+   "locked": true
+  },
+  {
+   "id": "n_carai",
+   "band": "build",
+   "lane": "claude",
+   "type": "task",
+   "label": "صور بالذكاء الاصطناعي",
+   "note": "للشرايح اللي تحتاجها",
+   "row": 47.1,
+   "who": "Claude",
+   "src": "carousel.md Images",
+   "rules": [
+    {
+     "t": "التوليد بالرصيد بس بعد موافقتك على الرقم",
+     "src": "carousel.md Images"
+    }
+   ],
+   "settings": {
+    "paid": "ai"
+   },
+   "writes": [],
+   "reads": [],
+   "stage": "build",
+   "kinds": [
+    "carousel"
+   ],
+   "sub": "للشرايح اللي تحتاجها",
+   "short": "صور AI",
+   "lock_why": "هذي الخطوة تصرف، وما توصلها إلا من «إي» على سعرها",
+   "ask_key": "ai_cost:car",
+   "locked": true
+  },
+  {
+   "id": "s_pattern",
+   "band": "always",
+   "lane": "page",
+   "type": "start",
+   "label": "الأرقام تبين نمط مؤكد",
+   "note": "بصفحة «تعلّم»",
+   "row": 90,
+   "who": "page/system",
+   "src": "studio index.html learn view",
+   "rules": [
+    {
+     "t": "لما يصير النمط مؤكد من أرقام إنستغرام: «صار مؤكد: تخليه قاعدة؟»",
+     "src": "studio index.html learn view (sugg)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "بصفحة «تعلّم»",
+   "short": "نمط مؤكد"
+  },
+  {
+   "id": "n_ruleadd",
+   "band": "always",
+   "lane": "page",
+   "type": "task",
+   "label": "تنضاف للقواعد وتوصل Claude",
+   "note": "",
+   "row": 90.2,
+   "who": "page/system",
+   "src": "studio index.html run(ruleyes)",
+   "rules": [
+    {
+     "t": "«خله قاعدة»: تنضاف لقواعد الاستديو، وسطر يوصل Claude يكتبها بملف القواعد",
+     "src": "studio index.html run(ruleyes) → inbox kind rule"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "studio/rules",
+    "inbox {kind: rule}"
+   ],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "short": "تنضاف للقواعد"
+  },
+  {
+   "id": "s_mapedit",
+   "band": "always",
+   "lane": "owner",
+   "type": "start",
+   "label": "تعدّل مسار الشغل",
+   "note": "خطوة، سهم، أو إعداد",
+   "row": 91,
+   "who": "owner",
+   "src": "studio flow.js flowSheet",
+   "rules": [
+    {
+     "t": "بهالصفحة: «عدّل» على أي خطوة أو سهم",
+     "src": "studio flow.js flowSheet (edit)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "خطوة، سهم، أو إعداد",
+   "short": "تعدّل المسار"
+  },
+  {
+   "id": "n_mapedit",
+   "band": "always",
+   "lane": "owner",
+   "type": "task",
+   "label": "تعدّل وتضغط «افحص وطبّق»",
+   "note": "",
+   "row": 91.1,
+   "who": "owner",
+   "src": "studio flow.js flowApply",
+   "rules": [
+    {
+     "t": "التعديل ما ينطبق إلا بعد الفحص",
+     "src": "studio flow.js flowApply"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "short": "افحص وطبّق"
+  },
+  {
+   "id": "n_mapcheck",
+   "band": "always",
+   "lane": "page",
+   "type": "decision",
+   "label": "الفحص سليم؟",
+   "note": "",
+   "row": 91.2,
+   "who": "page/system",
+   "src": "flowcore.js validateFlow",
+   "rules": [
+    {
+     "t": "القواعد الأساسية مقفولة كاملة: شكلها وإعداداتها ونص قواعدها وأسهمها. أي تعديل يلمسها ينرفض",
+     "src": "flowcore.js flowLockDiff (canonical)"
+    },
+    {
+     "t": "الخريطة توصف بس، ما تعطي إذن. الفحص يقرا كل نص وكل اسم حقل بالخطوات والأسهم والأقسام المفتوحة، وملاحظات المسار، بعد ما يوحّد شكل الحروف، ويرفض الكلمات المعروفة للصرف والنشر والمسح والتسريع والمشاركة والاعتماد. شبكة أمان، القاعدة الأساسية تفوز دايماً، وClaude ما يصرف ولا ينشر ولا يمسح إلا بالخطوات المقفولة.",
+     "src": "flowcore.js flowGrantChecks (v6) + studio.md §0"
+    },
+    {
+     "t": "وفوقها يرفض للخطوات المعلّمة: صرف بدون «إي» على سعره بالضبط، سعر واحد لأكثر من صرف، بوابة أو تأكيد بدون «لا»، صوت أسرع من 1، سهم ما يطلع بأي خريطة، جولات أو إعادات برّا 1 لين 5، طريق مسدود",
+     "src": "flowcore.js validateFlow"
+    },
+    {
+     "t": "الاستديو يتأكد من المسار كل ما ينفتح؛ إذا فيه خطأ أو لمس القواعد الأساسية يستخدم المسار الأساسي",
+     "src": "studio flow.js flowGuard"
+    },
+    {
+     "t": "الفحص ما يقدر يتأكد إن Claude فعلاً يسأل؛ هذا «يعتمد على Claude»",
+     "src": "flowcore.js validateFlow"
+    },
+    {
+     "t": "الخريطة ما تقدر تخفي أزرار الأمان: خيارات الأسئلة، بطاقة المخفية، «موافق»، النطق، وأي «لا» أو «مو الحين» أو «خلّها»",
+     "src": "studio flow.js flowEnforce (FLOW_HIDEABLE)"
+    },
+    {
+     "t": "المهلة من 1 لين 60 دقيقة، والجولات وإعادات الإرسال من 1 لين 5",
+     "src": "flowcore.js validateFlow + studio flow.js flowSet"
+    },
+    {
+     "t": "المسار المحفوظ له شكل واحد: حقول معروفة بأنواعها، 400 خطوة و600 سهم بالأكثر؛ غير جذي ينرفض كامل وما ينقرا منه شي",
+     "src": "flowcore.js flowReadable (v6)"
     }
    ],
    "settings": {},
@@ -3376,19 +4928,19 @@
    "sub": ""
   },
   {
-   "id": "n_purgedo",
+   "id": "n_mapblock",
    "band": "always",
-   "lane": "claude",
+   "lane": "page",
    "type": "task",
-   "label": "Claude يمسحها",
-   "note": "",
-   "row": 88.6,
-   "who": "Claude",
-   "src": "studio.md (7 Nov)",
+   "label": "ما ينطبق: يقول ليش",
+   "note": "كل خطأ مكتوب",
+   "row": 91.3,
+   "who": "page/system",
+   "src": "studio flow.js flowApply",
    "rules": [
     {
-     "t": "يمسح بس اللي وافقت عليه",
-     "src": "studio.md (7 Nov)"
+     "t": "كل خطأ مكتوب بمكانه، وما ينحفظ شي",
+     "src": "studio flow.js flowApply"
     }
    ],
    "settings": {},
@@ -3399,7 +4951,525 @@
     "reel",
     "carousel"
    ],
-   "sub": ""
+   "sub": "كل خطأ مكتوب",
+   "short": "ما ينطبق"
+  },
+  {
+   "id": "n_mapapply",
+   "band": "always",
+   "lane": "page",
+   "type": "task",
+   "label": "ينطبق وينحفظ",
+   "note": "وآخر 10 نسخ",
+   "row": 91.4,
+   "who": "page/system",
+   "src": "studio flow.js flowApply",
+   "rules": [
+    {
+     "t": "ينحفظ المسار ونسخته، والأزرار اللي شلت طريقها تختفي، وسطر يوصل Claude",
+     "src": "studio flow.js flowApply + flowEnforce"
+    },
+    {
+     "t": "إذا المسار المحفوظ فيه خطأ أو لمس القواعد الأساسية، الاستديو يستخدم المسار الأساسي كامل ويقول لك، ويوصل Claude سطر واحد بس",
+     "src": "studio flow.js flowGuard"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "studio/flow {history 10}",
+    "inbox {kind: flow_edit}",
+    "studio/flow {base_acts}",
+    "inbox {kind: flow_lock}"
+   ],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "وآخر 10 نسخ",
+   "short": "ينطبق"
+  },
+  {
+   "id": "n_mappr",
+   "band": "always",
+   "lane": "claude",
+   "type": "decision",
+   "label": "يكسر قاعدة ثابتة؟",
+   "note": "",
+   "row": 91.5,
+   "who": "Claude",
+   "src": "studio.md «مسار الشغل»",
+   "rules": [
+    {
+     "t": "إذا التعديل يكسر قاعدة ثابتة (الرصيد، النشر، السرعة، نسخة وحدة)، Claude يرفضه",
+     "src": "studio.md «مسار الشغل»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "relies": {
+    "note": "Claude يشيّك التعديل على القواعد الثابتة",
+    "src": "studio.md «مسار الشغل»"
+   },
+   "short": "يكسر قاعدة؟"
+  },
+  {
+   "id": "n_maprules",
+   "band": "always",
+   "lane": "claude",
+   "type": "task",
+   "label": "يحدّث القواعد ويقول لك",
+   "note": "بطلب دمج",
+   "row": 91.6,
+   "who": "Claude",
+   "src": "studio.md «مسار الشغل»",
+   "rules": [
+    {
+     "t": "Claude يحدّث ملفات القواعد بطلب دمج، ويقول لك شنو تغيّر",
+     "src": "studio.md «مسار الشغل»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "بطلب دمج",
+   "relies": {
+    "note": "Claude يحدّث القواعد بطلب دمج",
+    "src": "studio.md «مسار الشغل»"
+   },
+   "short": "يحدّث القواعد"
+  },
+  {
+   "id": "n_maprefuse",
+   "band": "always",
+   "lane": "claude",
+   "type": "task",
+   "label": "يرجّعه ويقول لك ليش",
+   "note": "",
+   "row": 91.7,
+   "who": "Claude",
+   "src": "studio.md «مسار الشغل»",
+   "rules": [
+    {
+     "t": "يرجّع النسخة اللي قبل، ويقول لك أي قاعدة ينكسر",
+     "src": "studio.md «مسار الشغل»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "",
+   "short": "يرجّعه"
+  },
+  {
+   "id": "n_hiddenstate",
+   "band": "always",
+   "lane": "page",
+   "type": "task",
+   "label": "ينشال من القائمة",
+   "note": "ما ينمسح إلا بموافقتك",
+   "row": 86.8,
+   "who": "page/system",
+   "src": "studio index.html run(hide)",
+   "rules": [
+    {
+     "t": "ينحط بـ «المخفية»، وتقدر ترجّعه أي وقت؛ بعد 30 يوم ينعرض عليك للمسح، وما ينمسح إلا بموافقتك",
+     "src": "studio index.html viewFilms (hidden) + run(unhide)"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "hidden",
+    "hidden_at"
+   ],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "ما ينمسح إلا بموافقتك",
+   "short": "ينشال"
+  },
+  {
+   "id": "s_weekly",
+   "band": "always",
+   "lane": "claude",
+   "type": "start",
+   "label": "كل أسبوع",
+   "note": "مهمة Claude الأسبوعية",
+   "row": 86.6,
+   "who": "Claude",
+   "src": "studio.md (G10)",
+   "rules": [
+    {
+     "t": "مرة بالأسبوع: اللي ينتظر أكثر من 3 أيام، وقائمة المخفي",
+     "src": "studio.md (G10) «Every «no» has a written path»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "مهمة Claude الأسبوعية",
+   "relies": {
+    "note": "المهمة الأسبوعية يشغّلها Claude: اللي ينتظر أكثر من 3 أيام، والمخفي أكثر من 30 يوم",
+    "src": "deploy/weekly-task.md"
+   }
+  },
+  {
+   "id": "s_brief",
+   "band": "idea",
+   "lane": "claude",
+   "type": "start",
+   "label": "فكرة من الملخص",
+   "note": "إتيان أو Claude",
+   "row": 1.25,
+   "who": "Claude",
+   "src": "studio.md «Ideas»",
+   "rules": [
+    {
+     "t": "الأفكار المختصرة تنحفظ بـ «أفكار تنتظر»",
+     "src": "studio.md «Ideas»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "إتيان أو Claude",
+   "short": "من الملخص"
+  },
+  {
+   "id": "n_fixwait",
+   "band": "voice",
+   "lane": "owner",
+   "type": "decision",
+   "label": "التصحيح ينتظر موافقتك",
+   "note": "ما يصرف شي لين تقول",
+   "row": 31.599999999999998,
+   "who": "owner",
+   "src": "studio rest.js voiceWaitCard",
+   "rules": [
+    {
+     "t": "«مو الحين»: ما يسجّل شي؛ «رجّع اسألني بعدين» يرجّع نفس السؤال، أو تغيّر الكلمة بالنص",
+     "src": "studio rest.js voiceWaitCard (same key)"
+    },
+    {
+     "t": "«رجّع اسألني بعدين» زر ثابت بالاستديو (data-rx)، الخريطة ما تخفيه",
+     "src": "studio rest.js voiceWaitCard + run(pickconfirm / savelink)"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "inbox {kind: answer, key: voice_cost:opt|lines, answer: later}"
+   ],
+   "reads": [],
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "ما يصرف شي لين تقول",
+   "short": "التصحيح ينتظر"
+  },
+  {
+   "id": "n_anychange",
+   "band": "always",
+   "lane": "claude",
+   "type": "task",
+   "label": "يرجع للخطوة اللي الفلم فيها",
+   "note": "ويطبّق تعديلك هناك",
+   "row": 75.3,
+   "who": "Claude",
+   "src": "studio.md",
+   "rules": [
+    {
+     "t": "تعديل بأي مرحلة: Claude يطبّقه بالخطوة اللي الفلم فيها، بنفس بواباتها",
+     "src": "studio.md"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "always",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "ويطبّق تعديلك هناك",
+   "relies": {
+    "note": "Claude يرجع للخطوة اللي الفلم فيها، بنفس بوابات السعر والموافقة",
+    "src": "studio.md"
+   },
+   "short": "يرجع للخطوة"
+  },
+  {
+   "id": "n_chatnow",
+   "band": "idea",
+   "lane": "owner",
+   "type": "decision",
+   "label": "نبدأها الحين؟",
+   "note": "بالمحادثة",
+   "row": 3.3000000000000003,
+   "who": "owner",
+   "src": "studio.md «Ideas»",
+   "rules": [
+    {
+     "t": "تقول لـ Claude: الحين، أو «بعدين» وتنحفظ بـ «أفكار تنتظر»",
+     "src": "studio.md «Ideas»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "idea",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "بالمحادثة"
+  },
+  {
+   "id": "n_scriptout",
+   "band": "script",
+   "lane": "owner",
+   "type": "task",
+   "label": "تنسخ النص لمراجع برّا",
+   "note": "وتلصق النص المعدّل",
+   "row": 19.2,
+   "who": "owner",
+   "src": "studio index.html run(scriptcopy)",
+   "rules": [
+    {
+     "t": "«انسخ النص كله» ← تراجعه برّا ← «الصق نص معدّل» ← «شيّك» يبين وش تغيّر",
+     "src": "studio index.html run(scriptcopy / scriptpaste / scriptcheck)"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "وتلصق النص المعدّل",
+   "short": "مراجع برّا"
+  },
+  {
+   "id": "n_takechat",
+   "band": "voice",
+   "lane": "owner",
+   "type": "task",
+   "label": "نكمّل بالمحادثة",
+   "note": "بعد 3 تسجيلات كاملة",
+   "row": 25.3,
+   "who": "owner",
+   "src": "studio.md «Every «no» has a written path»",
+   "rules": [
+    {
+     "t": "بعد 3 تسجيلات كاملة للفيلم: Claude يوقف ويسألك بالمحادثة (نغيّر النص أو الصوت)",
+     "src": "studio.md «Every «no» has a written path»"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "voice",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "بعد 3 تسجيلات كاملة",
+   "short": "بالمحادثة",
+   "relies": {
+    "note": "Claude يعدّ التسجيلات الكاملة ويوقف عند 3",
+    "src": "studio.md «Every «no» has a written path»"
+   }
+  },
+  {
+   "id": "n_house_script",
+   "band": "script",
+   "lane": "claude",
+   "type": "task",
+   "label": "فحص قواعد البيت",
+   "note": "brand/house_rules.yaml",
+   "row": 17.5,
+   "who": "Claude",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "rules": [
+    {
+     "t": "كل تصحيح سوّيته (محرك، قالب، بالانس ويل، رجب رجبي، بدون هاشتاقات ومصادر…) ينفحص قبل لا تشوف النص، والصحيح ينصلح بروحه، والباقي Claude يعيد كتابته",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "البوابة بالكود بالمستودع: record_flow يرفض التسجيلة المدفوعة، وmake.py يرفض يرسم الكاروسيل، لين ما تنصلح القاعدة",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "لما يعدّي الفحص، Claude يكتب house_ok: '<النسخة>' بالسجل، والاستديو يبين «✓ قواعد البيت»، بس لنفس النسخة",
+     "src": "studio.md (house_ok) + studio guard.js houseLine"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "house_ok"
+   ],
+   "reads": [],
+   "stage": "script",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "brand/house_rules.yaml",
+   "short": "قواعد البيت",
+   "relies": {
+    "note": "Claude يشغّل فحص قواعد البيت قبل ما يوصلك النص؛ البوابة بالكود بالمستودع: record_flow يرفض تسجيلة مدفوعة وmake.py يرفض يرسم والقاعدة مكسورة",
+    "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+   }
+  },
+  {
+   "id": "n_house_car",
+   "band": "build",
+   "lane": "claude",
+   "type": "task",
+   "label": "فحص قواعد البيت",
+   "note": "brand/house_rules.yaml",
+   "row": 48.8,
+   "who": "Claude",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "rules": [
+    {
+     "t": "كل تصحيح سوّيته (محرك، قالب، بالانس ويل، رجب رجبي، بدون هاشتاقات ومصادر…) ينفحص قبل لا تشوف النص، والصحيح ينصلح بروحه، والباقي Claude يعيد كتابته",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "البوابة بالكود بالمستودع: record_flow يرفض التسجيلة المدفوعة، وmake.py يرفض يرسم الكاروسيل، لين ما تنصلح القاعدة",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "لما يعدّي الفحص، Claude يكتب house_ok: '<النسخة>' بالسجل، والاستديو يبين «✓ قواعد البيت»، بس لنفس النسخة",
+     "src": "studio.md (house_ok) + studio guard.js houseLine"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "house_ok",
+    "spec",
+    "caption"
+   ],
+   "reads": [],
+   "stage": "build",
+   "kinds": [
+    "carousel"
+   ],
+   "sub": "brand/house_rules.yaml",
+   "short": "قواعد البيت",
+   "relies": {
+    "note": "Claude يشغّل فحص قواعد البيت قبل ما يوصلك النص؛ البوابة بالكود بالمستودع: record_flow يرفض تسجيلة مدفوعة وmake.py يرفض يرسم والقاعدة مكسورة",
+    "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+   }
+  },
+  {
+   "id": "n_house_cap",
+   "band": "publish",
+   "lane": "claude",
+   "type": "task",
+   "label": "فحص قواعد البيت",
+   "note": "brand/house_rules.yaml",
+   "row": 60.5,
+   "who": "Claude",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "rules": [
+    {
+     "t": "كل تصحيح سوّيته (محرك، قالب، بالانس ويل، رجب رجبي، بدون هاشتاقات ومصادر…) ينفحص قبل لا تشوف النص، والصحيح ينصلح بروحه، والباقي Claude يعيد كتابته",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "الكابشن: بدون هاشتاقات، وبدون سطور المصادر والصور والموسيقى",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "البوابة بالكود بالمستودع: record_flow يرفض التسجيلة المدفوعة، وmake.py يرفض يرسم الكاروسيل، لين ما تنصلح القاعدة",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+    },
+    {
+     "t": "لما يعدّي الفحص، Claude يكتب house_ok: '<النسخة>' بالسجل، والاستديو يبين «✓ قواعد البيت»، بس لنفس النسخة",
+     "src": "studio.md (house_ok) + studio guard.js houseLine"
+    }
+   ],
+   "settings": {},
+   "writes": [
+    "house_ok",
+    "caption"
+   ],
+   "reads": [],
+   "stage": "publish",
+   "kinds": [
+    "reel"
+   ],
+   "sub": "brand/house_rules.yaml",
+   "short": "قواعد البيت",
+   "relies": {
+    "note": "Claude يشغّل فحص قواعد البيت قبل ما يوصلك النص؛ البوابة بالكود بالمستودع: record_flow يرفض تسجيلة مدفوعة وmake.py يرفض يرسم والقاعدة مكسورة",
+    "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+   }
+  },
+  {
+   "id": "n_houselearn",
+   "band": "review",
+   "lane": "claude",
+   "type": "task",
+   "label": "يتعلم: التصحيح يصير قاعدة",
+   "note": "التصحيح يصير قاعدة",
+   "row": 60.2,
+   "who": "Claude",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "rules": [
+    {
+     "t": "كل تعديل منك ينكتب قاعدة بـhouse_rules.yaml (مع كلامك وتاريخه)، وينسجل بدرس، عشان ما يتكرر",
+     "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189) + carousel-edits.md"
+    }
+   ],
+   "settings": {},
+   "writes": [],
+   "reads": [],
+   "stage": "review",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "sub": "brand/house_rules.yaml",
+   "short": "يتعلم",
+   "relies": {
+    "note": "Claude يضيف كل تصحيح منك لقواعد البيت بنفس اليوم",
+    "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)"
+   }
   }
  ],
  "edges": [
@@ -3408,7 +5478,7 @@
    "to": "n_record",
    "label": "سوّ منه",
    "kind": "next",
-   "src": "الاستديو:1997",
+   "src": "studio index.html run(twin)",
    "who": "owner",
    "act": "twin",
    "kinds": [
@@ -3421,7 +5491,7 @@
    "to": "n_pickwait",
    "label": "",
    "kind": "next",
-   "src": "الاستديو:1767",
+   "src": "studio idea.js ideaCreate + studio index.html newRequest",
    "who": "page/system",
    "kinds": [
     "reel",
@@ -3445,7 +5515,7 @@
    "to": "n_resend",
    "label": "بعد 5 دقايق",
    "kind": "no",
-   "src": "reel.js:120",
+   "src": "studio reel.js workCard (late)",
    "who": "page/system",
    "kinds": [
     "reel",
@@ -3457,7 +5527,7 @@
    "to": "n_pickwait",
    "label": "أعد الإرسال",
    "kind": "loop",
-   "src": "الاستديو:1865",
+   "src": "studio index.html run(flowresend)",
    "who": "owner",
    "act": "flowresend",
    "kinds": [
@@ -3467,14 +5537,13 @@
   },
   {
    "from": "n_pickup",
-   "to": "n_research",
+   "to": "n_mode",
    "label": "",
    "kind": "next",
    "src": "SKILL.md §1",
    "who": "Claude",
    "kinds": [
-    "reel",
-    "carousel"
+    "reel"
    ]
   },
   {
@@ -3502,54 +5571,18 @@
    ]
   },
   {
-   "from": "n_dirpick",
-   "to": "g_dirpaid",
-   "label": "اخترت",
-   "kind": "yes",
-   "src": "الاستديو:1866",
-   "who": "owner",
-   "act": "flowpick",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_dirpick",
-   "to": "g_dirpaid",
-   "label": "ما عجبني شي",
-   "kind": "no",
-   "src": "الاستديو:1870",
-   "who": "owner",
-   "act": "flowmore",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "g_dirpaid",
-   "to": "n_picked",
-   "label": "ببلاش أو أكّدت",
-   "kind": "yes",
-   "src": "الاستديو:1783",
-   "who": "page/system",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
    "from": "g_dirpaid",
    "to": "n_dirpick",
    "label": "ما أكّدت",
    "kind": "loop",
-   "src": "الاستديو:1783",
+   "src": "studio index.html act() second tap",
    "who": "page/system",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "refuse": true,
+   "locked": true
   },
   {
    "from": "n_picked",
@@ -3571,18 +5604,6 @@
    "src": "library.json workflow 3",
    "who": "Claude",
    "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_afterpick",
-   "to": "n_sample",
-   "label": "عيّنة أو تجربة",
-   "kind": "no",
-   "src": "library.json workflow 4-5, 9",
-   "who": "Claude",
-   "kinds": [
     "reel"
    ]
   },
@@ -3594,8 +5615,7 @@
    "src": "SKILL.md §2",
    "who": "Claude",
    "kinds": [
-    "reel",
-    "carousel"
+    "reel"
    ]
   },
   {
@@ -3630,20 +5650,18 @@
    "src": "library.json workflow 10",
    "who": "Claude",
    "kinds": [
-    "reel",
-    "carousel"
+    "reel"
    ]
   },
   {
    "from": "n_revvoice",
-   "to": "n_scriptsend",
+   "to": "n_house_script",
    "label": "",
    "kind": "next",
    "src": "SKILL.md §3",
    "who": "Claude",
    "kinds": [
-    "reel",
-    "carousel"
+    "reel"
    ]
   },
   {
@@ -3660,23 +5678,10 @@
   },
   {
    "from": "n_scriptgate",
-   "to": "n_kind",
-   "label": "موافق",
-   "kind": "yes",
-   "src": "SKILL.md §3",
-   "who": "owner",
-   "act": "approve",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_scriptgate",
    "to": "n_scriptedit",
    "label": "تعديل",
    "kind": "no",
-   "src": "الاستديو:1848-1861",
+   "src": "studio index.html run(scriptsend)",
    "who": "owner",
    "act": "scriptsend",
    "kinds": [
@@ -3693,17 +5698,6 @@
    "who": "page/system",
    "kinds": [
     "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_kind",
-   "to": "n_carbuild",
-   "label": "كاروسيل",
-   "kind": "no",
-   "src": "SKILL.md §1",
-   "who": "Claude",
-   "kinds": [
     "carousel"
    ]
   },
@@ -3727,7 +5721,8 @@
    "who": "owner",
    "kinds": [
     "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_take",
@@ -3777,9 +5772,9 @@
   {
    "from": "n_listen",
    "to": "g_marks",
-   "label": "كلمة غلط أو تعديل جملة",
+   "label": "كلمة غلط",
    "kind": "no",
-   "src": "الاستديو:1823",
+   "src": "studio index.html run(sayfix)",
    "who": "owner",
    "act": "sayfix",
    "kinds": [
@@ -3799,7 +5794,7 @@
   },
   {
    "from": "n_howknown",
-   "to": "n_relines",
+   "to": "g_linecost",
    "label": "إي",
    "kind": "yes",
    "src": "kuwaiti-voice.md",
@@ -3810,7 +5805,7 @@
   },
   {
    "from": "n_howknown",
-   "to": "n_options",
+   "to": "g_optcost",
    "label": "لا",
    "kind": "no",
    "src": "kuwaiti-voice.md",
@@ -3832,7 +5827,7 @@
   },
   {
    "from": "g_pick",
-   "to": "n_relines",
+   "to": "g_linecost",
    "label": "",
    "kind": "next",
    "src": "kuwaiti-voice.md",
@@ -3921,8 +5916,8 @@
   },
   {
    "from": "g_style",
-   "to": "n_sample",
-   "label": "اخترت",
+   "to": "n_sampleai",
+   "label": "أسلوب جاهز",
    "kind": "yes",
    "src": "library.json workflow 4",
    "who": "owner",
@@ -3935,40 +5930,6 @@
    "to": "n_samplegate",
    "label": "",
    "kind": "next",
-   "src": "الاستديو:681",
-   "who": "Claude",
-   "kinds": [
-    "reel"
-   ]
-  },
-  {
-   "from": "n_samplegate",
-   "to": "n_sampleonly",
-   "label": "اعتمدته",
-   "kind": "yes",
-   "src": "الاستديو:681",
-   "who": "owner",
-   "act": "approve",
-   "kinds": [
-    "reel"
-   ]
-  },
-  {
-   "from": "n_sampleonly",
-   "to": "e_sample",
-   "label": "إي",
-   "kind": "yes",
-   "src": "library.json workflow 9",
-   "who": "Claude",
-   "kinds": [
-    "reel"
-   ]
-  },
-  {
-   "from": "n_sampleonly",
-   "to": "n_hook",
-   "label": "لا، الفلم كامل",
-   "kind": "no",
    "src": "library.json workflow 4",
    "who": "Claude",
    "kinds": [
@@ -3983,7 +5944,8 @@
    "src": "library.json direction 1",
    "who": "Claude",
    "kinds": [
-    "reel"
+    "reel",
+    "carousel"
    ]
   },
   {
@@ -3991,10 +5953,11 @@
    "to": "n_missingown",
    "label": "إي",
    "kind": "yes",
-   "src": "الاستديو:692",
+   "src": "library.json direction 1",
    "who": "Claude",
    "kinds": [
-    "reel"
+    "reel",
+    "carousel"
    ]
   },
   {
@@ -4039,7 +6002,8 @@
    "who": "owner",
    "kinds": [
     "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_aigen",
@@ -4123,24 +6087,30 @@
    "to": "n_approve",
    "label": "موافق",
    "kind": "yes",
-   "src": "الاستديو:1999",
+   "src": "studio index.html run(approve)",
    "who": "owner",
    "act": "approve",
    "kinds": [
     "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_review",
    "to": "n_change",
-   "label": "تعديل أو ملاحظات بالوقت",
+   "label": "ملاحظات على الفيديو",
    "kind": "no",
-   "src": "الاستديو:1989, 1815",
+   "src": "studio index.html run(send)",
    "who": "owner",
    "act": "send",
    "kinds": [
     "reel"
-   ]
+   ],
+   "acts": [
+    "send",
+    "revsend"
+   ],
+   "locked": true
   },
   {
    "from": "n_review",
@@ -4152,11 +6122,12 @@
    "act": "sayfix",
    "kinds": [
     "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_change",
-   "to": "n_fix",
+   "to": "n_fixpaid",
    "label": "",
    "kind": "next",
    "src": "SKILL.md §9",
@@ -4179,7 +6150,7 @@
   },
   {
    "from": "n_carbuild",
-   "to": "n_carreview",
+   "to": "n_house_car",
    "label": "",
    "kind": "next",
    "src": "carousel.md",
@@ -4193,24 +6164,26 @@
    "to": "n_approve",
    "label": "موافق",
    "kind": "yes",
-   "src": "الاستديو:1999",
+   "src": "studio index.html run(approve)",
    "who": "owner",
    "act": "approve",
    "kinds": [
     "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_carreview",
    "to": "n_change",
    "label": "تعديل شرايح",
    "kind": "no",
-   "src": "الاستديو:1989",
+   "src": "studio index.html run(send)",
    "who": "owner",
    "act": "send",
    "kinds": [
     "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_carreview",
@@ -4222,45 +6195,29 @@
    "act": "edsave",
    "kinds": [
     "carousel"
-   ]
-  },
-  {
-   "from": "n_selfedit",
-   "to": "n_logedit",
-   "label": "حفظت",
-   "kind": "next",
-   "src": "studio.md",
-   "who": "page/system",
-   "kinds": [
-    "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_selfedit",
    "to": "n_carreview",
-   "label": "رجّع النسخة السابقة",
+   "label": "ينتظر موافقتك",
    "kind": "loop",
-   "src": "الاستديو:2262",
+   "src": "studio index.html edSave / edUndo (waiting)",
    "who": "page/system",
    "act": "edundo",
    "kinds": [
     "carousel"
-   ]
-  },
-  {
-   "from": "n_logedit",
-   "to": "n_carreview",
-   "label": "ينتظر موافقتك",
-   "kind": "loop",
-   "src": "studio.md",
-   "who": "Claude",
-   "kinds": [
-    "carousel"
-   ]
+   ],
+   "plain": "حفظت أو رجّعت النسخة السابقة: الاستديو يحطه «ينتظر موافقتك»",
+   "acts": [
+    "edundo"
+   ],
+   "locked": true
   },
   {
    "from": "n_approve",
-   "to": "n_final",
+   "to": "n_house_cap",
    "label": "",
    "kind": "next",
    "src": "studio.md final",
@@ -4278,39 +6235,28 @@
    "who": "Claude",
    "kinds": [
     "reel"
-   ]
-  },
-  {
-   "from": "n_save",
-   "to": "n_postig",
-   "label": "",
-   "kind": "next",
-   "src": "audit.md §2.10",
-   "who": "owner",
-   "act": "sharefilm",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_postig",
    "to": "g_posted",
    "label": "",
    "kind": "next",
-   "src": "الاستديو:1888",
+   "src": "studio reel.js viewPublish (step 3) + insights.md",
    "who": "owner",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "g_posted",
    "to": "n_match",
    "label": "نشرته",
-   "kind": "yes",
-   "src": "الاستديو:1897",
+   "kind": "next",
+   "src": "studio index.html run(posted)",
    "who": "owner",
    "act": "posted",
    "kinds": [
@@ -4323,20 +6269,21 @@
    "to": "n_save",
    "label": "رجّعته «جاهز للنشر»",
    "kind": "loop",
-   "src": "الاستديو:1965",
+   "src": "studio index.html run(unpost)",
    "who": "owner",
    "act": "unpost",
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_match",
    "to": "n_confirmpost",
    "label": "",
    "kind": "next",
-   "src": "الاستديو:1914",
+   "src": "studio index.html openPick",
    "who": "page/system",
    "kinds": [
     "reel",
@@ -4348,7 +6295,7 @@
    "to": "n_sync",
    "label": "هذا هو أو الرابط",
    "kind": "next",
-   "src": "الاستديو:1917, 1944",
+   "src": "studio index.html run(pickconfirm)",
    "who": "owner",
    "act": "pickconfirm",
    "kinds": [
@@ -4406,61 +6353,11 @@
    ]
   },
   {
-   "from": "n_lessons",
-   "to": "n_rulegate",
-   "label": "",
-   "kind": "next",
-   "src": "الاستديو:1610",
-   "who": "Claude",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_rulegate",
-   "to": "n_rulerepo",
-   "label": "إي",
-   "kind": "yes",
-   "src": "الاستديو:1927",
-   "who": "owner",
-   "act": "ruleyes",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_rulegate",
-   "to": "e_done",
-   "label": "لا",
-   "kind": "no",
-   "src": "الاستديو:1927",
-   "who": "owner",
-   "act": "ruleno",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_rulerepo",
-   "to": "e_done",
-   "label": "",
-   "kind": "next",
-   "src": "studio.md",
-   "who": "Claude",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
    "from": "s_tap",
    "to": "n_tell",
    "label": "",
    "kind": "next",
-   "src": "الاستديو:1251",
+   "src": "studio index.html tell()",
    "who": "owner",
    "kinds": [
     "reel",
@@ -4472,7 +6369,7 @@
    "to": "n_heard",
    "label": "",
    "kind": "next",
-   "src": "الاستديو:589",
+   "src": "studio index.html tell()",
    "who": "page/system",
    "kinds": [
     "reel",
@@ -4496,7 +6393,7 @@
    "to": "n_lastresend",
    "label": "لا",
    "kind": "no",
-   "src": "الاستديو:589",
+   "src": "studio index.html pendingBox",
    "who": "page/system",
    "kinds": [
     "reel",
@@ -4508,7 +6405,7 @@
    "to": "n_heard",
    "label": "أعد الإرسال",
    "kind": "loop",
-   "src": "الاستديو:1864",
+   "src": "studio index.html run(lastresend)",
    "who": "owner",
    "act": "lastresend",
    "kinds": [
@@ -4555,7 +6452,7 @@
   {
    "from": "n_hourly",
    "to": "e_handled",
-   "label": "لا: يكتب checked_at بس",
+   "label": "لا",
    "kind": "no",
    "src": "studio.md (G1)",
    "who": "Claude",
@@ -4618,59 +6515,9 @@
    "to": "n_tell",
    "label": "جاوبت",
    "kind": "next",
-   "src": "الاستديو:1970",
+   "src": "studio index.html run(askpick)",
    "who": "owner",
    "act": "askpick",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_hide",
-   "to": "n_hidden",
-   "label": "",
-   "kind": "next",
-   "src": "الاستديو:1954",
-   "who": "owner",
-   "act": "hide",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_hidden",
-   "to": "e_handled",
-   "label": "رجّعته",
-   "kind": "yes",
-   "src": "الاستديو:1954",
-   "who": "page/system",
-   "act": "unhide",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_hidden",
-   "to": "n_purge",
-   "label": "لا",
-   "kind": "no",
-   "src": "الاستديو:537",
-   "who": "page/system",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_hourly",
-   "to": "n_weekly",
-   "label": "مرة بالأسبوع",
-   "kind": "next",
-   "src": "studio.md (G10)",
-   "who": "Claude",
    "kinds": [
     "reel",
     "carousel"
@@ -4681,12 +6528,11 @@
    "to": "n_record",
    "label": "تجربة",
    "kind": "yes",
-   "src": "الاستديو:1909",
+   "src": "studio index.html run(suggest)",
    "who": "owner",
    "act": "suggest",
    "kinds": [
-    "reel",
-    "carousel"
+    "reel"
    ]
   },
   {
@@ -4694,7 +6540,7 @@
    "to": "n_change",
    "label": "طبّقه على النسخة",
    "kind": "no",
-   "src": "الاستديو:1910",
+   "src": "studio index.html run(suggest)",
    "who": "owner",
    "act": "suggest",
    "kinds": [
@@ -4712,11 +6558,14 @@
    "kinds": [
     "reel",
     "carousel"
+   ],
+   "acts": [
+    "start"
    ]
   },
   {
    "from": "n_dup",
-   "to": "n_ideasend",
+   "to": "n_format",
    "label": "",
    "kind": "next",
    "src": "studio idea.js",
@@ -4729,7 +6578,7 @@
   {
    "from": "n_ideasend",
    "to": "n_record",
-   "label": "أرسل لـ Claude",
+   "label": "أرسل",
    "kind": "yes",
    "src": "studio idea.js",
    "who": "owner",
@@ -4847,33 +6696,9 @@
    ]
   },
   {
-   "from": "n_chatidea",
-   "to": "n_research",
-   "label": "",
-   "kind": "next",
-   "src": "studio.md (7 Nov rule)",
-   "who": "Claude",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_chatidea",
-   "to": "n_got",
-   "label": "Claude استلم ✓",
-   "kind": "next",
-   "src": "studio.md (7 Nov rule)",
-   "who": "Claude",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
    "from": "n_dirpick",
    "to": "n_dirtext",
-   "label": "اكتب شنو تبي",
+   "label": "اكتب شنو تبي (1–3)",
    "kind": "no",
    "src": "studio idea.js dirTextBox",
    "who": "owner",
@@ -4908,7 +6733,7 @@
   },
   {
    "from": "n_fix",
-   "to": "n_carreview",
+   "to": "n_house_car",
    "label": "كاروسيل: نسخة يديدة",
    "kind": "loop",
    "src": "SKILL.md §9 + studio.md",
@@ -4920,24 +6745,14 @@
   {
    "from": "n_approve",
    "to": "n_save",
-   "label": "كاروسيل: «شارك الكل»",
+   "label": "كاروسيل: «احفظ الكل بالصور»",
    "kind": "next",
-   "src": "studio.md caption + الاستديو:726",
+   "src": "studio index.html run(approve)",
    "who": "page/system",
    "kinds": [
     "carousel"
-   ]
-  },
-  {
-   "from": "n_kind",
-   "to": "n_kwcheck",
-   "label": "ريل",
-   "kind": "yes",
-   "src": "studio script.js",
-   "who": "Claude",
-   "kinds": [
-    "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_kwcheck",
@@ -5008,7 +6823,7 @@
   },
   {
    "from": "n_scriptpick",
-   "to": "n_scriptsend",
+   "to": "n_house_script",
    "label": "Claude يحدّث النص",
    "kind": "loop",
    "src": "studio script.js",
@@ -5021,18 +6836,19 @@
   {
    "from": "g_voice",
    "to": "n_vwait",
-   "label": "لا / مو الحين",
+   "label": "مو الحين",
    "kind": "no",
    "src": "studio rest.js",
    "who": "owner",
    "kinds": [
     "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_vwait",
    "to": "g_voice",
-   "label": "رجّع اسألني بعدين",
+   "label": "اسألني بعدين",
    "kind": "loop",
    "src": "studio rest.js",
    "who": "owner",
@@ -5065,7 +6881,7 @@
   {
    "from": "g_style",
    "to": "n_styletext",
-   "label": "ما عجبني ولا واحد",
+   "label": "ما عجبني (1–3)",
    "kind": "no",
    "src": "studio rest.js",
    "who": "owner",
@@ -5076,7 +6892,7 @@
   {
    "from": "n_samplegate",
    "to": "n_styletext",
-   "label": "ما عجبني الأسلوب (اكتب)",
+   "label": "ما عجبني (اكتب)",
    "kind": "no",
    "src": "studio rest.js",
    "who": "owner",
@@ -5107,37 +6923,16 @@
    ]
   },
   {
-   "from": "n_samplegate",
-   "to": "g_aisample",
-   "label": "تعديل",
-   "kind": "no",
-   "src": "studio.md (7 Nov)",
-   "who": "owner",
-   "kinds": [
-    "reel"
-   ]
-  },
-  {
    "from": "g_aisample",
-   "to": "n_sample",
+   "to": "n_samplegen",
    "label": "إي",
    "kind": "yes",
    "src": "studio.md (7 Nov)",
    "who": "owner",
    "kinds": [
     "reel"
-   ]
-  },
-  {
-   "from": "g_aisample",
-   "to": "n_samplegate",
-   "label": "لا",
-   "kind": "loop",
-   "src": "studio.md (7 Nov)",
-   "who": "owner",
-   "kinds": [
-    "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_missingown",
@@ -5147,7 +6942,8 @@
    "src": "studio rest.js",
    "who": "owner",
    "kinds": [
-    "reel"
+    "reel",
+    "carousel"
    ]
   },
   {
@@ -5181,7 +6977,8 @@
    "who": "owner",
    "kinds": [
     "reel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_altfree",
@@ -5201,18 +6998,6 @@
    "kind": "no",
    "src": "studio rest.js",
    "who": "owner",
-   "kinds": [
-    "reel",
-    "carousel"
-   ]
-  },
-  {
-   "from": "n_autohide",
-   "to": "n_hidden",
-   "label": "",
-   "kind": "next",
-   "src": "studio rest.js",
-   "who": "page/system",
    "kinds": [
     "reel",
     "carousel"
@@ -5240,7 +7025,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_purgeok",
@@ -5252,7 +7038,8 @@
    "kinds": [
     "reel",
     "carousel"
-   ]
+   ],
+   "locked": true
   },
   {
    "from": "n_purgedo",
@@ -5265,8 +7052,1569 @@
     "reel",
     "carousel"
    ]
+  },
+  {
+   "from": "g_optcost",
+   "to": "n_options",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md: every paid take asks first (voice_cost)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "g_linecost",
+   "to": "n_relines",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md: every paid take asks first (voice_cost)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_listen",
+   "to": "n_wordswap",
+   "label": "نفس الكلمة مرتين",
+   "kind": "no",
+   "src": "studio reel.js swapCard",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_wordswap",
+   "to": "n_scriptedit",
+   "label": "غيّر الكلمة بالنص",
+   "kind": "loop",
+   "src": "studio index.html run(wordswap)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "act": "wordswap"
+  },
+  {
+   "from": "n_fixpaid",
+   "to": "n_vcost",
+   "label": "صوت يديد",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_fixpaid",
+   "to": "g_ai",
+   "label": "مقاطع AI",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_fixpaid",
+   "to": "n_fix",
+   "label": "لا، ببلاش",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_scriptgate",
+   "to": "n_kwcheck",
+   "label": "موافق",
+   "kind": "yes",
+   "src": "studio script.js",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "act": "approve"
+  },
+  {
+   "from": "n_scriptgate",
+   "to": "n_pictures",
+   "label": "موافق",
+   "kind": "yes",
+   "src": "carousel.md",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ],
+   "act": "approve"
+  },
+  {
+   "from": "n_format",
+   "to": "n_ideasend",
+   "label": "ريل، كاروسيل، أو الاثنين",
+   "kind": "yes",
+   "src": "studio idea.js viewIdea",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_format",
+   "to": "n_fmtauto",
+   "label": "Claude يختار",
+   "kind": "no",
+   "src": "studio idea.js viewIdea",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_fmtauto",
+   "to": "n_ideasend",
+   "label": "",
+   "kind": "next",
+   "src": "studio idea.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_pickup",
+   "to": "n_fmtknown",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mode",
+   "to": "n_fmtknown",
+   "label": "فلم",
+   "kind": "no",
+   "src": "library.json workflow 2",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_fmtknown",
+   "to": "n_research",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_fmtknown",
+   "to": "n_fmtask",
+   "label": "لا: Claude يختار",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_fmtask",
+   "to": "n_fmtpick",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_fmtpick",
+   "to": "n_research",
+   "label": "اخترت",
+   "kind": "next",
+   "src": "studio reel.js run(askpick)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "act": "askpick"
+  },
+  {
+   "from": "n_afterpick",
+   "to": "n_cover",
+   "label": "اتجاه",
+   "kind": "yes",
+   "src": "carousel.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_cover",
+   "to": "n_script",
+   "label": "",
+   "kind": "next",
+   "src": "carousel.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_readers",
+   "to": "n_house_script",
+   "label": "خلصوا",
+   "kind": "next",
+   "src": "SKILL.md §3",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_afterpick",
+   "to": "n_isampleai",
+   "label": "عيّنة أسلوب",
+   "kind": "no",
+   "src": "library.json workflow 4-5",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_mode",
+   "to": "n_isampleai",
+   "label": "تجربة",
+   "kind": "yes",
+   "src": "newRequest(…, sample)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_isampleai",
+   "to": "n_isample",
+   "label": "ببلاش",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_isampleai",
+   "to": "g_iaisample",
+   "label": "AI",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "g_iaisample",
+   "to": "n_isamplegen",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "g_iaisample",
+   "to": "n_isample",
+   "label": "لا: بأسلوب ببلاش",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_isamplegen",
+   "to": "n_isample",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_isample",
+   "to": "n_isamplegate",
+   "label": "",
+   "kind": "next",
+   "src": "studio reel.js",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_isamplegate",
+   "to": "n_testonly",
+   "label": "اعتمدتها",
+   "kind": "yes",
+   "src": "studio index.html run(approve)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "act": "approve"
+  },
+  {
+   "from": "n_isamplegate",
+   "to": "n_dirtext",
+   "label": "ما عجبتني (اكتب)",
+   "kind": "no",
+   "src": "studio idea.js dirTextBox",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_isamplegate",
+   "to": "n_isampleai",
+   "label": "تعديل",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_testonly",
+   "to": "n_adopt",
+   "label": "إي",
+   "kind": "yes",
+   "src": "library.json workflow 9",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_testonly",
+   "to": "n_hook",
+   "label": "لا، الفلم كامل",
+   "kind": "no",
+   "src": "library.json workflow 4",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_adopt",
+   "to": "e_sample",
+   "label": "لا",
+   "kind": "no",
+   "src": "studio index.html testBar",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_adopt",
+   "to": "n_styleknown",
+   "label": "إي: الفلم الأصلي ↗",
+   "kind": "yes",
+   "src": "studio index.html run(approve)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ],
+   "cross": true,
+   "plain": "ينتقل للفلم الأصلي: الأسلوب صار مختار"
+  },
+  {
+   "from": "n_sampleai",
+   "to": "g_aisample",
+   "label": "AI",
+   "kind": "yes",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_sampleai",
+   "to": "n_sample",
+   "label": "ببلاش",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_samplegen",
+   "to": "n_sample",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "g_aisample",
+   "to": "n_sample",
+   "label": "لا: بأسلوب ببلاش",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_samplegate",
+   "to": "n_sampleai",
+   "label": "تعديل",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_samplegate",
+   "to": "n_pictures",
+   "label": "اعتمدته",
+   "kind": "yes",
+   "src": "studio reel.js run(approve)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "act": "approve"
+  },
+  {
+   "from": "n_afterpick",
+   "to": "n_buildask",
+   "label": "أسلوب يحتاج بناء",
+   "kind": "no",
+   "src": "studio.md «Ideas»",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_buildask",
+   "to": "n_buildok",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_buildok",
+   "to": "n_isampleai",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_buildok",
+   "to": "n_dirs",
+   "label": "إي",
+   "kind": "loop",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_buildok",
+   "to": "n_dirpick",
+   "label": "لا: اختار غيره",
+   "kind": "loop",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "g_style",
+   "to": "n_sbuildask",
+   "label": "أسلوب يحتاج بناء",
+   "kind": "yes",
+   "src": "studio.md «Ideas»",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_sbuildask",
+   "to": "n_sbuildok",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_sbuildok",
+   "to": "n_sampleai",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_sbuildok",
+   "to": "n_styleopts",
+   "label": "لا: اختار غيره",
+   "kind": "loop",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_afterpick",
+   "to": "n_dirs",
+   "label": "سرد أو أسلوب ثاني",
+   "kind": "loop",
+   "src": "studio index.html run(flowmore, type)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "acts": [
+    "flowmore"
+   ]
+  },
+  {
+   "from": "n_dirpick",
+   "to": "n_dirchat",
+   "label": "بعد 3 جولات",
+   "kind": "no",
+   "src": "studio idea.js dirTextBox",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_dirchat",
+   "to": "n_dirs",
+   "label": "اتجاهات من كلامك",
+   "kind": "loop",
+   "src": "studio.md «Ideas»",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "g_style",
+   "to": "n_stylechat",
+   "label": "بعد 3 جولات",
+   "kind": "no",
+   "src": "studio idea.js dirTextBox",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_samplegate",
+   "to": "n_stylechat",
+   "label": "بعد 3 جولات",
+   "kind": "no",
+   "src": "studio idea.js dirTextBox",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_stylechat",
+   "to": "n_styleopts",
+   "label": "أساليب من كلامك",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_pickwait",
+   "to": "n_resendchat",
+   "label": "بعد مرتين إعادة",
+   "kind": "no",
+   "src": "studio rest.js resendOr",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_resendchat",
+   "to": "n_pickup",
+   "label": "Claude يستلم من المحادثة",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_heard",
+   "to": "n_lastchat",
+   "label": "بعد مرتين إعادة",
+   "kind": "no",
+   "src": "studio rest.js resendOr",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_lastchat",
+   "to": "n_got",
+   "label": "Claude يستلم من المحادثة",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_missing",
+   "to": "n_carroute",
+   "label": "لا",
+   "kind": "no",
+   "src": "carousel.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_missingown",
+   "to": "n_carroute",
+   "label": "استخدم بديل",
+   "kind": "yes",
+   "src": "studio rest.js missingHtml",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_missingown",
+   "to": "n_carbuild",
+   "label": "شيل اللقطة",
+   "kind": "no",
+   "src": "studio rest.js missingHtml",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_carroute",
+   "to": "n_carbuild",
+   "label": "لا: صور حقيقية ورسم",
+   "kind": "no",
+   "src": "carousel.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_carroute",
+   "to": "g_carai",
+   "label": "إي",
+   "kind": "yes",
+   "src": "carousel.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "g_carai",
+   "to": "n_carai",
+   "label": "إي",
+   "kind": "yes",
+   "src": "carousel.md",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "g_carai",
+   "to": "n_carbuild",
+   "label": "لا: بديل ببلاش",
+   "kind": "no",
+   "src": "carousel.md",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_carai",
+   "to": "n_carbuild",
+   "label": "",
+   "kind": "next",
+   "src": "carousel.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_fixpaid",
+   "to": "g_carai",
+   "label": "صور AI",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_lessons",
+   "to": "e_done",
+   "label": "",
+   "kind": "next",
+   "src": "insights.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_pattern",
+   "to": "n_rulegate",
+   "label": "",
+   "kind": "next",
+   "src": "studio index.html learn view",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_rulegate",
+   "to": "n_ruleadd",
+   "label": "خله قاعدة",
+   "kind": "yes",
+   "src": "studio index.html run(ruleyes)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "act": "ruleyes"
+  },
+  {
+   "from": "n_rulegate",
+   "to": "e_handled",
+   "label": "مو الحين",
+   "kind": "no",
+   "src": "studio index.html run(ruleno)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "act": "ruleno"
+  },
+  {
+   "from": "n_ruleadd",
+   "to": "n_rulerepo",
+   "label": "",
+   "kind": "next",
+   "src": "studio index.html run(ruleyes)",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_rulerepo",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_mapedit",
+   "to": "n_mapedit",
+   "label": "",
+   "kind": "next",
+   "src": "studio flow.js",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mapedit",
+   "to": "n_mapcheck",
+   "label": "افحص وطبّق",
+   "kind": "next",
+   "src": "studio flow.js flowApply",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mapcheck",
+   "to": "n_mapapply",
+   "label": "سليم",
+   "kind": "yes",
+   "src": "studio flow.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mapcheck",
+   "to": "n_mapblock",
+   "label": "فيه خطأ",
+   "kind": "no",
+   "src": "studio flow.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mapblock",
+   "to": "n_mapedit",
+   "label": "تصلّحه",
+   "kind": "loop",
+   "src": "studio flow.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mapapply",
+   "to": "n_mappr",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mappr",
+   "to": "n_maprules",
+   "label": "لا",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_mappr",
+   "to": "n_maprefuse",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_maprules",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_maprefuse",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_hide",
+   "to": "n_hiddenstate",
+   "label": "",
+   "kind": "next",
+   "src": "studio index.html run(hide)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "act": "hide"
+  },
+  {
+   "from": "n_autohide",
+   "to": "n_hiddenstate",
+   "label": "",
+   "kind": "next",
+   "src": "studio rest.js",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_hiddenstate",
+   "to": "e_handled",
+   "label": "ينتظر، أو «رجّعه» أي وقت",
+   "kind": "next",
+   "src": "studio index.html run(unhide)",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "act": "unhide"
+  },
+  {
+   "from": "s_weekly",
+   "to": "n_weekly",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md (G10)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_weekly",
+   "to": "n_hidden",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_hidden",
+   "to": "n_purge",
+   "label": "إي",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_hidden",
+   "to": "e_handled",
+   "label": "لا",
+   "kind": "no",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_selfedit",
+   "to": "n_logedit",
+   "label": "يوصل Claude",
+   "kind": "next",
+   "src": "studio index.html edSave → inbox kind edit",
+   "who": "page/system",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_logedit",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "carousel-edits.md",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "s_brief",
+   "to": "n_backlog",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md «Ideas»",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_dirpick",
+   "to": "n_picked",
+   "label": "اخترت ببلاش",
+   "kind": "yes",
+   "src": "studio reel.js directionBody",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "acts": [
+    "flowpick",
+    "flowmore"
+   ]
+  },
+  {
+   "from": "n_dirpick",
+   "to": "g_dirpaid",
+   "label": "اخترت بالرصيد",
+   "kind": "yes",
+   "src": "studio reel.js directionBody",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "acts": [
+    "flowpick",
+    "flowmore"
+   ]
+  },
+  {
+   "from": "g_dirpaid",
+   "to": "n_picked",
+   "label": "أكّدت",
+   "kind": "yes",
+   "src": "studio index.html act() second tap",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_ideasend",
+   "to": "n_both",
+   "label": "أرسل (الاثنين)",
+   "kind": "yes",
+   "src": "studio idea.js ideaCreate",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_backpick",
+   "to": "n_both",
+   "label": "ابدأ (الاثنين)",
+   "kind": "yes",
+   "src": "studio idea.js ideaCreate",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_both",
+   "to": "n_record",
+   "label": "سجلين وطلبين",
+   "kind": "next",
+   "src": "studio idea.js ideaCreate",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "plain": "الريل والكاروسيل ينفتحون، وكل واحد له طلب يوصل Claude"
+  },
+  {
+   "from": "n_save",
+   "to": "n_selfedit",
+   "label": "عدّل النص بنفسك",
+   "kind": "loop",
+   "src": "studio index.html viewCarousel (edit link)",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "g_optcost",
+   "to": "n_fixwait",
+   "label": "لا / مو الحين",
+   "kind": "no",
+   "src": "studio.md: every paid take asks first (voice_cost)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "g_linecost",
+   "to": "n_fixwait",
+   "label": "لا / مو الحين",
+   "kind": "no",
+   "src": "studio.md: every paid take asks first (voice_cost)",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_fixwait",
+   "to": "g_optcost",
+   "label": "اسألني بعدين (الخيارات)",
+   "kind": "loop",
+   "src": "studio rest.js voiceWaitCard",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "act": "later"
+  },
+  {
+   "from": "n_fixwait",
+   "to": "g_linecost",
+   "label": "اسألني بعدين (الجمل)",
+   "kind": "loop",
+   "src": "studio rest.js voiceWaitCard",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_fixwait",
+   "to": "n_wordswap",
+   "label": "غيّر الكلمة",
+   "kind": "no",
+   "src": "studio reel.js swapCard",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "s_tap",
+   "to": "n_anychange",
+   "label": "تعديل بأي مرحلة",
+   "kind": "next",
+   "src": "studio reel.js change box (send)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "act": "send"
+  },
+  {
+   "from": "n_anychange",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_chatidea",
+   "to": "n_chatnow",
+   "label": "",
+   "kind": "next",
+   "src": "studio.md",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_chatnow",
+   "to": "n_fmtknown",
+   "label": "الحين",
+   "kind": "yes",
+   "src": "studio.md",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_chatnow",
+   "to": "n_backlog",
+   "label": "بعدين",
+   "kind": "no",
+   "src": "studio.md «Ideas»",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_save",
+   "to": "n_postig",
+   "label": "حفظت ونسخت",
+   "kind": "next",
+   "src": "studio reel.js viewPublish",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ],
+   "acts": [
+    "sharefilm",
+    "copy",
+    "savecap"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_save",
+   "to": "n_postig",
+   "label": "شاركت الشرايح",
+   "kind": "next",
+   "src": "studio index.html viewCarousel",
+   "who": "owner",
+   "kinds": [
+    "carousel"
+   ],
+   "acts": [
+    "share",
+    "one",
+    "copy",
+    "savecap"
+   ],
+   "locked": true
+  },
+  {
+   "from": "n_scriptgate",
+   "to": "n_scriptout",
+   "label": "نسخ ولصق من برّا",
+   "kind": "no",
+   "src": "studio index.html run(scriptcopy)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "acts": [
+    "scriptcopy",
+    "scriptpaste"
+   ]
+  },
+  {
+   "from": "n_scriptout",
+   "to": "n_scriptedit",
+   "label": "شيّك وأرسل",
+   "kind": "next",
+   "src": "studio index.html run(scriptcheck / scriptfull)",
+   "who": "owner",
+   "kinds": [
+    "reel",
+    "carousel"
+   ],
+   "acts": [
+    "scriptcheck",
+    "scriptfull"
+   ]
+  },
+  {
+   "from": "n_isamplegate",
+   "to": "n_dirchat",
+   "label": "بعد 3 تعديلات",
+   "kind": "no",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_vcheck",
+   "to": "n_takechat",
+   "label": "بعد 3 تسجيلات",
+   "kind": "no",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_spliced",
+   "to": "n_takechat",
+   "label": "بعد 3 تسجيلات",
+   "kind": "no",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_takechat",
+   "to": "n_scriptedit",
+   "label": "نغيّر النص",
+   "kind": "loop",
+   "src": "studio.md «Every «no» has a written path»",
+   "who": "owner",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_house_script",
+   "to": "n_scriptsend",
+   "label": "",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_house_car",
+   "to": "n_carreview",
+   "label": "",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_house_cap",
+   "to": "n_final",
+   "label": "",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_scriptedit",
+   "to": "n_houselearn",
+   "label": "يتعلم",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_change",
+   "to": "n_houselearn",
+   "label": "يتعلم",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "page/system",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_selfedit",
+   "to": "n_houselearn",
+   "label": "يتعلم",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "page/system",
+   "kinds": [
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_anychange",
+   "to": "n_houselearn",
+   "label": "يتعلم",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
+  },
+  {
+   "from": "n_isampleai",
+   "to": "n_houselearn",
+   "label": "يتعلم",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_sampleai",
+   "to": "n_houselearn",
+   "label": "يتعلم",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "reel"
+   ]
+  },
+  {
+   "from": "n_houselearn",
+   "to": "e_handled",
+   "label": "",
+   "kind": "next",
+   "src": "vd-next brand/house_rules.yaml + tools/house_check.py + director/house.py (#189)",
+   "who": "Claude",
+   "kinds": [
+    "reel",
+    "carousel"
+   ]
   }
  ],
- "version_note": "المسار الحالي كامل من الكود والقواعد (7 نوفمبر)، بدون قواعد يديدة",
- "sources_note": "الاستديو = studio index.html v110"
+ "version_note": "من الكود والقواعد بعد 6 خطط؛ القواعد الأساسية مقفولة، والخريطة توصف بس (نسخة 6، للتطبيق)",
+ "sources_note": "المصادر باسم الدالة أو الزر (مثل run(posted)، edSave)، مو برقم السطر"
 }
