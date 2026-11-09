@@ -121,3 +121,20 @@ The first film on this route («السباحة اللي باعت ساعة», 103
 - **A flat page is a paper object in the world**: an archive picture (the 1927 ad) sits on a desk or in a hand as a
   paper-cut newspaper the camera pushes into, not as two flat cards in a row.
 
+## A series keeps one look (the owner, 9 Nov 2026, on «حكاية رولكس · 3»: «the style of the Rolex story is different from the other story that we did from Rolex, the feel of the paper cut»)
+
+Episode 3's stills came out as a flat storybook illustration: smooth gradients, glossy bright blues and yellows, and
+some scenes drawn as icons (the dome with arrows). Episodes 1 and 2 are a physical paper diorama: thick layered card,
+visible cut edges, deep shadows between the layers, paper grain, warm low light, matte. Every episode of a series
+keeps the look of the episodes before it:
+- **The previous episode is the style reference.** Before the first still, take 4–6 frames from the last episode's
+  final (`ffmpeg -ss`) and pass them as `image_references` to every still, with the style-lock sentence above. Write
+  in the prompt what to keep: «thick layered card, visible cut edges, deep shadows between layers, paper grain, warm
+  low light, matte, no gradients, no gloss, no icons or diagrams».
+- **No flat graphics in a diorama series.** An idea that wants a diagram (pressure on a dome) is a paper object in
+  the scene, a cut-paper dome under layered paper waves, never arrows and flat shapes.
+- **A side-by-side before the owner sees it.** Put the new stills next to 6 frames of the last episode in one sheet
+  and compare depth, edges, shadow, grain, light and colour. A still that reads as flat illustration is redone
+  before it is shown, and the sheet goes to the owner with the stills.
+- **The watch close-ups follow the series' rule too:** where the earlier episodes use a real photo for the dial,
+  the new one does as well.
