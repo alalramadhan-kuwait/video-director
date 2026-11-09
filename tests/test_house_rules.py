@@ -32,10 +32,10 @@ class Gate(unittest.TestCase):
     def test_a_caption_has_no_hashtags_or_sources(self):
         self.assertTrue(house.check('خبر\n#ساعات', 'c', caption=True))
         self.assertTrue(house.check('خبر\nالمصادر: موقع', 'c', caption=True))
-        self.assertEqual(house.check('خبر قصير.\n\nوأنت؟', 'c', caption=True), [])
+        self.assertEqual(house.check('خبر قصير عن Rolex.\n\nوأنت؟', 'c', caption=True), [])
 
     def test_a_caption_is_one_fact_short_details_one_question(self):
-        good = 'أهم جائزة هالسنة راحت لصانع مستقل!\n\nفاز رَجَب رَجَبي عن ساعته «كرونوغراف فلايباك».\n\nأي ساعة تستاهل الإبرة الذهبية برأيكم؟'
+        good = 'أهم جائزة هالسنة راحت لصانع مستقل!\n\nفاز رَجَب رَجَبي عن ساعته «كرونوغراف فلايباك» (Rexhep Rexhepi).\n\nأي ساعة تستاهل الإبرة الذهبية برأيكم؟'
         self.assertEqual(house.check(good, 'c', caption=True), [])
         self.assertTrue(any('characters' in m for m in house.check('خبر ' * 200, 'c', caption=True)))
         self.assertTrue(any('blank line' in m for m in house.check('سطر\nسطر ثاني', 'c', caption=True)))
@@ -57,6 +57,41 @@ class Gate(unittest.TestCase):
         spec = {'cover': {'top': 'عنوان', 'bottom': ''}, 'slides': [{'title': 'جائزة', 'body': 'بحركة جديدة'}]}
         self.assertTrue(any(m.startswith('slide 1') for m in house.check_carousel(spec, 'كابشن #هاشتاق')))
         self.assertTrue(any(m.startswith('caption') for m in house.check_carousel(spec, 'كابشن #هاشتاق')))
+
+
+class Borrowed(unittest.TestCase):
+    """Three ideas borrowed from Jakeschincariol/instagram-agent-skill (MIT), the owner, 9 Nov 2026."""
+
+    def test_the_key_fact_lands_in_the_feed_window(self):
+        long_first = 'من لقاء أصدقاء في باريس عام 2021 إلى ورشة صغيرة ثم إلى سنوات من العمل والتجارب والتعديلات الكثيرة قبل أن تصل الساعة أخيرًا إلى منصة الجائزة في جنيف 2026 مع SpaceOne.\n\nأي جزء أعجبك؟'
+        self.assertTrue(any('125' in m for m in house.check(long_first, 'c', caption=True)))
+        vague = 'قصة جميلة تستحق أن تُروى من البداية.\n\n' + 'تفاصيل كثيرة ' * 12 + 'عن SpaceOne.\n\nأي جزء أعجبك؟'
+        self.assertTrue(any('nothing concrete' in m for m in house.check(vague, 'c', caption=True)))
+        good = 'فازت «سيكوند ماجور» من SpaceOne × Baltic بجائزة التحدي في جنيف 2026.\n\nأي جزء من القصة أعجبك أكثر؟'
+        self.assertEqual(house.check(good, 'c', caption=True), [])
+        self.assertEqual(house.feed_window(good)[1], True)
+
+    def test_search_names_are_in_the_caption(self):
+        arabic_only = 'أول ساعة يد كتبت اسم اليوم كاملًا عام 1956.\n\nبأي لغة تقرأ يومك؟'
+        self.assertTrue(any('English letters' in m for m in house.check(arabic_only, 'c', caption=True)))
+        cap = 'أول ساعة يد كتبت اسم اليوم كاملًا: Rolex Day-Date عام 1956.\n\nبأي لغة تقرأ يومك؟'
+        self.assertEqual(house.check(cap, 'c', caption=True, search=['Rolex Day-Date']), [])
+        self.assertTrue(any('رولكس دي ديت' in m for m in house.check(cap, 'c', caption=True, search=['Rolex Day-Date', 'رولكس دي ديت'])))
+        spec = {'cover': {'top': 'عنوان'}, 'slides': [], 'search': ['رولكس دي ديت']}
+        self.assertTrue(any('search phrase' in m for m in house.check_carousel(spec, cap)))
+
+    def test_the_hook_and_long_lines_are_timed_before_a_paid_take(self):
+        old = [{'text': 'ليش ساعتك تدق 28,800 مرة بالساعة… بدون ولا بطارية؟'}]
+        new = [{'text': 'ليش تسمع «تك» من ساعتك… وشنو يصير داخلها؟'}]
+        self.assertTrue(any('hook' in m for m in house.check_lines(old)))      # 4.8 s in the real take
+        self.assertEqual(house.check_lines(new), [])
+        self.assertEqual(house.check_lines(old, ok=['hook_time']), [])
+        long = [{'text': 'قصير وواضح'}, {'text': 'و' + ' كلمة' * 20}]
+        self.assertTrue(any('line 2' in m and 'shots' in m for m in house.check_lines(long)))
+        long[1]['shots'] = [{'a': 1}, {'b': 2}]
+        self.assertEqual(house.check_lines(long), [])
+        self.assertTrue(3.0 < house.spoken_seconds(old[0]['text']) < 5.0)
+        self.assertEqual(house.spoken_seconds('[Kuwaiti urban dialect] ليش'), house.spoken_seconds('ليش'))
 
 
 if __name__ == '__main__':
