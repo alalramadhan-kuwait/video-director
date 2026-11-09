@@ -162,6 +162,7 @@ slides.
 - **A text change after the slides exist** goes the usual way (slide numbers, or «عدّل النص بنفسك»). It does not
   reopen the script step.
 - **A style sample** (cover and two slides) may come before the script. Its words are a draft, and the script step
+- **The script stays on the record after the slides** (the owner, 9 Nov 2026: «add option to copy the whole text then send it with your format»): keep `script.lines` in step with the spec at every new version, so the studio's «انسخ النص كله» copies every word of the post in this format. He edits the copied text and pastes it into «تعديل» («وش تبي يتغيّر؟»). Read his pasted text line by line by its labels (`الغلاف:`, `شريحة NN ·`, `الكابشن:`), apply only the units that changed to the spec, run the house check, render only the slides that changed, and list each change in the `changes` entry.
   still follows it.
 
 ## Make it
