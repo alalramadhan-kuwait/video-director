@@ -36,7 +36,26 @@ def fix(text: str, R: dict | None = None) -> str:
     return out
 
 
-def check(text: str, where: str = '', R: dict | None = None, caption: bool = False, ok: list | None = None) -> list[str]:
+END = re.compile(r'[.!؟?…]|\n')
+LATIN = re.compile(r'[A-Za-z][A-Za-z\-\.]{2,}')
+
+
+def feed_window(text: str, n: int = 125) -> tuple[str, bool]:
+    """What the feed shows before «… more», and whether its first sentence ends inside it."""
+    raw = (text or '').strip()
+    m = END.search(raw)
+    return raw[:n], bool(m) and m.start() < n
+
+
+def spoken_seconds(line: str, R: dict | None = None) -> float:
+    """How long Faisal takes to say a line, estimated from our own takes (emotion tags and markup left out)."""
+    R = R or rules()
+    t = re.sub(r'\[[^\]]*\]', '', plain(line)).strip()
+    return round(len(t) / float((R.get('voice') or {}).get('chars_per_second', 12.4)), 1)
+
+
+def check(text: str, where: str = '', R: dict | None = None, caption: bool = False, ok: list | None = None,
+          search: list | None = None) -> list[str]:
     R = R or rules()
     t, out, ok = plain(text), [], set(ok or [])
     for f in R.get('fix', []):
@@ -65,16 +84,37 @@ def check(text: str, where: str = '', R: dict | None = None, caption: bool = Fal
             out.append(f'{where}: {len(listy)} «X: Y» lines: the slides explain, the caption does not list them')
         for w in c.get('formal', []):
             if w in (text or '') or w in t: out.append(f'{where}: «{w}» is formal; write it as Time Keeper talks')
+        if c.get('feed_window') and raw:
+            win, whole = feed_window(raw, c['feed_window'])
+            if not whole:
+                out.append(f"{where}: the first sentence runs past the {c['feed_window']} characters the feed shows before «… more»; end the key fact inside it")
+            if not (re.search(r'\d', win) or LATIN.search(win) or '«' in win):
+                out.append(f"{where}: the first {c['feed_window']} characters name nothing concrete; put the watch, the brand or the number there")
+        if c.get('needs_latin_name') and raw and not LATIN.search(raw):
+            out.append(f'{where}: no brand or model in English letters; Instagram search reads the caption, so write it as people type it (e.g. «Rolex Day-Date»)')
+        low = raw.lower()
+        for term in search or []:
+            if str(term).strip() and str(term).strip().lower() not in low:
+                out.append(f'{where}: the search phrase «{term}» is missing; put it in a sentence')
     return out
 
 
 def check_lines(lines: list, R: dict | None = None, ok: list | None = None) -> list[str]:
-    """A film's script lines (their text and what the voice says); `ok`: flagged words Claude confirmed are right here."""
+    """A film's script lines (their text and what the voice says); `ok`: flagged words Claude confirmed are right here,
+    and `hook_time` / `line_time` when Claude confirmed a long hook or line is right for this film."""
     R = R or rules()
-    out = []
+    out, ok, V = [], set(ok or []), R.get('voice') or {}
     for i, ln in enumerate(lines, 1):
         for key in ('text', 'say'):
             if ln.get(key): out += check(ln[key], f'line {i}' + ('' if key == 'text' else ' (say)'), R, ok=ok)
+        spoken = ln.get('say') or ln.get('text') or ''
+        if not spoken or not V: continue
+        sec = spoken_seconds(spoken, R)
+        if i == 1 and V.get('hook_max_s') and sec > V['hook_max_s'] and 'hook_time' not in ok:
+            out.append(f"line 1: the hook takes about {sec} s to say; keep it under {V['hook_max_s']} s (cut it to the claim)")
+        shots = ln.get('shots')
+        if V.get('line_max_s') and sec > V['line_max_s'] and not (isinstance(shots, list) and len(shots) > 1) and 'line_time' not in ok:
+            out.append(f"line {i}: about {sec} s on one picture; split the line, or plan two shots for it (`shots:`)")
     return list(dict.fromkeys(out))
 
 
@@ -84,5 +124,5 @@ def check_carousel(spec: dict, caption: str = '', R: dict | None = None) -> list
     out = check(f"{c.get('top', '')} {c.get('bottom', '')}", 'cover', R)
     for i, s in enumerate(spec.get('slides') or [], 1):
         out += check(' '.join(str(s.get(k) or '') for k in ('title', 'body', 'ask')) + ' ' + ' '.join(str(c.get('title') or '') for c in s.get('cards') or []), f'slide {i}', R)
-    if caption: out += check(caption, 'caption', R, caption=True)
+    if caption: out += check(caption, 'caption', R, caption=True, search=spec.get('search'))
     return out
