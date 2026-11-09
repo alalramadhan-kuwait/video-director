@@ -355,3 +355,11 @@ With every script sent for approval, write on the film:
 - **Never write an approval naming an address that is not a studio asset** (`/_blob/<32 hex>`), in any write. Until a posted film's media are assets, the page says «هذا الفلم منشور» there and writes no row.
 - **His approval on the record stands.** A record with `approved_version === version` and `approved_slides` / `approved_src` equal to what he sees is approved, whatever `approved_file` holds; do not send it back to waiting.
 - **At deploy, re-check the house rules** for every open film and write `house_ok: '<its version>'` (an old `true` shows nothing on the new page).
+
+## v11.1 hotfix: the runtime's namespaces are frozen, and a studio that cannot load says so (the owner, 9 Nov 2026: «I am checking the studio. It is empty.»)
+
+- **What happened.** Live v122 wrapped the page's database in a `Proxy` over the namespace `claude.use('db')` returns. The runtime hands the page a **frozen** namespace, and a Proxy that returns a different value for a frozen property breaks the Proxy rules and throws. The page caught the error and drew an empty studio: «ما فيه أفلام للحين» and a blank Instagram page. The tests passed because their mock database was not frozen.
+- **Never change a runtime namespace** (`db`, `comments`, `assets`, `downloads`, `mcp`, `user`), or a ref it returns. Do not wrap one in a `Proxy`, assign to it, use `defineProperty` on it, or replace a member. A wrapper is a new object, or a Proxy over an empty `{}`, that calls the real one.
+- **Test mocks are frozen the same way** (`Object.freeze` on every namespace and every ref they return), so this kind of break fails in staging. Run the frozen-runtime check (`tests/v11-1.mjs`) on both builds before every release.
+- **A studio that cannot load says so; it never shows an empty list.** When there is no database, the films listener fails, or the start-up code throws, the films and Instagram pages show «ما قدرت أفتح بيانات الاستوديو» with a «افتحها من يديد» button, and the error goes to the console. «ما فيه أفلام للحين» means a database that loaded and really has no films.
+- **After every publish, open the live studio once and confirm the films list loads**, or ask him to, before saying it is live. A green test run is not proof that the real app loads.
