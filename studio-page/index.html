@@ -631,6 +631,8 @@ let topics = {};                                                   // studio/top
 const kindOf = (f) => (f.kind === 'carousel' ? 'carousel' : 'reel');
 const ruleState = (f) => RULES.filter((r) => r.kind === kindOf(f)).map((r) => ({ ...r, ok: Array.isArray(f.rules) ? f.rules.includes(r.id) : Date.parse(f.updated || 0) >= Date.parse(r.at) }));
 let inbox = [], costs = null, tapped = {};                         // inbox rows (handled marks), studio/costs, recent taps (no double sends)
+let loadErr = null;                                                // v11.1: why the studio could not load (nodb | snap | init)
+const loadErrHtml = () => `<div class="q no" role="alert"><b>ما قدرت أفتح بيانات الاستوديو</b><p style="font-size:13.5px">الأفلام والأرقام محفوظة، ما ضاع شي. اضغط تحت، وإذا ما زبط سكّر الصفحة وافتحها من تطبيق Claude.</p><button type="button" class="btn dark" style="min-height:44px" data-act="reloadstudio">افتحها من يديد</button></div>`;
 let films = [], now = null, lib = null, db = null, comments = null, recipe = null, brief = null, ready = false, openType = null, openLang = 'tk', openFormat = 'reel';
 const picks = {};                                                  // slides chosen for a change, per carousel (kept across live refreshes)
 let chgOpen = null;
@@ -736,7 +738,8 @@ function viewFilms() {
   const waiting = shown.filter(isWaiting).length, working = shown.filter((f) => !isWaiting(f) && (f.state === 'working' || pendingOf(f))).length;
   let h = `<div class="headrow" style="position:relative;z-index:1">${header('أفلامنا', ready ? `${waiting} بانتظارك · ${working} يشتغل` : 'جاري التحميل…')}${statusDot()}</div>` + safeCard(nowLine) + safeCard(problemBanner) + (ready ? safeCard(flowHomeCard) + safeCard(() => ideasHome(false)) : '');   // M2: one bad record never freezes the home page
   h += safeCard(purgeCard);
-  if (ready && !films.length) h += `<div class="empty"><b style="font:800 18px var(--display)">ما فيه أفلام للحين</b><p class="note">أرسل لي فكرة في المحادثة، ويطلع الفلم هنا بنسبته ووقته.</p></div>`;
+  if (ready && loadErr && !films.length) h += loadErrHtml();
+  else if (ready && !films.length) h += `<div class="empty"><b style="font:800 18px var(--display)">ما فيه أفلام للحين</b><p class="note">أرسل لي فكرة في المحادثة، ويطلع الفلم هنا بنسبته ووقته.</p></div>`;
   const groups = {};
   for (const f of shown) (groups[topicOf(f)] ||= []).push(f);
   const rank = (f) => (isWaiting(f) ? 0 : f.state === 'working' || pendingOf(f) ? 1 : 2);
@@ -2878,7 +2881,7 @@ const ACT_HARMLESS = Object.assign(Object.create(null), {
   acc: 'switches the Instagram account shown', fixopen: 'scrolls to the script', stage: 'switches the shown report stage',
   revadd: 'adds a local note (sent only by revsend)', revdel: 'removes a local note', revseek: 'seeks the player', revstamp: 'pauses the player', revcmp: 'shows the old version beside the new',
   pickopen: 'opens the post picker', pickclose: 'closes the post picker', pickchoose: 'highlights a post (pickconfirm is bound)',
-  igreload: 'reloads the Instagram report', syncnow: 'reloads the data', postsort: 'sorts the posts', pfilter: 'filters the posts',
+  igreload: 'reloads the Instagram report', reloadstudio: 'reloads the page when the studio could not load (v11.1); nothing is sent, spent or published', syncnow: 'reloads the data', postsort: 'sorts the posts', pfilter: 'filters the posts',
   vpick: 'marks a word locally (sayfix sends it)', vunmark: 'unmarks a word locally',
   scriptpaste: 'opens the paste box (scriptfull sends it)', scriptok: 'closes a line editor', scriptcheck: 'checks a pasted text locally',
   briefkind: 'switches the brief shown', edcancel: 'leaves the editor without saving', start: 'a new request from the library: no film yet',
@@ -3462,11 +3465,11 @@ function ownChange(id) {
   return true;
 }
 function ownRedraw() { const f = routeFilm(); return !!f && ownChange(f.id) && filmJson(f) !== RENDERED; }   // his own tap landed: show it
-function selfDb(d) {                                                 // the page's db, with every write to films/<id> remembered
+function selfDb(d) {                                                 // the page's db, with every write to films/<id> remembered (v11.1: the runtime hands a FROZEN namespace, so each Proxy wraps an empty object, never the namespace itself)
   if (!d || typeof d.doc !== 'function') return d;
   const wrapDoc = (p) => { const r = d.doc(p), m = /^films\/([^/]+)$/.exec(String(p)); if (!m || !r) return r;
-    return new Proxy(r, { get(t, k) { const v = t[k]; if ((k === 'update' || k === 'set') && typeof v === 'function') return (x, ...a) => { try { selfNote(m[1], k, x); } catch (e) {} return v.call(t, x, ...a); }; return typeof v === 'function' ? v.bind(t) : v; } }); };
-  return new Proxy(d, { get(t, k) { if (k === 'doc') return wrapDoc; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
+    return new Proxy({}, { get(_, k) { const t = r, v = t[k]; if ((k === 'update' || k === 'set') && typeof v === 'function') return (x, ...a) => { try { selfNote(m[1], k, x); } catch (e) {} return v.call(t, x, ...a); }; return typeof v === 'function' ? v.bind(t) : v; } }); };
+  return new Proxy({}, { get(_, k) { const t = d; if (k === 'doc') return wrapDoc; const v = t[k]; return typeof v === 'function' ? v.bind(t) : v; } });
 }
 function upNotice(t) {                                               // S20: at the top, never over a button; only its × takes a tap
   let n = document.getElementById('upnote');
@@ -3796,7 +3799,7 @@ const postTile = (p) => `<button type="button" class="ptile" data-post="${esc(p.
 // The main page answers four questions in five seconds (the owner, 6 Nov 2026): how is the account, which posts did well
 // or badly, why, and what to do next. Every number and chart moved, unchanged, to «متقدم» (viewAdvanced).
 function viewNumbers() {
-  let h = `<div class="headrow">${header('إنستغرام', '')}${statusDot()}</div>` + connectNote();
+  let h = `<div class="headrow">${header('إنستغرام', '')}${statusDot()}</div>` + (loadErr && !ig ? loadErrHtml() : connectNote());
   const dash = ig?.dash || {}, keys = Object.keys(ACC).filter((k) => dash[k]);
   if (!keys.length) return h + (igState === 'ok' ? '<p class="note">ما وصلت أرقام للحين.</p>' : '');
   if (!dash[acc]) acc = keys[0];
@@ -4307,6 +4310,7 @@ async function run(b) {
     { const t = `الاستوديو: طبّق على «${f.name}» ${f.version || ''}: ${sg.text}`; await tell(t, b, { film: id, kind: 'suggestion', text: sg.text, action: sg.action, version: f.version || '' }); await markSent(f, 'change', t); }
     return;
   }
+  if (kind === 'reloadstudio') { location.reload(); return; }
   if (kind === 'igreload') { loadIg(true); return; }
   if (kind === 'pickopen') { openPick(f); return; }
   if (kind === 'pickclose') { pick = null; route(); return; }
@@ -4845,11 +4849,11 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
     if (!window.claude?.use) { ready = true; igState = 'nomcp'; route(); return; }
     db = selfDb(await window.claude.use('db'));   // v10 (S20): every write to a film is remembered for 10 s
     comments = await window.claude.use('comments');
-    if (!db) { ready = true; route(); return; }
+    if (!db) { loadErr = 'nodb'; ready = true; route(); return; }
     db.collection('films').onSnapshot((snap) => {
       films = snap.docs.map((d) => { try { return filmShape({ ...d.data(), id: d.id }); } catch (e) { return null; } }).filter(Boolean).sort((a, b) => num(a.order, 99) - num(b.order, 99));   // v9 (S17): a numeric key; a record that cannot be read is left out   // v6 (L2): one shape check per record
       ready = true; refresh();
-    }, () => { ready = true; refresh(); });
+    }, (e) => { loadErr = 'snap'; try { console.warn('studio films', e); } catch (x) {} ready = true; refresh(); });
     db.doc('studio/now').onSnapshot((d) => { now = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/costs').onSnapshot((d) => { costs = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/purge').onSnapshot((d) => { purgeDoc = d.exists ? d.data() : null; refresh(); }, () => {});
@@ -4867,7 +4871,7 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
     const firstLoad = setInterval(() => { if (ready) { clearInterval(firstLoad); loadIg(false); } }, 300);
     setInterval(() => { if (document.visibilityState === 'visible') loadIg(false); }, 30 * 60e3);   // the reports move every 3 hours
     setInterval(refresh, 5 * 60e3);                                  // the countdowns move
-  } catch (e) { ready = true; route(); }
+  } catch (e) { loadErr = 'init'; try { console.warn('studio init', e); } catch (x) {} ready = true; route(); }
 })();
 })();
 </script>
