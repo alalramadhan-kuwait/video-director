@@ -145,6 +145,25 @@ and brand-push posts do worst. Their navy and cream, script logo and italic seri
 - Formats to borrow: «غالية أو في المتناول» (an icon beside a watch with the same idea for less), the shop's price
   beside the market's, a brand's story as a timeline. A brand we sell is still an indirect ad.
 
+## The script before the slides (the owner, 9 Nov 2026: «for the carousel, I want to be able to review the whole carousel script before you generate the posts»)
+A carousel's words go to the owner as a script **before any slide is rendered**, the way a reel's script comes
+before its voice. The order is: the idea and research, the direction or the style sample, **the script**, then the
+slides.
+- **What the script holds:** every word that will be on the post, one line per unit, in order:
+  - `الغلاف: <top> / <bottom>`;
+  - one line per slide, `شريحة NN · <title> (<name>): <body>`, plus ` سؤال القارئ: <ask>` on the slide that has one;
+  - `الكابشن: <caption>`, with ` ¶ ` between its paragraphs.
+- **Where it goes:** the film record's `script.lines` (`[{n, text}]`), version `نص vN`, `state: 'waiting'`, no
+  `slides` yet. The studio shows it in the script card, where he edits any line («اضغط أي جملة») or approves.
+- **Before he sees it,** run `tools/house_check.py` on the spec and caption (the caption rules, the story order, the
+  feed window). He reviews words only after they pass.
+- **After he approves:** render exactly the approved words. His edits come back as `script_edits` by line number:
+  apply each one to that unit of the spec, re-run the house check, and post the next `نص vN` if a rule now fails.
+- **A text change after the slides exist** goes the usual way (slide numbers, or «عدّل النص بنفسك»). It does not
+  reopen the script step.
+- **A style sample** (cover and two slides) may come before the script. Its words are a draft, and the script step
+  still follows it.
+
 ## Make it
 **The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.
 
