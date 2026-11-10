@@ -17,9 +17,15 @@ class Spoken(unittest.TestCase):
         self.assertTrue(any('digits' in x for x in p))
         self.assertEqual(voice_gate.spoken_problems(['ثمانية وعشرين ألف وثمانمية دقة بالساعة']), [])
 
-    def test_english_terms_are_written_in_arabic_letters(self):
-        self.assertTrue(voice_gate.spoken_problems(['نلف Mainspring داخل Barrel']))
+    def test_watch_terms_are_spoken_in_english_other_english_is_not(self):
+        # the owner, 10 Nov 2026: «مفروض نطق الكلامات الانجليزية بالانجليزي هذي قاعده» (voice.say_english)
+        self.assertEqual(voice_gate.spoken_problems(['نلف Mainspring داخل Barrel']), [])
         self.assertEqual(voice_gate.spoken_problems(['نلف المين سبرينغ داخل الباريل']), [])
+        self.assertTrue(voice_gate.spoken_problems(['هذا Superlative']))
+
+    def test_spoken_english_terms_still_stay_off_the_screen(self):
+        self.assertTrue(voice_gate.screen_problems([{'text': 'نلف Mainspring', 'screen': ''}]))
+        self.assertTrue(voice_gate.screen_problems([{'text': 'نلف المين سبرينغ', 'screen': '1 · Mainspring'}]))
 
     def test_words_the_owner_cleared_by_ear_and_names_pass(self):
         self.assertEqual(voice_gate.spoken_problems(['ساعة Oyster']), [])

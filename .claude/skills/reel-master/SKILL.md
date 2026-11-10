@@ -103,6 +103,16 @@ any paid take, `tools/record_flow.py` applies the owner's word book and stops on
   (`--why`). Its result is saved with the take (`gate.json`); a take without a passed `gate.json` is never sent to the
   owner. Why: on 10 Nov 2026 a take recorded outside it carried English letters in the script and «28,800» as digits,
   which the voice read as «22,800».
+- **English watch terms are spoken in English** (the owner, 10 Nov 2026: «مفروض نطق الكلامات الانجليزية بالانجليزي
+  هذي قاعده»). The line's `text` and the screen keep them in Arabic letters (rule 16); the line's `say` writes them in
+  Latin letters, with no «ال» in front («داخل barrel», never «داخل الـ barrel»). The terms are listed in
+  `brand/house_rules.yaml` `voice.say_english` (spoken text only; the screen check does not read it); add a new term
+  there before the take, and check every term by ear on the pronunciation page.
+- **English watch terms are spoken in English** (the owner, 10 Nov 2026: «مفروض نطق الكلامات الانجليزية بالانجليزي
+  هذي قاعده»). The line's `text` and the screen keep them in Arabic letters (rule 16); the line's `say` writes them in
+  Latin letters, without «ال» in front («داخل barrel»، not «داخل الـ barrel»). The words are listed in
+  `brand/house_rules.yaml` `voice.latin_ok`; a new term is added there before the take, and every term is checked by
+  ear on the pronunciation page.
 - **Every take goes to the owner on the pronunciation review page** (the owner, 3 Nov 2026: «always send me the
   artifact to check each word pronunciation»): since 7 Nov 2026 that page is **the studio's «الصوت والنطق» view**
   (`#filmvoice-<film id>` on the studio, fed by the record's `voice`, `references/studio.md`); send its link with the
