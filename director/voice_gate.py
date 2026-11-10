@@ -25,6 +25,13 @@ def latin_ok(R: dict | None = None) -> set[str]:
     return {w.lower() for w in ((R.get('voice') or {}).get('latin_ok') or [])}
 
 
+def say_english(R: dict | None = None) -> set[str]:
+    """Watch-part terms the voice says in English (the owner, 10 Nov 2026: «مفروض نطق الكلامات الانجليزية بالانجليزي
+    هذي قاعده»): allowed in the spoken text only, never on screen or in the script's text (rule 16)."""
+    R = R or house.rules()
+    return {w.lower() for w in ((R.get('voice') or {}).get('say_english') or [])}
+
+
 def name_words(names) -> set[str]:
     """The Latin words of names the voice is meant to say in their own language (house style, rule 9e)."""
     return {w.lower() for n in (names or []) for w in LATIN.findall(str(n))}
@@ -33,7 +40,7 @@ def name_words(names) -> set[str]:
 def spoken_problems(spoken: list[str], R: dict | None = None, names=None) -> list[str]:
     """The text each line gives the voice, after the pronunciation book: what it must never contain. `names`: the
     names said in their own language (house style); their Latin words are meant to be there."""
-    ok, out = latin_ok(R) | name_words(names), []
+    ok, out = latin_ok(R) | say_english(R) | name_words(names), []
     for i, t in enumerate(spoken, 1):
         for m in DIGITS.finditer(t):
             num = re.search(r'[\d,.\-−+/٫]+', t[m.start():]).group(0)

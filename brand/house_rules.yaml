@@ -56,6 +56,11 @@ voice:          # timing a script before any paid take (the same borrowing, 9 No
   # English words the voice reads as written, each cleared by the owner's ear (tools/record_flow.py's voice gate stops
   # any other English letters in the spoken text: write the term in Arabic letters, «مين سبرينغ»)
   latin_ok: [Oyster]          # «Oyster», chosen by ear on 4 Nov 2026 (SKILL.md)
+  # Watch-part terms are SPOKEN in English (the owner, 10 Nov 2026: «مفروض نطق الكلامات الانجليزية بالانجليزي هذي
+  # قاعده»). Only the voice's text (`say`) may carry them in Latin letters, with no «ال» in front; the script's `text` and
+  # the screen keep them in Arabic letters (rule 16). Each is still checked by ear on the pronunciation page.
+  say_english: [mainspring, spring, barrel, crown, gear, train, center, centre, third, fourth, wheel, escape,
+    escapement, pallet, fork, balance, hairspring, motion, works, jewel, jewels, rotor, bezel, dial, hands]
 
 remember:       # lessons a machine cannot check: Claude reads them at the gate and confirms each
   - "A caption opens on the winner or the one key fact (and names the watch), then two or three short details, then one clear question about what the post shows. The slides explain; the caption does not repeat them."
