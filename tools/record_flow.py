@@ -9,6 +9,16 @@ the narration plays exactly as it was read and the pictures follow it.
 
     python3 tools/record_flow.py films/<film>.yaml <voice_dir> --voice <voice_id> [--name "Voice name"] [--seed 1234]
 
+A studio film without a .yaml records from its script as JSON: {"lines": [{"n", "text", "say"?, "screen"?}], "rules_ok"?,
+"kw_ok"?} (the record's `script.lines`, with `say` where the voice needs a different spelling).
+
+THE VOICE GATE (the owner, 10 Nov 2026: «there should be a gateway where if the rules are not applied it will not
+record»): this tool is the only way a take is made; ElevenLabs is never called any other way. Before anything is paid
+for, director/voice_gate.py checks the words on screen and the exact text the voice will get (no digits, no English
+letters except names said in their own language and words the owner cleared by ear, no «ال» before an English word, no
+«گ»): those checks have no override. The house rules, the word book and the delivery plan stop it too; their overrides
+need the owner's own words (--why), saved with the take in gate.json.
+
 Before anything is paid for, the script's delivery plan is checked (director/narration.py: each line's `tone:`, the
 arc across the film); a broken arc stops the recording unless --anyway. A script over MAX_CHARS is read act by act
 (`act: true` lines), each act with the acts around it as context, the same voice settings throughout. Natural speed
@@ -23,7 +33,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from director import brand as B, house, kw, narration, quickfilm  # noqa: E402
+from director import brand as B, house, kw, narration, quickfilm, voice_gate  # noqa: E402
 
 SR = 24000
 SETTINGS = {'stability': .5, 'similarity_boost': .8, 'style': .15, 'use_speaker_boost': True, 'speed': 1.0}   # steadier: one character all through
@@ -119,6 +129,19 @@ def write_wav(path: Path, data: bytes) -> None:
         w.setnchannels(1); w.setsampwidth(2); w.setframerate(SR); w.writeframes(data)
 
 
+def load(path: str) -> tuple[dict, bool]:
+    """The film and whether it is in the house style: a .yaml film, or a studio script as JSON."""
+    if str(path).endswith('.json'):
+        d = json.loads(Path(path).read_text(encoding='utf-8'))
+        lines = [{'id': f"l{l.get('n', k + 1)}", 'text': l['text'], **({'say': l['say']} if l.get('say') else {}),
+                  **({'screen': l['screen']} if l.get('screen') else {}), **({'act': True} if k == 0 else {})}
+                 for k, l in enumerate(d['lines'])]
+        return {'brand': d.get('brand', 'timekeeper'), 'title': d.get('title', ''), 'lines': lines,
+                'rules_ok': d.get('rules_ok'), 'kw_ok': d.get('kw_ok'), 'names': d.get('names')}, True
+    film = quickfilm.load(path)
+    return film, quickfilm.house(film)
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
     ap.add_argument('film'); ap.add_argument('out')
@@ -128,8 +151,11 @@ def main(argv=None) -> int:
     ap.add_argument('--anyway', action='store_true', help='record even when the delivery plan breaks one performance')
     ap.add_argument('--words-ok', action='store_true', help="record even with words the owner has not cleared (brand/kuwaiti-words.json)")
     ap.add_argument('--rules-ok', action='store_true', help='record even when the script breaks a house rule (brand/house_rules.yaml)')
+    ap.add_argument('--why', default='', help="the owner's own words for an override (--anyway, --words-ok, --rules-ok); required with any of them")
     a = ap.parse_args(argv)
-    film = quickfilm.load(a.film); brand = film.get('brand', 'timekeeper')
+    if (a.anyway or a.words_ok or a.rules_ok) and not a.why.strip():
+        print('an override needs the owner\'s own words: --why "<what he said>"'); return 6
+    film, house_style = load(a.film); brand = film.get('brand', 'timekeeper')
     global SETTINGS
     if a.model == V3: SETTINGS = dict(SETTINGS_V3)
     SETTINGS = {**SETTINGS, **((film.get('voice') or {}).get('settings') or {})}   # the film's own voice settings win
@@ -148,6 +174,13 @@ def main(argv=None) -> int:
     if broken and not a.rules_ok: print('the script breaks the house rules: fix it (tools/house_check.py --fix), or --rules-ok'); return 4
     for ln in film['lines']: ln['say'] = kw.apply(ln.get('say') or ln['text'])
     allsaid = [B.spoken(ln.get('say') or ln['text'], brand) for ln in film['lines']]
+    # the voice gate: the words on screen and the exact text the voice gets; no override
+    names = list(quickfilm.house_names(film).values()) if house_style else []
+    gate = voice_gate.spoken_problems(allsaid, names=names) + (voice_gate.screen_problems(film['lines'], names=names) if house_style else [])
+    (out / 'gate.json').write_text(json.dumps({'passed': not gate, 'problems': gate, 'house_rules': broken, 'words': flags,
+                                               'delivery': problems, 'override_why': a.why}, ensure_ascii=False, indent=1), encoding='utf-8')
+    for g_ in gate: print('voice gate:', g_)
+    if gate: print('the voice gate stops the take: fix the script (nothing was paid for)'); return 5
     whole = sum(len(t) + 1 for t in allsaid) <= MAX_CHARS and not a.per_act
     groups = [film['lines']] if whole else acts(film['lines'])
     said = [[tagged(ln, B.spoken(ln.get('say') or ln['text'], brand), a.model) for ln in g] for g in groups]

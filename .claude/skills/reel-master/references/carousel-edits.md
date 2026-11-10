@@ -71,6 +71,16 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 
 ## The log
 
+### 2026-11-10 · «ابنِ ساعتك بإيدك» voice v1 (asked in chat)
+- «are you aplying the rules ? espectiley the english words» · «therer should be a dateway where is if the rules are
+  not apply it will not recored».
+- The take was made outside `tools/record_flow.py`, so the gate never ran: the script and screen carried English
+  letters (Mainspring, GEAR TRAIN), and «28,800» reached the voice as digits («22,800»). Fixed in the record; the voice
+  had the terms in Arabic letters already.
+- **Lesson:** the rules only hold if nothing can go around the gate. One tool records; the voice gate checks the spoken
+  text and the screen and has no override.
+- **Status:** rule (SKILL.md §4, `director/voice_gate.py`).
+
 ### 2026-11-08 · GPHG 2026 winners v8 caption (the owner's review, 4/10)
 - «طويل وايد… التنسيق سيئ… البداية ضعيفة… الترتيب مشتّت… الأسلوب رسمي… السؤال الأخير ضعيف… ما ذكرت اسم الساعة
   الفائزة… لازم نعتمد قاعدة ثابتة للكابشنات: معلومة رئيسية، تفاصيل مختصرة، وسؤال واضح».
