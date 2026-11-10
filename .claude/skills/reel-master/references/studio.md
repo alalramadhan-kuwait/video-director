@@ -331,6 +331,12 @@ With every script sent for approval, write on the film:
   row with `via: 'chat'`) records `flow.choice` and `flow.picked_at`; Claude never writes `flow.choice` for him.
 - A film with a `video` and no picked `flow.choice` is refused: move the video to `prev_video`, reopen the card, and
   say so in the version's `changes`. The page's «الأسلوب» dot turns ✓ only after his pick.
+- The card is a library of **different arts**, never one look in other colours (the owner, 10 Nov 2026: «You only
+  changed the colors… I want different type of arts. We should have libery of them»). Offer the free styles of
+  `style-library.md` that fit the story, each with its sample picture (a still of this film when one exists, otherwise
+  the style's gallery poster, marked as the library's sample), plus any AI style with its credit estimate.
+- A mechanism is drawn as one working train, every part meshing with the next (barrel → centre, third and fourth
+  wheels → escape wheel → pallet fork → balance; the owner: «The gears all parts to be connected»), whatever the style.
 - Why: on 10 Nov 2026 «ابنِ ساعتك بإيدك» was built in a style he never saw, and the dot showed ✓.
 
 ## The house rules gate (v9, the owner, 8 Nov 2026; video-director #189)
