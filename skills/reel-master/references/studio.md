@@ -323,6 +323,16 @@ With every script sent for approval, write on the film:
 - **What gets deleted:** only ids in that row which are in the question, still hidden, and hidden at least 30 days before `asked_at` (a question or a row with no `asked_at` string matches nothing). Delete each record and **exactly the files `purge-plan.py delete` lists for it, one by one, by their exact path** (its blobs, and the published paths its own `video`, `final`, `slides`, `prev_video`, `poster`, `voice` and `posted` name), **except a file that anything staying still names**: another film, an idea, or an unhandled inbox row, anywhere in a text or a URL. **Never a pattern, a folder or an id prefix** (v8: `film/rubies-*` matches `rubies-engraving`, and `carousel/halter-1/` holds the posted `halter-1-carousel`). **Re-read each record just before deleting it**, and skip it if it is no longer hidden (`purge-plan.py recheck`). Mark the row handled and close `studio/purge`. Never match by name, and never delete on silence. `tools/studio/purge-plan.py delete` lists exactly this.
 - **Styles marked «يحتاج بناء»**: before starting one, tell him the build time and any paid cost, as for any paid step.
 
+## The style gate (the owner, 10 Nov 2026)
+- No build starts until he picks a style on the film's style card. Write `flow {stage: 'direction', direction_options:
+  [{id, name, style, cost: 'free'|'paid', credits?, image}]}` (three options, each with a sample picture; a paid option
+  says its credit estimate), and set `waiting` to the card.
+- His pick arrives as an inbox row `kind: 'flow'` with `choice`. Only that row (or his words in chat written as that
+  row with `via: 'chat'`) records `flow.choice` and `flow.picked_at`; Claude never writes `flow.choice` for him.
+- A film with a `video` and no picked `flow.choice` is refused: move the video to `prev_video`, reopen the card, and
+  say so in the version's `changes`. The page's «الأسلوب» dot turns ✓ only after his pick.
+- Why: on 10 Nov 2026 «ابنِ ساعتك بإيدك» was built in a style he never saw, and the dot showed ✓.
+
 ## The house rules gate (v9, the owner, 8 Nov 2026; video-director #189)
 **The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.
 
