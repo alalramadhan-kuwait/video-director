@@ -92,6 +92,17 @@ any paid take, `tools/record_flow.py` applies the owner's word book and stops on
 (`references/kuwaiti-voice.md`). Put those on his script card instead of recording and fixing afterwards.
 
 ### 4. Voice
+- **The voice gate: a take is made only by `tools/record_flow.py`** (the owner, 10 Nov 2026: «there should be a
+  gateway where if the rules are not applied it will not record»). ElevenLabs text-to-speech is never called any other
+  way: not by curl, not by a script written for one film, not for one re-read line. A studio film without a .yaml
+  records from its `script.lines` as JSON (`{"lines": [{"n", "text", "say"?, "screen"?}]}`). Before anything is
+  paid for it stops on: the house rules, the word book, the delivery plan, and `director/voice_gate.py` — the words on
+  screen (an English technical term is written in Arabic letters, rule 16) and the exact text the voice gets (no
+  digits, rule 9d; no English letters except names said in their own language and `voice.latin_ok`; no «ال» before an
+  English word; no «گ»). The voice gate has no override; the others take one only with the owner's own words
+  (`--why`). Its result is saved with the take (`gate.json`); a take without a passed `gate.json` is never sent to the
+  owner. Why: on 10 Nov 2026 a take recorded outside it carried English letters in the script and «28,800» as digits,
+  which the voice read as «22,800».
 - **Every take goes to the owner on the pronunciation review page** (the owner, 3 Nov 2026: «always send me the
   artifact to check each word pronunciation»): since 7 Nov 2026 that page is **the studio's «الصوت والنطق» view**
   (`#filmvoice-<film id>` on the studio, fed by the record's `voice`, `references/studio.md`); send its link with the

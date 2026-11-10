@@ -53,6 +53,9 @@ voice:          # timing a script before any paid take (the same borrowing, 9 No
   chars_per_second: 12.4
   hook_max_s: 3.5            # the first line: past ~3.5 s the viewer has already decided
   line_max_s: 6.0            # a longer line is split, or planned with two shots (`shots:` with 2 or more)
+  # English words the voice reads as written, each cleared by the owner's ear (tools/record_flow.py's voice gate stops
+  # any other English letters in the spoken text: write the term in Arabic letters, «مين سبرينغ»)
+  latin_ok: [Oyster]          # «Oyster», chosen by ear on 4 Nov 2026 (SKILL.md)
 
 remember:       # lessons a machine cannot check: Claude reads them at the gate and confirms each
   - "A caption opens on the winner or the one key fact (and names the watch), then two or three short details, then one clear question about what the post shows. The slides explain; the caption does not repeat them."
