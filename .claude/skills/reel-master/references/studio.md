@@ -328,7 +328,9 @@ With every script sent for approval, write on the film:
   [{id, name, style, cost: 'free'|'paid', credits?, image}]}` (three options, each with a sample picture; a paid option
   says its credit estimate), and set `waiting` to the card.
 - His pick arrives as an inbox row `kind: 'flow'` with `choice`. Only that row (or his words in chat written as that
-  row with `via: 'chat'`) records `flow.choice` and `flow.picked_at`; Claude never writes `flow.choice` for him.
+  row with `via: 'chat'`) records `flow.choice`; the page stamps his tap as `flow.picked_by: 'owner'` and
+  `flow.picked_at`. Claude never writes `flow.choice` or `picked_by` for him. A style card sets `flow.of: 'style'` so
+  the page shows it on the «الأسلوب» stage.
 - A film with a `video` and no picked `flow.choice` is refused: move the video to `prev_video`, reopen the card, and
   say so in the version's `changes`. The page's «الأسلوب» dot turns ✓ only after his pick.
 - The card is a library of **different arts**, never one look in other colours (the owner, 10 Nov 2026: «You only
