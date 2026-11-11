@@ -148,7 +148,8 @@ def load(path: str) -> tuple[dict, bool]:
     if str(path).endswith('.json'):
         d = json.loads(Path(path).read_text(encoding='utf-8'))
         lines = [{'id': f"l{l.get('n', k + 1)}", 'text': l['text'], **({'say': l['say']} if l.get('say') else {}),
-                  **({'screen': l['screen']} if l.get('screen') else {}), **({'act': True} if k == 0 else {})}
+                  **({'screen': l['screen']} if l.get('screen') else {}),
+                  **({'shots': l['shots']} if isinstance(l.get('shots'), list) else {}), **({'act': True} if k == 0 else {})}
                  for k, l in enumerate(d['lines'])]
         return {'brand': d.get('brand', 'timekeeper'), 'title': d.get('title', ''), 'lines': lines,
                 'rules_ok': d.get('rules_ok'), 'kw_ok': d.get('kw_ok'), 'names': d.get('names')}, True
