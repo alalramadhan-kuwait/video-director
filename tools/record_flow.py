@@ -24,10 +24,24 @@ arc across the film); a broken arc stops the recording unless --anyway. A script
 (`act: true` lines), each act with the acts around it as context, the same voice settings throughout. Natural speed
 only: a voice is never sped up (cut the script instead). Afterwards: tools/hear.py for the words, and
 tools/hear_flow.py for one performance (it also writes the narration alone as an MP4 to listen to without the film).
+
+A TAKE THROUGH THE ELEVENLABS CONNECTOR (no API key on the machine; the owner, 10 Nov 2026: «yes», to this route,
+after «the connector of 11 labs will work in this chat»). The connector's speech tool takes the text, the voice and
+the model and gives back audio only, without timings. The gate stays here:
+
+    python3 tools/record_flow.py <film> --voice <id> [--model eleven_v3] --prepare <dir>
+        every check above, the same refusals and overrides; then, instead of calling ElevenLabs, <dir>/gate.json and
+        <dir>/take.json (the exact text of the one whole take, voice_id, model_id). No network call. A failed check
+        writes nothing.
+    (send exactly take.json's text, voice_id and model_id to the connector's speech tool: one take)
+    python3 tools/record_flow.py <film> [<voice_dir>] --import <audio> --from <dir>
+        refuses without a passed gate.json whose script hash matches the film now; Whisper (if installed) must hear
+        roughly take.json's text; the take is cut per line on Whisper's word times, or else at the silences between
+        lines; the same per-line output as the paid path, and gate.json beside the take.
 """
 from __future__ import annotations
 
-import argparse, base64, json, os, subprocess, sys, tempfile, wave
+import argparse, base64, copy, datetime, difflib, hashlib, json, os, re, shutil, subprocess, sys, tempfile, wave
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -134,7 +148,8 @@ def load(path: str) -> tuple[dict, bool]:
     if str(path).endswith('.json'):
         d = json.loads(Path(path).read_text(encoding='utf-8'))
         lines = [{'id': f"l{l.get('n', k + 1)}", 'text': l['text'], **({'say': l['say']} if l.get('say') else {}),
-                  **({'screen': l['screen']} if l.get('screen') else {}), **({'act': True} if k == 0 else {})}
+                  **({'screen': l['screen']} if l.get('screen') else {}),
+                  **({'shots': l['shots']} if isinstance(l.get('shots'), list) else {}), **({'act': True} if k == 0 else {})}
                  for k, l in enumerate(d['lines'])]
         return {'brand': d.get('brand', 'timekeeper'), 'title': d.get('title', ''), 'lines': lines,
                 'rules_ok': d.get('rules_ok'), 'kw_ok': d.get('kw_ok'), 'names': d.get('names')}, True
@@ -142,24 +157,190 @@ def load(path: str) -> tuple[dict, bool]:
     return film, quickfilm.house(film)
 
 
+def script_hash(film: dict) -> str:
+    """The script as the voice and the screen get it: every line's fields and the brand, before the word book is
+    applied. A take imported from the connector must match it."""
+    blob = json.dumps({'brand': film.get('brand', 'timekeeper'), 'lines': film['lines']}, ensure_ascii=False, sort_keys=True, default=str)
+    return hashlib.sha256(blob.encode('utf-8')).hexdigest()
+
+
+ALEF = str.maketrans({'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ة': 'ه', 'ى': 'ي', 'ؤ': 'و', 'ئ': 'ي'})
+
+
+def letters(text: str) -> tuple[str, list[int]]:
+    """The text's letters only (no audio tags in [...], marks, punctuation or spaces; one form of alef, ة as ه), and
+    where each came from in the text: what a loose comparison with a transcription needs."""
+    out, at, depth = [], [], 0
+    for i, c in enumerate(text):
+        if c == '[': depth += 1; continue
+        if c == ']': depth = max(0, depth - 1); continue
+        if depth or not c.isalpha(): continue
+        out.append(c.lower().translate(ALEF)); at.append(i)
+    return ''.join(out), at
+
+
+def transcribe(audio: Path) -> list[dict] | None:
+    """Whisper's words with their times ([{word, start, end}]), or None when the `whisper` CLI is not installed or
+    fails. Local only: nothing leaves the machine."""
+    if not shutil.which('whisper'): return None
+    with tempfile.TemporaryDirectory() as td:
+        cmd = ['whisper', str(audio), '--language', 'Arabic', '--word_timestamps', 'True', '--output_format', 'json',
+               '--output_dir', td, '--fp16', 'False', '--verbose', 'False']
+        if os.environ.get('RECORD_FLOW_WHISPER_MODEL'): cmd += ['--model', os.environ['RECORD_FLOW_WHISPER_MODEL']]
+        r = subprocess.run(cmd, capture_output=True, text=True)
+        js = list(Path(td).glob('*.json'))
+        if r.returncode or not js: print('whisper failed; cutting at the silences instead'); return None
+        d = json.loads(js[0].read_text(encoding='utf-8'))
+    return [{'word': w['word'].strip(), 'start': float(w['start']), 'end': float(w['end'])}
+            for seg in d.get('segments', []) for w in seg.get('words', []) if w.get('word', '').strip()]
+
+
+def heard_ratio(text: str, words: list[dict]) -> float:
+    """How closely the transcription follows the text, letters only (0..1)."""
+    a, _ = letters(text); b, _ = letters(' '.join(w['word'] for w in words))
+    return difflib.SequenceMatcher(None, a, b, autojunk=False).ratio() if a and b else 0.0
+
+
+def cuts_by_words(text: str, spans: list[tuple[int, int]], words: list[dict], total: float) -> list[tuple[float, float]] | None:
+    """Each line's [from, to) seconds from Whisper's word times: every heard word is placed in the text by a letter
+    match, and the cut falls in the middle of the silence between one line's last word and the next line's first.
+    None when a line has no word placed in it (the silences decide then)."""
+    a, at = letters(text)
+    hb, owner = [], []
+    for k, w in enumerate(words):
+        n, _ = letters(w['word']); hb.append(n); owner += [k] * len(n)
+    b = ''.join(hb)
+    pos: dict[int, list[int]] = {}
+    for blk in difflib.SequenceMatcher(None, a, b, autojunk=False).get_matching_blocks():
+        for j in range(blk.size): pos.setdefault(owner[blk.b + j], []).append(at[blk.a + j])
+    first = [None] * len(spans); last = [None] * len(spans)
+    for k, ps in sorted(pos.items()):
+        p = sorted(ps)[len(ps) // 2]
+        li = next((i for i, (s0, s1) in enumerate(spans) if s0 <= p < s1 + 1), None)
+        if li is None: continue
+        w = words[k]
+        if first[li] is None or w['start'] < first[li]: first[li] = w['start']
+        if last[li] is None or w['end'] > last[li]: last[li] = w['end']
+    if any(x is None for x in first + last): return None
+    bounds = [0.0]
+    for i in range(len(spans) - 1):
+        m = round((last[i] + first[i + 1]) / 2, 3)
+        if m <= bounds[-1]: return None
+        bounds.append(m)
+    if total <= bounds[-1]: return None
+    bounds.append(total)
+    return list(zip(bounds, bounds[1:]))
+
+
+def silences(audio: Path, noise: str = '-35dB', least: float = .15) -> list[tuple[float, float]]:
+    """The silences in the take ([start, end) seconds), by ffmpeg's silencedetect."""
+    r = subprocess.run(['ffmpeg', '-hide_banner', '-nostats', '-i', str(audio), '-af', f'silencedetect=noise={noise}:d={least}',
+                        '-f', 'null', '-'], capture_output=True, text=True)
+    out, s0 = [], None
+    for m in re.finditer(r'silence_(start|end): ([\d.]+)', r.stderr):
+        if m.group(1) == 'start': s0 = float(m.group(2))
+        elif s0 is not None: out.append((s0, float(m.group(2)))); s0 = None
+    return out
+
+
+def cuts_by_silence(n: int, gaps: list[tuple[float, float]], total: float) -> list[tuple[float, float]] | None:
+    """n lines from the silences: the n-1 longest silences inside the take (not its lead-in or tail), taken in order,
+    each cut in its middle. None when there are too few."""
+    inner = [g for g in gaps if g[0] > .05 and g[1] < total - .05]
+    if len(inner) < n - 1: return None
+    pick = sorted(sorted(inner, key=lambda g: g[1] - g[0], reverse=True)[:n - 1])
+    bounds = [0.0] + [round((g0 + g1) / 2, 3) for g0, g1 in pick] + [total]
+    return list(zip(bounds, bounds[1:]))
+
+
+def import_take(a, film: dict, brand: str) -> int:
+    """--import: a take made through the ElevenLabs connector, back through the gate."""
+    prep = Path(a.from_dir)
+    try:
+        gate = json.loads((prep / 'gate.json').read_text(encoding='utf-8'))
+        take = json.loads((prep / 'take.json').read_text(encoding='utf-8'))
+    except (OSError, ValueError):
+        print(f'no prepared take in {prep}: run --prepare first (a take outside the gate is never used)'); return 7
+    if not gate.get('passed') or gate.get('route') != 'connector':
+        print(f'{prep}/gate.json did not pass: fix the script and --prepare again'); return 7
+    if gate.get('script_hash') != script_hash(film):
+        print('the script changed since --prepare: prepare again and make a new take (this audio reads the old script)'); return 7
+    audio_file = Path(a.import_file)
+    if not audio_file.is_file(): print(f'no audio at {audio_file}'); return 7
+    film = copy.deepcopy(film)
+    for ln in film['lines']: ln['say'] = kw.apply(ln.get('say') or ln['text'])
+    said = [tagged(ln, B.spoken(ln.get('say') or ln['text'], brand), take['model_id']) for ln in film['lines']]
+    text, spans = paragraph(said)
+    if text != take['text']:
+        print('take.json does not hold the text this script gives the voice: prepare again'); return 7
+    audio = pcm(audio_file.read_bytes()); total = len(audio) / 2 / SR
+    words = transcribe(audio_file)
+    ratio = None
+    if words is not None:
+        ratio = round(heard_ratio(text, words), 3)
+        print(f'whisper heard the take at {ratio:.0%} of the text')
+        if ratio < MIN_HEARD:
+            print(f'the audio does not read take.json\'s text (heard {ratio:.0%}, needs {MIN_HEARD:.0%}): '
+                  'send exactly take.json\'s text to the connector, one take'); return 8
+    bounds, how = (cuts_by_words(text, spans, words, total), 'whisper words') if words else (None, '')
+    if bounds is None:
+        bounds, how = cuts_by_silence(len(said), silences(audio_file), total), 'silences'
+    if bounds is None:
+        print(f'cannot find {len(said) - 1} pauses between the lines in the take: re-take, or record line by line'); return 9
+    out = Path(a.out) if a.out else prep; (out / 'raw').mkdir(parents=True, exist_ok=True)
+    master = f'raw/whole{audio_file.suffix or ".mp3"}'
+    if (out / master).resolve() != audio_file.resolve(): shutil.copyfile(audio_file, out / master)
+    (out / 'raw' / 'whole.json').write_text(json.dumps({'text': text, 'words': words, 'cut_by': how}, ensure_ascii=False), encoding='utf-8')
+    for ln, (t0, t1), spoken in zip(film['lines'], bounds, said):
+        i0, i1 = int(t0 * SR) * 2, int(t1 * SR) * 2
+        write_wav(out / f"{ln['id']}.wav", audio[i0:i1])
+        (out / f"{ln['id']}.json").write_text(json.dumps({'provider': 'elevenlabs', 'via': 'connector', 'voice_id': take['voice_id'],
+                                                           'voice_name': gate.get('voice_name', ''), 'model': take['model_id'], 'act': 1,
+                                                           'from': t0, 'to': t1, 'text': spoken, 'master': master, 'continuous': True,
+                                                           'settings': gate.get('settings'), 'cut_by': how},
+                                                          ensure_ascii=False), encoding='utf-8')
+        print(f"act 1  {ln['id']:>5}  {t0:6.2f}-{t1:6.2f}  {spoken}", flush=True)
+    (out / 'gate.json').write_text(json.dumps({**gate, 'imported': audio_file.name, 'imported_at': now(), 'heard_ratio': ratio,
+                                               'cut_by': how, 'prepared_in': str(prep)}, ensure_ascii=False, indent=1), encoding='utf-8')
+    print('characters', len(text), '· cut by', how)
+    return 0
+
+
+MIN_HEARD = .5          # Whisper misspells Arabic: only a take that reads something else falls below this
+
+
+def now() -> str:
+    return datetime.datetime.now(datetime.timezone.utc).isoformat(timespec='seconds')
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description=__doc__.split('\n')[0])
-    ap.add_argument('film'); ap.add_argument('out')
-    ap.add_argument('--voice', required=True); ap.add_argument('--name', default='')
+    ap.add_argument('film'); ap.add_argument('out', nargs='?')
+    ap.add_argument('--voice'); ap.add_argument('--name', default='')
     ap.add_argument('--seed', type=int, default=1234); ap.add_argument('--model', default='eleven_multilingual_v2')
     ap.add_argument('--per-act', action='store_true', help='read act by act even when the whole script fits one take')
     ap.add_argument('--anyway', action='store_true', help='record even when the delivery plan breaks one performance')
     ap.add_argument('--words-ok', action='store_true', help="record even with words the owner has not cleared (brand/kuwaiti-words.json)")
     ap.add_argument('--rules-ok', action='store_true', help='record even when the script breaks a house rule (brand/house_rules.yaml)')
     ap.add_argument('--why', default='', help="the owner's own words for an override (--anyway, --words-ok, --rules-ok); required with any of them")
+    ap.add_argument('--prepare', metavar='DIR', help='run every check, then write DIR/gate.json and DIR/take.json for the ElevenLabs connector; no call')
+    ap.add_argument('--import', dest='import_file', metavar='AUDIO', help='the take the connector made from --prepare\'s take.json')
+    ap.add_argument('--from', dest='from_dir', metavar='DIR', help='the --prepare directory of an --import')
     a = ap.parse_args(argv)
+    if a.import_file or a.from_dir:
+        if not (a.import_file and a.from_dir): print('--import needs --from <the --prepare directory>'); return 7
+        film, _ = load(a.film)
+        return import_take(a, film, film.get('brand', 'timekeeper'))
+    if not a.voice: print('--voice is required'); return 6
+    if not a.prepare and not a.out: print('give the voice directory (or --prepare <dir>)'); return 6
     if (a.anyway or a.words_ok or a.rules_ok) and not a.why.strip():
         print('an override needs the owner\'s own words: --why "<what he said>"'); return 6
     film, house_style = load(a.film); brand = film.get('brand', 'timekeeper')
+    shash = script_hash(film)
     global SETTINGS
     if a.model == V3: SETTINGS = dict(SETTINGS_V3)
     SETTINGS = {**SETTINGS, **((film.get('voice') or {}).get('settings') or {})}   # the film's own voice settings win
-    out = Path(a.out); (out / 'raw').mkdir(parents=True, exist_ok=True)
+    out = Path(a.prepare or a.out)
     problems = narration.check(film['lines'])
     for p_ in problems: print('delivery:', p_)
     if problems and not a.anyway: print('the delivery plan breaks one performance: fix the tones (or --anyway)'); return 2
@@ -177,11 +358,29 @@ def main(argv=None) -> int:
     # the voice gate: the words on screen and the exact text the voice gets; no override
     names = list(quickfilm.house_names(film).values()) if house_style else []
     gate = voice_gate.spoken_problems(allsaid, names=names) + (voice_gate.screen_problems(film['lines'], names=names) if house_style else [])
-    (out / 'gate.json').write_text(json.dumps({'passed': not gate, 'problems': gate, 'house_rules': broken, 'words': flags,
-                                               'delivery': problems, 'override_why': a.why}, ensure_ascii=False, indent=1), encoding='utf-8')
+    record = {'passed': not gate, 'problems': gate, 'house_rules': broken, 'words': flags, 'delivery': problems, 'override_why': a.why}
+    if not a.prepare:
+        out.mkdir(parents=True, exist_ok=True)
+        (out / 'gate.json').write_text(json.dumps(record, ensure_ascii=False, indent=1), encoding='utf-8')
     for g_ in gate: print('voice gate:', g_)
     if gate: print('the voice gate stops the take: fix the script (nothing was paid for)'); return 5
     whole = sum(len(t) + 1 for t in allsaid) <= MAX_CHARS and not a.per_act
+    if a.prepare:
+        if not whole:
+            print(f'the connector makes one whole take: this script is over {MAX_CHARS} characters (or --per-act); cut it, or record with the API key'); return 2
+        said = [tagged(ln, B.spoken(ln.get('say') or ln['text'], brand), a.model) for ln in film['lines']]
+        text, _ = paragraph(said)
+        out.mkdir(parents=True, exist_ok=True)
+        (out / 'gate.json').write_text(json.dumps({**record, 'route': 'connector', 'script_hash': shash, 'film': str(a.film),
+                                                   'voice_id': a.voice, 'voice_name': a.name, 'model_id': a.model,
+                                                   'settings': SETTINGS, 'settings_sent': False, 'prepared_at': now()},
+                                                  ensure_ascii=False, indent=1), encoding='utf-8')
+        (out / 'take.json').write_text(json.dumps({'text': text, 'voice_id': a.voice, 'model_id': a.model},
+                                                  ensure_ascii=False, indent=1), encoding='utf-8')
+        print(f'prepared {out}/take.json: {len(text)} characters, one take; send exactly its text, voice_id and model_id to the connector,')
+        print(f'then: python3 tools/record_flow.py {a.film} <voice_dir> --import <audio> --from {out}')
+        return 0
+    (out / 'raw').mkdir(parents=True, exist_ok=True)
     groups = [film['lines']] if whole else acts(film['lines'])
     said = [[tagged(ln, B.spoken(ln.get('say') or ln['text'], brand), a.model) for ln in g] for g in groups]
     paras = [paragraph(t) for t in said]
