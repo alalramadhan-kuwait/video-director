@@ -165,7 +165,32 @@ slides.
 - **The script stays on the record after the slides** (the owner, 9 Nov 2026: «add option to copy the whole text then send it with your format»): keep `script.lines` in step with the spec at every new version, so the studio's «انسخ النص كله» copies every word of the post in this format. He edits the copied text and pastes it into «تعديل» («وش تبي يتغيّر؟»). Read his pasted text line by line by its labels (`الغلاف:`, `شريحة NN ·`, `الكابشن:`), apply only the units that changed to the spec, run the house check, render only the slides that changed, and list each change in the `changes` entry.
   still follows it.
 
-## Make it
+## Today: a carousel is a KIT `spec` the studio draws (v135, 11 Nov 2026)
+**One renderer.** Every new carousel is written as a `spec` on its film record and drawn by the studio page's own
+canvas code (`kitSlide` in `studio-page/index.html`), so the owner edits it live in the studio: he taps a slide,
+changes its text, and saves (`references/studio.md`, «The owner edits a carousel's text himself»). The PNGs sent to
+him are rendered through that same page code, with the studio's Bahij font, so what he edits is what was rendered.
+Slides drawn only on the Mac (HTML or PIL to PNG) cannot be edited by him: never deliver them.
+- **The spec:** `{language, cover: {layout, image, top, bottom, pos}, slides: [{layout, title, name, kicker, body, ask,
+  quote, big, image, images[], callouts[], crop, fit, pos, ink, grow, valign, credit}]}`. `\n` in a text is a line
+  break, and the renderer keeps it.
+- **A layout library, not one look** (the owner: the composition changes from slide to slide, inside one Time Keeper
+  identity): `split`, `callouts`, `statement`, `zoom`, `compare`, `bigNumber`, `timeline`, `grid`, `scrapbook`,
+  `overlay`, and the cover layout `photo` (a full cover photo). The first kit's layouts (`topImage`, `rightBleed`,
+  `bottomImage`, `leftBleed`, `bigCorner`) still draw.
+- **`kicker`:** one big green phrase a slide, 2–4 words taken from that slide's own text.
+- **`<b>…</b>`:** one or two key words a slide, drawn green and a little bigger (body, cover lines, quote, kicker).
+- **`ink: true`:** a patent or line drawing is inked (grey, more contrast, thicker lines) and cropped to the figure
+  (`crop`), so it reads on a phone.
+- **`grow`** (1.2–1.4) and `valign: 'center'`: the text grows into empty room. No slide is left half empty.
+- **Before he sees it:** every slide drawn in Bahij, no text on the picture, no warning from the kit; if the text
+  does not fit, shrink the picture or drop the kicker, never cut his words.
+- **Photos:** any photo may be used when the caption credits its source; photos are never committed to this (public)
+  repository.
+- **The repo kit below (`tools/carousel`: `make.py`, `carousel.mjs`) is kept for older posts only.** It draws the first
+  kit's layouts and none of the library above. Do not start a new carousel with it.
+
+## Make it (the first kit: older posts only)
 **The house rules gate** (the owner, 8 Nov 2026: «after writing a text, is there a gateway that will check all those rules… so all those edits will not go to waste»): every owner correction a machine can check lives in `brand/house_rules.yaml`. Run `python3 tools/house_check.py <film.yaml | carousel folder | caption.txt> --fix` after writing any script, slide or caption and before the owner sees it; rewrite what it flags (or, when a flagged word is right in that sentence, list it under the film's `rules_ok:`), and confirm its «remember» lessons. `record_flow.py` refuses a paid take and `make.py` refuses to render while a rule is broken.
 
 Folder `carousels/<name>/` (outside git when it holds third-party photos): `spec.json`, the images, `caption.txt`.

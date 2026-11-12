@@ -52,6 +52,21 @@ The lessons that stand, newest last. A lesson seen twice, or one the owner state
 18. **A list of many winners is cards, not one slide each** (the awards style, from a competitor's post the owner
     liked): cover grid with a seal, the top winner alone, then six outlined cards a slide with category, brand, model
     and the official reference. Rule: `carousel.md`, «The awards style». (GPHG, 8 Nov 2026)
+19. **A story carousel is Kuwaiti from the first draft, not فصحى** (news stays as lesson 11). He rewrote almost every
+    formal line himself: «لم تكن» → «ما كنت»، «لأنها» → «عشان»، «دون أن» → «من غير ما»، «أم» → «ولا». (Day-Date,
+    10–11 Nov 2026, his live edits and his full rewrite)
+20. **Talk to the reader.** The cover speaks to «you» («ما كنت تقدر تشوف…») and the end asks him directly («وأنت
+    شتفضّل: … ولا …؟»). (Day-Date)
+21. **One idea per line.** A body is two or three short lines, each its own line break; the renderer keeps them.
+    (Day-Date)
+22. **Exact facts, no filler.** Say exactly what was there («اختصارات أو عقارب صغيرة», not a vague «بشكل صغير»); drop
+    an opener that says nothing, and leave out an unsourced aside instead of hedging on a slide. Slide titles are
+    short and name the step («بداية الاختراع»، «تطوير الفكرة»). (Day-Date)
+23. **Names and model codes in English, spelled the same everywhere** («Day-Date», never «Day Date»; «Rolex Ref.
+    6062»). (Day-Date)
+24. **Never change his words silently.** A text he wrote or edited is rendered as he wrote it. If a word looks wrong,
+    or a rule would change it, flag it and let him decide. (Day-Date: a session changed two of his words while
+    redrawing)
 
 ## How to log an edit
 The studio keeps each save word for word: the version's `changes[0].edits` (`[{where, field, key, before, after}]`)

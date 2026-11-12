@@ -23,7 +23,7 @@ its story or its clay identity (story-engine.md).
 
 **The voice:** a close, warm male storyteller, unhurried but never slow. Present tense, short sentences, no
 theatrics. Emotion comes from pace and pitch, not volume. The quoted lines are said softly. The lesson lifts a little
-and turns to the listener. One take, no gaps of silence. In Kuwaiti: Jarnathan or Abdullah, one take, `calm → serious →
+and turns to the listener. One take, no gaps of silence. In Kuwaiti: «Faisal» (the owner's cloned voice), one take, `calm → serious →
 warm` (narration.py), punctuation for the beats.
 
 **The camera:** almost always locked or a slow push-in (about 5–10% over a shot). The motion is the acting inside

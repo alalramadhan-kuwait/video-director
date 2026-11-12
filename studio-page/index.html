@@ -3,7 +3,7 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="theme-color" content="#FBF7EF">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@600;800&family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=Noto+Kufi+Arabic:wght@400;600;800&display=swap">
 <style>
 /* layout: a phone app in the celebration-dial look the owner chose (theme A): cream ground, one bright colour per film,
    rounded cards, a dark floating tab bar; one light look on purpose */
@@ -263,6 +263,51 @@ details.fold[open]>summary::after{transform:rotate(90deg)}
 .pfb{position:absolute;inset:34px 8px 8px;font:700 12px/1.35 var(--body);overflow:hidden;text-align:start}
 .lnk{border:0;background:transparent;min-height:44px;font:700 14px var(--body);cursor:pointer;color:var(--ink);padding:0}
 .adv{border:0;border-top:1px solid var(--line);background:transparent;width:100%;min-height:52px;display:flex;justify-content:space-between;align-items:center;font:700 14.5px var(--body);cursor:pointer;color:var(--ink);padding:0}.adv span{font-weight:500;color:var(--mute)}
+/* old slides under new text (10 Nov 2026) */
+.slides.stale img{opacity:.4;filter:grayscale(1)}
+.stale-note{background:#FFF4D6;color:#5C4300;border-radius:14px;padding:10px 12px;font:700 14px/1.6 var(--body);width:100%;text-align:start}
+/* v2, the rebuilt studio (10 Nov 2026, look «C · جريء»): light grey ground, blue and black blocks, one home screen */
+html:has(body.v2){background:#F4F4F2}
+body.v2{background:#F4F4F2;color:#111;font-family:'Noto Kufi Arabic','IBM Plex Sans Arabic',system-ui,sans-serif;padding-block:0 calc(92px + env(safe-area-inset-bottom,0px))}
+body.v2 .view{gap:10px;padding-top:0}
+.v2-top{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-block:22px 6px;flex-wrap:wrap}
+.v2-top b{font-size:16px;font-weight:800}.v2-top span{font-size:12.5px;font-weight:600;color:#4A4A48}
+.v2-wait{background:#1F45C8;color:#fff;border-radius:22px;padding:16px;display:grid;gap:10px;min-width:0}
+.v2-big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}.v2-big i{font:800 54px/1 'Noto Kufi Arabic',system-ui,sans-serif;font-style:normal;font-variant-numeric:tabular-nums}.v2-big h1{font:800 21px/1.3 'Noto Kufi Arabic',system-ui,sans-serif}
+.v2-row{display:flex;justify-content:space-between;align-items:center;gap:10px;min-height:52px;background:#fff;color:#111;border-radius:14px;padding:8px 14px;text-decoration:none;min-width:0}
+.v2-row span{display:grid;min-width:0}.v2-row b{font-size:14.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.v2-row small{font-size:12px;color:#4A4A48;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.v2-row em{flex:none;font-style:normal;font-size:12.5px;font-weight:800;color:#1F45C8}
+.v2-more{color:#fff;font-size:13px;font-weight:600;text-align:center;padding:10px 0 2px;min-height:44px;display:grid;place-items:center}
+.v2-h{font:800 16px 'Noto Kufi Arabic',system-ui,sans-serif;margin:6px 4px 0}
+.v2-fly{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.v2-tile{background:#fff;color:#111;border-radius:18px;padding:12px 10px;min-height:118px;display:flex;flex-direction:column;justify-content:space-between;gap:8px;text-decoration:none;min-width:0}
+.v2-tile i{font:800 27px/1 'Noto Kufi Arabic',system-ui,sans-serif;font-style:normal;color:#1F45C8;direction:ltr;text-align:right;font-variant-numeric:tabular-nums}
+.v2-tile span{display:grid;min-width:0}.v2-tile b{font-size:13px;font-weight:800;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.v2-tile small{font-size:11.5px;color:#4A4A48}
+.v2-note{font-size:12.5px;color:#4A4A48;margin:0 4px;line-height:1.6}
+.v2-next{background:#111;color:#fff;border-radius:22px;padding:16px;display:grid;gap:8px;min-width:0;overflow-wrap:anywhere}
+.v2-next small{font-size:12px;font-weight:600;color:#C9C9C5}.v2-next b{font-size:19px;font-weight:800;line-height:1.45}.v2-next p{font-size:12.5px;color:#C9C9C5;line-height:1.7}
+.v2-btn{min-height:48px;border-radius:14px;background:#fff;color:#111;font-size:15px;font-weight:800;display:grid;place-items:center;text-decoration:none;padding:8px 12px}
+.v2-nav{position:fixed;left:0;right:0;bottom:0;z-index:20;background:#fff;display:flex;justify-content:space-around;align-items:center;padding:8px max(16px,env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));box-shadow:0 -1px 0 #E2E2DE}
+.v2-nav a{min-height:48px;min-width:72px;display:grid;place-items:center;font-size:13px;font-weight:600;color:#4A4A48;text-decoration:none;padding:0 10px}.v2-nav a[aria-current="page"]{font-weight:800;color:#1F45C8}
+#v2back{position:relative;z-index:2;width:max-content;margin:10px auto 0;min-height:44px;display:grid;place-items:center;padding:0 16px;border-radius:999px;background:#1F45C8;color:#fff;font:800 13px 'Noto Kufi Arabic','IBM Plex Sans Arabic',system-ui,sans-serif;text-decoration:none;box-shadow:0 4px 14px -6px rgba(0,0,0,.5)}
+#v2back[hidden]{display:none}.v2-top span{min-width:0;overflow-wrap:anywhere}.v2-more{text-decoration:none}
+.v2-sec{background:#fff;border-radius:22px;padding:14px;display:grid;gap:8px;min-width:0}
+.v2-sec h2{font:800 16px 'Noto Kufi Arabic',system-ui,sans-serif;display:flex;justify-content:space-between;gap:8px}.v2-sec h2 span{font-size:12.5px;font-weight:600;color:#4A4A48}
+.v2-sec .v2-row{background:#F4F4F2}
+.v2-two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.v2-two .v2-btn{background:#111;color:#fff}
+.v2-link{min-height:44px;display:grid;place-items:center;font-size:13px;font-weight:600;color:#1F45C8;text-decoration:none}
+/* the coach (10 Nov 2026): a new post against our own posts at the same age, and which kinds of post reach further */
+.pv.pace{background:#fff;box-shadow:inset 0 0 0 2px #9b948a}.pv.pace.p-fly{box-shadow:inset 0 0 0 2px #1F8F92}.pv.pace.p-up{box-shadow:inset 0 0 0 2px #2E8B57}.pv.pace.p-down{box-shadow:inset 0 0 0 2px #C0392B}
+.ptile .pv{max-width:calc(100% - 36px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coach{background:var(--card);border-radius:22px;padding:14px 14px 10px;display:grid;gap:6px;box-shadow:0 1px 0 var(--line);min-width:0}
+.coach h2{font:800 19px var(--display)}
+.crow{border:0;border-top:1px solid var(--line);background:transparent;width:100%;padding:9px 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;text-align:start;cursor:pointer;color:var(--ink);min-height:48px}
+.crow b{font:700 14.5px var(--body);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.crow span{grid-column:1;font-size:12.5px;color:var(--mute);min-width:0;overflow-wrap:anywhere}
+.crow em{grid-row:1 / span 2;grid-column:2;align-self:center;font:800 21px var(--display);font-style:normal;direction:ltr;font-variant-numeric:tabular-nums}
+.cline{display:grid;gap:1px;padding:8px 0;border-top:1px solid var(--line);font-size:14px;line-height:1.5;min-width:0;overflow-wrap:anywhere}
+.cline b{font:800 15.5px var(--display)}.cline small{font-size:12.5px;color:var(--mute)}
+.cline.more b::before{content:"↑ ";color:#1f6b3f}.cline.less b::before{content:"↓ ";color:#B3261E}
 .phead{display:grid;grid-template-columns:76px minmax(0,1fr);gap:14px;align-items:center}.phead>div{min-width:0;overflow-wrap:anywhere}.phead img,.phead .pth{width:76px;height:95px;border-radius:12px}
 .phead h1{font:800 34px/1.1 var(--display)}.phead h1.bad{color:#B3261E}.phead h1.good{color:#1F6B3F}.phead h1.mid{color:#7A5A00}
 .psec{display:grid;gap:8px;border-top:1px solid var(--line);padding-top:14px}.psec h2{font:800 19px var(--display)}.psec p,.psec li{font-size:15px;line-height:1.6}.psec ul{margin:0;padding-inline-start:18px;display:grid;gap:5px}
@@ -298,6 +343,7 @@ details.fold[open]>summary::after{transform:rotate(90deg)}
 .fp-stages li{display:grid;justify-items:center;gap:4px;min-width:0}
 .fp-stages i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:700 13px var(--body);font-style:normal;background:var(--soft);color:var(--mute)}
 .fp-stages .ok i{background:var(--done);color:#fff}
+.fp-stages .skip i{background:#FFF4D6;color:#5C4300;box-shadow:0 0 0 2px #E0A800}
 .fp-stages .cur i{background:var(--gold);color:var(--ink);box-shadow:0 0 0 3px var(--turn)}
 .fp-stages small{font:600 11px/1.2 var(--body);color:var(--mute);white-space:nowrap}
 .fp-stages .ok small{color:#3F3A30}.fp-stages .cur small{color:var(--ink);font-weight:800}
@@ -549,6 +595,10 @@ details.fold[open]>summary::after{transform:rotate(90deg)}
 .sw-card p{margin:0;font-size:14px;line-height:1.6}
 .id-chat{display:grid;gap:6px;background:var(--soft,#F4EFE4);border-radius:12px;padding:12px}
 .slides.noshare img{pointer-events:none;-webkit-touch-callout:none;user-select:none}
+.slides.noshare img[data-act="sled"]{pointer-events:auto;cursor:pointer}
+.slides img[data-act="sled"]{cursor:pointer}
+#sled img{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none}
+#sled canvas{-webkit-touch-callout:none;user-select:none;-webkit-user-select:none;pointer-events:none;-webkit-user-drag:none;display:block;max-width:100%}
 .fl-lock{display:grid;gap:4px;background:#EFEAE0;border:1.5px solid #2B2B2B;border-radius:12px;padding:10px 12px}.fl-lock b{font:800 15px var(--body)}.fl-lock p{margin:0;font-size:14px}
 .fl-lockb text{font-size:7px}.fl-relb text{font-size:8px;font-weight:700}
 .pg-card{display:grid;gap:8px;border:2px solid #C2412A}.pg-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}.pg-list label{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap}.pg-id{color:var(--mute);font-size:11px}
@@ -587,6 +637,7 @@ img.m-load{background:#EFEAE0;min-height:60px;color:transparent;aspect-ratio:4/5
 
 <div class="app" dir="rtl" lang="ar">
   <div class="bubbles" aria-hidden="true"><span style="top:-60px;left:-50px;width:190px;height:190px;background:var(--teal);opacity:.9"></span><span style="top:40px;left:80px;width:64px;height:64px;background:var(--yellow)"></span><span style="top:-20px;left:130px;width:40px;height:40px;background:var(--coral)"></span><span style="top:110px;left:20px;width:30px;height:30px;background:var(--pink)"></span></div>
+  <a id="v2back" href="#v2" hidden>الرئيسية اليديدة</a>
   <main id="view" class="view" aria-live="polite"></main>
 </div>
 <nav class="tabs" aria-label="الأقسام" id="tabs"></nav>
@@ -630,7 +681,7 @@ let RULES = [
 let topics = {};                                                   // studio/topics: {<topic id>: {name, order}}
 const kindOf = (f) => (f.kind === 'carousel' ? 'carousel' : 'reel');
 const ruleState = (f) => RULES.filter((r) => r.kind === kindOf(f)).map((r) => ({ ...r, ok: Array.isArray(f.rules) ? f.rules.includes(r.id) : Date.parse(f.updated || 0) >= Date.parse(r.at) }));
-let inbox = [], costs = null, tapped = {};                         // inbox rows (handled marks), studio/costs, recent taps (no double sends)
+let inbox = [], costs = null, tapped = {}, carLib = null;   // carLib: studio/carousel_styles                         // inbox rows (handled marks), studio/costs, recent taps (no double sends)
 let loadErr = null;                                                // v11.1: why the studio could not load (nodb | snap | init)
 const loadErrHtml = () => `<div class="q no" role="alert"><b>ما قدرت أفتح بيانات الاستوديو</b><p style="font-size:13.5px">الأفلام والأرقام محفوظة، ما ضاع شي. اضغط تحت، وإذا ما زبط سكّر الصفحة وافتحها من تطبيق Claude.</p><button type="button" class="btn dark" style="min-height:44px" data-act="reloadstudio">افتحها من يديد</button></div>`;
 let films = [], now = null, lib = null, db = null, comments = null, recipe = null, brief = null, ready = false, openType = null, openLang = 'tk', openFormat = 'reel';
@@ -638,6 +689,222 @@ const picks = {};                                                  // slides cho
 let chgOpen = null;
 const picked = (id) => picks[id] || (picks[id] = new Set());
 const slideName = (k) => (k === 0 ? 'الغلاف' : `${k}`);
+const ST_KEYS = [['top', 'السطر الأول'], ['bottom', 'السطر الثاني'], ['title', 'العنوان'], ['name', 'السطر تحت العنوان'], ['body', 'النص']];
+let stEdits = {};                                        // `${film}:${slide}:${field}` → {base, v}: what he typed, over the text he saw (kept across redraws)
+const stOf = (f, k) => { const s = Array.isArray(f?.slide_text) ? f.slide_text[k] : null; return s && typeof s === 'object' && !Array.isArray(s) ? s : null; };
+const stCur = (f, k, key) => String(stOf(f, k)?.[key] ?? '').replace(/\r\n?/g, '\n');   // as a textarea gives it back
+const stEdit = (f, k, key) => { const e = stEdits[`${f.id}:${k}:${key}`]; return e && typeof e === 'object' && e.base === stCur(f, k, key) ? e : null; };   // an edit over text that has since changed no longer counts
+const stVal = (f, k, key) => stEdit(f, k, key)?.v ?? stCur(f, k, key);
+const stPicks = (f) => [...picked(f.id)].filter((k) => Number.isInteger(k)).sort((a, c) => a - c);
+const stPicked = (f) => stPicks(f).filter((k) => stOf(f, k) && ST_KEYS.some(([key]) => typeof stOf(f, k)[key] === 'string'));
+// ===== v134 (LIVE): edits on the picture itself. Kept per film (`${k}|${path}` → {was, now}) while he walks or leaves.
+const LV_PATH = /^(top|bottom|title|name|body|ask|quote|big|kicker|callouts\.\d{1,2}\.text|images\.\d{1,2}\.(label|year))$/;
+let lvEd = Object.create(null), lvDrop = Object.create(null), lvTimer = null, lvSeq = 0;
+const lvObj = (x) => !!x && typeof x === 'object' && !Array.isArray(x);
+function lvPics(sp) {                                      // every picture the spec draws
+  const out = [], add = (p) => { if (p !== undefined && p !== null && p !== '') out.push(p); };
+  if (lvObj(sp.cover)) add(sp.cover.image);
+  for (const s of sp.slides) { add(s.image); if (lvObj(s.inset)) add(s.inset.image); for (const x of Array.isArray(s.images) ? s.images : []) add(typeof x === 'string' ? x : lvObj(x) ? x.image : x); }
+  return out;
+}
+const lvOk = (f) => !!f && f.kind === 'carousel' && lvObj(f.spec) && Array.isArray(f.spec.slides) && f.spec.slides.length > 0 && f.spec.slides.every(lvObj)
+  && (f.spec.cover === undefined || lvObj(f.spec.cover)) && Array.isArray(f.slides) && f.slides.length === f.spec.slides.length + 1
+  && f.spec.slides.every((s) => !s.layout || KIT2_L.includes(s.layout) || KIT.ORDER.includes(s.layout))
+  && (f.state === 'waiting' || newUnapproved(f)) && !pendingOf(f) && !staleSlides(f) && lvPics(f.spec).every((p) => !!kitSrc(f.src, p));
+function lvAt(sp, k, path, make) {                         // [the object, the key] a field path points at, or null
+  if (k === 0 && make && !lvObj(sp.cover)) sp.cover = {};
+  const o = k === 0 ? sp.cover : sp.slides[k - 1]; if (!lvObj(o) || !LV_PATH.test(path)) return null;
+  const p = path.split('.'); if (p.length === 1) return [o, p[0]];
+  const a = o[p[0]], it = Array.isArray(a) ? a[+p[1]] : null; return lvObj(it) ? [it, p[2]] : null;
+}
+const lvGet = (sp, k, path) => { const x = lvAt(sp, k, path); return x ? x[0][x[1]] : undefined; };
+const lvUnent = (s) => String(s).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+const LV_MARK = ['body', 'top', 'bottom', 'quote', 'kicker'];   // v135: these take **…** for the green, bigger word
+const lvShow = (path, v) => (typeof v !== 'string' ? '' : LV_MARK.includes(path) ? lvUnent(toMark(v)) : v);
+const lvStore = (path, v) => (LV_MARK.includes(path) ? fromMark(v) : v);
+const LV_LAB = { kicker: 'الكلمة الكبيرة', top: 'السطر الأول', bottom: 'السطر الثاني', big: 'الرقم الكبير', quote: 'الجملة الكبيرة', title: 'العنوان', name: 'الاسم تحت العنوان', body: 'النص (الكلمة الملونة بين **نجمتين**)', ask: 'سؤال القارئ (الكبير)' };
+const lvLabel = (p) => LV_LAB[p] || (/^callouts\.(\d+)/.test(p) ? `سهم ${+p.split('.')[1] + 1}` : /\.year$/.test(p) ? `سنة الصورة ${+p.split('.')[1] + 1}` : `عنوان الصورة ${+p.split('.')[1] + 1}`);
+function lvFields(sp, k) {                                 // [path, area] of every text the slide draws
+  if (k === 0) return [['top', false], ['bottom', false]];
+  const s = sp.slides[k - 1], has = (p) => typeof lvGet(sp, k, p) === 'string', out = [], nw = KIT2_L.includes(s.layout);
+  if (has('big')) out.push(['big', false]);
+  if (has('quote')) out.push(['quote', true]);
+  if ((has('title') || !nw) && !(s.layout === 'statement' && has('quote'))) out.push(['title', false]);
+  if (has('name') || (!nw && s.name !== undefined)) out.push(['name', false]);
+  if (has('kicker')) out.push(['kicker', false]);
+  out.push(['body', true]);
+  if (has('ask') || k === sp.slides.length) out.push(['ask', false]);
+  (Array.isArray(s.callouts) ? s.callouts : []).slice(0, 6).forEach((c, i) => { if (lvObj(c) && typeof c.text === 'string') out.push([`callouts.${i}.text`, false]); });
+  (Array.isArray(s.images) ? s.images : []).slice(0, 6).forEach((x, i) => { if (!lvObj(x)) return; if (typeof x.year === 'string') out.push([`images.${i}.year`, false]); if (typeof x.label === 'string') out.push([`images.${i}.label`, false]); });
+  return out;
+}
+function lvSpec(f) {                                       // the spec with his edits on it; an edit over text that changed since is dropped and named
+  const sp = JSON.parse(JSON.stringify(f.spec)), eds = lvEd[f.id] || {}, ks = new Set();
+  for (const key of Object.keys(eds)) {
+    const e = eds[key], i = key.indexOf('|'), k = +key.slice(0, i), path = key.slice(i + 1);
+    if (!Number.isInteger(k) || k < 0 || k > sp.slides.length || !LV_PATH.test(path) || !lvObj(e)) { delete eds[key]; continue; }
+    const cur = lvGet(sp, k, path), at = lvAt(sp, k, path, true);
+    if ((typeof cur === 'string' ? cur : '') !== e.was || (cur !== undefined && typeof cur !== 'string') || !at) {
+      delete eds[key]; const lab = `${k === 0 ? 'الغلاف' : `الشريحة ${k}`} · ${lvLabel(path).replace(/ \(.*\)$/, '')}`;
+      (lvDrop[f.id] ||= []).includes(lab) || lvDrop[f.id].push(lab); continue;
+    }
+    if (e.now === e.was) { delete eds[key]; continue; }
+    at[0][at[1]] = e.now; ks.add(k);
+  }
+  return { sp, ks: [...ks].sort((a, z) => a - z) };
+}
+function lvView(f, k, n) {
+  const { sp, ks } = lvSpec(f), cnt = ks.length, fid = esc(f.id), drop = lvDrop[f.id] || [];
+  const fields = lvFields(sp, k).map(([p, area]) => {
+    const id = `lv-${k}-${p.replace(/\./g, '-')}`, val = lvShow(p, lvGet(sp, k, p));
+    return `<label class="note" for="${esc(id)}" style="color:var(--ink);font-weight:700">${esc(lvLabel(p))}</label>` + (area
+      ? `<textarea id="${esc(id)}" class="inp" data-lv="${esc(p)}" data-lk="${k}" maxlength="600" dir="auto">${esc(val)}</textarea>`
+      : `<input id="${esc(id)}" class="inp" data-lv="${esc(p)}" data-lk="${k}" maxlength="120" dir="auto" value="${esc(val)}">`);
+  }).join('');
+  return `<section id="sled" class="lvsl" aria-label="تعديل الشريحة" style="width:100%;display:grid;gap:10px;background:var(--card);border-radius:16px;padding:12px;min-width:0">
+    <div class="row" style="justify-content:space-between;align-items:center"><b style="font:800 18px var(--display)">${k === 0 ? 'الغلاف' : `الشريحة ${k} من ${n - 1}`}</b><button type="button" class="chip" data-act="sledclose" data-id="${fid}">سكّر</button></div>
+    <canvas id="slc" class="kitc" width="1080" height="1350" draggable="false" role="img" aria-label="${k === 0 ? 'الغلاف' : `الشريحة ${k}`} كما بتطلع"></canvas>
+    <ul id="slw" class="warn" aria-live="polite"></ul>
+    <div class="two"><button type="button" class="btn line" data-act="sled" data-id="${fid}" data-k="${k - 1}"${k <= 0 ? ' disabled' : ''}>→ السابقة</button><button type="button" class="btn line" data-act="sled" data-id="${fid}" data-k="${k + 1}"${k >= n - 1 ? ' disabled' : ''}>التالية ←</button></div>
+    <div id="sltx" style="display:grid;gap:10px;min-width:0">${fields}</div>
+    ${drop.length ? `<p class="note" role="status" style="color:#a3172e">⚠ النص تغيّر من وراك، فشلت تعديلك على: ${esc(drop.join('، '))}. اكتبه مرة ثانية إذا تبيه.</p>` : ''}
+    <div class="two"><button type="button" class="btn dark" data-act="lvsave" data-id="${fid}"${cnt ? '' : ' disabled'}>احفظ ✓${cnt ? ` (${cnt})` : ''}</button><button type="button" class="btn line" data-act="lvreset" data-id="${fid}"${cnt ? '' : ' disabled'}>رجّع النص</button></div>
+    <p class="note" style="color:var(--ink)">اكتب وتشوف التغيير على الصورة على طول. «احفظ» يسوي نسخة يديدة تنتظر موافقتك، بدون محادثة.</p></section>`;
+}
+function lvCount(f) {                                      // the save count follows his typing
+  const n = lvSpec(f).ks.length;
+  document.querySelectorAll('#sled [data-act="lvsave"], #sled [data-act="lvreset"]').forEach((b) => {
+    if (b.dataset.act === 'lvsave') b.textContent = `احفظ ✓${n ? ` (${n})` : ''}`;
+    if (!b.dataset.stale) b.disabled = !n || lvBusy.has(f.id);
+  });
+}
+function lvPaint(now) {                                    // the slide, drawn ~120 ms after his last key (off screen, then copied)
+  clearTimeout(lvTimer);
+  lvTimer = setTimeout(async () => {
+    const f = slEd && films.find((x) => x.id === slEd.id); if (!f || !lvOk(f) || !document.getElementById('slc')) return;
+    const seq = ++lvSeq, k = slEd.k, { sp } = lvSpec(f), off = document.createElement('canvas');
+    let info; try { info = await kitSlide(off, sp, f.src, k); } catch (e) { return; }
+    const c = document.getElementById('slc'); if (seq !== lvSeq || !c || slEd?.k !== k) return;
+    const cx = c.getContext('2d'); cx.clearRect(0, 0, c.width, c.height); cx.drawImage(off, 0, 0); c.dataset.drawn = String(seq);
+    const w = document.getElementById('slw'); let wl = []; try { wl = kitWarnings(sp, k, info); } catch (e) {}
+    if (w) w.innerHTML = wl.map((m) => `<li>⚠ ${esc(m)}</li>`).join('') || '<li class="ok">✓ جاهزة</li>';
+  }, now ? 0 : 120);
+}
+if (typeof document.addEventListener === 'function') {
+  document.addEventListener('input', (ev) => {
+    const t = ev.target; if (t?.dataset?.lv == null || !t.closest?.('#sled')) return;
+    const f = slEd && films.find((x) => x.id === slEd.id), path = t.dataset.lv, k = +t.dataset.lk;
+    if (!f || !lvOk(f) || !LV_PATH.test(path) || k !== slEd.k) return;
+    const was0 = lvGet(f.spec, k, path), was = typeof was0 === 'string' ? was0 : '', now = lvStore(path, t.value), key = `${k}|${path}`, eds = (lvEd[f.id] ||= Object.create(null));
+    if (now === lvStore(path, lvShow(path, was)) || now === was) delete eds[key]; else eds[key] = { was, now };
+    lvCount(f); lvPaint();
+  });
+  document.addEventListener('contextmenu', (ev) => { if (ev.target?.closest?.('#sled.lvsl, #slc')) ev.preventDefault(); }, true);   // not saved from its menu before approval
+  document.addEventListener('dragstart', (ev) => { if (ev.target?.closest?.('#sled.lvsl')) ev.preventDefault(); }, true);
+}
+const lvBusy = new Set();                                 // a save in flight, per film: a second tap waits
+const lvMark = (x) => JSON.stringify([x?.version ?? null, x?.updated ?? null, Array.isArray(x?.slides) ? x.slides : null, x?.spec ?? null, x?.state ?? null, x?.approved_version ?? null]);   // any of these moving means he is not saving over what he saw
+const LV_BLOB = /\/_blob\/([A-Za-z0-9_-]{1,80})/g;
+function lvInUse(id, rec) {                                // every /_blob/ id any film record (this one as written) or an open request still names
+  const used = new Set(), scan = (o) => { let t = ''; try { t = JSON.stringify(o); } catch (e) {} for (const m of t.matchAll(LV_BLOB)) used.add(m[1]); };
+  for (const g of films) if (g.id !== id) scan(g);
+  scan(rec); for (const r of inbox) if (!r.handled_at) scan(r);
+  return used;
+}
+async function lvSave(f, b) {                              // like the editor's save: only his changed slides are drawn and uploaded
+  if (!lvOk(f)) { toast('هالكاروسيل ما يتعدّل الحين.'); return; }
+  if (lvBusy.has(f.id)) { toast('لحظة، الحفظ اللي قبله للحين يمشي.'); return; }
+  const { sp, ks } = lvSpec(f); if (!ks.length) { toast('عدّل النص أول.'); return; }
+  const assets = await window.claude?.use?.('assets').catch(() => null);
+  if (!assets || !db) { toast('الحفظ يحتاج صلاحية تعديل الاستوديو.'); return; }
+  const label = b.textContent, mark = lvMark(f), mine = [], drop = async () => { for (const id of mine) { try { await assets.delete?.(id); } catch (e) {} } };
+  let tried = false; lvBusy.add(f.id); b.disabled = true; b.textContent = 'أحفظ…';
+  const lock = (on) => document.querySelectorAll('#sled [data-lv]').forEach((x) => { x.readOnly = on; }); lock(true);   // what is saved is what he sees
+  try {
+    const slides = [...f.slides], c = document.createElement('canvas');
+    for (const k of ks) {
+      await kitSlide(c, sp, f.src, k);
+      const blob = await new Promise((ok) => c.toBlob(ok, 'image/png')); if (!blob) throw new Error('png');
+      const r = await assets.upload(blob, { type: 'image/png' }); if (!/^[A-Za-z0-9_-]{1,80}$/.test(String(r?.id || ''))) throw new Error('id');
+      mine.push(String(r.id)); slides[k] = '/_blob/' + r.id;
+    }
+    const fresh = await db.doc(`films/${f.id}`).get().then((d) => (d?.exists ? d.data() : null)).catch(() => null), now = films.find((x) => x.id === f.id);
+    if (!fresh || lvMark(fresh) !== mark || lvMark(now) !== mark) {   // a newer version arrived while he saved: nothing is written, his edits stay
+      await drop(); mine.length = 0; toast(fresh ? 'وصلت نسخة يديدة، شوفها وعدّل مرة ثانية' : 'ما قدرت أتأكد من آخر نسخة. تعديلك محفوظ هني، جرّب احفظ بعد شوي.'); route(); return;
+    }
+    const version = nextVersion(f), at = new Date().toISOString(), plain = (h) => lvUnent(String(h ?? '').replace(/<b>([\s\S]*?)<\/b>/g, '**$1**')).trim(), edits = [];
+    for (const k of ks) for (const [p] of lvFields(sp, k)) { const x = plain(lvGet(f.spec, k, p)), y = plain(lvGet(sp, k, p)); if (x !== y) edits.push({ where: k ? `الشريحة ${k}` : 'الغلاف', field: lvLabel(p).replace(/ \(.*\)$/, ''), key: p, before: x, after: y }); }
+    const history = [{ version: f.version || 'v1', spec: f.spec, caption: f.caption || '', at }, ...(f.history || []).map(textOnly)].slice(0, 10);   // text only: no old slides kept
+    const up = { spec: sp, slides, version, versions: [version, ...(f.versions || [])], history, state: 'waiting', waiting: 'موافقتك على الكاروسيل', edited: 'studio', updated: at,
+      changes: [{ v: version, at, by: 'owner', how: 'live', edits, what: edits.length ? edits.map((e) => `${e.where} · ${e.field}: ${wdiff(e.before, e.after).map(([x, y]) => `«${x || '—'}» ← «${y || '—'}»`).join('، ')}`) : ['عدّلت النص بنفسك'] }, ...(f.changes || [])].slice(0, 20) };
+    if (Array.isArray(f.slide_text)) {                     // the chat's copy of the text follows the same fields
+      const st = JSON.parse(JSON.stringify(f.slide_text)); let ch = false;
+      for (const e of edits) { const k = e.where === 'الغلاف' ? 0 : +e.where.replace(/\D/g, ''), o = st[k]; if (lvObj(o) && typeof o[e.key] === 'string') { o[e.key] = lvUnent(String(lvGet(sp, k, e.key) || '').replace(/<[^>]*>/g, '')); ch = true; } }
+      if (ch) up.slide_text = st;
+    }
+    tried = true; await db.doc(`films/${f.id}`).update(up);
+    try { await db.collection('inbox').add({ film: f.id, kind: 'edit', how: 'live', version, edits, sent: false, at,
+      text: `الاستوديو: عدّلت نص «${f.name}» (${version}) بنفسي على الصورة: ${edits.map((e) => `${e.where} · ${e.field}`).join('، ') || 'بدون فرق'}` }); } catch (e) {}
+    try {                                                  // R10, after the write: a replaced slide goes only when no film record and no open request names it
+      const used = lvInUse(f.id, { ...fresh, ...up });
+      for (const k of ks) { const m = /^\/_blob\/([A-Za-z0-9_-]{1,80})$/.exec(String(f.slides[k] || '')); if (m && !used.has(m[1])) await assets.delete?.(m[1]).catch?.(() => {}); }
+    } catch (e) {}
+    delete lvEd[f.id]; delete lvDrop[f.id]; slEd = null;
+    toast(`انحفظ ${version} ✓ ينتظر موافقتك`); route();
+  } catch (e) {
+    if (!tried) await drop();                              // an upload or drawing failed: this save's files go, his edits stay
+    toast('ما قدرت أحفظ. جرّب مرة ثانية.'); b.disabled = false; b.textContent = label; lock(false);
+  } finally { lvBusy.delete(f.id); }
+}
+let stStale = {};                                       // `${film}:${slide}` → fields whose edit was dropped: the ⚠ stays until he types there or closes
+let slEd = null;                                         // {id, k}: the slide he tapped, open under the strip
+const stEditedSlides = (f) => [...new Set(Object.keys(stEdits).filter((x) => x.startsWith(f.id + ':')).map((x) => +x.slice(f.id.length + 1).split(':')[0]))].filter((k) => Number.isInteger(k) && stOf(f, k)).sort((a, c) => a - c);
+const sledOk = (f) => (stHas(f) || lvOk(f)) && Array.isArray(f.slides) && f.slides.length > 0 && (f.state === 'waiting' || newUnapproved(f)) && !pendingOf(f) && !staleSlides(f);
+function sledView(f) {
+  if (slEd?.id !== f.id) return '<p class="note" style="color:var(--ink);text-align:center;width:100%">✎ اضغط على أي شريحة وعدّل نصها</p>';
+  const n = f.slides.length, k = Math.min(Math.max(0, slEd.k), n - 1), cnt = stChanges(f, stEditedSlides(f)).length, fid = esc(f.id);
+  if (lvOk(f)) return lvView(f, k, n);   // v134 (LIVE): drawn from the spec, saved without the chat
+  return `<section id="sled" aria-label="تعديل الشريحة" style="width:100%;display:grid;gap:10px;background:var(--card);border-radius:16px;padding:12px;min-width:0">
+    <div class="row" style="justify-content:space-between;align-items:center"><b style="font:800 18px var(--display)">${k === 0 ? 'الغلاف' : `الشريحة ${k} من ${n - 1}`}</b><button type="button" class="chip" data-act="sledclose" data-id="${fid}">سكّر</button></div>
+    <img ${slideAttr(f.slides[k])} draggable="false" alt="${k === 0 ? 'الغلاف' : `شريحة ${k}`}" style="width:100%;max-width:100%;border-radius:12px;aspect-ratio:4/5;object-fit:cover;display:block;background:var(--soft)">
+    <div class="two"><button type="button" class="btn line" data-act="sled" data-id="${fid}" data-k="${k - 1}"${k <= 0 ? ' disabled' : ''}>→ السابقة</button><button type="button" class="btn line" data-act="sled" data-id="${fid}" data-k="${k + 1}"${k >= n - 1 ? ' disabled' : ''}>التالية ←</button></div>
+    <div id="sltx" style="display:grid;gap:10px;min-width:0">${slideTextFields(f, [k])}</div>
+    <button type="button" class="btn dark" data-act="send" data-id="${fid}" data-sled="1">أرسل التعديل${cnt ? ` (${cnt})` : ''}</button>
+    <p class="note" style="color:var(--ink)">عدّل وروح للشريحة الثانية، والتعديلات تنحفظ لين ترسلها كلها مرة وحدة.</p></section>`;
+}
+if (typeof document.addEventListener === 'function') document.addEventListener('contextmenu', (ev) => { if (ev.target?.closest?.('#sled img, .noshare img[data-act="sled"]')) ev.preventDefault(); }, true);   // an unapproved slide is not saved from its menu
+if (typeof document.addEventListener === 'function') document.addEventListener('input', (ev) => {   // the send count follows his typing
+  const t = ev.target; if (t?.dataset?.stx == null || !t.closest?.('#sled')) return;
+  setTimeout(() => {   // after the edit itself is stored
+    const f = slEd && films.find((x) => x.id === slEd.id), btn = document.querySelector('#sled [data-sled="1"]'); if (!f || !btn) return;
+    const n = stChanges(f, stEditedSlides(f)).length; btn.textContent = `أرسل التعديل${n ? ` (${n})` : ''}`;
+  }, 0);
+});
+if (typeof document.addEventListener === 'function') document.addEventListener('keydown', (ev) => {
+  const t = ev.target; if (!t?.matches?.('img[data-act="sled"]') || (ev.key !== 'Enter' && ev.key !== ' ')) return; ev.preventDefault(); t.click();
+});
+const stHas = (f) => f?.kind === 'carousel' && Array.isArray(f.slide_text) && f.slide_text.length > 0;
+function slideTextFields(f, only) {
+  if (!f || !stHas(f)) return '';
+  const all = only || stPicks(f), inView = !!only, ks = all.filter((k) => stOf(f, k) && ST_KEYS.some(([key]) => typeof stOf(f, k)[key] === 'string')), none = all.filter((k) => !ks.includes(k));
+  if (!all.length) return '<p class="note" style="color:var(--ink)">اختار شريحة، ويطلع نصها هني تعدّله بنفسك.</p>';
+  return ks.map((k) => { const s = stOf(f, k), sk = `${f.id}:${k}`;
+    const rows = ST_KEYS.filter(([key]) => typeof s[key] === 'string').map(([key, lab]) => {
+      const raw = stEdits[`${f.id}:${k}:${key}`]; if (raw && !stEdit(f, k, key) && (chgOpen === f.id || slEd?.id === f.id)) { delete stEdits[`${f.id}:${k}:${key}`]; (stStale[sk] ||= []).includes(lab) || stStale[sk].push(lab); }   // told only where he can see it
+      const id = `${only ? 'sle' : 'stx'}-${k}-${key}`, v = stVal(f, k, key), base = esc(stEdit(f, k, key)?.base ?? stCur(f, k, key)), area = key === 'body' || /\n/.test(v);
+      return `<label class="note" for="${id}" style="color:var(--ink)">${lab}</label>` + (area ? `<textarea id="${id}" class="inp" dir="auto" data-stx="${k}:${key}" data-base="${base}" maxlength="${key === 'body' ? 600 : 200}" style="min-height:${key === 'body' ? 110 : 70}px">${esc(v)}</textarea>` : `<input id="${id}" class="inp" dir="auto" data-stx="${k}:${key}" data-base="${base}" maxlength="200" value="${esc(v)}">`); }).join('');
+    return `<fieldset style="border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:6px;min-width:0;margin:0"><legend class="note" style="color:var(--ink);font-weight:800;padding:0 4px">${k === 0 ? 'الغلاف' : `الشريحة ${k}`}</legend>${(stStale[sk] || []).length ? `<p class="note" role="status" style="color:var(--ink);font-weight:700">⚠ النص تغيّر بعد ما كتبت (${esc(stStale[sk].join('، '))})، فرجّعته للنص الجديد. عدّله مرة ثانية إذا تبي.</p>` : ''}${rows}</fieldset>`; }).join('')
+    + (none.length ? `<p class="note" style="color:var(--ink)">${none.map((k) => (k === 0 ? 'الغلاف' : `الشريحة ${k}`)).join('، ')}: ما فيها نص يتعدّل من هني، ${inView ? 'افتح «تعديل» واكتب وش تبي.' : 'اكتب التعديل تحت.'}</p>` : '');
+}
+function stChanges(f, ks = stPicked(f)) {
+  return ks.filter((k) => stOf(f, k)).flatMap((k) => ST_KEYS.filter(([key]) => typeof stOf(f, k)[key] === 'string').map(([key, lab]) => { const before = stCur(f, k, key), after = String(stVal(f, k, key)).trim(); return { k, key, field: lab, before, after, ...(after ? {} : { removed: true }) }; }).filter((x) => x.after !== x.before.trim()));
+}
+const stDirty = () => { const id = (location.hash.match(/^#film-(.+)$/) || [])[1], f = id && films.find((x) => x.id === id); return !!f && ((chgOpen === id && stChanges(f).length > 0) || (slEd?.id === id && sledOk(f) && stChanges(f, stEditedSlides(f)).length > 0) || (slEd?.id === id && lvOk(f) && lvSpec(f).ks.length > 0)); };   // v134: his live edits hold redraws only while the slide view is open   // held only while his panel is open
+if (typeof document.addEventListener === 'function') document.addEventListener('input', (ev) => {
+  const t = ev.target, d = t?.dataset?.stx; if (d == null) return;
+  const id = (location.hash.match(/^#film-(.+)$/) || [])[1], f = id && films.find((x) => x.id === id); if (!f) return;
+  delete stStale[`${id}:${d.split(':')[0]}`]; const old = stEdits[`${id}:${d}`]; stEdits[`${id}:${d}`] = { base: old && typeof old === 'object' && old.base === String(t.dataset.base ?? '') ? old.base : String(t.dataset.base ?? ''), v: t.value };   // the text he saw when the box was drawn, never newer text he has not seen
+});
 const FORMAT = { reel: 'ريل', carousel: 'كاروسيل', both: 'ريل وكاروسيل' };
 
 // When a version came and what changed in it (the owner: «شلون اعرف اذا هذي اخر نسخة تم تحديثها متى؟ وشنو كانت اخر
@@ -698,6 +965,11 @@ function when(iso) {
 function pct(f) { if (f.flow) return Math.max(0, Math.min(100, Math.round(+f.flow.pct || 0))); return f.state === 'done' || f.state === 'posted' ? 100 : Math.round(100 * (Math.max(1, f.step || 1) - 1) / STEPS.length); }
 function color(f, i) { return f.color || COLORS[i % COLORS.length]; }
 function eta(m) { if (m == null) return ''; return m < 60 ? `~${m} د` : `~${Math.round(m / 6) / 10} س`; }
+// The style gate (video-director #210): «الأسلوب» is his own pick, a film-level field only this page writes.
+const STYLE_K = 3;
+const styleCard = (f) => !!f && !!f.flow && f.flow.of === 'style';
+const stylePicked = (f) => !!f && !!f.style_pick && typeof f.style_pick === 'object' && f.style_pick.by === 'owner' && typeof f.style_pick.choice === 'string' && f.style_pick.choice !== '';
+async function setStylePick(id, v) { try { if (db) await db.doc(`films/${id}`).update({ style_pick: v }); } catch (e) {} }
 const FLOW_AR = Object.assign(Object.create(null), { queued: 'بانتظار الاستلام', received: 'استلمنا الطلب', direction: 'اختار اتجاه واحد', sample: 'العينة جاهزة', build: 'قيد البناء', review: 'جاهز لمراجعتك' });
 function stateLine(f) {
   if (isTest(f)) return { icon: '✓', text: 'تجربة بدون صوت' };
@@ -754,7 +1026,7 @@ function viewFilms() {
       const rules = old.length ? `<span class="rold">⚠ قبل ${old.length === 1 ? 'قاعدة جديدة' : `${old.length} قواعد جديدة`}</span>` : '<span class="rok">✓ آخر القواعد</span>';
       const li = f.state === 'posted' ? (bestReport(f) || lastInsight(f)) : null;
       const pd = pendingOf(f), late = pd && Date.now() - Date.parse(pd.at) > flowSet('n_heard', 'timeout_min', 10) * 60e3;
-      const st = pd ? `<span class="ist ok">${late ? 'ما انستلم' : pd.kind === 'approve' ? 'وصلت موافقتك' : 'وصل تعديلك'}</span>` : isWaiting(f) ? '<span class="ist">بانتظارك</span>' : f.state === 'working' ? `<span class="ist">يشتغل ${esc(pct(f))}%</span>`
+      const st = pd ? `<span class="ist ok">${late ? 'ما انستلم' : pd.kind === 'approve' ? 'وصلت موافقتك' : pd.kind === 'gpt_review' ? 'وصل طلب المراجعة' : 'وصل تعديلك'}</span>` : isWaiting(f) ? '<span class="ist">بانتظارك</span>' : f.state === 'working' ? `<span class="ist">يشتغل ${esc(pct(f))}%</span>`
         : f.state === 'posted' ? `<span class="ist">${linked(f) ? 'أكّده' : 'اربطه'}</span>` : `<span class="ist ok">${isTest(f) ? 'تجربة' : f.state === 'done' ? (pubOk(f) ? 'جاهز ✓' : 'نسخة يديدة') : esc(f.kind === 'carousel' ? STEPS[(f.step || 1) - 1] : STAGES[stageOf(f).k])}</span>`;
       const meta = f.state === 'posted' && !isWaiting(f) ? `منشور · <span class="rold">${linked(f) ? 'أكّد المنشور المقترح' : 'ما انربط بإنستغرام للحين'}</span>` : `${f.id === firstId ? '<b style="color:var(--ink)">ابدأ بهذا ·</b> ' : ''}${f.updated ? esc(when(f.updated)) + ' · ' : ''}${rules}`;
       h += `<button type="button" class="item" data-film="${esc(f.id)}">${ICON[kindOf(f)]}<span class="iname">${esc(itemLabel(f, tname))} <span style="font-weight:600;opacity:.75">${esc(f.version || '')}</span></span>${st}
@@ -777,7 +1049,7 @@ const pendingOf = (f) => pendingRaw(f);   // v10: an address is the bytes, so a 
 function pendingBox(f) {
   const a = pendingOf(f); if (!a) return '';
   const late = Date.now() - Date.parse(a.at) > flowSet('n_heard', 'timeout_min', 10) * 60e3;
-  return `<div class="q ${late ? 'no' : 'try'}" role="status"><b>${a.kind === 'sayfix' ? 'وصلت علاماتك' : a.kind === 'approve' ? 'موافقتك وصلت' : a.kind === 'answer' ? 'جوابك وصل' : 'تعديلك وصل'}</b>${a.kind === 'sayfix' ? '<p class="fp-cost" style="font-size:13.5px">Claude يرسل لك التكلفة قبل أي تسجيل. الإرسال مو موافقة على صرف.</p>' : ''}<p style="font-size:13.5px">${late ? 'ما فيه رد من Claude للحين، وممكن ما فيه جلسة فاتحة.' : 'بانتظار استلام Claude. تتحدث هني أول ما يبدأ.'} ${esc(when(a.at))}</p>${late ? resendBlock(f, a) : ''}</div>`;
+  return `<div class="q ${late ? 'no' : 'try'}" role="status"><b>${a.kind === 'sayfix' ? 'وصلت علاماتك' : a.kind === 'approve' ? 'موافقتك وصلت' : a.kind === 'answer' ? 'جوابك وصل' : a.kind === 'gpt_review' ? 'طلب المراجعة وصل' : 'تعديلك وصل'}</b>${a.kind === 'sayfix' ? '<p class="fp-cost" style="font-size:13.5px">Claude يرسل لك التكلفة قبل أي تسجيل. الإرسال مو موافقة على صرف.</p>' : ''}<p style="font-size:13.5px">${late ? 'ما فيه رد من Claude للحين، وممكن ما فيه جلسة فاتحة.' : 'بانتظار استلام Claude. تتحدث هني أول ما يبدأ.'} ${esc(when(a.at))}</p>${late ? resendBlock(f, a) : ''}</div>`;
 }
 // The script, line by line (the owner: «هل في مكان اراجع النص واعدله؟»). A line opens on a tap; edits go to Claude together, and nothing is recorded before approval.
 const scriptEd = {}; let scriptOpen = null;
@@ -844,7 +1116,7 @@ function fixLine(f, l) {
 }
 function viewScript(f, noFix) {
   const lines = scriptOf(f); if (!lines.length) return '';
-  const ed = scriptEd[f.id] || (scriptEd[f.id] = {}), sent = pendingOf(f) ? (f.script_edits || {}) : {}, n = Object.keys(ed).length, can = !pendingOf(f) && !f.video && !f.slides?.length;
+  const ed = scriptEd[f.id] || (scriptEd[f.id] = {}), sent = pendingOf(f) ? (f.script_edits || {}) : {}, n = Object.keys(ed).length, can = !pendingOf(f) && !f.video && (!f.slides?.length || staleSlides(f));
   const fix = !noFix && fixCan(f), fixN = fix ? Object.keys(fixOf(f.id)).length : 0;
   const body = lines.map((l) => {
     if (fix) return fixLine(f, l);
@@ -852,7 +1124,7 @@ function viewScript(f, noFix) {
     if (can && scriptOpen === `${f.id}:${l.n}`) return `<div class="sledit"><label class="note" for="sin" style="color:var(--ink);font-weight:700">جملة ${esc(l.n)}</label><textarea id="sin" data-sin="${esc(l.n)}" data-id="${esc(f.id)}" maxlength="500">${esc(t)}</textarea><button type="button" class="chip on" style="justify-self:start" data-act="scriptok">تم</button></div>`;
     return `<button type="button" class="sl${ed[l.n] != null || sent[l.n] != null ? ' ed' : ''}${saying === f.id && sayLine === l.n ? ' now' : ''}" data-n="${esc(l.n)}" ${can ? `data-sl="${esc(l.n)}" data-id="${esc(f.id)}"` : 'disabled style="cursor:default"'}><span>${esc(l.n)}</span><span>${esc(t)}</span></button>${srcHtml(l)}`;
   }).join('');
-  return `<details class="fold scr" ${can || n || fixN ? 'open' : ''}><summary>النص <span>${lines.length} جملة · ${esc(f.version || '')}${can ? ' · اضغط أي جملة' : ''}${houseOk(f) ? ' · ✓ قواعد البيت' : ''}</span></summary>${fix ? `<p class="note" style="padding:0 14px 8px;color:var(--ink)">سمعت كلمة غلط؟ وقّف الفيديو واضغط الكلمة هني، وتقدر تختار أكثر من وحدة.</p>` : ''}${scriptAudio(f) ? `<div class="sayb"><button type="button" class="chip" data-say="${esc(f.id)}">${saying === f.id ? '■ وقّف' : '▶ اسمع النص'}</button><span class="note">صوت مؤقت للمراجعة، مو صوت فيصل${n ? '، وما فيه تعديلاتك' : ''}</span></div>` : ''}<div class="sayb"><button type="button" class="chip" data-act="scriptcopy" data-id="${esc(f.id)}">انسخ النص كله</button>${can ? `<button type="button" class="chip" data-act="scriptpaste" data-id="${esc(f.id)}">${scriptPaste === f.id ? 'إلغاء اللصق' : 'الصق نص معدّل'}</button>` : ''}</div>${viewScriptBoxes(f, lines.length)}<div class="scrl">${body}</div>${fix ? `<div class="fixs" ${fixN ? '' : 'hidden'}><button type="button" class="btn dark" data-act="sayfix" data-id="${esc(f.id)}">${fixLabel(fixN)}</button></div>` : ''}${can ? `<div class="fin">${n ? `<button type="button" class="btn dark" data-act="scriptsend" data-id="${esc(f.id)}">أرسل التعديلات (${n})</button>` : `<button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">وافق على النص ✓</button>`}</div>` : ''}</details>`;
+  return `<details class="fold scr" ${can || n || fixN ? 'open' : ''}><summary>النص <span>${lines.length} جملة · ${esc(f.version || '')}${can ? ' · اضغط أي جملة' : ''}${staleSlides(f) ? ' · وافق على النص هني، والصور تنرسم بعده' : ''}${houseOk(f) ? ' · ✓ قواعد البيت' : ''}</span></summary>${fix ? `<p class="note" style="padding:0 14px 8px;color:var(--ink)">سمعت كلمة غلط؟ وقّف الفيديو واضغط الكلمة هني، وتقدر تختار أكثر من وحدة.</p>` : ''}${scriptAudio(f) ? `<div class="sayb"><button type="button" class="chip" data-say="${esc(f.id)}">${saying === f.id ? '■ وقّف' : '▶ اسمع النص'}</button><span class="note">صوت مؤقت للمراجعة، مو صوت فيصل${n ? '، وما فيه تعديلاتك' : ''}</span></div>` : ''}<div class="sayb"><button type="button" class="chip" data-act="scriptcopy" data-id="${esc(f.id)}">انسخ النص كله</button>${can && !n && !scriptFull[f.id] ? `<button type="button" class="chip" data-act="gptreview" data-id="${esc(f.id)}">راجعه مع ChatGPT</button>` : ''}${can ? `<button type="button" class="chip" data-act="scriptpaste" data-id="${esc(f.id)}">${scriptPaste === f.id ? 'إلغاء اللصق' : 'الصق نص معدّل'}</button>` : ''}</div>${viewScriptBoxes(f, lines.length)}<div class="scrl">${body}</div>${fix ? `<div class="fixs" ${fixN ? '' : 'hidden'}><button type="button" class="btn dark" data-act="sayfix" data-id="${esc(f.id)}">${fixLabel(fixN)}</button></div>` : ''}${can ? `<div class="fin">${n ? `<button type="button" class="btn dark" data-act="scriptsend" data-id="${esc(f.id)}">أرسل التعديلات (${n})</button>` : `<button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">وافق على النص ✓</button>`}</div>` : ''}</details>`;
 }
 // A style test is finished work but never a post: no voice, nothing to publish. Its one next step is the real film.
 const isTest = (f) => f.flow?.mode === 'sample' && f.state === 'done';
@@ -915,7 +1187,7 @@ function viewCarousel(id) {                                       // a carousel'
       + (ch.length ? `<ul class="chg">${ch[0].what.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>` + (ch.length > 1 ? `<details><summary class="note" style="cursor:pointer;color:var(--ink);font-weight:700">النسخ اللي قبل</summary>${ch.slice(1).map((c) => `<p class="note" style="color:var(--ink);font-weight:700;margin-top:6px">${esc(c.v)} · ${esc(when(c.at))}</p><ul class="chg">${c.what.map((w) => `<li>${esc(w)}</li>`).join('')}</ul>`).join('')}</details>` : '') : '')
       + `<ul class="rules">${rs.map((r) => `<li class="${r.ok ? 'rok' : 'rold'}">${r.ok ? '✓' : '⚠'} ${esc(r.name)}</li>`).join('')}</ul>${n ? '<p class="note">انسوت هالنسخة قبل هالقواعد. قل لي إذا تبي أعيدها عليها.</p>' : ''}</div></details>`; }
   if (f.kind === 'carousel' && f.slides?.length) {
-    h += `<section class="gate" style="background:${cssColor(c)}" aria-label="الكاروسيل">${houseLine(f)}<div class="slides${pubOk(f) ? '' : ' noshare'}">${f.slides.map((src, k) => `<img ${slideAttr(src)} alt="شريحة ${k + 1}"${pubOk(f) ? '' : ' draggable="false"'}>`).join('')}</div>
+    h += `<section class="gate" style="background:${cssColor(c)}" aria-label="الكاروسيل">${houseLine(f)}${staleSlides(f) ? `<p class="stale-note" role="status">⚠ الصور قديمة، تنتظر الرسم. هذي شرايح ${esc(staleFrom(f) || 'نسخة قبل')}، والنص صار «${esc(f.version)}». راجع النص فوق ووافق عليه، وبعدها أرسمها.</p>` : ''}<div class="slides${pubOk(f) ? '' : ' noshare'}${staleSlides(f) ? ' stale' : ''}">${f.slides.map((src, k) => `<img ${slideAttr(src)} alt="شريحة ${k + 1}"${pubOk(f) ? '' : ' draggable="false"'}${sledOk(f) ? ` data-act="sled" data-id="${esc(f.id)}" data-k="${k}" role="button" tabindex="0" aria-label="عدّل نص ${k === 0 ? 'الغلاف' : `الشريحة ${k}`}"` : ''}>`).join('')}</div>${sledOk(f) ? sledView(f) : (slEd?.id === f.id ? ((slEd = null), '') : '')}
       ${pubOk(f) ? `<div class="two"><button type="button" class="btn dark" data-act="share" data-id="${esc(f.id)}">📷 احفظ الكل بالصور</button><button type="button" class="btn line" data-act="copy" data-id="${esc(f.id)}">انسخ الكابشن</button></div>
       <p class="note sv-line" style="color:var(--ink);text-align:center;width:100%">بعد الضغط اختار <b>Save TK Post</b>، وتنحفظ الـ ${esc(f.slides.length)} صورة بالصور بالترتيب.</p>
       ${savepHtml(f)}
@@ -930,14 +1202,15 @@ function viewCarousel(id) {                                       // a carousel'
       <li>Add <b>Extract Archive</b> (Shortcut Input)</li>
       <li>Add <b>Save to Photo Album</b> → Save Files to Recents</li>
       <li>First run: tap <b>Allow</b> for Photos</li></ol></details>` : slidesNote(f)}`;
-    if ((f.state === 'waiting' || newUnapproved(f)) && !pendingOf(f)) h += `${newUnapproved(f) ? '<p class="note pb-new" style="color:var(--ink);font-weight:700">نسخة يديدة تنتظر موافقتك</p>' : ''}<div class="two"><button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">${newUnapproved(f) ? 'موافق على هالنسخة ✓' : approveLabel(f)}</button><button type="button" class="btn line" data-act="change" data-id="${esc(f.id)}">تعديل</button></div>
+    if ((f.state === 'waiting' || newUnapproved(f)) && !pendingOf(f) && !staleSlides(f)) h += `${newUnapproved(f) ? '<p class="note pb-new" style="color:var(--ink);font-weight:700">نسخة يديدة تنتظر موافقتك</p>' : ''}<div class="two"><button type="button" class="btn dark" data-act="approve" data-id="${esc(f.id)}">${newUnapproved(f) ? 'موافق على هالنسخة ✓' : approveLabel(f)}</button><button type="button" class="btn line" data-act="change" data-id="${esc(f.id)}">تعديل</button></div>
       <div id="chg" ${chgOpen === f.id ? '' : 'hidden'} style="width:100%;display:grid;gap:8px"><p class="note" style="color:var(--ink);font-weight:700">اختار الشرائح اللي تبي تعدّلها (وحدة أو أكثر)</p>
       <div class="pick" role="group" aria-label="الشرائح">${f.slides.map((src, k) => `<button type="button" data-pick="${k}" aria-pressed="${picked(f.id).has(k)}" aria-label="${slideName(k)}"><img ${slideAttr(src)} alt=""><span>${slideName(k)}</span></button>`).join('')}</div>
-      <label class="note" for="note" style="color:var(--ink)">وش تبي يتغيّر؟</label><textarea id="note" maxlength="1200" placeholder="مثلًا: النص طويل، أو الصورة صغيرة"></textarea>
+      ${stHas(f) ? `<div id="stx" style="display:grid;gap:10px;min-width:0">${slideTextFields(f)}</div>` : ''}
+      <label class="note" for="note" style="color:var(--ink)">${Array.isArray(f.slide_text) && f.slide_text.length ? 'ملاحظة ثانية؟ (اختياري إذا عدّلت النص)' : 'وش تبي يتغيّر؟'}</label><textarea id="note" maxlength="1200" placeholder="مثلًا: النص طويل، أو الصورة صغيرة"></textarea>
       <button type="button" class="btn dark" data-act="send" data-id="${esc(f.id)}">أرسل التعديل</button></div>`;
     h += postedButton(f) + `</section>`;
     h += viewAnalysis(f);
-    if (f.spec && f.state !== 'posted') h += `<a class="short" href="#edit-${esc(f.id)}" style="background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line)">✎ عدّل النص بنفسك</a>`;
+    if (f.spec && f.state !== 'posted' && !staleSlides(f)) h += `<a class="short" href="#edit-${esc(f.id)}" style="background:var(--card);color:var(--ink);box-shadow:0 1px 0 var(--line)">✎ عدّل النص بنفسك</a>`;
     if (f.caption) h += `<details class="fold caption-f"><summary>الكابشن <span>${esc(String(f.caption).split('\n')[0].slice(0, 40))}…</span></summary><div class="fin"><pre id="cap" style="margin:0;white-space:pre-wrap;font:500 15px/1.7 var(--body)">${esc(f.caption)}</pre>${pubOk(f) ? `<button type="button" class="chip" style="justify-self:start" data-act="savecap" data-id="${esc(f.id)}">احفظه ملف</button>` : ''}</div></details>`;
   }
   if (f.video) {
@@ -978,6 +1251,7 @@ function verStage(v) {                                              // «نص v3
 }
 function stageOf(f) {
   if (f.state === 'posted') return { k: 6, all: true };
+  if (styleCard(f) && f.flow.stage !== 'done' && FLOW_STAGE[f.flow.stage] != null) return { k: Math.max(STYLE_K, FLOW_STAGE[f.flow.stage]) };   // the style card (video-director #210)
   if (f.flow && f.flow.stage !== 'done' && FLOW_STAGE[f.flow.stage] != null) return { k: FLOW_STAGE[f.flow.stage] };
   if (f.state === 'done') return { k: pubOk(f) ? 6 : 5 };           // R3: a new version after your yes is back at review
   const step = STEP_STAGE[Math.min(9, Math.max(1, f.step || 1)) - 1], vs = verStage(f.version);
@@ -987,8 +1261,9 @@ function stageOf(f) {
 }
 function whereNote(f) {
   const pd = pendingOf(f), k = stageOf(f).k;
-  if (pd) return pd.kind === 'approve' ? 'موافقتك وصلت، بانتظار Claude' : pd.kind === 'answer' ? 'جوابك وصل، بانتظار Claude' : 'تعديلك وصل، بانتظار Claude';
+  if (pd) return pd.kind === 'approve' ? 'موافقتك وصلت، بانتظار Claude' : pd.kind === 'answer' ? 'جوابك وصل، بانتظار Claude' : pd.kind === 'gpt_review' ? 'طلب المراجعة وصل، بانتظار Claude' : 'تعديلك وصل، بانتظار Claude';
   if (isTest(f)) return 'تجربة أسلوب بدون صوت';
+  if (styleCard(f) && f.flow.stage === 'direction') return 'اختار الأسلوب';
   if (f.flow && f.flow.stage !== 'done') return FLOW_AR[f.flow.stage] || f.flow.stage;
   if (f.state === 'waiting') return `بانتظارك · ${STAGES[k]}`;
   if (f.state === 'working') return `Claude يشتغل · ${STAGES[k]}`;
@@ -1055,8 +1330,9 @@ function filmHead(f, back, title, sub, pill, pillOk) {
 function stageBar(f) {
   const s = stageOf(f);
   return `<section class="fp-box" aria-label="المراحل"><div class="fp-where"><b>وين وصلنا</b><span>${esc(whereNote(f))}</span></div><ol class="fp-stages">${STAGES.map((n, k) => {
-    const st = s.all || k < s.k ? 'ok' : k === s.k ? 'cur' : '';
-    return `<li class="${st}"${st === 'cur' ? ' aria-current="step"' : ''}><i aria-hidden="true">${st === 'ok' ? '✓' : k + 1}</i><small>${n}</small><span class="vh">${st === 'ok' ? 'خلصت' : st === 'cur' ? 'الحين' : 'بعدين'}</span></li>`;
+    let st = s.all || k < s.k ? 'ok' : k === s.k ? 'cur' : '';
+    if (k === STYLE_K && st === 'ok' && !s.all && !stylePicked(f)) st = 'skip';   // past the style stage without his pick: never ✓
+    return `<li class="${st}"${st === 'cur' ? ' aria-current="step"' : ''}${st === 'skip' ? ' title="ما اخترت الأسلوب من بطاقة الأسلوب"' : ''}><i aria-hidden="true">${st === 'ok' ? '✓' : st === 'skip' ? '!' : k + 1}</i><small>${n}</small><span class="vh">${st === 'ok' ? 'خلصت' : st === 'skip' ? 'ما اخترته' : st === 'cur' ? 'الحين' : 'بعدين'}</span></li>`;
   }).join('')}</ol><button type="button" class="chip fp-flowlink" data-flowfilm="${esc(f.id)}">شوف المسار كامل ◀</button></section>`;
 }
 
@@ -1066,7 +1342,7 @@ function turnCard(f) {
   const id = esc(f.id), flowOn = !!f.flow && f.flow.stage !== 'done';
   if (isTest(f)) return { html: testBar(f) };
   if (pendingOf(f)) return { html: pendingBox(f) + (flowOn ? workCard(f) : '') };
-  if (needsChoice(f)) return { html: turnBox(f.waiting || FLOW_AR.direction, directionBody(f)) };
+  if (needsChoice(f)) return { html: turnBox(f.waiting || (styleCard(f) ? 'اختار الأسلوب' : FLOW_AR.direction), directionBody(f)) };
   if (f.state === 'posted') {
     const g = igFilm(f), d = dueCheck(f);
     if (d || !(g?.linked && g?.confirmed)) return { html: turnBox(d ? `صور الإحصائيات (${d.name})` : g?.linked ? 'أكّد المنشور' : 'أي منشور هو؟', viewAnalysis(f)), analysis: true };
@@ -1101,7 +1377,7 @@ function directionBody(f) {
   if (os.some((o) => o.cost !== 'free')) h += '<p class="fp-cost">«برصيد» يصرف رصيد، وتأكده بضغطة ثانية قبل ما ينرسل. «مجاني» ما يصرف شي.</p>';
   const ms = (lib?.methods || []).filter((m) => f.kind === 'reel' || m.cost === 'free');   // a carousel is offered only the free styles (plan A3)
   if (ms.length) h += `<details class="fold"><summary>ما عجبني شي <span>${f.kind === 'reel' ? 'كل الأساليب' : 'الأساليب المجانية'}</span></summary><div class="fin flowl">${ms.map((m) => `<button type="button" data-act="flowmore" data-id="${id}" data-k="${esc(m.name)}" data-paid="${m.cost === 'free' ? '' : m.cost === 'paid' ? 1 : 2}" data-cr="${esc(m.credits || '')}"><b>${esc(m.name)} · ${m.cost === 'free' ? 'مجاني' : 'برصيد'}${esc(buildHint(m))}</b><span>${esc(m.desc)}</span></button>`).join('')}</div></details>`;
-  h += dirTextBox(f);
+  h += dirTextBox(f, styleCard(f) ? 'style' : undefined);
   const ts = Object.values(lib?.types || {});
   if (ts.length) h += `<details class="fold"><summary>طريقة سرد ثانية <span>${ts.length} نوع</span></summary><div class="fin flowl">${ts.map((t) => `<button type="button" data-act="flowmore" data-t="type" data-id="${id}" data-k="${esc(t.name)}"><b>${esc(t.name)}</b><span>${esc(t.job)}</span></button>`).join('')}</div></details>`;
   if (x.missing?.length) h += missingHtml(f);
@@ -1902,10 +2178,10 @@ function flowSpot(f, fl) {                                           // the node
   }
   if (f.flow && f.flow.stage !== 'done') {
     const s = f.flow.stage;
-    if (s === 'queued') return pick('n_pickwait');
-    if (s === 'received') return pick('n_pickup');
-    if (s === 'direction') return pick(f.state === 'waiting' ? 'n_dirpick' : 'n_dirs');
-    if (s === 'sample') return pick(f.state === 'waiting' ? 'n_isamplegate' : 'n_isample');   // a requested sample is the idea-stage one
+    if (s === 'queued') return styleCard(f) ? pick('n_stylesaved', 'g_style') : pick('n_pickwait');
+    if (s === 'received') return styleCard(f) ? pick('n_stylesaved', 'n_styleopts') : pick('n_pickup');
+    if (s === 'direction') return styleCard(f) ? pick(f.state === 'waiting' ? 'g_style' : 'n_styleopts') : pick(f.state === 'waiting' ? 'n_dirpick' : 'n_dirs');
+    if (s === 'sample') return styleCard(f) ? pick(f.state === 'waiting' ? 'n_samplegate' : 'n_sample') : pick(f.state === 'waiting' ? 'n_isamplegate' : 'n_isample');   // a requested sample is the idea-stage one
     if (s === 'build') return pick(car ? 'n_carbuild' : 'n_build');
     if (s === 'review') return pick(car ? 'n_carreview' : 'n_review');
   }
@@ -2553,7 +2829,7 @@ document.addEventListener('click', async (ev) => {
     const of = b.dataset.of || 'direction', round = flowRounds(f, of) + 1;
     if (round > flowSet(of === 'style' ? 'n_styletext' : 'n_dirtext', 'max_rounds', 3)) { toast('نكمّل بالمحادثة'); return; }
     ideaBusy = true; b.disabled = true;
-    try { await flowUpdate(f, { stage: 'received', note: `طلبت بداله: ${text}`, more: { text, round, of }, rounds: { ...(f.flow?.rounds || {}), [of === 'style' ? 'style' : 'dir']: round }, choice: null }, `الاستوديو: ما ${of === 'style' ? 'عجبني الأسلوب' : 'عجبتني الاتجاهات'} لـ«${f.name}» (${f.id}). الجولة ${round}: ${text}. ${FLOW_RULE}`, b); }
+    try { await flowUpdate(f, { stage: 'received', note: `طلبت بداله: ${text}`, more: { text, round, of }, rounds: { ...(f.flow?.rounds || {}), [of === 'style' ? 'style' : 'dir']: round }, choice: null }, `الاستوديو: ما ${of === 'style' ? 'عجبني الأسلوب' : 'عجبتني الاتجاهات'} لـ«${f.name}» (${f.id}). الجولة ${round}: ${text}. ${FLOW_RULE}`, b, of === 'style' || styleCard(f) ? { style_pick: null } : undefined); }
     finally { ideaBusy = false; b.disabled = false; }
   }
 });
@@ -2695,10 +2971,13 @@ document.addEventListener('change', async (ev) => {
 // ===== plan v1 (staging): publish only after your yes (C1/C2), and two resends then the chat (D5)
 const PUB_ACTS = ['sharefilm', 'share', 'one', 'copy', 'savecap', 'saveall', 'posted'];
 // N3: approved means your «موافق» names this very version (a carousel: or your «موافق» for this version is on its way)
+// A text version («نص v11») with slides still on the record: those slides are the drawing of an earlier version.
+const staleSlides = (f) => !!f && f.kind === 'carousel' && Array.isArray(f.slides) && f.slides.length > 0 && typeof f.version === 'string' && /^\s*نص\s/.test(f.version);
+const staleFrom = (f) => { let best = '', top = -1; for (const v of Array.isArray(f.versions) ? f.versions : []) { if (typeof v !== 'string' || /^\s*(نص|تجربة)\s/.test(v)) continue; const m = v.match(/(\d+)\s*$/), k = m ? +m[1] : -1; if (k > top) { top = k; best = v; } } return best; };   // the newest drawn version, whatever order versions is stored in
 const pubOk = (f) => !!f && ((f.state === 'posted' && f.approved_version == null && typeof f.posted?.version === 'string' && f.posted.version === (f.version || '')) ||   // v6 (Q8): the posted version only
    (f.state === 'done' && f.approved_version == null && oldApproveOk(f)) || ((f.state === 'done' || f.state === 'posted') && f.approved_version != null && f.approved_version === (f.version || ''))
   || (f.kind === 'carousel' && pendingOf(f)?.kind === 'approve' && pendingOf(f).version === (f.version || ''))
-  || ((f.state === 'done' || f.state === 'posted') && !!chatRow(f))) && pieceOk(f);   // v8 (S8): and the very file he watched; v10 (S19): or his «موافق» in chat, on these addresses
+  || ((f.state === 'done' || f.state === 'posted') && !!chatRow(f))) && pieceOk(f) && !staleSlides(f);   // v8 (S8): and the very file he watched; v10 (S19): or his «موافق» in chat, on these addresses
 const unapprovedNote = () => '<p class="note pb-wait" style="color:var(--ink);text-align:center;font-weight:700">توافق أول وبعدين تحفظ</p>';
 function resendOr(n, button, node) {                                 // after the allowed resends, the honest way on: the chat
   return (+n || 0) >= flowSet(node, 'max_resends', 2) ? '<p class="note rs-chat" style="color:var(--ink);font-weight:700">أعدت الإرسال مرتين وما انستلم. قل لي بالمحادثة «شيّك الاستوديو».</p>' : button;
@@ -2732,7 +3011,7 @@ const askCost = (a) => a?.cost || (String(a?.q || '').match(/[\d,٬٫.]+\s*(حر
 
 // ===== plan v3 (staging)
 // R2: the approval that unlocks publishing is the approval of the finished film or carousel only
-const finishedPiece = (f) => f.flow?.mode !== 'sample' && !isTest(f) && (f.kind === 'carousel' ? !!f.slides?.length : !!f.video && verStage(f.version) === 5);   // «فيديو vN» (or an old bare vN)
+const finishedPiece = (f) => f.flow?.mode !== 'sample' && !isTest(f) && (f.kind === 'carousel' ? !!f.slides?.length && !staleSlides(f) : !!f.video && verStage(f.version) === 5);   // «فيديو vN» (or an old bare vN)
 // R3: done, but this version is not the one you approved
 const newUnapproved = (f) => !!f && f.state === 'done' && !pubOk(f) && !isTest(f);
 // R14: a money question's option is plain text or {t, pays}; only the paying one needs the second tap
@@ -2871,11 +3150,13 @@ const ACT_BOUND = Object.assign(Object.create(null), {
   approve: 'piece', askpick: 'question', flowpick: 'choice', flowmore: 'choice',
   send: 'piece', revsend: 'piece', sayfix: 'piece', scriptsend: 'piece', scriptfull: 'piece', wordswap: 'piece',
   share: 'piece', sharefilm: 'piece', one: 'piece', copy: 'caption', savecap: 'caption', posted: 'piece', unpost: 'piece',
-  pickconfirm: 'piece', savelink: 'piece', edsave: 'piece', edundo: 'piece', suggest: 'piece', twin: 'piece', hide: 'piece',
+  pickconfirm: 'piece', savelink: 'piece', edsave: 'piece', lvsave: 'piece', edundo: 'piece', suggest: 'piece', twin: 'piece', hide: 'piece',
   // v8 (S11): every action that sends, writes or shares text or a file is bound to what the screen showed
-  lastresend: 'resend', flowresend: 'flow', scriptcopy: 'script', ruleyes: 'rule', ruleno: 'rule',
+  lastresend: 'resend', flowresend: 'flow', scriptcopy: 'script', gptreview: 'script', ruleyes: 'rule', ruleno: 'rule',
 });
 const ACT_HARMLESS = Object.assign(Object.create(null), {
+  sled: 'opens a slide big with its text boxes, or walks to the next one; «أرسل التعديل» (send) is the bound action', sledclose: 'closes the slide view; typed edits stay in memory',
+  lvreset: 'drops his unsaved live edits of this carousel (memory only); «احفظ ✓» (lvsave) is the bound action',
   unhide: 'restores a hidden film to the list (hidden: false); no text or file is sent, nothing is spent or deleted',
   change: 'opens the note box; «أرسل التعديل» (send) is the bound action', chgfocus: 'moves the focus to the note box',
   acc: 'switches the Instagram account shown', fixopen: 'scrolls to the script', stage: 'switches the shown report stage',
@@ -3318,6 +3599,7 @@ let GATE_RAF = 0;
 function mediaSoon() { if (GATE_RAF) return; GATE_RAF = requestAnimationFrame(() => { GATE_RAF = 0; try { gateNow(); } catch (e) {} }); setTimeout(() => { if (GATE_RAF) { cancelAnimationFrame(GATE_RAF); GATE_RAF = 0; try { gateNow(); } catch (e) {} } }, 250); }   // at most once a frame (L1)
 const mediaGate = mediaSoon;
 function mediaState(f) {                                             // the files «موافق» binds to: on screen?
+  if (staleSlides(f)) return { need: false, ready: true };
   const items = seenAssets(f); if (!items.length) return { need: false, ready: true };
   const fix = mediaFix(f, 'approve'); if (fix) return { need: true, ready: false, fix };
   let n = 0, retry = null, idle = false;
@@ -3533,9 +3815,25 @@ function viewLibrary() {
 }
 
 // The styles and «ريل عجبك» live inside the library (the owner approved five tabs: الأفلام · الأرقام · التعلّم · المكتبة · الفريق).
+const carBlob = (u) => (isAsset(u) ? u : '');   // only this artifact's own files
+let carOpen = false;   // the section stays open across live redraws (as savepOpen)
+if (typeof document.addEventListener === 'function') document.addEventListener('toggle', (e) => { if (e.target?.id === 'sec-carousel') carOpen = !!e.target.open; }, true);
+function carGallery(list, wide) {
+  return `<div style="display:grid;grid-template-columns:repeat(${wide ? 1 : 2},minmax(0,1fr));gap:10px">${(Array.isArray(list) ? list : []).filter((x) => x && typeof x === 'object' && carBlob(x.sample)).slice(0, 40).map((x) => `<figure style="margin:0;display:grid;gap:4px"><img src="${esc(safeUrl(carBlob(x.sample)))}" alt="${esc(String(x.name || ''))}" loading="lazy" style="width:100%;border-radius:10px;display:block;background:var(--soft)"><figcaption style="font:700 14px var(--body);min-width:0;overflow-wrap:anywhere">${esc(String(x.name || ''))}${x.desc ? `<span class="note" style="display:block;font-weight:500">${esc(String(x.desc))}</span>` : ''}</figcaption></figure>`).join('')}</div>`;
+}
+function carLibSection(open) {
+  if (!carLib || typeof carLib !== 'object') return '';
+  const ok = (l) => (Array.isArray(l) ? l : []).filter((x) => x && typeof x === 'object' && carBlob(x.sample)), L = ok(carLib.layouts), S = ok(carLib.styles);
+  if (!L.length && !S.length) return '';
+  return `<details class="group" id="sec-carousel"${open === 'carousel' || carOpen ? ' open' : ''}><summary style="cursor:pointer;font:800 18px var(--display)">أساليب الكاروسيل <span class="note">${L.length} تخطيط · ${S.length} أسلوب</span></summary><div style="display:grid;gap:14px;margin-top:8px">
+    ${carLib.note ? `<p class="note" style="overflow-wrap:anywhere">${esc(String(carLib.note))}</p>` : ''}
+    ${L.length ? `<div class="row"><h2>التخطيطات</h2><span class="badge" style="background:var(--green)">نفس الهوية · مجاني</span></div>${carGallery(L)}` : ''}
+    ${S.length ? `<div class="row"><h2>الأساليب</h2><span class="badge" style="background:var(--green)">مجاني</span></div>${carGallery(S, true)}` : ''}
+    <p class="note">كل كاروسيل يفتح بطاقة أسلوب منها، وإنت تختار قبل الرسم.</p></div></details>`;
+}
 function librarySections() {
   const open = (location.hash || '').slice(1);
-  return `<details class="group" id="sec-styles"${open === 'styles' ? ' open' : ''}><summary style="cursor:pointer;font:800 18px var(--display)">الستايلات</summary><div style="display:grid;gap:12px;margin-top:8px">${viewStyles(true)}</div></details>
+  return `${carLibSection(open)}<details class="group" id="sec-styles"${open === 'styles' ? ' open' : ''}><summary style="cursor:pointer;font:800 18px var(--display)">الستايلات</summary><div style="display:grid;gap:12px;margin-top:8px">${viewStyles(true)}</div></details>
     <details class="group" id="sec-recreate"${open === 'recreate' ? ' open' : ''}><summary style="cursor:pointer;font:800 18px var(--display)">ريل عجبك</summary><div style="display:grid;gap:12px;margin-top:8px">${viewRecreate(true)}</div></details>`;
 }
 function viewStyles(inner) {
@@ -3770,7 +4068,48 @@ function heroCell(x, big) {
   return `<div class="hn1"><small>${esc(x.label)}</small><b class="${big ? '' : 'sm'}">${esc(x.text ?? '—')}</b>${chip}${x.sub ? `<small style="margin-top:3px">${esc(x.sub)}</small>` : ''}</div>`;
 }
 const VW = { good: 'قوي', mid: 'متوسط', bad: 'ضعيف' };
-const pillOf = (p) => `<b class="pv ${esc(p.verdict || 'early')}">${esc(p.verdict && Object.hasOwn(VW, p.verdict) ? VW[p.verdict] : 'بدري نحكم')}</b>`;
+// ---- the coach (10 Nov 2026; the owner: «know which post is doing well and what I need to do to go viral»): Supabase compares
+// every post of the last 7 days with our own posts of the same kind at the same age (`coach.pace`), and ranks the kinds of
+// post by reach over 120 days (`coach.topics`, `more`, `less`, `mix`). Read-only: nothing here writes, sends or spends.
+const PACE = { fly: 'طاير', up: 'فوق المعتاد', same: 'مثل المعتاد', down: 'أقل من المعتاد' };
+const PACE_T = { fly: 'للحين: طاير', up: 'للحين: فوق', same: 'للحين: عادي', down: 'للحين: أقل' };   // on a tile: short, and never the words of a verdict
+const isNum = (v) => (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) && Number.isFinite(+v);
+const kindAr = (k) => (typeof k === 'string' && Object.hasOwn(KIND_AR, k) ? KIND_AR[k] : 'منشور');
+const coachOf = (d) => (d && d.coach && typeof d.coach === 'object' && !d.coach.error ? d.coach : null);
+const paceList = (d) => { const c = coachOf(d); return c && Array.isArray(c.pace) ? c.pace.filter((q) => q && typeof q === 'object' && typeof q.id === 'string') : []; };
+function paceAny(id) { for (const d of Object.values(ig?.dash || {})) { const q = paceList(d).find((x) => x.id === id); if (q) return q; } return null; }
+// a reading only when the comparison was really made: a known state, a ratio, an age, and 5 or more of our posts at that age
+const paceOk = (q) => !!q && typeof q === 'object' && typeof q.state === 'string' && Object.hasOwn(PACE, q.state) && isNum(q.ratio) && isNum(q.age_h) && isNum(q.n) && +q.n >= 5 && q.boosted !== true;   // a boosted post is not compared: its reach is paid
+const hasVerdict = (p) => typeof p.verdict === 'string' && Object.hasOwn(VW, p.verdict);
+function paceOf(id) { const q = paceAny(id); return paceOk(q) ? q : null; }
+const xN = (r) => (isNum(r) ? '×' + (+r >= 10 ? Math.round(+r) : Math.round(+r * 10) / 10) : '');
+const nf = (v) => (isNum(v) ? fmtN(+v) : '—');
+const ageAr = (h) => { if (!isNum(h)) return ''; const n = +h, d = Math.round(n / 24); return n < 48 ? `${Math.max(1, Math.round(n))} س` : d <= 2 ? 'يومين' : `${d} أيام`; };
+const pillWord = (p) => { if (hasVerdict(p)) return VW[p.verdict]; const q = paceOf(p.id); return q ? PACE_T[q.state] : 'بدري نحكم'; };
+function pillOf(p) {
+  if (hasVerdict(p)) return `<b class="pv ${esc(p.verdict)}">${esc(VW[p.verdict])}</b>`;
+  const q = paceOf(p.id);
+  return q ? `<b class="pv pace p-${esc(q.state)}">${esc(PACE_T[q.state])}</b>` : '<b class="pv early">بدري نحكم</b>';
+}
+function viewCoach(d) {
+  const c = coachOf(d); if (!c) return '';
+  const young = paceList(d).filter((q) => isNum(q.age_h) && +q.age_h <= 96);
+  const hot = young.filter((q) => q.state === 'fly' && paceOk(q) && +q.ratio >= 2).sort((a, b) => +b.ratio - +a.ratio).slice(0, 3);
+  let h = `<section class="coach" aria-label="طاير الحين"><div class="row"><h2>طاير الحين</h2><span class="auto">أرقام إنستغرام</span></div>`;
+  h += hot.length ? hot.map((q) => `<button type="button" class="crow" data-post="${esc(q.id)}"><b>${esc(q.title || kindAr(q.kind))}</b><em>${esc(xN(q.ratio))}</em><span>${esc(kindAr(q.kind))}${q.topic ? ' · ' + esc(q.topic) : ''} · وصل ${esc(nf(q.reach))} بعد ${esc(ageAr(q.age_h))}${q.boosted ? ' · مموّل' : ''}</span></button>`).join('')
+    : `<p class="note">${young.length ? `ما فيه منشور طاير من آخر ${esc(young.length)} منشور.` : 'ما فيه منشورات يديدة بآخر 4 أيام.'}</p>`;
+  h += `<span class="note">«طاير»: وصوله ضعف منشوراتنا من نفس النوع بنفس العمر، أو أكثر. قراءة مبدئية لآخر 4 أيام، والحكم النهائي بعد 7 أيام.</span></section>`;
+  const arr = (x) => (Array.isArray(x) ? x.filter((m) => m && typeof m === 'object') : []);
+  const txt = (m) => typeof m.text === 'string' && !!m.text && isNum(m.n) && +m.n >= 8, more = arr(c.more).filter(txt).slice(0, 3), less = arr(c.less).filter(txt).slice(0, 1), mix = arr(c.mix?.by_topic).filter((m) => typeof m.topic === 'string' && m.topic && isNum(m.n)).slice(0, 3);
+  if (more.length || less.length) {
+    const line = (m, cls) => `<div class="cline ${cls}"><b>${esc(m.text)}</b><span>${esc(m.why)}</span>${m.confidence_ar ? `<small>${esc(m.confidence_ar)}</small>` : ''}</div>`;
+    h += `<section class="coach" aria-label="شنو ينجح عندنا"><div class="row"><h2>شنو ينجح عندنا</h2><span class="auto">أرقام إنستغرام</span></div>`;
+    h += more.map((m) => line(m, 'more')).join('') + less.map((m) => line(m, 'less')).join('');
+    if (mix.length) h += `<div class="cline"><b>هالأسبوع نشرت ${esc(nf(c.mix.posts))} منشور</b><span>أكثرها: ${mix.map((m) => `${esc(nf(m.n))} ${esc(kindAr(m.kind))} «${esc(m.topic)}»${isNum(m.n_past) && +m.n_past >= 8 && xN(m.x) ? ` (عادة ${esc(xN(m.x))} من المعتاد)` : ''}`).join('، ')}.</span></div>`;
+    h += `<span class="note">${esc(c.caveat || 'علاقات من أرقامنا، مو أسباب مثبتة.')}</span></section>`;
+  }
+  return h;
+}
 const BACK = (to) => `<header class="top fhead"><button type="button" class="back" aria-label="رجوع" data-go="${to}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FBF7EF" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>`;
 const thumbs = {};                                                  // covers, read a few at a time so the page itself stays light
 let thumbBusy = false;
@@ -3795,7 +4134,7 @@ async function loadThumbs(ids) {
 let postFilter = 'all';
 const PF = [['all', 'الكل', () => true], ['film', 'أفلامنا', (p) => !!p.film], ['reel', 'ريلز', (p) => p.kind === 'reel'], ['carousel', 'كاروسيل', (p) => p.kind === 'carousel'],
   ['image', 'صور', (p) => p.kind === 'image'], ['bad', 'ضعيف', (p) => p.verdict === 'bad'], ['good', 'قوي', (p) => p.verdict === 'good']];
-const postTile = (p) => `<button type="button" class="ptile" data-post="${esc(p.id)}" aria-label="${esc(p.title || KIND_AR[p.kind] || 'منشور')}: ${esc(p.verdict && Object.hasOwn(VW, p.verdict) ? VW[p.verdict] : 'بدري نحكم')}">${thumbs[p.id] ? `<img src="${esc(safeUrl(thumbs[p.id]))}" alt="" loading="lazy">` : `<span class="pfb">${esc(p.title || '')}</span>`}${pillOf(p)}${ICON[p.kind] || ''}</button>`;
+const postTile = (p) => `<button type="button" class="ptile" data-post="${esc(p.id)}" aria-label="${esc(p.title || KIND_AR[p.kind] || 'منشور')}: ${esc(pillWord(p))}">${thumbs[p.id] ? `<img src="${esc(safeUrl(thumbs[p.id]))}" alt="" loading="lazy">` : `<span class="pfb">${esc(p.title || '')}</span>`}${pillOf(p)}${ICON[p.kind] || ''}</button>`;
 // The main page answers four questions in five seconds (the owner, 6 Nov 2026): how is the account, which posts did well
 // or badly, why, and what to do next. Every number and chart moved, unchanged, to «متقدم» (viewAdvanced).
 function viewNumbers() {
@@ -3810,6 +4149,7 @@ function viewNumbers() {
     const skip = String(d.gist.rec).startsWith('الريل') ? (d.kinds || []).find((k) => k.kind === 'reel')?.skip_usual : null, n = skip != null ? Math.round(skip / 10) : null;
     h += `<section class="acn" aria-label="الخطوة الجاية"><small>سوّها بالفيلم الجاي</small><b>${esc(String(d.gist.rec).replace(/^[^:]+:\s*/, ''))}</b>${n != null ? `<div class="dots" role="img" aria-label="${esc(n)} من كل 10 يتخطون الريل">${Array.from({ length: 10 }, (_, i) => `<i class="${i < n ? 'on' : ''}"></i>`).join('')}</div><span>${esc(n)} من كل 10 يتخطّون ريلزنا بأول 3 ثواني</span>` : ''}</section>`;
   }
+  h += viewCoach(d);
   const feed = d.feed || [], newest = feed.filter((p, i) => !p.film || i < 30), opts = PF.filter(([k, , t]) => k === 'all' || feed.some(t));
   if (!opts.some(([k]) => k === postFilter)) postFilter = 'all';
   const list = postFilter === 'all' ? newest : feed.filter(PF.find(([k]) => k === postFilter)[2]);
@@ -3820,12 +4160,15 @@ function viewNumbers() {
   return h + `<button type="button" class="adv" data-go="advanced">متقدم<span>الأرقام والرسوم ←</span></button>`;
 }
 function viewPost(id) {
-  const p = Object.values(ig?.dash || {}).flatMap((d) => d.feed || []).find((x) => x.id === id);
+  const pz = paceAny(id);
+  const p = Object.values(ig?.dash || {}).flatMap((d) => d.feed || []).find((x) => x.id === id)
+    || (pz ? { id: pz.id, kind: pz.kind, title: pz.title, permalink: pz.permalink, boosted: pz.boosted, verdict: null, why: 'الحكم النهائي بعد 7 أيام من النشر', evidence: [], comparison: { posts: isNum(pz.n) ? +pz.n : 0, needed: 5, same_age: true } } : null);
   if (!p) return BACK('numbers') + `<h1 style="font-size:26px">المنشور</h1></header><p class="note">${ig ? 'ما لقيت هالمنشور.' : 'جاري التحميل…'}</p>`;
   const c = p.comparison || {}, ev = p.evidence || [], scored = ev.filter((e) => e.ratio != null).sort((a, b) => Math.abs(b.ratio - 1) - Math.abs(a.ratio - 1)).slice(0, 3);
   let h = BACK('numbers') + `<span class="sub">${esc(KIND_AR[p.kind] || '')}</span></header>`;
   h += `<div class="phead">${thumbOf(p)}<div><span class="note">${esc(p.title)}</span><h1 class="${esc(p.verdict || '')}">${esc(p.verdict && Object.hasOwn(VW, p.verdict) ? VW[p.verdict] : 'بدري نحكم')}</h1><span style="font-size:14.5px">${esc(p.why)}</span></div></div>`;
   if (!p.verdict) h += `<section class="psec"><h2>ليش ما فيه حكم؟</h2><p>${(c.posts || 0) < (c.needed || 5) ? `عندنا ${esc(c.posts || 0)} منشورات مشابهة بس، ونحتاج ${esc(c.needed || 5)} على الأقل.` : 'المنشور جديد، ووصوله ما ينقارن بعدل قبل ما يكتمل عمره.'} أي حكم الحين بيكون تخمين.</p></section>`;
+  if (!hasVerdict(p) && paceOk(pz)) h += `<section class="psec"><div class="row"><h2>للحين: ${esc(PACE[pz.state])}</h2><span class="auto">أرقام إنستغرام</span></div><p>وصل ${esc(nf(pz.reach))} بعد ${esc(ageAr(pz.age_h))}. منشوراتنا من نفس النوع بنفس العمر توصل ${esc(nf(pz.usual))}${xN(pz.ratio) ? `، يعني ${esc(xN(pz.ratio))}` : ''}.</p><span class="note">مقارنة بـ${esc(nf(pz.n))} ${esc(kindAr(pz.kind))} بنفس العمر${pz.topic ? ` · نوعه «${esc(pz.topic)}»` : ''}${isNum(pz.n_topic) && +pz.n_topic >= 8 && xN(pz.ratio_topic) ? ` · مقارنة بنفس نوعه ${esc(xN(pz.ratio_topic))}` : ''}. قراءة مبدئية، مو حكم.</span></section>`;
   if (scored.length) h += `<section class="psec"><div class="row"><h2>${p.verdict ? 'الدليل' : 'اللي نعرفه للحين'}</h2><span class="auto">أرقام إنستغرام</span></div><ul>${scored.map((e) => `<li>${esc(e.label)}: ${esc(e.value)}، والمعتاد ${esc(e.usual)}</li>`).join('')}</ul></section>`;
   if (p.tip) h += `<section class="psec"><h2>جرّب المرة الجاية</h2><p>${esc(p.tip)}</p></section>`;
   if (p.film) h += `<a class="chip" style="justify-self:start" href="#film-${esc(p.film)}">افتح الفيلم بالستوديو</a>`;
@@ -3921,6 +4264,7 @@ function viewPredict(f, p) {
     <div class="rl"><span>غالباً بين ${fmtK(lo)} و${fmtK(hi)}</span><span>المعتاد ${fmtK(p.usual)}</span></div>`;
   if (generic(p)) h += '<span class="note">هذا الرقم المعتاد لحسابكم، مو توقع خاص بهالفلم للحين.</span>';
   if (p.model?.coverage != null) h += `<span class="note">بالاختبار: ${Math.round(p.model.coverage / 10)} من 10 مرات جت داخل المدى.</span>`;
+  if (p.topic && typeof p.topic === 'object' && p.topic.topic) h += `<span class="note" style="color:var(--ink)">نوع المنشور «${esc(p.topic.topic)}»${isNum(p.topic.n) && +p.topic.n >= 8 && xN(p.topic.x) ? `: عادة ${esc(xN(p.topic.x))} من معتاد ${p.kind === 'reel' ? 'الريلز' : p.kind === 'carousel' ? 'الكاروسيل' : 'المنشورات'} عندنا (${esc(nf(p.topic.n))} منشور${p.topic.confidence_ar ? ' · ' + esc(p.topic.confidence_ar) : ''}).` : ': ما عندنا منشورات كفاية منه نقارن فيها.'}</span>`;
   const sh = ig?.dash?.[p.username || 'timekeeperkw']?.shift;
   if (sh?.direction === 'down') h += `<span class="note" style="color:#8a1426">⚠ الوصول نازل من ${esc(dayAr(sh.since))}، والتوقع مبني على البوستات اللي قبل، فممكن يطلع أعلى من الواقع.</span>`;
   h += `</section>`;
@@ -4060,8 +4404,60 @@ async function upShots(input) {
   } catch (e) { toast('ما قدرت أرفعها. أرسلها لي بالمحادثة.'); }
 }
 
+// ===== v2 (10 Nov 2026; the owner: «rebuild the whole system from scratch»: too complicated, looks dated; new page, same data;
+// one screen for both jobs). Step 1 is this home screen at #v2: what waits on him, what is flying, what to make next.
+// The old studio stays the default until he approves the new one. Read-only: links only, no action, write or request.
+let v2Seen = false, v2Was = '';
+const V2_ACC = 'timekeeperkw';
+function viewHome() {
+  const d = ig?.dash?.[V2_ACC], hero = d && Array.isArray(d.hero) && d.hero[0] && typeof d.hero[0] === 'object' ? d.hero[0] : null;
+  const wait = films.filter((f) => f && typeof f.id === 'string' && !f.hidden && !isTest(f) && isWaiting(f)).sort((a, b) => (Date.parse(b.updated || 0) || 0) - (Date.parse(a.updated || 0) || 0));
+  const n = wait.length, chg = hero && isNum(hero.chg) ? +hero.chg : null;
+  let h = `<header class="v2-top"><b>تايم كيبر</b>${hero && typeof hero.text === 'string' ? `<span>${esc(hero.text)} وصول بآخر 7 أيام${chg ? ` · ${chg > 0 ? 'طالع' : 'نازل'} ${esc(Math.round(Math.abs(chg)))}%` : ''}</span>` : ''}</header>`;
+  h += `<section class="v2-wait" aria-label="دورك الحين"><div class="v2-big">${n > 2 ? `<i>${esc(n)}</i>` : ''}<h1>${n === 0 ? 'ما فيه شي ينتظرك' : n === 1 ? 'واحد ينتظرك' : n === 2 ? 'اثنين ينتظرونك' : 'ينتظرونك'}</h1></div>`;
+  h += wait.slice(0, 3).map((f) => `<a class="v2-row" href="#film-${esc(f.id)}"><span><b>${esc(f.name || f.id)}</b><small>${esc(kindAr(kindOf(f)))}${typeof f.waiting === 'string' && f.waiting ? ' · ' + esc(f.waiting) : ''}</small></span><em>افتح</em></a>`).join('');
+  h += n > 3 ? `<a class="v2-more" href="#v2work">شوف الباقي (${esc(n - 3)})</a>` : n === 0 ? `<a class="v2-more" href="#v2work">افتح كل الشغل</a>` : '';
+  h += `</section>`;
+  const hot = paceList(d).filter((q) => isNum(q.age_h) && +q.age_h >= 0 && +q.age_h <= 96 && q.state === 'fly' && paceOk(q) && +q.ratio >= 2 && +q.ratio < 1000).sort((a, b) => +b.ratio - +a.ratio).slice(0, 3);
+  h += `<h2 class="v2-h">طاير الحين</h2>`;
+  h += hot.length ? `<div class="v2-fly">${hot.map((q) => `<a class="v2-tile" href="#post-${esc(q.id)}"><i>${esc(xN(q.ratio))}</i><span><b>${esc(typeof q.title === 'string' && q.title ? q.title : kindAr(q.kind))}</b><small>بعد ${esc(ageAr(q.age_h))}</small></span></a>`).join('')}</div><p class="v2-note">وصوله مقارنة بمنشوراتنا من نفس النوع بنفس العمر. قراءة مبدئية.</p>`
+    : `<p class="v2-note">${coachOf(d) ? 'ما فيه منشور طاير بآخر 4 أيام.' : 'الأرقام ما وصلت للحين.'}</p>`;
+  const c = coachOf(d), more = c && Array.isArray(c.more) ? c.more.find((m) => m && typeof m === 'object' && typeof m.text === 'string' && m.text && isNum(m.n) && +m.n >= 8) : null;
+  if (more) h += `<section class="v2-next" aria-label="سوّ الجاي"><small>سوّ الجاي</small><b>${esc(more.text)}</b>${typeof more.why === 'string' ? `<p>${esc(more.why)}</p>` : ''}<a class="v2-btn" href="#idea">ابدأ واحد يديد</a></section>`;
+  return h;
+}
+const v2Nav = (cur) => `<nav class="v2-nav" aria-label="الأقسام">${[['v2', 'الرئيسية'], ['v2work', 'الشغل'], ['numbers', 'الأرقام']].map(([k, t]) => `<a href="#${k}"${k === cur ? ' aria-current="page"' : ''}>${t}</a>`).join('')}</nav>`;
+const v2Str = (v) => (typeof v === 'string' ? v : '');
+const v2Row = (f, tag, line) => `<a class="v2-row" href="#film-${esc(f.id)}"><span><b>${esc(v2Str(f.name) || f.id)}</b><small>${esc(kindAr(kindOf(f)))}${v2Str(f.version) ? ' · ' + esc(f.version) : ''}${line ? ' · ' + esc(line) : ''}</small></span><em>${esc(tag)}</em></a>`;
+// الشغل (step 2): every piece in one list, grouped by who it is waiting on; the oldest screens stay one tap away for what is not rebuilt yet
+function viewWork() {
+  const ok = films.filter((f) => f && typeof f === 'object' && typeof f.id === 'string'), shown = ok.filter((f) => !f.hidden);
+  const byNew = (a, b) => (Date.parse(b.updated || 0) || 0) - (Date.parse(a.updated || 0) || 0);
+  const sent = shown.filter((f) => pendingOf(f)).sort(byNew), rest = shown.filter((f) => !pendingOf(f));
+  const wait = rest.filter((f) => !isTest(f) && isWaiting(f)).sort(byNew), left = rest.filter((f) => isTest(f) || !isWaiting(f));
+  const work = left.filter((f) => f.state === 'working').sort(byNew), ready = left.filter((f) => f.state === 'done').sort(byNew);
+  const posted = left.filter((f) => f.state === 'posted').sort(byNew), toLink = posted.filter((f) => !inNumbers(f)), linkedP = posted.filter(inNumbers), other = left.filter((f) => !['working', 'done', 'posted'].includes(f.state)).sort(byNew);
+  const hid = ok.length - shown.length;
+  let h = `<header class="v2-top"><b>الشغل</b><span>${esc(wait.length)} ينتظرك · ${esc(work.length + other.length + sent.length)} عند Claude</span></header>`;
+  if (!ok.length) h += `<section class="v2-sec"><h2>ما فيه شغل للحين</h2><p class="v2-note">ابدأ بفكرة، ويطلع هني على طول.</p></section>`;
+  if (wait.length) h += `<section class="v2-wait" aria-label="ينتظرك"><div class="v2-big">${wait.length > 2 ? `<i>${esc(wait.length)}</i>` : ''}<h1>${wait.length === 1 ? 'واحد ينتظرك' : wait.length === 2 ? 'اثنين ينتظرونك' : 'ينتظرونك'}</h1></div>${wait.map((f) => v2Row(f, 'افتح', v2Str(f.waiting) || v2Str(dueCheck(f)?.name))).join('')}</section>`;
+  const sec = (title, list, tag, line, more) => (list.length ? `<section class="v2-sec" aria-label="${esc(title)}"><h2>${esc(title)}<span>${esc(list.length)}</span></h2>${list.map((f) => v2Row(f, tag(f), line(f))).join('')}${more || ''}</section>` : '');
+  h += sec('وصلت Claude', sent, (f) => (pendingOf(f)?.kind === 'approve' ? 'وصلت موافقتك' : pendingOf(f)?.kind === 'gpt_review' ? 'وصل طلب المراجعة' : 'وصل تعديلك'), (f) => when(pendingOf(f)?.at));
+  h += sec('Claude يشتغل', work.concat(other), (f) => (f.state === 'working' ? `${pct(f)}%` : ''), (f) => (f.updated ? 'آخر تحديث ' + when(f.updated) : ''));
+  h += sec('جاهز للنشر', ready, (f) => (isTest(f) ? 'تجربة' : 'انشر'), (f) => (f.updated ? when(f.updated) : ''));
+  h += sec('منشور، اربطه بإنستغرام', toLink, (f) => (linked(f) ? 'أكّده' : 'اربطه'), (f) => (f.posted?.at ? 'نشرته ' + when(f.posted.at) : ''));
+  h += sec('منشور', linkedP.slice(0, 5), () => 'أرقامه', (f) => (f.posted?.at ? 'نشرته ' + when(f.posted.at) : ''), linkedP.length > 5 ? `<a class="v2-link" href="#numbers">الباقي بالأرقام (${esc(linkedP.length - 5)})</a>` : '');
+  if (hid) h += `<a class="v2-link" href="#films">المخفية (${esc(hid)}) بالشاشة القديمة</a>`;
+  h += `<div class="v2-two"><a class="v2-btn" href="#idea">فكرة جديدة</a><a class="v2-btn" href="#recreate">ريل عجبك</a></div>`;
+  return h;
+}
 function route() {
   const h = (location.hash || '#films').slice(1);
+  const v2 = h === 'v2' || h === 'v2work';
+  document.body.classList.toggle('v2', v2); $('#tabs').hidden = v2; if (v2) v2Seen = true;
+  { const vb = document.getElementById('v2back'); if (vb) vb.hidden = v2 || !v2Seen; }
+  if (v2) { document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = (h === 'v2work' ? safeView(() => viewWork(), 'الشغل') : safeView(() => viewHome(), 'الرئيسية')) + v2Nav(h); bind(); if (v2Was !== h) window.scrollTo(0, 0); v2Was = h; return; }
+  v2Was = '';
   if (h.startsWith('edit-')) { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewEdit(h.slice(5)); bind(); bindEdit(); return; }
   if (h === 'idea') { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewIdea(); bind(); return; }
   if (h === 'flow') { tabs('films'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewFlowMap(); bind(); flowAfter(); return; }
@@ -4076,13 +4472,14 @@ function route() {
   }
   if (h.startsWith('post-')) { tabs('numbers'); document.querySelector('.bubbles').hidden = true; $('#view').innerHTML = viewPost(h.slice(5)); bind(); window.scrollTo(0, 0); return; }
   const [tab, id] = h.startsWith('film-') ? ['films', h.slice(5)] : [h, null];
-  const alias = { styles: 'library', recreate: 'library', sync: 'numbers', advanced: 'numbers' };
+  const alias = { styles: 'library', recreate: 'library', carousel: 'library', sync: 'numbers', advanced: 'numbers' };
   const t = TABS.some((x) => x.id === tab) ? tab : alias[tab] || 'films';
   tabs(id && films.some((x) => x.id === id && inNumbers(x)) ? 'numbers' : t);
   document.querySelector('.bubbles').hidden = !!id || tab === 'sync' || tab === 'advanced';
   $('#view').innerHTML = safeView(() => (id ? viewFilm(id) : tab === 'sync' ? viewSync() : tab === 'advanced' ? viewAdvanced() : t === 'numbers' ? viewNumbers() : t === 'learn' ? viewLearn() : t === 'library' ? viewLibrary() : t === 'team' ? viewTeam() : viewFilms()), id ? 'صفحة هالفلم' : 'هالصفحة');
-  if (!id && (tab === 'styles' || tab === 'recreate')) document.getElementById('sec-' + tab)?.scrollIntoView({ block: 'start' });
+  if (!id && (tab === 'styles' || tab === 'recreate' || tab === 'carousel')) document.getElementById('sec-' + tab)?.scrollIntoView({ block: 'start' });
   bind();
+  if (id && document.getElementById('slc')) lvPaint(true);   // v134 (LIVE): the slide view draws its slide
   if (id) { const ff = films.find((x) => x.id === id); prefetch(ff); if (ff && ff.video && (ff.state === 'done' || ff.state === 'posted' || ff.final)) prefetchFilm(ff); }
 }
 function bind() {
@@ -4095,6 +4492,7 @@ function bind() {
   document.querySelectorAll('[data-pick]').forEach((b) => b.addEventListener('click', () => {
     const id = (location.hash.match(/^#film-(.+)$/) || [])[1], set = picked(id), k = +b.dataset.pick;
     set.has(k) ? set.delete(k) : set.add(k); b.setAttribute('aria-pressed', set.has(k));
+    { const sx = document.getElementById('stx'), ff = films.find((x) => x.id === id); if (sx && ff) sx.innerHTML = slideTextFields(ff); }
   }));
   document.querySelectorAll('[data-sl]').forEach((b) => b.addEventListener('click', () => { scriptOpen = `${b.dataset.id}:${b.dataset.sl}`; route(); document.getElementById('sin')?.focus(); }));
   document.querySelectorAll('[data-fixw]').forEach((b) => b.addEventListener('click', () => {
@@ -4153,13 +4551,13 @@ async function newRequest(src, kind, mode, what) {
 async function markSent(f, kind, text, extra) {
   try { if (db) await db.doc(`films/${f.id}`).update({ last_action: { kind, at: new Date().toISOString(), text, ...rowRef(f, text), ...(extra || {}) } }); } catch (e) {}
 }
-async function flowUpdate(f, patch, text, el) {
+async function flowUpdate(f, patch, text, el, extra) {
   if (!db) { toast('يحتاج صلاحية تعديل الاستوديو.'); return false; }
-  await db.doc(`films/${f.id}`).update({ flow: { ...f.flow, ...patch }, updated: new Date().toISOString() });
+  await db.doc(`films/${f.id}`).update({ flow: { ...f.flow, ...patch }, updated: new Date().toISOString(), ...(extra || {}) });
   await tell(text, el, { film: f.id, kind: 'flow', ...patch });
   return true;
 }
-const SENDS = ['wordswap', 'askpick', 'revsend', 'sayfix', 'scriptsend', 'scriptfull', 'approve', 'send', 'twin', 'start', 'suggest', 'flowpick', 'flowmore', 'flowresend', 'lastresend', 'shotschat'];
+const SENDS = ['gptreview', 'wordswap', 'askpick', 'revsend', 'sayfix', 'scriptsend', 'scriptfull', 'approve', 'send', 'twin', 'start', 'suggest', 'flowpick', 'flowmore', 'flowresend', 'lastresend', 'shotschat'];
 const inFlight = new Set();
 async function act(b, e) {
   const kind = b.dataset.act, key = b.dataset.id || kind;
@@ -4228,6 +4626,16 @@ async function run(b) {
     catch (e) { scriptCopyBox = id; route(); const c = document.getElementById('scopy'); c?.focus(); c?.select(); toast('اضغط مطوّل وانسخ.'); }
     return;
   }
+  if (kind === 'gptreview') {
+    if (!f) return;
+    if (pendingOf(f) || f.video || (f.slides?.length && !staleSlides(f))) { toast('النص مو مفتوح للتعديل الحين.'); return; }
+    if (Object.keys(scriptEd[id] || {}).length || scriptFull[id]) { toast('أرسل تعديلاتك أول، أو امسحها، وبعدين اطلب المراجعة.'); return; }
+    const t = `الاستوديو: راجع نص «${f.name}» ${f.version || ''} مع ChatGPT: قيّمه، واقترح هوك أقوى واختصارات، وطبّق المناسب بنسخة نص يديدة أوافق عليها.`;
+    await tell(t, b, { film: id, kind: 'gpt_review', step: f.step, version: f.version || '' });
+    await markSent(f, 'gpt_review', t);
+    toast('وصل الطلب. Claude يرسل النص لـ ChatGPT ويرجع لك بنسخة يديدة (مجاناً)');
+    return;
+  }
   if (kind === 'scriptpaste') { scriptPaste = scriptPaste === id ? null : id; route(); document.getElementById('spaste')?.focus(); return; }
   if (kind === 'scriptcheck') {
     const raw = document.getElementById('spaste')?.value || '', got = pastedLines(raw), lines = scriptOf(f);
@@ -4264,15 +4672,22 @@ async function run(b) {
   }
   if (kind === 'flowpick') {
     const o = (f.flow.direction_options || []).find((x) => String(x.id) === b.dataset.k);
-    await flowUpdate(f, { stage: 'received', choice: b.dataset.k, note: `اخترت «${o?.name || b.dataset.k}»`, more: null }, `الاستوديو: اخترت اتجاه «${o?.name || b.dataset.k}» لـ«${f.name}» (${f.id}). ${FLOW_RULE}`, b);
+    const sc = styleCard(f), pk = sc ? { style_pick: { by: 'owner', at: new Date().toISOString(), choice: String(b.dataset.k), name: String(o?.name || ''), via: 'card' } } : undefined;
+    try { await flowUpdate(f, { stage: 'received', choice: b.dataset.k, note: `اخترت «${o?.name || b.dataset.k}»`, more: null }, `الاستوديو: اخترت ${sc ? 'أسلوب' : 'اتجاه'} «${o?.name || b.dataset.k}» لـ«${f.name}» (${f.id}). ${FLOW_RULE}`, b, pk); }
+    catch (e) { toast('ما انحفظ اختيارك. اضغط مرة ثانية بعد نص دقيقة.'); }
     return;
   }
   if (kind === 'flowmore') {
-    if (b.dataset.t === 'type') { await flowUpdate(f, { stage: 'received', note: `طلبت طريقة سرد «${b.dataset.k}»`, more: { type: b.dataset.k } }, `الاستوديو: ما عجبتني الاتجاهات. سوّ اتجاهات يديدة بطريقة السرد «${b.dataset.k}» لـ«${f.name}» (${f.id}). ${FLOW_RULE}`, b); return; }
-    await flowUpdate(f, { stage: 'received', note: `طلبت عينة «${b.dataset.k}»`, more: { name: b.dataset.k } }, `الاستوديو: ما عجبتني الاتجاهات. سوّ عينة «${b.dataset.k}» لـ«${f.name}» (${f.id}). ${FLOW_RULE}`, b);
+    if (b.dataset.t === 'type') { const st = styleCard(f); await flowUpdate(f, { stage: 'received', note: `طلبت طريقة سرد «${b.dataset.k}»`, more: { type: b.dataset.k }, ...(st ? { choice: null } : {}) }, `الاستوديو: ما ${st ? 'عجبتني الأساليب' : 'عجبتني الاتجاهات'}. سوّ ${st ? 'أساليب' : 'اتجاهات'} يديدة بطريقة السرد «${b.dataset.k}» لـ«${f.name}» (${f.id}). ${FLOW_RULE}`, b, st ? { style_pick: null } : undefined); return; }
+    const sc = styleCard(f);
+    await flowUpdate(f, { stage: 'received', note: `طلبت عينة «${b.dataset.k}»`, more: { name: b.dataset.k }, ...(sc ? { choice: null } : {}) }, `الاستوديو: ما ${sc ? 'عجبتني الأساليب' : 'عجبتني الاتجاهات'}. سوّ عينة «${b.dataset.k}» لـ«${f.name}» (${f.id}). ${FLOW_RULE}`, b, sc ? { style_pick: null } : undefined);
     return;
   }
-  if (kind === 'change') { const box = $('#chg'); box.hidden = !box.hidden; chgOpen = box.hidden ? null : id; if (!box.hidden && f.kind !== 'carousel') $('#note').focus(); return; }
+  if (kind === 'sled') { const k = /^\d+$/.test(b.dataset.k || '') ? +b.dataset.k : NaN; if (!Number.isInteger(k) || k < 0 || k >= (f.slides?.length || 0) || !sledOk(f)) return; const first = slEd?.id !== id; slEd = { id, k }; chgOpen = null; route(); const s = document.getElementById('sled'); if (s && first) s.scrollIntoView({ block: 'start', behavior: 'smooth' }); return; }
+  if (kind === 'lvsave') { if (f) await lvSave(f, b); return; }
+  if (kind === 'lvreset') { delete lvEd[id]; delete lvDrop[id]; route(); return; }
+  if (kind === 'sledclose') { delete lvDrop[id]; slEd = null; for (const x of Object.keys(stStale)) if (x.startsWith(id + ':')) delete stStale[x]; route(); return; }
+  if (kind === 'change') { if (slEd?.id === id) { slEd = null; document.getElementById('sled')?.remove(); } const box = $('#chg'); box.hidden = !box.hidden; chgOpen = box.hidden ? null : id; if (!box.hidden) { const sx = document.getElementById('stx'); if (sx) sx.innerHTML = slideTextFields(f); } if (!box.hidden && f.kind !== 'carousel') $('#note').focus(); return; }
   if (kind === 'copy') {
     try { await navigator.clipboard.writeText(f.caption || ''); toast('انسخ الكابشن ✓'); }
     catch (e) { const r = document.createRange(); r.selectNodeContents($('#cap')); const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r); toast('اضغط مطوّل وانسخ.'); }
@@ -4393,16 +4808,21 @@ async function run(b) {
   try {
     if (kind === 'approve') { const t = f.flow?.mode === 'sample' ? `الاستوديو: اعتمد الأسلوب من «${f.name}» ${f.version || ''} لفيلم ${f.of || f.topic}. ${FLOW_RULE}` : `الاستوديو: موافق على «${f.name}» ${f.version || ''} (${STEPS[(f.step || 1) - 1]}).`; const fin = finishedPiece(f);
       const ap = approvalOf(f);   // v8 (S8): captured before any await, from the record the gate just checked
-      await tell(t, b, { film: id, kind: 'approve', step: f.step, version: f.version || '', finished: fin, file: ap.approved_file, media: ap.approved_media, duration: ap.approved_duration }); await markSent(f, 'approve', t, { version: f.version || '', finished: fin, file: ap.approved_file, media: ap.approved_media });
-      try { if (db) await db.doc(`films/${id}`).update(fin ? ap : { step_approved: f.version || '' }); } catch (e) {} }
+      await tell(t, b, { film: id, kind: 'approve', step: f.step, version: f.version || '', finished: fin, file: fin ? ap.approved_file : null, media: fin ? ap.approved_media : null, duration: ap.approved_duration }); await markSent(f, 'approve', t, { version: f.version || '', finished: fin, file: fin ? ap.approved_file : null, media: fin ? ap.approved_media : null });
+      try { if (db) await db.doc(`films/${id}`).update(fin ? ap : { step_approved: f.version || '' }); } catch (e) {}
+      if (f.flow?.mode === 'sample' && typeof f.of === 'string' && films.some((x) => x.id === f.of)) await setStylePick(f.of, { by: 'owner', at: new Date().toISOString(), choice: String(f.meta || f.name || f.id), name: String(f.name || ''), via: 'sample', sample: f.id }); }
     else if (kind === 'send') {
-      const note = $('#note').value.trim(), slides = f.kind === 'carousel' ? [...picked(id)].sort((a, c) => a - c) : [];
-      if (!note) { toast('اكتب وش تبي يتغيّر.'); return; }
+      const fromSl = b.dataset.sled === '1' && slEd?.id === id, note = fromSl ? '' : ($('#note')?.value || '').trim(), slides = fromSl ? stEditedSlides(f) : f.kind === 'carousel' ? [...picked(id)].sort((a, c) => a - c) : [], stx = f.kind !== 'carousel' ? [] : fromSl ? stChanges(f, slides) : stChanges(f);
+      if (fromSl && !stx.length) { toast('عدّل النص أول.'); return; }
+      if (!note && !stx.length) { toast(Array.isArray(f.slide_text) && f.slide_text.length ? 'عدّل النص أو اكتب وش تبي يتغيّر.' : 'اكتب وش تبي يتغيّر.'); return; }
       const where = slides.length ? ' · ' + slides.map((k) => (k === 0 ? 'الغلاف' : `الشريحة ${k}`)).join('، ') : '';
-      const t = `الاستوديو: تعديل على «${f.name}» ${f.version || ''}${where}: ${note}`;
-      await tell(t, b, { film: id, kind: 'change', step: f.step, note, ...(slides.length ? { slides: slides.map((k) => f.slides[k]) } : {}) });
+      const said = stx.map((x) => `${x.k === 0 ? 'الغلاف' : `الشريحة ${x.k}`} · ${x.field}: «${x.before}» ← ${x.removed ? '(انمسح)' : `«${x.after}»`}`).join(' | ');
+      const t = `الاستوديو: تعديل على «${f.name}» ${f.version || ''}${where}: ${[said, note].filter(Boolean).join(' | ')}`;
+      await tell(t, b, { film: id, kind: 'change', step: f.step, note, ...(slides.length ? { slides: slides.map((k) => f.slides[k]) } : {}), ...(stx.length ? { slide_text_edits: stx } : {}) });
+      for (const x of stx) delete stEdits[`${id}:${x.k}:${x.key}`];
+      if (fromSl) slEd = null; for (const x of Object.keys(stStale)) if (x.startsWith(id + ':')) delete stStale[x];   // what was sent; edits on slides he unpicked stay for later
       await markSent(f, 'change', t);
-      picked(id).clear(); chgOpen = null; route();
+      if (!fromSl) picked(id).clear(); chgOpen = null; route();
     } else if (kind === 'twin') {
       await newRequest(f, f.kind === 'carousel' ? 'reel' : 'carousel', 'full', 'نفس المعلومات والمصادر');
     } else if (kind === 'start') {
@@ -4589,7 +5009,9 @@ async function kitSlide(canvas, spec, base, k) {          // k = 0: the cover; k
   const accent = spec.accent || KIT.GREEN, ink = spec.ink || KIT.INK;   // v9 (KIT): TK green, not the topic's colour
   const info = {};
   if (k === 0) {
-    const c = spec.cover || {}, im = await kitImg(base + c.image);
+    const c = spec.cover || {};
+    if (c.layout === 'photo') return kit2Cover(ctx, spec, base, c, info);   // v134 (LIVE): the Day-Date cover
+    const im = await kitPic(base, c.image);
     ctx.fillStyle = '#111'; ctx.fillRect(0, 0, KIT.W, KIT.H);
     let light = c.palette ? c.palette === 'light' : false;
     if (im) {
@@ -4626,13 +5048,14 @@ async function kitSlide(canvas, spec, base, k) {          // k = 0: the cover; k
     return info;
   }
   const s = spec.slides[k - 1], n = spec.slides.length, name = s.layout || KIT.ORDER[(k - 1) % 5], Z = KIT.SIZE;
+  if (KIT2_L.includes(name)) return kit2Slide(ctx, spec, base, k, s, n, name, info);   // v134 (LIVE): the Day-Date layouts
   ctx.fillStyle = spec.paper || KIT.PAPER; ctx.fillRect(0, 0, KIT.W, KIT.H);
   const [right, left, top0] = KIT.TXT[name], width = KIT.W - right - left, R = KIT.W - right;
   const tl = wrap(ctx, tokens(s.title, true), width, Z.title, 800), bl = wrap(ctx, tokens(s.body), width, Z.body, 500), al = s.ask ? wrap(ctx, tokens(s.ask, true), width, Z.ask, 800) : [];
   const h = Z.num * KIT.NORMAL + 10 + 24 + tl.length * Z.title * 1.12 + 26 + (s.name ? Z.name * KIT.NORMAL + 8 : 0)
     + bl.length * Z.body * 1.55 + (al.length ? 26 + al.length * Z.ask * 1.3 : 0);
   const top = name === 'topImage' ? Math.min(spec.big ? KIT.BOTTOM : top0, KIT.BOTTOM - h) : top0;   // v9: `big` lets the text sit as low as it fits
-  const im = s.image && await kitImg(base + s.image);
+  const im = s.image && await kitPic(base, s.image);
   if (im) {
     let box = [...((s.watch && KIT.WHOLE[name]) || KIT.FIG[name])];
     if (spec.big && name === 'topImage') box[1] = 210;   // v9: under the logo band
@@ -4657,27 +5080,302 @@ async function kitSlide(canvas, spec, base, k) {          // k = 0: the cover; k
   info.textBottom = y; info.layout = name;
   return info;
 }
+// ===== v134 (LIVE): the Day-Date v2 layouts (ddr/mix.mjs, the design he chose), drawn here like the five above.
+const KIT2_L = ['overlay', 'split', 'callouts', 'bigNumber', 'grid', 'timeline', 'compare', 'statement', 'zoom', 'scrapbook'];
+const K2 = { PAPER: '#F4EFE4', INK: '#151515', BODY: '#2b2b2b', MUTED: '#555555', RED: '#B4321F', LIGHT: '#e8e3d8', MINT: '#7fd1a6', BLACK: '#111111' };
+const KIT_NAME = /^[A-Za-z0-9_][A-Za-z0-9_.-]{0,119}$/;   // a picture next to the carousel's files: a plain name, no folder, no «..»
+const kitBaseOk = (b) => typeof b === 'string' && /^[A-Za-z0-9_][A-Za-z0-9_./-]{0,199}\/$/.test(b) && !/\.\.|\/\/|^[^/]*:/.test(b);
+function kitSrc(base, p) { if (typeof p !== 'string') return null; if (KIT_BLOB.test(p)) return p; return KIT_NAME.test(p) && !p.includes('..') && kitBaseOk(base) ? base + p : null; }
+const kitPic = (base, p) => { const u = kitSrc(base, p); return u ? kitImg(u) : Promise.resolve(null); };
+const k2n = (v, d, lo, hi) => (typeof v === 'number' && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : d);
+const k2s = (v, max = 400) => (typeof v === 'string' ? v.slice(0, max) : '');
+const k2o = (x) => !!x && typeof x === 'object' && !Array.isArray(x);
+const k2plain = (h) => tokens(k2s(h, 2000)).map((t) => t.t).join(' ');
+function k2opt(x, d = {}) {                                // a picture's drawing: fit (cover/contain), pos (0…1 like object-position), crop [x, y, w, h] (0…1)
+  const o = k2o(x) ? x : {}, fit = o.fit === 'contain' || o.fit === 'cover' ? o.fit : d.fit || 'cover';
+  const pos = Array.isArray(o.pos) ? [k2n(o.pos[0], .5, 0, 1), k2n(o.pos[1], .5, 0, 1)] : d.pos || [.5, .5];
+  const crop = Array.isArray(o.crop) && o.crop.length === 4 ? o.crop.map((v, i) => k2n(v, i < 2 ? 0 : 1, 0, 1)) : null;
+  return { fit, pos, crop, bg: fit === 'contain' || o.ink === true ? '#FFFFFF' : null, ink: o.ink === true };   // v135: ink = line art
+}
+function k2pic(ctx, im, x, y, w, h, o = {}) {              // CSS object-fit / object-position, in a box or a circle
+  if (w <= 0 || h <= 0) return;
+  ctx.save(); ctx.beginPath();
+  if (o.circle) ctx.arc(x + w / 2, y + h / 2, Math.min(w, h) / 2, 0, Math.PI * 2); else ctx.rect(x, y, w, h);
+  ctx.clip();
+  if (o.bg) { ctx.fillStyle = o.bg; ctx.fillRect(x, y, w, h); }
+  if (im && im.width && im.height) {
+    let sx = 0, sy = 0, sw = im.width, sh = im.height;
+    if (o.crop && o.crop[2] > 0 && o.crop[3] > 0) { sx = o.crop[0] * im.width; sy = o.crop[1] * im.height; sw = Math.max(1, Math.min(im.width - sx, o.crop[2] * im.width)); sh = Math.max(1, Math.min(im.height - sy, o.crop[3] * im.height)); }
+    const r = (o.fit === 'contain' ? Math.min : Math.max)(w / sw, h / sh), dw = sw * r, dh = sh * r, [px, py] = o.pos || [.5, .5];
+    if (o.ink) {                                         // v135 (FILL): grey, more contrast, every line one pixel thicker
+      try { ctx.filter = 'grayscale(1) brightness(0.92) contrast(1.8)'; } catch (e) {}
+      const d = r < .7 ? 1.2 : .6; ctx.globalCompositeOperation = 'darken';
+      for (const [ox, oy] of [[0, 0], [d, 0], [0, d], [d, d]]) ctx.drawImage(im, sx, sy, sw, sh, x + (w - dw) * px + ox, y + (h - dh) * py + oy, dw, dh);
+      try { ctx.filter = 'none'; } catch (e) {} ctx.globalCompositeOperation = 'source-over';
+    } else ctx.drawImage(im, sx, sy, sw, sh, x + (w - dw) * px, y + (h - dh) * py, dw, dh);
+  }
+  ctx.restore();
+}
+function k2line(ctx, s, x, top, px, weight, color, align, lh, family) {   // one line in its CSS line box; Latin runs left to right
+  ctx.font = family ? `${weight} ${px}px ${family}` : kfont(weight, px); ctx.fillStyle = color; ctx.textBaseline = 'alphabetic';
+  ctx.direction = AR.test(s) ? 'rtl' : 'ltr'; ctx.textAlign = align;
+  const mt = ctx.measureText(s), A = mt.fontBoundingBoxAscent || px * .8, D = mt.fontBoundingBoxDescent || px * .2;
+  ctx.fillText(s, x, top + ((lh || px * KIT.NORMAL) - A - D) / 2 + A); return mt.width;
+}
+function k2numBox(ctx, lab, right, y, bg, center) {          // the black «07 / 10» box of the design (28 px, padding 10 16 8)
+  ctx.font = kfont(800, 28); const w = ctx.measureText(lab).width + 32, x = center ? center - w / 2 : right - w;
+  ctx.fillStyle = bg || K2.BLACK; ctx.fillRect(x, y, w, 46);
+  k2line(ctx, lab, x + 16, y + 10, 28, 800, '#FFFFFF', 'left', 28); return 46;
+}
+function k2tag(ctx, s, x, y, anchor, bg, px = 30) {          // a label in a black (or green) box; x is its left, right or centre
+  s = k2s(s, 60); if (!s.trim()) return null;
+  ctx.font = kfont(800, px); while (ctx.measureText(s).width > 440 && px > 16) { px -= 2; ctx.font = kfont(800, px); }
+  const tw = ctx.measureText(s).width, w = tw + 32, h = px * KIT.NORMAL + 12, x0 = anchor === 'right' ? x - w : anchor === 'center' ? x - w / 2 : x;
+  ctx.fillStyle = bg || K2.BLACK; ctx.fillRect(x0, y, w, h);
+  k2line(ctx, s, AR.test(s) ? x0 + w - 16 : x0 + 16, y + 6, px, 800, '#FFFFFF', AR.test(s) ? 'right' : 'left'); return [x0, y, w, h];
+}
+// a column of text: {num} the number box, {html, px, lh, w, color, accent, bold, mt, mb, width} a paragraph, {name} the line under
+// the title (Latin in the mono face), {gap}. Laid out from `top`, right-aligned at R (or centred on R - width / 2), all shrunk
+// together (down to 55 %) until it ends above `bottom`. dry: measure only.
+function k2wrap(ctx, toks, width, px, weight, bs) {        // v135: wrap with <b> words 'bs' times bigger
+  ctx.font = kfont(weight, px); const sp = ctx.measureText(' ').width;
+  const lines = []; let line = [], w = 0;
+  for (const t of toks) {
+    const tp = t.b ? px * bs : px; ctx.font = kfont(t.b ? 800 : weight, tp); const tw = ctx.measureText(t.t).width; const gap = line.length && !t.glue ? sp : 0;
+    if (line.length && w + gap + tw > width) { lines.push(line); line = []; w = 0; }
+    line.push({ ...t, w: tw, px: tp, gap: line.length && !t.glue ? sp : 0 }); w += (line.length > 1 ? line[line.length - 1].gap : 0) + tw;
+  }
+  if (line.length) lines.push(line);
+  return lines;
+}
+function k2drawLines(ctx, lines, right, top, px, lh, weight, color, accent) {   // one baseline for the line, whatever each word's size
+  let y = top; ctx.font = kfont(weight, px); const m0 = ctx.measureText('ب A'), A = m0.fontBoundingBoxAscent || px * .8, D = m0.fontBoundingBoxDescent || px * .2;
+  for (const line of lines) {
+    let x = right;
+    for (const t of line) {
+      x -= t.gap; ctx.font = kfont(t.b ? 800 : weight, t.px || px); ctx.fillStyle = t.b ? accent : color;
+      ctx.direction = 'rtl'; ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+      ctx.fillText(t.t, x, y + (lh - A - D) / 2 + A); x -= t.w;
+    }
+    y += lh;
+  }
+  return y;
+}
+function k2item(ctx, it, R, cx, y, align) {                // draws one paragraph item of k2text
+  const dl = it.k2b ? k2drawLines : drawLines;
+  if (align === 'center') { for (const ln of it.lines) { const lw = ln.reduce((a, t) => a + t.w + t.gap, 0); dl(ctx, [ln], cx + lw / 2, y, it.px, it.px * it.lh, it.w || 500, it.color, it.accent || it.color); y += it.px * it.lh; } return y; }
+  return dl(ctx, it.lines, R, y, it.px, it.px * it.lh, it.w || 500, it.color, it.accent || it.color);
+}
+function k2text(ctx, items, R, width, top, bottom, align = 'right', dry = false, opt = {}) {
+  const build = (f) => {
+    let h = 0;
+    const out = items.map((it) => {
+      if (it.num) { h += 46; return it; }
+      if (it.gap) { h += it.gap * f; return it; }
+      if (it.name !== undefined) {
+        const s = k2s(it.name, 160), lat = !AR.test(s), fam = lat ? 'Menlo, Consolas, "Courier New", monospace' : null;
+        let px = (lat ? 24 : 30) * f; ctx.font = fam ? `600 ${px}px ${fam}` : kfont(500, px);
+        while (ctx.measureText(s).width > (it.width || width) && px > 12) { px -= 1; ctx.font = fam ? `600 ${px}px ${fam}` : kfont(500, px); }
+        const lh = lat ? px * 1.2 : px * 1.55, x = { ...it, s, px, fam, lh, hh: lh }; h += 6 * f + lh + 14 * f; return x;
+      }
+      if (it.kick !== undefined) {                         // v135: the big word, fitted to the width, at most 2 lines
+        const ww = it.width || width, txt = lvUnent(k2s(it.kick, 80).replace(/<[^>]*>/g, '')), html = esc(txt), lw = (ls) => Math.max(0, ...ls.map((l) => l.reduce((a, t) => a + t.w + t.gap, 0)));
+        let px = 130 * Math.min(f, 1), ls = wrap(ctx, tokens(html, true), ww, px, 800), cut = false;
+        while ((ls.length > 2 || lw(ls) > ww) && px > 40) { px -= 3; ls = wrap(ctx, tokens(html, true), ww, px, 800); }
+        while (lw(ls) > ww && px > 12) { px -= 2; ls = wrap(ctx, tokens(html, true), ww, px, 800); }   // one long word: until it fits the column
+        if (ls.length > 2) {                               // still more than 2 lines: the second ends with «…»
+          cut = true; ls = ls.slice(0, 2); const last = ls[1].slice(); ctx.font = kfont(800, px); const ew = ctx.measureText('…').width;
+          while (last.length > 1 && last.reduce((a, t) => a + t.w + t.gap, 0) + ew > ww) last.pop();
+          last.push({ t: '…', b: true, glue: true, w: ew, gap: 0 }); ls[1] = last;
+        }
+        const x = { html, bold: true, px, lh: 1.1, w: 800, color: it.color, accent: it.color, mt: 6, mb: 14, lines: ls, hh: ls.length * px * 1.1, kickPx: px, kickCut: cut };
+        h += 6 * f + x.hh + 14 * f; return x;
+      }
+      const px = it.px * f, bs = it.bscale > 1 && /<b>/.test(k2s(it.html, 2000)) ? it.bscale : 0;
+      const lines = k2s(it.html, 2000).split(/\n+/).filter((p) => p.trim()).flatMap((p) => (bs ? k2wrap(ctx, tokens(p, !!it.bold), it.width || width, px, it.w || 500, bs) : wrap(ctx, tokens(p, !!it.bold), it.width || width, px, it.w || 500))), hh = lines.length * px * it.lh;
+      if (bs) { h += (it.mt || 0) * f + hh + (it.mb || 0) * f; return { ...it, px, lines, hh, k2b: true }; }
+      h += (it.mt || 0) * f + hh + (it.mb || 0) * f; return { ...it, px, lines, hh };
+    });
+    return { out, h };
+  };
+  let f = 1, lay = build(f);
+  while (top + lay.h > bottom && f > .55) { f = Math.round((f - .05) * 100) / 100; lay = build(f); }
+  const gmax = typeof opt.grow === 'number' && opt.grow > 1 ? Math.min(1.4, opt.grow) : 1;   // v135: grow into empty room
+  while (f >= 1 && f + .05 <= gmax + 1e-9) { const g = Math.round((f + .05) * 100) / 100, l2 = build(g); if (top + l2.h > bottom) break; f = g; lay = l2; }
+  if (dry) return { h: lay.h, fit: f };
+  let y = top + (opt.center ? Math.max(0, (bottom - top - lay.h) / 2) : 0); const cx = R - width / 2;
+  for (const it of lay.out) {
+    if (it.num) { k2numBox(ctx, it.num, R, y, it.bg, align === 'center' ? cx : 0); y += 46; continue; }
+    if (it.gap) { y += it.gap * f; continue; }
+    if (it.fam !== undefined) {
+      y += 6 * f; ctx.globalAlpha = 1;
+      k2line(ctx, it.s, align === 'center' ? cx : R, y, it.px, it.fam ? 600 : 500, it.color || K2.MUTED, align === 'center' ? 'center' : 'right', it.lh, it.fam);
+      y += it.lh + 14 * f; continue;
+    }
+    y += (it.mt || 0) * f;
+    y = k2item(ctx, it, R, cx, y, align);
+    y += (it.mb || 0) * f;
+  }
+  const kk = lay.out.find((x) => x.kickPx);
+  return { y, fit: f, h: lay.h, top: top + (opt.center ? Math.max(0, (bottom - top - lay.h) / 2) : 0), kickPx: kk?.kickPx, kickCut: kk?.kickCut };
+}
+async function k2logo(ctx, s, white) {                       // the Time Keeper overlay: White on a photo, Black on paper (s.logo overrides)
+  const w = s?.logo === 'white' ? true : s?.logo === 'black' ? false : white;
+  const ov = await kitImg(`carousel-kit/${w ? 'White' : 'Black'}_temp.png`); if (ov) ctx.drawImage(ov, 0, -25, KIT.W, KIT.H);
+}
+async function kit2Cover(ctx, spec, base, c, info) {        // the Day-Date cover: the whole photo, a dark box with the two lines
+  const W = KIT.W, H = KIT.H, im = await kitPic(base, c.image);
+  ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, H);
+  k2pic(ctx, im, 0, 0, W, H, k2opt(c, { pos: [.5, .38] }));
+  const swipe = c.swipe !== false, SW = '▶▶ اسحب للمزيد'; ctx.font = kfont(800, 32); const sw = swipe ? ctx.measureText(SW).width + 28 : 0;
+  const items = [{ html: k2s(c.top, 300), px: 64, lh: 1.12, w: 800, color: '#FFFFFF', accent: K2.MINT, bscale: 1.15 }];
+  if (k2s(c.bottom).trim()) items.push({ html: k2s(c.bottom, 300), px: 36, lh: 1.55, w: 500, color: K2.LIGHT, mt: 10, width: 900 - sw });
+  else if (swipe) items.push({ gap: 56 });
+  const m = k2text(ctx, items, 990, 900, 0, 760, 'right', true), bh = m.h + 72, by = H - 70 - bh;
+  ctx.fillStyle = 'rgba(17,17,17,.9)'; ctx.fillRect(50, by, 980, bh);
+  const r = k2text(ctx, items, 990, 900, by + 36, by + 36 + m.h + .5);
+  if (swipe) { const t = by + bh - 30 - 32 * KIT.NORMAL; ctx.font = kfont(800, 32); ctx.fillStyle = K2.MINT; ctx.direction = 'rtl'; ctx.textAlign = 'left'; ctx.textBaseline = 'middle'; ctx.fillText(SW, 90, t + 32 * KIT.NORMAL / 2); info.swipeY = t; }
+  await k2logo(ctx, c, true);
+  info.coverPx = Math.round(KIT.SIZE.cover * r.fit); info.fit = r.fit; info.layout = 'photo';
+  return info;
+}
+async function kit2Slide(ctx, spec, base, k, s, n, name, info) {
+  const W = KIT.W, H = KIT.H, acc = spec.accent || KIT.GREEN, ink = spec.ink || K2.INK, paper = spec.paper || K2.PAPER, G = KIT.GREEN;
+  const lab = `${String(k).padStart(2, '0')} / ${String(n).padStart(2, '0')}`, list = (a, m) => (Array.isArray(a) ? a : []).filter((x) => k2o(x) || typeof x === 'string').slice(0, m);
+  const srcOf = (x) => (typeof x === 'string' ? x : x.image);
+  ctx.fillStyle = paper; ctx.fillRect(0, 0, W, H);
+  const T = (o = {}) => [                                  // the design's column: number, title, name, body, the reader's question
+    { num: lab, bg: o.numBg },
+    ...(s.title && !o.noTitle ? [{ html: s.title, bold: true, px: o.tpx || 64, lh: 1.12, w: 800, color: o.tc || ink, accent: o.tc || ink, mt: o.tmt ?? 16, mb: o.tmb ?? 4 }] : [{ gap: o.tmt ?? 14 }]),
+    ...(typeof s.name === 'string' && s.name.trim() && !o.noName ? [{ name: s.name, color: o.nc }] : []),
+    ...(k2s(s.kicker).trim() ? [{ kick: s.kicker, color: o.kc || acc }] : []),
+    ...(s.body ? [{ html: s.body, px: o.bpx || 36, lh: 1.55, w: 500, color: o.bc || K2.BODY, accent: o.bacc || acc, mt: o.bmt || 0, bscale: 1.15 }] : []),
+    ...(s.ask ? [{ html: s.ask, bold: true, px: o.apx || 46, lh: 1.3, w: 800, color: o.ac || acc, accent: o.ac || acc, mt: 24 }] : []),
+  ];
+  let r = null, white = false, picEnd = 0; const GO = { grow: k2n(s.grow, 1, 1, 1.4), center: s.valign === 'center' };   // v135: picEnd = where the picture above the text ends
+  info.layout = name;
+  if (name === 'split') {                                  // half photo, half text (01, 04)
+    const right = s.side === 'right', im = await kitPic(base, s.image);
+    k2pic(ctx, im, right ? 540 : 0, 0, 540, H, k2opt(s));
+    if (k2s(s.credit).trim()) k2line(ctx, k2s(s.credit, 90), right ? 556 : 16, H - 16 - 22, 16, 500, '#dddddd', 'left', 22, 'Menlo, Consolas, monospace');
+    r = k2text(ctx, T(), right ? 500 : 1020, 440, k2n(s.textTop, 300, 200, 900), 1290, 'right', false, GO);
+  } else if (name === 'callouts') {                        // the watch in a circle, labels pointing at its parts (02)
+    const im = await kitPic(base, s.image);
+    const cs = k2n(s.imageSize, 700, 360, 760); picEnd = 240 + cs; k2pic(ctx, im, (W - cs) / 2, 240, cs, cs, { ...k2opt(s, { pos: [.5, .45] }), circle: true });
+    for (const c of list(s.callouts, 6)) {
+      if (!k2o(c)) continue;
+      const left = c.side !== 'right', y = k2n(c.y, 470, 200, 960), x = k2n(c.x, 540, 60, 1020);
+      ctx.fillStyle = G; if (left) ctx.fillRect(120, y, Math.max(0, x - 120), 3); else ctx.fillRect(x, y, Math.max(0, 960 - x), 3);
+      k2tag(ctx, c.text, left ? 40 : 1040, y - 40, left ? 'left' : 'right', c.green ? G : K2.BLACK);
+    }
+    r = k2text(ctx, T(), 1010, 940, k2n(s.textTop, Math.max(990, 240 + cs + 20), 600, 1150), 1300, 'right', false, GO);
+  } else if (name === 'statement') {                       // one big sentence, a strip of photo under it (03, 10)
+    const im = s.image ? await kitPic(base, s.image) : null, sh = s.image ? k2n(s.strip, 300, 120, 520) : 0;
+    if (s.image) k2pic(ctx, im, 0, H - sh, W, sh, k2opt(s, { pos: [.5, .38] }));
+    const q = typeof s.quote === 'string' ? s.quote : s.title || '', big = k2plain(q).length <= 26;
+    const items = [{ num: lab }, { html: '«', px: big ? 150 : 130, lh: 1, w: 800, color: acc, mt: big ? 20 : 16 },
+      { html: q, bold: true, px: big ? 96 : 80, lh: big ? 1.15 : 1.2, w: 800, color: ink, accent: ink }];
+    if (k2s(s.kicker).trim()) items.push({ kick: s.kicker, color: acc });
+    if (s.body) items.push({ html: s.body, px: 36, lh: 1.55, w: 500, color: K2.BODY, accent: acc, mt: big ? 30 : 24, bscale: 1.15 });
+    if (s.ask) items.push({ html: s.ask, bold: true, px: 46, lh: 1.3, w: 800, color: acc, accent: acc, mt: 24 });
+    r = k2text(ctx, items, 1000, 920, k2n(s.textTop, big ? 260 : 250, 200, 700), s.image ? H - sh - 30 : 1290, 'right', false, GO);
+    info.noTitle = typeof s.quote === 'string';
+  } else if (name === 'bigNumber') {                       // a huge year, the watch and the text beside it (07)
+    const big = k2s(s.big, 12); let px = 380; ctx.font = kfont(800, px);
+    while (ctx.measureText(big).width > 1000 && px > 120) { px -= 10; ctx.font = kfont(800, px); }
+    if (big) { k2line(ctx, big, 1040, 250, px, 800, acc, 'right', px); picEnd = 250 + px * .9; }
+    const is = k2n(s.imageSize, 420, 300, 560), im = await kitPic(base, s.image); k2pic(ctx, im, 70, 640, is, is, k2opt(s, { pos: [.5, .42] }));
+    r = k2text(ctx, T({ tpx: 56, tmt: 14, tmb: 10, bpx: 33 }), 1010, 470 - (is - 420), k2n(s.textTop, 650, 300, 1000), 1300, 'right', false, GO);
+  } else if (name === 'compare') {                         // two pictures side by side, a label under each (05)
+    const xs = list(s.images, 2);
+    for (let i = 0; i < xs.length; i++) {
+      const it = xs[i], x = i === 0 ? 560 : 60, im = await kitPic(base, srcOf(it));
+      const ih = k2n(s.imageH, 640, 300, 760); picEnd = 255 + ih + 30 * KIT.NORMAL + 12; k2pic(ctx, im, x, 240, 460, ih, k2opt(it));
+      if (k2o(it) && it.label) k2tag(ctx, it.label, x + 230, 255 + ih, 'center', it.green ? G : K2.BLACK);
+    }
+    r = k2text(ctx, T({ tpx: 58, tmt: 14, tmb: 8 }), 1010, 940, k2n(s.textTop, Math.max(980, 255 + k2n(s.imageH, 640, 300, 760) + 70), 600, 1150), 1300, 'right', false, GO);
+  } else if (name === 'zoom') {                            // a big picture, a circle that zooms on its detail (06, 08)
+    const mh = k2n(s.imageH, 820, 400, 1000), im = await kitPic(base, s.image); picEnd = mh;
+    k2pic(ctx, im, 0, 0, W, mh, k2opt(s));
+    const z = k2o(s.inset) ? s.inset : null; let tx = 0;
+    if (z) {
+      const sz = k2n(z.size, 320, 160, 460), x = k2n(z.x, 60, 0, W - sz), y = k2n(z.y, mh - 120, 0, H - sz), zi = z.image ? await kitPic(base, z.image) : im;
+      ctx.fillStyle = paper; ctx.beginPath(); ctx.arc(x + sz / 2, y + sz / 2, sz / 2, 0, Math.PI * 2); ctx.fill();
+      k2pic(ctx, zi, x + 10, y + 10, sz - 20, sz - 20, { ...k2opt(z), circle: true }); tx = x + sz;
+    }
+    r = k2text(ctx, T(), 1010, tx ? Math.min(620, 1010 - tx - 30) : 940, k2n(s.textTop, mh + 50, 300, 1150), 1300, 'right', false, GO);
+  } else if (name === 'timeline') {                        // years on a green line, a picture for each (09)
+    const xs = list(s.images, 6).filter(k2o), tt = k2n(s.textTop, 990, 600, 1150), m = Math.max(1, xs.length), step = Math.min(225, Math.floor((tt - 275) / m));
+    ctx.fillStyle = G; ctx.fillRect(898, 250, 4, Math.max(0, 235 + (m - 1) * step + 190 - 250));
+    for (let i = 0; i < xs.length; i++) {
+      const it = xs[i], y0 = 235 + i * step, hi = !!it.hi, col = hi ? K2.RED : G;
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(901, y0 + 40, 16, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = paper; ctx.beginPath(); ctx.arc(901, y0 + 40, 13, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = col; ctx.beginPath(); ctx.arc(901, y0 + 40, 8, 0, Math.PI * 2); ctx.fill();
+      if (k2s(it.year).trim()) k2line(ctx, k2s(it.year, 10), 1040, y0 + 21, 40, 800, ink, 'right');
+      if (k2s(it.label).trim()) { const px = hi ? 40 : 32, ls = wrap(ctx, tokens(esc(k2s(it.label, 80))), 420, px, 800).slice(0, 2); drawLines(ctx, ls, 850, y0 + 17, px, px * KIT.NORMAL, 800, hi ? K2.RED : ink, hi ? K2.RED : ink); }
+      const im = await kitPic(base, it.image); k2pic(ctx, im, 70, y0, (hi ? 60 : 0) + Math.min(k2n(s.thumb, 240, 160, 340), 360 - (hi ? 60 : 0)), s.thumb ? step - 18 : Math.min(hi ? 200 : 150, step + (hi ? 25 : -20)), k2opt(it));
+    }
+    r = k2text(ctx, T(), 1010, 940, tt, 1300, 'right', false, GO);
+  } else if (name === 'grid') {                            // up to four pictures in a grid, each with its label
+    r = k2text(ctx, T({ tpx: 56, bpx: 33 }), 1010, 940, k2n(s.textTop, 250, 200, 600), 760);
+    const xs = list(s.images, 4), rows = Math.ceil(xs.length / 2), y0 = r.y + 30, ch = rows ? (1290 - y0 - 30 * (rows - 1)) / rows : 0;
+    for (let i = 0; i < xs.length && ch > 60; i++) {
+      const it = xs[i], x = i % 2 === 0 ? 560 : 70, y = y0 + Math.floor(i / 2) * (ch + 30), im = await kitPic(base, srcOf(it));
+      k2pic(ctx, im, x, y, 450, ch, k2opt(it));
+      if (k2o(it) && (it.year || it.label)) k2tag(ctx, it.year || it.label, x + 14, y + 14, 'left', it.green ? G : K2.BLACK);
+    }
+  } else if (name === 'scrapbook') {                       // two polaroids on the paper, taped (an album)
+    const xs = list(s.images, 2), P = [[520, 300, 5], [90, 260, -6]];
+    for (let i = xs.length - 1; i >= 0; i--) {
+      const it = xs[i], [x, y, deg] = P[i], im = await kitPic(base, srcOf(it));
+      ctx.save(); ctx.translate(x + 230, y + 280); ctx.rotate(deg * Math.PI / 180); ctx.translate(-230, -280);
+      ctx.shadowColor = 'rgba(0,0,0,.5)'; ctx.shadowBlur = 30; ctx.shadowOffsetY = 18; ctx.fillStyle = '#FFFFFF'; ctx.fillRect(0, 0, 460, 560); ctx.shadowColor = 'transparent';
+      k2pic(ctx, im, 16, 16, 428, 474, k2opt(it));
+      if (k2o(it) && (it.label || it.year)) k2line(ctx, k2s(it.label || it.year, 40), 230, 560 - 16 - 30 * KIT.NORMAL, 30, 800, ink, 'center');
+      ctx.restore();
+    }
+    if (xs.length > 1) { ctx.save(); ctx.translate(525, 276); ctx.rotate(-4 * Math.PI / 180); ctx.fillStyle = 'rgba(232,220,190,.85)'; ctx.fillRect(-95, -26, 190, 52); ctx.restore(); }
+    r = k2text(ctx, T({ tmb: 10 }), 1000, 920, k2n(s.textTop, 940, 700, 1150), 1300, 'center');
+  } else {                                                 // overlay: the whole photo, the text in a dark box at the bottom
+    const im = await kitPic(base, s.image); ctx.fillStyle = '#111'; ctx.fillRect(0, 0, W, H);
+    k2pic(ctx, im, 0, 0, W, H, k2opt(s, { pos: [.5, .4] }));
+    const items = T({ numBg: G, tc: '#FFFFFF', tmb: 10, nc: '#cfc9bd', bc: K2.LIGHT, bacc: K2.MINT, ac: K2.MINT });
+    const m = k2text(ctx, items, 990, 900, 0, 820, 'right', true), bh = m.h + 72, by = H - 70 - bh;
+    ctx.fillStyle = 'rgba(17,17,17,.88)'; ctx.fillRect(50, by, 980, bh);
+    r = k2text(ctx, items, 990, 900, by + 36, by + 36 + m.h + .5); white = true;
+  }
+  await k2logo(ctx, s, white);
+  info.textBottom = r ? r.y : 0; info.fit = r ? r.fit : 1;
+  if (r && picEnd && r.top < picEnd - 2) info.overlap = true;   // v135: the text starts on the picture
+  if (r && r.kickPx && (r.kickCut || r.kickPx < 70)) info.kickLong = true;
+  if (info.noTitle === undefined) info.noTitle = !s.title;
+  return info;
+}
 const words = (h) => (h || '').replace(/<[^>]+>/g, ' ').split(/\s+/).filter((w) => /[\w؀-ۿ]/.test(w));
 const toMark = (h) => (h || '').replace(/<b>([\s\S]*?)<\/b>/g, '**$1**');
 const fromMark = (t) => esc(t || '').replace(/\*\*([\s\S]+?)\*\*/g, '<b>$1</b>');
 function kitWarnings(spec, k, info) {
   const out = [], avoid = (lib?.languages?.[spec.language || 'kuwaiti']?.avoid) || [];
-  const said = k === 0 ? `${spec.cover.top || ''} ${spec.cover.bottom || ''}` : `${spec.slides[k - 1].title} ${spec.slides[k - 1].body} ${spec.slides[k - 1].ask || ''}`;
+  const said = k === 0 ? `${(spec.cover || {}).top || ''} ${(spec.cover || {}).bottom || ''}` : `${spec.slides[k - 1].title || ''} ${spec.slides[k - 1].body || ''} ${spec.slides[k - 1].ask || ''} ${typeof spec.slides[k - 1].quote === 'string' ? spec.slides[k - 1].quote : ''}`;
   const hit = avoid.filter((w) => new RegExp(`(^|[^\\u0621-\\u064A])[وف]?${w}([^\\u0621-\\u064A]|$)`).test(said.replace(/<[^>]+>/g, ' ')));
   if (hit.length) out.push(`كلمات مو كويتية: ${hit.join('، ')}`);
   if (k === 0) {
-    const n = ((spec.cover.top || '') + (spec.cover.bottom || '')).length;
+    const n = (((spec.cover || {}).top || '') + ((spec.cover || {}).bottom || '')).length;
     if (n > 73) out.push(`الغلاف ${n} حرف؛ الحد 73`);
     if (info.coverPx < 60) out.push('السطر طويل: الخط صغر');
     return out;
   }
-  const s = spec.slides[k - 1], n = words(s.body).length + words(s.ask).length, t = words(s.title).length;
+  const s = spec.slides[k - 1], n = words(s.body).length + words(s.ask).length + (info.fit !== undefined && typeof s.quote === 'string' ? words(s.quote).length : 0), t = words(s.title).length;
   const [lo, hi] = spec.news ? [3, 14] : [12, 32];   // v9: a news carousel is one short fact a slide (director/carousel.py NEWS_WORDS)
   if (n < lo || n > hi) out.push(`${n} كلمة؛ الشريحة من ${lo} لـ${hi}`);
-  if (t < 2 || t > 4) out.push(`العنوان ${t} كلمات؛ من 2 لـ4`);
+  if (!info.noTitle && (t < 2 || t > 4)) out.push(`العنوان ${t} كلمات؛ من 2 لـ4`);
   if (info.figH !== undefined && ['topImage', 'bottomImage'].includes(info.layout) && info.figH < KIT.PIC_MIN) out.push('النص طويل: الصورة صغرت وايد، اختصره');
   else if (info.figTop !== undefined && info.layout === 'bigCorner' && info.textBottom > info.figTop - 8) out.push('النص يدخل على الصورة: اختصره');
   else if (info.textBottom > KIT.H) out.push('النص طويل: ينزل تحت الشريحة');
+  if (info.fit !== undefined && info.fit < .85) out.push('النص طويل: الخط صغر، اختصره');
+  if (info.overlap) out.push('الصورة تغطي على النص: نزّل النص أو صغّر الصورة');
+  if (info.kickLong) out.push('الكلمة الكبيرة طويلة، اختصرها');
   if (k === spec.slides.length && !(s.ask || '').trim().endsWith('؟')) out.push('آخر شريحة تنتهي بسؤال للقارئ (؟)');
   return out;
 }
@@ -4836,7 +5534,7 @@ function refresh() {                                                // live data
   if ((location.hash || '').startsWith('#edit-') && document.getElementById('kit')) { staleBar(); return; }   // nor an edit in progress (v7: but say so if it changed)
   if (ownRedraw()) { route(); return; }   // v10 (S20): his own tap landed: show it, no «فيه نسخة يديدة»
   const v = document.querySelector('video'), t = document.getElementById('note');
-  if ((v && !v.paused) || (t && t.value.trim()) || document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.id === 'iglink') { staleBar(); return; }
+  if ((v && !v.paused) || (t && t.value.trim()) || stDirty() || document.activeElement?.tagName === 'TEXTAREA' || document.activeElement?.id === 'iglink') { staleBar(); return; }
   if ((v && v.currentTime > 0) || document.querySelector('.wd[aria-pressed="true"]')) { staleBar(); return; }
   if ((clip && !clip.a.paused) || document.activeElement?.tagName === 'INPUT' || (document.getElementById('revnote')?.value || '').trim()) { staleBar(); return; }   // nor a voice playing or a note being written   // a paused film keeps its place while words are marked
   route();
@@ -4856,6 +5554,7 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
     }, (e) => { loadErr = 'snap'; try { console.warn('studio films', e); } catch (x) {} ready = true; refresh(); });
     db.doc('studio/now').onSnapshot((d) => { now = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/costs').onSnapshot((d) => { costs = d.exists ? d.data() : null; refresh(); }, () => {});
+    db.doc('studio/carousel_styles').onSnapshot((d) => { carLib = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/purge').onSnapshot((d) => { purgeDoc = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/flow').onSnapshot((d) => { flowDoc = d.exists ? flowGuard(d.data()) : null; refresh(); }, () => {});
     db.collection('ideas').onSnapshot((snap) => { ideas = snap.docs.map((d) => ({ id: d.id, ...d.data() })); refresh(); }, () => {});
@@ -4864,7 +5563,7 @@ fetch('library.json').then((r) => r.json()).then((j) => { lib = j; route(); }).c
     db.doc('studio/topics').onSnapshot((d) => { topics = d.exists ? d.data() : {}; refresh(); }, () => {});
     db.doc('studio/recipe').onSnapshot((d) => { recipe = d.exists ? d.data() : null; refresh(); }, () => {});
     db.doc('studio/brief').onSnapshot((d) => { brief = d.exists ? d.data() : null; refresh(); }, () => {});
-    db.doc('studio/brand').onSnapshot((d) => { brand = d.exists ? d.data() : null; kitFonts = null; if (ed) kitPaint(); }, () => {});   // v9 (KIT): the brand font assets
+    db.doc('studio/brand').onSnapshot((d) => { brand = d.exists ? d.data() : null; kitFonts = null; if (ed) kitPaint(); if (document.getElementById('slc')) lvPaint(true); }, () => {});   // v9 (KIT): the brand font assets
     db.doc('studio/ig').onSnapshot((d) => { if (d.exists && (!ig || igCached) && d.data().page) { ig = d.data().page; igAt = d.data().at; igCached = true; refresh(); } }, () => {});
     db.doc('studio/ig_choices').onSnapshot((d) => { igChoices = d.exists ? d.data() : {}; refresh(); }, () => {});
     mcp = await window.claude.use('mcp').catch(() => null);
