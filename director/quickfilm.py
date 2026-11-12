@@ -109,8 +109,20 @@ def house(film: dict) -> bool:
 
 
 def house_names(film: dict) -> dict:
-    """Arabic on screen → said in its own language: the brand's names, the foreign places, the film's own `names:`."""
-    return B.names(film.get('brand', 'timekeeper'), {**FOREIGN_PLACES, **(film.get('names') or {})})
+    """Arabic on screen → said in its own language: the brand's names, the foreign places, the film's own `names:`
+    (only its Arabic → name pairs: a list, or a name → Arabic pair, names what the script keeps in Latin, below)."""
+    own = film.get('names')
+    own = {k: v for k, v in own.items() if not re.search(r'[A-Za-z]', str(k))} if isinstance(own, dict) else {}
+    return B.names(film.get('brand', 'timekeeper'), {**FOREIGN_PLACES, **own})
+
+
+def script_names(film: dict) -> list[str]:
+    """The film's own names as they are written in Latin letters: `names:` as a list («Trieste»), or as pairs either
+    way round (Arabic → the name, or the name → its Arabic). The script and the screen may keep them in Latin (the
+    voice gate's rule 16 check); what the voice is given is checked on its own."""
+    own = film.get('names') or []
+    items = [x for kv in own.items() for x in kv] if isinstance(own, dict) else own if isinstance(own, (list, tuple)) else [own]
+    return [str(x) for x in items if re.search(r'[A-Za-z]', str(x))]
 
 
 # House words (rule 9e): only what the published news (1,792 final #tk_ posts) almost never writes, or the owner ruled out

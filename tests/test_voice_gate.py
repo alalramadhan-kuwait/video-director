@@ -41,7 +41,8 @@ class Screen(unittest.TestCase):
 class Recording(unittest.TestCase):
     def run_flow(self, lines, *extra, **top):
         d = Path(tempfile.mkdtemp())
-        (d / 's.json').write_text(json.dumps({'lines': lines, 'kw_ok': top.get('kw_ok', []), 'rules_ok': top.get('rules_ok', [])},
+        (d / 's.json').write_text(json.dumps({'lines': lines, 'kw_ok': top.get('kw_ok', []), 'rules_ok': top.get('rules_ok', []),
+                                              **({'names': top['names']} if 'names' in top else {})},
                                              ensure_ascii=False), encoding='utf-8')
         with mock.patch.object(record_flow, 'speak', side_effect=RuntimeError('PAID')) as sp:
             try:
@@ -67,6 +68,45 @@ class Recording(unittest.TestCase):
     def test_a_clean_script_reaches_the_voice(self):
         rc, paid, gate = self.run_flow([{'n': 1, 'text': 'ساعة بدون بطارية'}], kw_ok=['ساعة', 'بدون', 'بطارية'])
         self.assertEqual(rc, 'PAID'); self.assertTrue(paid); self.assertTrue(gate['passed'])
+
+    # 11 Nov 2026: the gate stopped a take on «Trieste» in the script text although the film named it in `names`
+    TRIESTE = [{'n': 1, 'text': 'غواصة Trieste نزلت', 'say': 'غواصة تريستي نزلت'}]
+    KW = ['غواصة', 'تريستي', 'نزلت', 'Trieste']
+
+    def test_a_films_own_name_may_stay_in_latin_in_the_script(self):
+        rc, paid, gate = self.run_flow(self.TRIESTE, kw_ok=self.KW)
+        self.assertEqual(rc, 5); self.assertFalse(paid)                       # not named: rule 16 still stops it
+        self.assertTrue(any('script' in p and 'Trieste' in p for p in gate['problems']))
+        for names in ({'Trieste': 'تريستي'}, ['Trieste'], {'تريستي': 'Trieste'}):   # the name → Arabic, a list, Arabic → the name
+            rc, paid, gate = self.run_flow(self.TRIESTE, kw_ok=self.KW, names=names)
+            self.assertEqual((rc, paid, gate['problems']), ('PAID', True, []), names)
+
+    def test_a_films_own_name_on_screen_too_and_only_that_name(self):
+        lines = [{**self.TRIESTE[0], 'screen': 'Trieste · 1960'}]
+        self.assertEqual(self.run_flow(lines, kw_ok=self.KW, names=['Trieste'])[0], 'PAID')
+        rc, paid, gate = self.run_flow([{**self.TRIESTE[0], 'screen': 'Trieste DEEP'}], kw_ok=self.KW, names=['Trieste'])
+        self.assertEqual(rc, 5); self.assertFalse(paid); self.assertTrue(any('DEEP' in p for p in gate['problems']))
+
+    def test_the_voice_still_gets_the_name_in_arabic(self):
+        # without `say`, the Latin name would reach the voice: a list or a name → Arabic pair does not clear that
+        for names in (['Trieste'], {'Trieste': 'تريستي'}):
+            rc, paid, gate = self.run_flow([{'n': 1, 'text': 'غواصة Trieste نزلت'}], kw_ok=self.KW, names=names)
+            self.assertEqual(rc, 5); self.assertFalse(paid)
+            self.assertEqual([p for p in gate['problems'] if '(script)' in p or '(screen)' in p], [])
+            self.assertTrue(any('(voice)' in p and 'Trieste' in p for p in gate['problems']))
+
+
+class FilmNames(unittest.TestCase):
+    def test_names_as_a_list_or_pairs_either_way(self):
+        from director import quickfilm
+        self.assertEqual(quickfilm.script_names({'names': ['Trieste', 'Jacques Piccard']}), ['Trieste', 'Jacques Piccard'])
+        self.assertEqual(quickfilm.script_names({'names': {'Trieste': 'تريستي'}}), ['Trieste'])
+        self.assertEqual(quickfilm.script_names({'names': {'تريستي': 'Trieste'}}), ['Trieste'])
+        self.assertEqual(quickfilm.script_names({}), [])
+        # a list used to crash («'list' object is not a mapping»); a name → Arabic pair never enters the said-as table
+        self.assertNotIn('Trieste', quickfilm.house_names({'names': ['Trieste']}))
+        self.assertNotIn('Trieste', quickfilm.house_names({'names': {'Trieste': 'تريستي'}}))
+        self.assertEqual(quickfilm.house_names({'names': {'تريستي': 'Trieste'}})['تريستي'], 'Trieste')
 
 
 if __name__ == '__main__':

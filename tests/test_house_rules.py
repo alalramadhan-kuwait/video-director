@@ -26,6 +26,14 @@ class Gate(unittest.TestCase):
         self.assertTrue(house.check_lines(lines))
         self.assertEqual(house.check_lines(lines, ok=['حركة']), [])
 
+    def test_a_jar_lid_is_not_a_watch_case(self):
+        # 11 Nov 2026: «مثل غطا العلبة» (a jar's lid) was flagged as a watch case
+        for good in ('تنفتح مثل غطا العلبة', 'مثل غطاء العلبة', 'غطا علبة مربى'):
+            self.assertEqual(house.check(good, 'x'), [], good)
+        for bad in ('العلبة من الذهب', 'غطا الساعة والعلبة ذهب', 'بالعلبة خدش', 'علبة ستيل'):
+            self.assertTrue(any('قالب' in m for m in house.check(bad, 'x')), bad)
+        self.assertEqual(house.check_lines([{'text': 'العلبة من الذهب'}], ok=['علبة']), [])       # rules_ok still clears it
+
     def test_diacritics_do_not_hide_a_word(self):
         self.assertTrue(house.check('ينلف زنْبرك صْغير', 'x'))
 

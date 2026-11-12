@@ -103,6 +103,15 @@ any paid take, `tools/record_flow.py` applies the owner's word book and stops on
   (`--why`). Its result is saved with the take (`gate.json`); a take without a passed `gate.json` is never sent to the
   owner. Why: on 10 Nov 2026 a take recorded outside it carried English letters in the script and «28,800» as digits,
   which the voice read as «22,800».
+  **A take through the ElevenLabs connector** (no API key on the machine; the owner, 10 Nov 2026: «yes», to this
+  route, after «the connector of 11 labs will work in this chat»): `record_flow.py --prepare`, then send exactly
+  take.json's text, voice and model to the connector's speech tool, one take, then `record_flow.py --import`. Anything
+  else is a take outside the gate. `python3 tools/record_flow.py <film> --voice <id> --model <model> --prepare <dir>`
+  runs every check above (same refusals, same `--why` overrides) and writes `<dir>/gate.json` and `<dir>/take.json`
+  without any call; `python3 tools/record_flow.py <film> <voice_dir> --import <audio> --from <dir>` refuses unless that
+  gate passed on the same script, checks with local Whisper (if installed) that the audio reads take.json's text, cuts
+  it per line on Whisper's word times (else at the silences between lines) and writes `gate.json` beside the take. The
+  connector sends no voice settings or seed: the voice's own settings on ElevenLabs apply.
 - **Every take goes to the owner on the pronunciation review page** (the owner, 3 Nov 2026: «always send me the
   artifact to check each word pronunciation»): since 7 Nov 2026 that page is **the studio's «الصوت والنطق» view**
   (`#filmvoice-<film id>` on the studio, fed by the record's `voice`, `references/studio.md`); send its link with the
