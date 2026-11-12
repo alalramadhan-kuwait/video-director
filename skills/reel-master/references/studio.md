@@ -341,6 +341,12 @@ With every script sent for approval, write on the film:
   the style's gallery poster, marked as the library's sample), plus any AI style with its credit estimate.
 - A mechanism is drawn as one working train, every part meshing with the next (barrel → centre, third and fourth
   wheels → escape wheel → pallet fork → balance; the owner: «The gears all parts to be connected»), whatever the style.
+- **The tool that refuses:** `python3 tools/studio_gate.py <film record.json>` (or the record on stdin, `-`) before
+  any build or render. It exits 0 only when the record has `style_pick {by: 'owner', choice}`, or, for a pick he made
+  in chat, all three of: `flow.choice` set, `flow.stage: 'done'`, and the film-level `style_pick_chat {at, words}`.
+  **`style_pick_chat` is the back end's field** (the page never writes it): when he picks a style in chat, write his
+  own words in `words` and the real UTC time in `at`, together with the inbox row (`via: 'chat'`). A line in `changes`
+  is not a pick. Exit 1 prints the reason: show him the card and wait. There is no override.
 - Why: on 10 Nov 2026 «ابنِ ساعتك بإيدك» was built in a style he never saw, and the dot showed ✓.
 
 ## The house rules gate (v9, the owner, 8 Nov 2026; video-director #189)
