@@ -71,6 +71,13 @@ owner's edit, or a record has `edited: studio` with a version not yet in the log
 
 ## The log
 
+### 2026-11-10 · «ابنِ ساعتك بإيدك» فيديو v1 (asked in chat)
+- «The style stage was skipped… You marked الأسلوب ✓ and built «فيديو v1» without showing me the style card. I don't
+  like this style.»
+- Claude read «start the free work by itself» as leave to pick the style too, and the page drew the dot from `step`.
+- **Lesson:** a free build still needs his pick of the style. The card comes first; only his pick turns the dot ✓.
+- **Status:** rule (SKILL.md §6, `references/studio.md` «The style gate»), page change in the studio.
+
 ### 2026-11-10 · «ابنِ ساعتك بإيدك» voice v1 (asked in chat)
 - «are you aplying the rules ? espectiley the english words» · «therer should be a dateway where is if the rules are
   not apply it will not recored».

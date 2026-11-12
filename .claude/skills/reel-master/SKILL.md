@@ -199,6 +199,18 @@ any paid take, `tools/record_flow.py` applies the owner's word book and stops on
   the credits).
 
 ### 6. Choose the style from the library (owner)
+- **The style gate: no build starts until the owner picks a style** (the owner, 10 Nov 2026: «The style stage was
+  skipped… You marked الأسلوب ✓ and built «فيديو v1» without showing me the style card. I don't like this style»).
+  A studio film opens the style card first (`flow.stage: 'direction'`, three `direction_options`, each with a sample
+  picture `image` and a `cost` badge, free or paid; an AI style names its credit estimate). Only his own pick on that
+  card (an inbox row `kind: 'flow'` with `choice`, or his words in chat written as that row with `via: 'chat'`) opens
+  the build. A film with a video and no pick from him is refused the same way the voice gate refuses: nothing is
+  rendered, nothing is sent, and the film goes back to the card. A free route is no exception: «start the free work
+  by itself» (10 Nov) means the free work after his pick, never a style chosen for him.
+  **Run the gate before any build or render:** `python3 tools/studio_gate.py <film record.json>` (or the record on
+  stdin) exits 0 only when the record shows his pick: `style_pick {by: 'owner', choice}` from the page, or, for a pick
+  made in chat, `flow.choice` set, `flow.stage: 'done'` and `style_pick_chat {at, words}` (his own words, the real UTC
+  time). Otherwise it prints why and nothing is built. It has no override.
 Read the story (faces and acting? a mechanism or object? numbers? a period? luxury?) and recommend **three** styles
 from `references/style-library.md`, best first, each with why it fits, its trade-off, the tool and its cost; ask once
 with AskUserQuestion. Show a real still of this film in the engine looks when you can. The library:
