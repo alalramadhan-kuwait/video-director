@@ -72,7 +72,8 @@ split the research across parallel agents, one per angle, each saving notes with
 - **The close** (rule 6e): name the one fact the film leaves (`fact:`); the last lines return to the brand and the
   watch of the story, never ending on a lesson or a side story.
 - **Length:** the type's range. `python3 tools/script_library.py --check films/<film>.yaml` gives the spoken length
-  before any voice is paid for (`narration.chars_per_second`, about 10 for Jarnathan). Over budget: cut a fact,
+  before any voice is paid for (`narration.chars_per_second`: 10, measured on the earlier voice; Faisal's own takes run about 12.4 a second,
+  `voice.chars_per_second` in `brand/house_rules.yaml`, which the house check uses). Over budget: cut a fact,
   **never a bridge**, and never speed the voice up.
 - Beats, writing rules and the shot direction for each format: `references/story-engine.md`.
 - All the owner's standing rules for the story, the pictures, the look and the sound: `references/storytelling.md`
@@ -116,7 +117,9 @@ any paid take, `tools/record_flow.py` applies the owner's word book and stops on
   the same review. Apply the edits to the film file, re-record only the changed and added lines, cut the removed ones
   out of the take, and keep every line he did not touch as it was recorded.
 - **The voice:** «Faisal», the owner's cloned Kuwaiti voice, ElevenLabs `ACGeXdn44RW29fHPITsl` (the owner, 2 Nov 2026:
-  «I just added voice called faisal use it»), **on ElevenLabs v3 with emotion** (the owner chose it, «اعتمد ٢», over
+  «I just added voice called faisal use it»). **The model today:** `record_flow.py`'s default,
+  `eleven_multilingual_v2` (no `--model` needed; the studio's takes of 10–11 Nov 2026 use it); `--model eleven_v3` is
+  still there for a v3 take with emotion tags. What follows is how Faisal was tuned **on ElevenLabs v3 with emotion** (the owner chose it, «اعتمد ٢», over
   the older model, which read Faisal flat and in fusha): `python3 tools/record_flow.py films/<f>.yaml <dir> --voice
   ACGeXdn44RW29fHPITsl --model eleven_v3`, each line's `emotion:` («calm, curious», «proud», «sad, quietly»…) sent as an
   audio tag the voice performs and never says, the film's `voice.settings` (stability .5, speed .8) winning; the
@@ -258,7 +261,7 @@ Instagram through Supabase (`studio/ig`; screenshots only when the sync is down)
 | Topic | Older rule | The owner's rule now |
 |---|---|---|
 | Language | «Kuwaiti dialect, not MSA» (story-reel-script) | the house style: between fusha and Kuwaiti, from the final news posts (rule 9e) |
-| Voice | OmniVoice, or one file per line | one take of the whole script (`tools/record_flow.py`), the scenes laid on it, checked by `tools/hear_flow.py`; Jarnathan on ElevenLabs; OmniVoice/Fasih are the free fallback |
+| Voice | OmniVoice, or one file per line | one take of the whole script (`tools/record_flow.py`), the scenes laid on it, checked by `tools/hear_flow.py`; «Faisal», the owner's cloned voice, on ElevenLabs (`eleven_multilingual_v2`, record_flow's default); OmniVoice/Fasih are the free fallback |
 | Speed | `speed` to fit a shot | never sped up; cut the script |
 | Transitions | «no generic dissolves», whips on movement | dissolves inside an act, a push into a new act, no whips (rule 3b, 18e) |
 | Sound effects | synthesised kit (`pluck.py`, `sfx.py`, paper sounds) | real recordings only, ≤ 6 a minute, 16–20 dB under the voice |

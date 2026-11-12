@@ -16,6 +16,22 @@ A carousel's working folder (spec.json, caption.txt, its cut-outs and cover; cre
 on the page too, under `src/carousel/<id>/`, so any later session can change one slide and render it again; the
 scratch folder of the session that made it does not outlive that session.
 
+## The studio today (page v135, 11 Nov 2026)
+- **One chat is the studio's back end** (the owner, 11 Nov 2026): the one session on the studio Mac reads the inbox,
+  handles his taps, builds, and writes the records. No other session (cloud or local) answers studio taps, publishes
+  the page or writes a film record. Where this file says «several sessions» or «a scheduled task», read it as that
+  one chat.
+- **The scheduled checks are paused.** The hourly check and the weekly check (the purge question below) do not run;
+  the back-end chat checks the inbox itself. Do not re-create them unless the owner asks.
+- **His approval of a finished piece means `state: 'done'`.** An `approve` row with `finished: true` is handled by
+  writing `state: 'done'` (and the last step) on that version, ready for him to post. A step approval (script, voice,
+  style, sample) never sets `done`.
+- **Timestamps are the real UTC time.** Every time written to a record or an inbox row (`updated`, `changes[].at`,
+  `handled_at`, `media_at`, `checked_at`) is read from the clock at the moment of the write
+  (`date -u +%Y-%m-%dT%H:%M:%SZ`), never guessed, rounded or written in local time.
+- **A carousel is a KIT `spec`** drawn by this page's own code and edited by him live on the slide
+  (`references/carousel.md`, «Today»).
+
 ## Keep it current: at every step of SKILL.md
 Write `films/<film id>` when a step starts, when it ends, and when a gate waits for the owner. Fields:
 
@@ -107,7 +123,7 @@ inbox, and nobody could tell which rows were done): `handled_at`, `handled_by: '
 without `handled_at` is new. **Handling a row also bumps the film's `updated`** (with a `changes` line saying what
 was done): the page treats a film whose `last_action.at` is newer than `updated` as still waiting for Claude, and
 hides the voice marks and word options meanwhile. On 7 Nov 2026 the Dennison «ليش / الساعة» options were ready but
-hidden for this reason, and the owner had to send his marks twice. A scheduled task checks the studio every hour (unhandled rows, and films whose
+hidden for this reason, and the owner had to send his marks twice. A scheduled task checked the studio every hour (paused since 11 Nov 2026, «The studio today»: the back-end chat does this now) (unhandled rows, and films whose
 `last_action.at` is newer than `updated`), acts on them under the usual gates, and writes `studio/now.checked_at`; the
 page shows «آخر مرة شيّك Claude». **A decision the owner makes in chat is written to the inbox too** (`via: 'chat'`,
 his words quoted, `handled_at` set) and as a `changes` line, so the studio's history shows who approved what (G7).
