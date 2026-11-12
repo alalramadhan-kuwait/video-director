@@ -20,7 +20,8 @@ fix:            # always wrong; rewritten automatically
 
 flag:           # usually wrong; Claude rewrites the sentence (the word can be right in another sense)
   - {word: حركة, hint: "a watch's movement is «محرك» («بحركة مفروض تكون بمحرك»); keep «حركة» only for motion", when: 2026-11-08}
-  - {word: علبة, hint: "a watch case is «قالب»; a barrel is «باريل»", when: 2026-11-08}
+  # not after «غطا» / «غطاء»: «مثل غطا العلبة» is a jar's lid, not a watch case (11 Nov 2026)
+  - {word: علبة, pattern: '(?<!غطا )(?<!غطاء )(?<!\w)[وفبلك]?(?:ال)?علبة(?!\w)', hint: "a watch case is «قالب»; a barrel is «باريل»", when: 2026-11-08}
   - {word: ميزان, hint: "balance wheel «بالانس ويل»; escapement «إسكيبمنت»", when: 2026-11-08}
   - {word: زنبرك, hint: "mainspring «مين سبرينغ», hairspring «هير سبرينغ» (small parts keep their English name)", when: 2026-11-08}
   - {word: جسر, hint: "bridge «بريدج»", when: 2026-11-08}

@@ -53,7 +53,8 @@ def spoken_problems(spoken: list[str], R: dict | None = None, names=None) -> lis
 def screen_problems(lines: list[dict], R: dict | None = None, names=None) -> list[str]:
     """The script and the words on screen: an English technical term is written in Arabic letters (rule 16, the owner
     on 8 Nov 2026: «use the same English technical term, but write it in Arabic»). Digits are fine on screen. Only for
-    a house-style film (rule 9e); a film made before it (`house_style: false`, Halter) writes names in Latin."""
+    a house-style film (rule 9e); a film made before it (`house_style: false`, Halter) writes names in Latin.
+    `names`: the house names and the film's own (`names:`), which the script and the screen may keep in Latin."""
     ok, out = latin_ok(R) | name_words(names), []
     for i, ln in enumerate(lines, 1):
         for key in ('text', 'screen'):

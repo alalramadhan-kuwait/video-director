@@ -144,7 +144,8 @@ def write_wav(path: Path, data: bytes) -> None:
 
 
 def load(path: str) -> tuple[dict, bool]:
-    """The film and whether it is in the house style: a .yaml film, or a studio script as JSON."""
+    """The film and whether it is in the house style: a .yaml film, or a studio script as JSON (its `names`: the film's
+    own names, a list or pairs either way round; the script and the screen may keep them in Latin letters)."""
     if str(path).endswith('.json'):
         d = json.loads(Path(path).read_text(encoding='utf-8'))
         lines = [{'id': f"l{l.get('n', k + 1)}", 'text': l['text'], **({'say': l['say']} if l.get('say') else {}),
@@ -357,7 +358,9 @@ def main(argv=None) -> int:
     allsaid = [B.spoken(ln.get('say') or ln['text'], brand) for ln in film['lines']]
     # the voice gate: the words on screen and the exact text the voice gets; no override
     names = list(quickfilm.house_names(film).values()) if house_style else []
-    gate = voice_gate.spoken_problems(allsaid, names=names) + (voice_gate.screen_problems(film['lines'], names=names) if house_style else [])
+    # the film's own names (`names:`, a list or pairs) may stay in Latin in the script and on screen; the spoken text
+    # is not cleared by them: `say` writes the name in Arabic letters, or the owner clears it by ear (voice.latin_ok)
+    gate = voice_gate.spoken_problems(allsaid, names=names) + (voice_gate.screen_problems(film['lines'], names=names + quickfilm.script_names(film)) if house_style else [])
     record = {'passed': not gate, 'problems': gate, 'house_rules': broken, 'words': flags, 'delivery': problems, 'override_why': a.why}
     if not a.prepare:
         out.mkdir(parents=True, exist_ok=True)
